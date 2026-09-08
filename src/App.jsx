@@ -163,6 +163,19 @@ function getRoute() {
    * passent AVANT /game/:code.
    */
 
+  const identityMatch =
+    path.match(
+      /^\/game\/([^/]+)\/identity\/?$/
+    );
+
+  if (identityMatch) {
+    return {
+      screen: "identity",
+      code:
+        identityMatch[1].toUpperCase(),
+    };
+  }
+
   const calibrationMatch =
     path.match(
       /^\/game\/([^/]+)\/calibration\/?$/
@@ -279,6 +292,18 @@ function App() {
 
   if (
     route.screen ===
+    "identity"
+  ) {
+    return (
+      <IdentityScreen
+        code={route.code}
+        navigate={navigate}
+      />
+    );
+  }
+
+  if (
+    route.screen ===
     "calibration"
   ) {
     return (
@@ -367,7 +392,7 @@ function HomeScreen({ navigate }) {
       );
 
       navigate(
-        `/game/${createdGame.code}`
+        `/game/${createdGame.code}/identity`
       );
     } catch (err) {
       console.error(
@@ -541,9 +566,9 @@ function JoinScreen({ navigate }) {
         "2"
       );
 
-      navigate(
-        `/game/${normalized}`
-      );
+    navigate(
+      `/game/${normalized}/identity`
+    );
     } catch (err) {
       console.error(
         "JOIN ERROR:",
@@ -646,6 +671,340 @@ function JoinScreen({ navigate }) {
     </main>
   );
 }
+
+/* =========================================================
+   IDENTITY
+   ========================================================= */
+
+  function IdentityScreen({
+    code,
+    navigate,
+  }) {
+    const playerNumber = Number(
+      sessionStorage.getItem(
+        `protocol-player-${code}`
+      )
+    );
+
+    const [name, setName] =
+      useState("");
+
+    const [sex, setSex] =
+      useState(null);
+
+    const [loading, setLoading] =
+      useState(false);
+
+    const [initialLoading, setInitialLoading] =
+      useState(true);
+
+    const [error, setError] =
+      useState("");
+
+    useEffect(() => {
+      let active = true;
+
+      const loadIdentity =
+        async () => {
+          try {
+            const {
+              data,
+              error: loadError,
+            } = await supabase
+              .from("games")
+              .select(`
+                player_1_name,
+                player_1_sex,
+                player_2_name,
+                player_2_sex
+              `)
+              .eq("code", code)
+              .single();
+
+            if (loadError) {
+              throw loadError;
+            }
+
+            if (!active) {
+              return;
+            }
+
+            if (playerNumber === 1) {
+              setName(
+                data.player_1_name || ""
+              );
+
+              setSex(
+                data.player_1_sex || null
+              );
+            } else {
+              setName(
+                data.player_2_name || ""
+              );
+
+              setSex(
+                data.player_2_sex || null
+              );
+            }
+
+          } catch (err) {
+            console.error(
+              "IDENTITY LOAD ERROR:",
+              err
+            );
+
+            if (active) {
+              setError(
+                "Impossible de charger la partie."
+              );
+            }
+
+          } finally {
+            if (active) {
+              setInitialLoading(false);
+            }
+          }
+        };
+
+      loadIdentity();
+
+      return () => {
+        active = false;
+      };
+
+    }, [code, playerNumber]);
+
+
+    const saveIdentity =
+      async () => {
+        const cleanName =
+          name.trim();
+
+        if (
+          cleanName.length < 1 ||
+          !sex
+        ) {
+          return;
+        }
+
+        try {
+          setLoading(true);
+          setError("");
+
+          const updates =
+            playerNumber === 1
+              ? {
+                  player_1_name:
+                    cleanName,
+
+                  player_1_sex:
+                    sex,
+                }
+              : {
+                  player_2_name:
+                    cleanName,
+
+                  player_2_sex:
+                    sex,
+                };
+
+          const {
+            error: updateError,
+          } = await supabase
+            .from("games")
+            .update(updates)
+            .eq("code", code);
+
+          if (updateError) {
+            throw updateError;
+          }
+
+          navigate(
+            `/game/${code}`
+          );
+
+        } catch (err) {
+          console.error(
+            "IDENTITY SAVE ERROR:",
+            err
+          );
+
+          setError(
+            err?.message ||
+              "Impossible d'enregistrer."
+          );
+
+        } finally {
+          setLoading(false);
+        }
+      };
+
+
+    if (initialLoading) {
+      return (
+        <LoadingScreen />
+      );
+    }
+
+
+    if (
+      ![1, 2].includes(
+        playerNumber
+      )
+    ) {
+      return (
+        <main className="app center">
+          <p>
+            Ce téléphone n'est pas
+            associé à cette partie.
+          </p>
+
+          <button
+            className="secondary"
+            onClick={() =>
+              navigate("/")
+            }
+          >
+            Retour
+          </button>
+        </main>
+      );
+    }
+
+
+    return (
+      <main className="app identity-page">
+        <div className="glow glow-center" />
+
+        <header className="header">
+          <span className="logo">
+            PROTOCOL
+          </span>
+
+          <span className="pill">
+            Ce soir
+          </span>
+        </header>
+
+        <section className="identity">
+
+          <div>
+            <p className="kicker">
+              TON IDENTITÉ
+            </p>
+
+            <h1>
+              Comment
+              <br />
+              t'appeler ?
+            </h1>
+
+            <p className="intro">
+              Ton prénom, un surnom ou
+              simplement celui que tu veux
+              entendre ce soir.
+            </p>
+          </div>
+
+
+          <div className="identity-form">
+
+            <label className="identity-name">
+
+              <span>
+                NOM DE SESSION
+              </span>
+
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => {
+                  setName(
+                    event.target.value
+                      .slice(0, 24)
+                  );
+
+                  setError("");
+                }}
+                placeholder="Ton nom ce soir"
+                autoFocus
+                autoComplete="off"
+              />
+
+            </label>
+
+
+            <div className="identity-symbols">
+
+              <button
+                type="button"
+                className={
+                  sex === "female"
+                    ? "identity-symbol selected"
+                    : "identity-symbol"
+                }
+                onClick={() => {
+                  setSex("female");
+                  setError("");
+                }}
+                aria-label="Femme"
+              >
+                ♀
+              </button>
+
+
+              <button
+                type="button"
+                className={
+                  sex === "male"
+                    ? "identity-symbol selected"
+                    : "identity-symbol"
+                }
+                onClick={() => {
+                  setSex("male");
+                  setError("");
+                }}
+                aria-label="Homme"
+              >
+                ♂
+              </button>
+
+            </div>
+
+
+            {error && (
+              <p className="error">
+                {error}
+              </p>
+            )}
+
+
+            <button
+              className="primary"
+              onClick={saveIdentity}
+              disabled={
+                loading ||
+                !name.trim() ||
+                !sex
+              }
+            >
+              <span>
+                {loading
+                  ? "Un instant…"
+                  : "Continuer"}
+              </span>
+
+              <span>→</span>
+            </button>
+
+          </div>
+
+        </section>
+
+        <Footer />
+      </main>
+    );
+  }
 
 /* =========================================================
    LOBBY
@@ -949,6 +1308,16 @@ function LobbyScreen({
     );
   }
 
+  const myName =
+    playerNumber === 1
+      ? game.player_1_name
+      : game.player_2_name;
+
+  const partnerName =
+    playerNumber === 1
+      ? game.player_2_name
+      : game.player_1_name;
+
   const connected =
     game.player_count === 2;
 
@@ -971,9 +1340,9 @@ function LobbyScreen({
           PROTOCOL
         </span>
 
-        <span className="pill">
-          Joueur {playerNumber}
-        </span>
+      <span className="pill">
+        {myName}
+      </span>
       </header>
 
       <section className="lobby">
@@ -988,7 +1357,7 @@ function LobbyScreen({
 
           <p className="small-text">
             {connected
-              ? "Votre partenaire a rejoint la partie."
+              ? `${partnerName || "Ton partenaire"} a rejoint la partie.`
               : "Partage ce code avec ton partenaire."}
           </p>
 
@@ -1784,7 +2153,6 @@ function CalibrationScreen({
    PLAY
    ========================================================= */
 
-
 function PlayScreen({
   code,
   navigate,
@@ -1810,6 +2178,16 @@ function PlayScreen({
   const [error, setError] =
     useState("");
 
+  const [
+    showTypePicker,
+    setShowTypePicker,
+  ] = useState(false);
+
+
+  /* =========================================
+     LOAD STATE
+     ========================================= */
+
   const loadState = async () => {
     const {
       data: gameData,
@@ -1822,7 +2200,23 @@ function PlayScreen({
         status,
         turn_no,
         active_player,
-        current_card_id
+        current_card_id,
+
+        player_1_name,
+        player_1_sex,
+        player_2_name,
+        player_2_sex,
+
+        score_player_1,
+        score_player_2,
+
+        bonus_player_1,
+        bonus_player_2,
+
+        target_turns,
+        phase,
+        finished_at,
+        shared_profile
       `)
       .eq("code", code)
       .single();
@@ -1831,6 +2225,23 @@ function PlayScreen({
       throw gameError;
     }
 
+    /*
+     * Partie terminée :
+     * on garde game mais plus de carte.
+     */
+    if (
+      gameData.status ===
+      "finished"
+    ) {
+      setGame(gameData);
+      setCard(null);
+      return;
+    }
+
+    /*
+     * Route play mais partie pas encore
+     * réellement en cours.
+     */
     if (
       gameData.status !==
       "playing"
@@ -1858,6 +2269,11 @@ function PlayScreen({
     setCard(cardData);
   };
 
+
+  /* =========================================
+     REALTIME + POLLING
+     ========================================= */
+
   useEffect(() => {
     let active = true;
 
@@ -1865,6 +2281,7 @@ function PlayScreen({
       async () => {
         try {
           await loadState();
+
         } catch (err) {
           console.error(
             "PLAY LOAD ERROR:",
@@ -1876,6 +2293,7 @@ function PlayScreen({
               "Impossible de charger la partie."
             );
           }
+
         } finally {
           if (active) {
             setLoading(false);
@@ -1884,6 +2302,7 @@ function PlayScreen({
       };
 
     initialise();
+
 
     const channel = supabase
       .channel(
@@ -1905,12 +2324,17 @@ function PlayScreen({
 
           try {
             await loadState();
+
           } catch (err) {
-            console.error(err);
+            console.error(
+              "PLAY REALTIME ERROR:",
+              err
+            );
           }
         }
       )
       .subscribe();
+
 
     const polling =
       window.setInterval(
@@ -1921,14 +2345,18 @@ function PlayScreen({
 
           try {
             await loadState();
+
           } catch {
-            // Realtime + polling :
-            // on ne bloque pas le jeu
-            // pour une erreur transitoire.
+            /*
+             * Realtime + polling :
+             * une erreur réseau transitoire
+             * ne doit pas bloquer la partie.
+             */
           }
         },
         1500
       );
+
 
     return () => {
       active = false;
@@ -1941,41 +2369,172 @@ function PlayScreen({
         channel
       );
     };
+
   }, [code]);
 
-  const nextCard = async () => {
-    try {
-      setNextLoading(true);
-      setError("");
 
-      const {
-        error: rpcError,
-      } = await supabase.rpc(
-        "next_protocol_card",
-        {
-          p_game_code: code,
+  /* =========================================
+     ADVANCE GAME
+     ========================================= */
+
+  const advanceGame =
+    async (
+      action,
+      duelWinner = null
+    ) => {
+      try {
+        setNextLoading(true);
+        setError("");
+
+        const {
+          data,
+          error: rpcError,
+        } = await supabase.rpc(
+          "advance_protocol",
+          {
+            p_game_code: code,
+            p_action: action,
+            p_duel_winner:
+              duelWinner,
+          }
+        );
+
+        if (rpcError) {
+          throw rpcError;
         }
-      );
 
-      if (rpcError) {
-        throw rpcError;
+        console.log(
+          "ADVANCE:",
+          data
+        );
+
+        await loadState();
+
+      } catch (err) {
+        console.error(
+          "ADVANCE ERROR:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Impossible de continuer."
+        );
+
+      } finally {
+        setNextLoading(false);
       }
+    };
 
-      await loadState();
-    } catch (err) {
-      console.error(
-        "NEXT CARD ERROR:",
-        err
-      );
 
-      setError(
-        err?.message ||
-          "Impossible de continuer."
-      );
-    } finally {
-      setNextLoading(false);
-    }
-  };
+  /* =========================================
+     BUY BONUS
+     ========================================= */
+
+  const buyBonus =
+    async (bonus) => {
+      try {
+        setNextLoading(true);
+        setError("");
+
+        const {
+          data,
+          error: rpcError,
+        } = await supabase.rpc(
+          "buy_protocol_bonus",
+          {
+            p_game_code: code,
+            p_player_no:
+              playerNumber,
+            p_bonus: bonus,
+          }
+        );
+
+        if (rpcError) {
+          throw rpcError;
+        }
+
+        console.log(
+          "BONUS BOUGHT:",
+          data
+        );
+
+        await loadState();
+
+      } catch (err) {
+        console.error(
+          "BONUS ERROR:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Impossible d'acheter cet avantage."
+        );
+
+      } finally {
+        setNextLoading(false);
+      }
+    };
+
+
+  /* =========================================
+     CHOOSE NEXT TYPE
+     ========================================= */
+
+  const chooseNextType =
+    async (cardType) => {
+      try {
+        setNextLoading(true);
+        setError("");
+
+        const {
+          data,
+          error: rpcError,
+        } = await supabase.rpc(
+          "use_choose_type",
+          {
+            p_game_code: code,
+            p_player_no:
+              playerNumber,
+            p_card_type:
+              cardType,
+          }
+        );
+
+        if (rpcError) {
+          throw rpcError;
+        }
+
+        console.log(
+          "TYPE CHOSEN:",
+          data
+        );
+
+        setShowTypePicker(false);
+
+        await loadState();
+
+      } catch (err) {
+        console.error(
+          "CHOOSE TYPE ERROR:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Ce type de carte n'est pas disponible."
+        );
+
+      } finally {
+        setNextLoading(false);
+      }
+    };
+
+
+  /* =========================================
+     INITIAL LOADING
+     ========================================= */
 
   if (loading) {
     return (
@@ -1983,12 +2542,20 @@ function PlayScreen({
     );
   }
 
-  if (!game || !card) {
+
+  /* =========================================
+     LOAD ERROR
+     ========================================= */
+
+  if (
+    error &&
+    !game
+  ) {
     return (
       <main className="app center">
+
         <p>
-          {error ||
-            "Partie introuvable."}
+          {error}
         </p>
 
         <button
@@ -1999,13 +2566,362 @@ function PlayScreen({
         >
           Retour
         </button>
+
       </main>
     );
   }
 
+
+  /* =========================================
+     NOMS DES JOUEURS
+
+     IMPORTANT :
+     AVANT l'écran finished.
+     game peut encore être null ici,
+     donc optional chaining.
+     ========================================= */
+
+  const player1Name =
+    game?.player_1_name ||
+    "Joueur 1";
+
+  const player2Name =
+    game?.player_2_name ||
+    "Joueur 2";
+
+  const myName =
+    playerNumber === 1
+      ? player1Name
+      : player2Name;
+
+  const partnerName =
+    playerNumber === 1
+      ? player2Name
+      : player1Name;
+
+  const activePlayerName =
+    game?.active_player === 1
+      ? player1Name
+      : player2Name;
+
+    const cardText =
+      card?.prompt
+        ?.replaceAll(
+          "{{active}}",
+          activePlayerName
+        )
+        ?.replaceAll(
+          "{{partner}}",
+          game?.active_player === 1
+            ? player2Name
+            : player1Name
+        ) || "";
+
+
+   /* =========================================
+     PARTIE TERMINEE
+     ========================================= */
+
+  if (
+    game &&
+    game.status === "finished"
+  ) {
+    const score1 =
+      game.score_player_1 || 0;
+
+    const score2 =
+      game.score_player_2 || 0;
+
+
+    const winner =
+      score1 === score2
+        ? null
+        : score1 > score2
+          ? 1
+          : 2;
+
+
+    const winnerName =
+      winner === 1
+        ? player1Name
+        : winner === 2
+          ? player2Name
+          : null;
+
+
+    const maxIntensity =
+      game.shared_profile?.intensity ||
+      null;
+
+
+    let endTitle =
+      "C'était votre moment.";
+
+
+    let endText =
+      "Gardez ce qui vous a plu. Le reste pourra attendre la prochaine fois.";
+
+
+    if (maxIntensity === 1) {
+      endTitle =
+        "Tout doucement.";
+
+      endText =
+        "Vous avez choisi de prendre votre temps. Parfois, il n'en faut pas beaucoup plus.";
+    }
+
+
+    if (maxIntensity === 2) {
+      endTitle =
+        "Juste assez.";
+
+      endText =
+        "Un peu de tension, quelques surprises et probablement quelques idées à garder pour plus tard.";
+    }
+
+
+    if (maxIntensity === 3) {
+      endTitle =
+        "Vous avez joué.";
+
+      endText =
+        "Vous vous êtes provoqués, surpris et probablement donné envie d'aller un peu plus loin.";
+    }
+
+
+    if (maxIntensity === 4) {
+      endTitle =
+        "Vous êtes allés loin.";
+
+      endText =
+        "Certaines règles ont tenu. D'autres probablement beaucoup moins.";
+    }
+
+
+    if (maxIntensity === 5) {
+      endTitle =
+        "Sans filtre.";
+
+      endText =
+        "Vous aviez choisi de ne pas trop vous retenir. PROTOCOL n'a manifestement pas eu besoin d'insister beaucoup.";
+    }
+
+
+    const replay = () => {
+      navigate("/");
+    };
+
+
+    return (
+      <main className="app final-page">
+
+        <div className="final-glow final-glow-top" />
+        <div className="final-glow final-glow-bottom" />
+
+
+        <header className="header final-header">
+
+          <span className="logo">
+            PROTOCOL
+          </span>
+
+          <span className="pill">
+            Terminé
+          </span>
+
+        </header>
+
+
+        <section className="final-screen">
+
+
+          {/* =================================
+              INTRO
+              ================================= */}
+
+          <div className="final-intro">
+
+            <p className="kicker">
+              SESSION TERMINÉE
+            </p>
+
+            <h1>
+              {endTitle}
+            </h1>
+
+            <p className="final-text">
+              {endText}
+            </p>
+
+          </div>
+
+
+          {/* =================================
+              SCORE
+              ================================= */}
+
+          <div className="final-score-card">
+
+            <div
+              className={
+                winner === 1
+                  ? "final-player final-winner"
+                  : "final-player"
+              }
+            >
+
+              <span className="final-player-name">
+                {player1Name}
+              </span>
+
+              <strong className="final-player-score">
+                {score1}
+              </strong>
+
+            </div>
+
+
+            <div className="final-score-divider">
+
+              <span>·</span>
+
+            </div>
+
+
+            <div
+              className={
+                winner === 2
+                  ? "final-player final-winner"
+                  : "final-player"
+              }
+            >
+
+              <span className="final-player-name">
+                {player2Name}
+              </span>
+
+              <strong className="final-player-score">
+                {score2}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          {/* =================================
+              RESULT
+              ================================= */}
+
+          <div className="final-result">
+
+            {winnerName ? (
+              <>
+                <span className="final-symbol">
+                  ◇
+                </span>
+
+                <p>
+                  <strong>
+                    {winnerName}
+                  </strong>
+                  {" "}
+                  termine avec quelques points d'avance.
+                </p>
+              </>
+            ) : (
+              <>
+                <span className="final-symbol">
+                  ◇
+                </span>
+
+                <p>
+                  Aucun gagnant ce soir.
+                  <br />
+                  Ce qui semble franchement secondaire.
+                </p>
+              </>
+            )}
+
+          </div>
+
+
+          {/* =================================
+              CLOSING
+              ================================= */}
+
+          <div className="final-closing">
+
+            <p>
+              PROTOCOL est terminé.
+              <br />
+              La soirée, elle, ne l'est pas forcément.
+            </p>
+
+          </div>
+
+
+          {/* =================================
+              BUTTON
+              ================================= */}
+
+          <button
+            className="primary final-replay"
+            onClick={replay}
+          >
+
+            <span>
+              Rejouer
+            </span>
+
+            <span>
+              →
+            </span>
+
+          </button>
+
+
+        </section>
+
+
+        <Footer />
+
+      </main>
+    );
+  }
+
+  /* =========================================
+     GAME/CARD GUARD
+     ========================================= */
+
+  if (
+    !game ||
+    !card
+  ) {
+    return (
+      <LoadingScreen />
+    );
+  }
+
+
+  /* =========================================
+     DERIVED STATE
+     ========================================= */
+
+  const myBonuses =
+    playerNumber === 1
+      ? game.bonus_player_1 || {}
+      : game.bonus_player_2 || {};
+
+  const myScore =
+    playerNumber === 1
+      ? game.score_player_1
+      : game.score_player_2;
+
   const isMyTurn =
     game.active_player ===
     playerNumber;
+
 
   const typeLabels = {
     truth: "VÉRITÉ",
@@ -2014,96 +2930,611 @@ function PlayScreen({
     scene: "SCÈNE",
   };
 
+
+  const phaseLabels = {
+    warmup:
+      "MISE EN TENSION",
+
+    rise:
+      "MONTÉE",
+
+    intense:
+      "INTENSITÉ",
+
+    finale:
+      "FINALE",
+  };
+
+
+  /* =========================================
+     RENDER
+     ========================================= */
+
   return (
     <main className="app play-page">
+
       <div className="glow glow-center" />
 
-      <header className="header">
+
+      {/* =====================================
+          HEADER / SCORE
+          ===================================== */}
+
+      <header className="header play-header">
+
         <span className="logo">
           PROTOCOL
         </span>
 
-        <span className="progress-label">
-          {String(
-            game.turn_no
-          ).padStart(2, "0")}
-        </span>
+
+        <div className="score-board">
+
+          <div
+            className={
+              playerNumber === 1
+                ? "score-me"
+                : ""
+            }
+          >
+            <span>
+              {player1Name}
+            </span>
+
+            <strong>
+              {game.score_player_1}
+            </strong>
+          </div>
+
+
+          <span className="score-separator">
+            ·
+          </span>
+
+
+          <div
+            className={
+              playerNumber === 2
+                ? "score-me"
+                : ""
+            }
+          >
+            <span>
+              {player2Name}
+            </span>
+
+            <strong>
+              {game.score_player_2}
+            </strong>
+          </div>
+
+        </div>
+
       </header>
 
+
+      {/* =====================================
+          BONUS
+          ===================================== */}
+
+      <div className="bonus-bar">
+
+        <button
+          className={
+            myBonuses.double_reward
+              ? "bonus-button bonus-owned"
+              : "bonus-button"
+          }
+          onClick={() =>
+            buyBonus(
+              "double_reward"
+            )
+          }
+          disabled={
+            nextLoading ||
+            myBonuses.double_reward ||
+            myScore < 3
+          }
+        >
+          <span>
+            Double enjeu
+          </span>
+
+          <strong>
+            {myBonuses.double_reward
+              ? "PRÊT"
+              : "3 pts"}
+          </strong>
+        </button>
+
+
+        <button
+          className={
+            myBonuses.take_control ||
+            myBonuses.take_control_armed
+              ? "bonus-button bonus-owned"
+              : "bonus-button"
+          }
+          onClick={() =>
+            buyBonus(
+              "take_control"
+            )
+          }
+          disabled={
+            nextLoading ||
+            myBonuses.take_control ||
+            myBonuses.take_control_armed ||
+            myScore < 3
+          }
+        >
+          <span>
+            Prendre la main
+          </span>
+
+          <strong>
+            {myBonuses.take_control_armed
+              ? "ACTIF"
+              : myBonuses.take_control
+                ? "PRÊT"
+                : "3 pts"}
+          </strong>
+        </button>
+
+
+        <button
+          className={
+            myBonuses.choose_type ||
+            myBonuses.choose_type_armed
+              ? "bonus-button bonus-owned"
+              : "bonus-button"
+          }
+          onClick={() => {
+
+            if (
+              myBonuses.choose_type
+            ) {
+              setShowTypePicker(
+                true
+              );
+
+              return;
+            }
+
+            buyBonus(
+              "choose_type"
+            );
+          }}
+          disabled={
+            nextLoading ||
+            Boolean(
+              myBonuses.choose_type_armed
+            ) ||
+            (
+              !myBonuses.choose_type &&
+              myScore < 2
+            )
+          }
+        >
+          <span>
+            Imposer le type
+          </span>
+
+          <strong>
+            {myBonuses.choose_type_armed
+              ? myBonuses
+                  .choose_type_armed
+                  .toUpperCase()
+              : myBonuses.choose_type
+                ? "UTILISER"
+                : "2 pts"}
+          </strong>
+        </button>
+
+      </div>
+
+
+      {/* =====================================
+          TYPE PICKER
+          ===================================== */}
+
+      {showTypePicker && (
+        <div className="type-picker">
+
+          <div className="type-picker-header">
+
+            <div>
+              <strong>
+                Prochaine carte
+              </strong>
+
+              <span>
+                Choisis son type.
+              </span>
+            </div>
+
+
+            <button
+              className="type-picker-close"
+              onClick={() =>
+                setShowTypePicker(
+                  false
+                )
+              }
+            >
+              ×
+            </button>
+
+          </div>
+
+
+          <div className="type-picker-grid">
+
+            <button
+              onClick={() =>
+                chooseNextType(
+                  "truth"
+                )
+              }
+              disabled={nextLoading}
+            >
+              <span>?</span>
+              Vérité
+            </button>
+
+
+            <button
+              onClick={() =>
+                chooseNextType(
+                  "action"
+                )
+              }
+              disabled={nextLoading}
+            >
+              <span>→</span>
+              Action
+            </button>
+
+
+            <button
+              onClick={() =>
+                chooseNextType(
+                  "duel"
+                )
+              }
+              disabled={nextLoading}
+            >
+              <span>×</span>
+              Duel
+            </button>
+
+
+            <button
+              onClick={() =>
+                chooseNextType(
+                  "scene"
+                )
+              }
+              disabled={nextLoading}
+            >
+              <span>◇</span>
+              Scène
+            </button>
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* =====================================
+          TAKE CONTROL
+          ===================================== */}
+
+      {myBonuses.take_control && (
+        <button
+          className="activate-bonus"
+
+          onClick={async () => {
+            try {
+              setNextLoading(true);
+              setError("");
+
+              const {
+                error: bonusError,
+              } = await supabase.rpc(
+                "use_take_control",
+                {
+                  p_game_code:
+                    code,
+
+                  p_player_no:
+                    playerNumber,
+                }
+              );
+
+              if (bonusError) {
+                throw bonusError;
+              }
+
+              await loadState();
+
+            } catch (err) {
+              console.error(
+                "TAKE CONTROL ERROR:",
+                err
+              );
+
+              setError(
+                err?.message ||
+                  "Impossible d'utiliser cet avantage."
+              );
+
+            } finally {
+              setNextLoading(false);
+            }
+          }}
+        >
+          Utiliser « Prendre la main »
+        </button>
+      )}
+
+
+      {/* =====================================
+          PLAY
+          ===================================== */}
+
       <section className="play">
+
         <div className="play-meta">
+
           <span
-            className={`card-type card-type-${card.type}`}
+            className={
+              `card-type card-type-${card.type}`
+            }
           >
             {typeLabels[
               card.type
             ]}
           </span>
 
+
           <span>
             {isMyTurn
-              ? "À TOI"
-              : `JOUEUR ${game.active_player}`}
+              ? `${myName.toUpperCase()} · À TOI`
+              : activePlayerName.toUpperCase()}
           </span>
+
+
+          <span>
+            {phaseLabels[
+              game.phase
+            ]}
+            {" · "}
+            {game.turn_no}
+            /
+            {game.target_turns}
+          </span>
+
         </div>
 
-        <div className="game-card">
+
+        {/* ===================================
+            CARD
+            =================================== */}
+
+          <div
+            className={`game-card game-card-${card.type}`}
+          >
+
           {card.title && (
             <p className="kicker">
               {card.title.toUpperCase()}
             </p>
           )}
 
-          <p className="card-prompt">
-            {card.prompt}
-          </p>
+        <p className="card-prompt">
+          {cardText}
+        </p>
+
         </div>
 
-        <div className="play-bottom">
-          {isMyTurn ? (
-            <button
-              className="primary"
-              onClick={
-                nextCard
-              }
-              disabled={
-                nextLoading
-              }
-            >
-              <span>
-                {nextLoading
-                  ? "Un instant…"
-                  : "C'est fait"}
-              </span>
 
-              <span>→</span>
-            </button>
+        {/* ===================================
+            ACTIONS
+            =================================== */}
+
+        <div className="play-bottom">
+
+
+          {/* DUEL */}
+
+          {card.type === "duel" ? (
+
+            <div className="duel-actions">
+
+              <p className="duel-question">
+                Qui remporte ce duel ?
+              </p>
+
+
+              <div className="duel-buttons">
+
+                <button
+                  className="duel-winner"
+
+                  onClick={() =>
+                    advanceGame(
+                      "duel",
+                      1
+                    )
+                  }
+
+                  disabled={
+                    nextLoading
+                  }
+                >
+                  <span>
+                    {player1Name}
+                  </span>
+
+                  <strong>
+                    +2
+                  </strong>
+                </button>
+
+
+                <button
+                  className="duel-winner"
+
+                  onClick={() =>
+                    advanceGame(
+                      "duel",
+                      2
+                    )
+                  }
+
+                  disabled={
+                    nextLoading
+                  }
+                >
+                  <span>
+                    {player2Name}
+                  </span>
+
+                  <strong>
+                    +2
+                  </strong>
+                </button>
+
+              </div>
+
+
+              <button
+                className="text-action pass-action"
+
+                onClick={() =>
+                  advanceGame(
+                    "pass"
+                  )
+                }
+
+                disabled={
+                  nextLoading
+                }
+              >
+                Passer ce duel
+              </button>
+
+            </div>
+
+
+          /* ACTIVE PLAYER */
+
+          ) : isMyTurn ? (
+
+            <div className="turn-actions">
+
+              <button
+                className="primary"
+
+                onClick={() =>
+                  advanceGame(
+                    "done"
+                  )
+                }
+
+                disabled={
+                  nextLoading
+                }
+              >
+                <span>
+                  {nextLoading
+                    ? "Un instant…"
+                    : "C'est fait"}
+                </span>
+
+                <span>→</span>
+              </button>
+
+
+              <div className="alternative-actions">
+
+                <button
+                  className="text-action"
+
+                  onClick={() =>
+                    advanceGame(
+                      "alternative"
+                    )
+                  }
+
+                  disabled={
+                    nextLoading
+                  }
+                >
+                  Autre proposition
+                </button>
+
+
+                <button
+                  className="text-action pass-action"
+
+                  onClick={() =>
+                    advanceGame(
+                      "pass"
+                    )
+                  }
+
+                  disabled={
+                    nextLoading
+                  }
+                >
+                  Passer
+                </button>
+
+              </div>
+
+            </div>
+
+
+          /* WAITING PLAYER */
+
           ) : (
+
             <div className="waiting-turn">
+
               <span className="pulse-dot" />
 
               <div>
+
                 <strong>
-                  À l'autre de jouer.
+                  À {activePlayerName} de jouer.
                 </strong>
 
                 <p>
-                  La prochaine carte
-                  apparaîtra automatiquement.
+                  La prochaine carte apparaîtra
+                  automatiquement.
                 </p>
+
               </div>
+
             </div>
+
           )}
+
 
           {error && (
             <p className="error">
               {error}
             </p>
           )}
+
         </div>
+
       </section>
 
+
       <Footer />
+
     </main>
   );
 }
