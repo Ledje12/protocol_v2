@@ -2163,6 +2163,9 @@ function PlayScreen({
     )
   );
 
+  const [sceneState, setSceneState] =
+    useState(null);
+
   const [game, setGame] =
     useState(null);
 
@@ -2182,6 +2185,95 @@ function PlayScreen({
     showTypePicker,
     setShowTypePicker,
   ] = useState(false);
+
+    async function loadSceneState(
+    currentCard
+  ) {
+    if (
+      !currentCard ||
+      currentCard.type !== "scene" ||
+      !playerNumber
+    ) {
+      setSceneState(null);
+      return;
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase.rpc(
+      "get_scene_state",
+      {
+        p_game_code: code,
+        p_player_no: playerNumber,
+      }
+    );
+
+    if (error) {
+      console.error(
+        "Erreur scene:",
+        error
+      );
+
+      setSceneState(null);
+
+      return;
+    }
+
+    if (!data?.is_multistep) {
+      setSceneState(null);
+      return;
+    }
+
+    setSceneState(data);
+  }
+
+async function handleSceneNext() {
+  if (!playerNumber || nextLoading) {
+    return;
+  }
+
+  setNextLoading(true);
+  setError("");
+
+  try {
+    const {
+      data,
+      error,
+    } = await supabase.rpc(
+      "advance_scene_step",
+      {
+        p_game_code: code,
+        p_player_no: playerNumber,
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    console.log(
+      "Nouvelle étape scène:",
+      data
+    );
+
+    await loadState();
+
+  } catch (err) {
+    console.error(
+      "Erreur advance_scene_step:",
+      err
+    );
+
+    setError(
+      err.message ||
+      "Impossible de poursuivre la scène."
+    );
+
+  } finally {
+    setNextLoading(false);
+  }
+}
 
 
   /* =========================================
@@ -2216,7 +2308,8 @@ function PlayScreen({
         target_turns,
         phase,
         finished_at,
-        shared_profile
+        shared_profile,
+        scene_step_no
       `)
       .eq("code", code)
       .single();
@@ -2267,15 +2360,18 @@ function PlayScreen({
 
     setGame(gameData);
     setCard(cardData);
+
+    await loadSceneState(cardData);
   };
 
 
   /* =========================================
-     REALTIME + POLLING
-     ========================================= */
+   REALTIME + POLLING
+   ========================================= */
 
   useEffect(() => {
     let active = true;
+
 
     const initialise =
       async () => {
@@ -2301,8 +2397,13 @@ function PlayScreen({
         }
       };
 
+
     initialise();
 
+
+    /* =======================================
+      REALTIME
+      ======================================= */
 
     const channel = supabase
       .channel(
@@ -2336,6 +2437,10 @@ function PlayScreen({
       .subscribe();
 
 
+    /* =======================================
+      POLLING DE SECURITE
+      ======================================= */
+
     const polling =
       window.setInterval(
         async () => {
@@ -2346,17 +2451,26 @@ function PlayScreen({
           try {
             await loadState();
 
-          } catch {
+          } catch (err) {
             /*
-             * Realtime + polling :
-             * une erreur réseau transitoire
-             * ne doit pas bloquer la partie.
-             */
+            * Realtime + polling :
+            * une erreur réseau transitoire
+            * ne doit pas bloquer la partie.
+            */
+
+            console.warn(
+              "PLAY POLLING ERROR:",
+              err
+            );
           }
         },
-        1500
+        1000
       );
 
+
+    /* =======================================
+      CLEANUP
+      ======================================= */
 
     return () => {
       active = false;
@@ -2604,18 +2718,34 @@ function PlayScreen({
       ? player1Name
       : player2Name;
 
-    const cardText =
+  const cardPartnerName =
+    game?.active_player === 1
+      ? player2Name
+      : player1Name;
+
+  const renderProtocolText = (text) =>
+    (text || "")
+      .replaceAll(
+        "{{active}}",
+        activePlayerName
+      )
+      .replaceAll(
+        "{{partner}}",
+        cardPartnerName
+      )
+      .replaceAll(
+        "{{me}}",
+        myName
+      )
+      .replaceAll(
+        "{{other}}",
+        partnerName
+      );
+
+  const cardText =
+    renderProtocolText(
       card?.prompt
-        ?.replaceAll(
-          "{{active}}",
-          activePlayerName
-        )
-        ?.replaceAll(
-          "{{partner}}",
-          game?.active_player === 1
-            ? player2Name
-            : player1Name
-        ) || "";
+    );
 
 
    /* =========================================
@@ -3331,8 +3461,36 @@ function PlayScreen({
             </p>
           )}
 
+        {sceneState?.is_multistep && (
+          <div className="scene-progress">
+
+            <span>
+              {sceneState.is_private
+                ? "◉ PRIVÉ"
+                : "SCÈNE"}
+            </span>
+
+            <span>
+              ÉTAPE {sceneState.step_no}
+              /
+              {sceneState.step_count}
+            </span>
+
+          </div>
+        )}
+
+        {sceneState?.title && (
+          <p className="scene-step-title">
+            {sceneState.title}
+          </p>
+        )}
+
         <p className="card-prompt">
-          {cardText}
+          {sceneState?.is_multistep
+            ? renderProtocolText(
+            sceneState.prompt
+          )
+            : cardText}
         </p>
 
         </div>
@@ -3433,27 +3591,81 @@ function PlayScreen({
 
             <div className="turn-actions">
 
-              <button
-                className="primary"
+              {sceneState?.is_multistep ? (
 
-                onClick={() =>
-                  advanceGame(
-                    "done"
-                  )
-                }
+                sceneState.is_last ? (
 
-                disabled={
-                  nextLoading
-                }
-              >
-                <span>
-                  {nextLoading
-                    ? "Un instant…"
-                    : "C'est fait"}
-                </span>
+                  <button
+                    className="primary"
 
-                <span>→</span>
-              </button>
+                    onClick={() =>
+                      advanceGame(
+                        "done"
+                      )
+                    }
+
+                    disabled={
+                      nextLoading
+                    }
+                  >
+                    <span>
+                      {nextLoading
+                        ? "Un instant…"
+                        : "Scène terminée"}
+                    </span>
+
+                    <span>→</span>
+                  </button>
+
+                ) : (
+
+                  <button
+                    className="primary scene-next"
+
+                    onClick={
+                      handleSceneNext
+                    }
+
+                    disabled={
+                      nextLoading
+                    }
+                  >
+                    <span>
+                      {nextLoading
+                        ? "Un instant…"
+                        : "Continuer la scène"}
+                    </span>
+
+                    <span>→</span>
+                  </button>
+
+                )
+
+              ) : (
+
+                <button
+                  className="primary"
+
+                  onClick={() =>
+                    advanceGame(
+                      "done"
+                    )
+                  }
+
+                  disabled={
+                    nextLoading
+                  }
+                >
+                  <span>
+                    {nextLoading
+                      ? "Un instant…"
+                      : "C'est fait"}
+                  </span>
+
+                  <span>→</span>
+                </button>
+
+              )}
 
 
               <div className="alternative-actions">

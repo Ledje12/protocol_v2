@@ -27,3 +27,4 @@ dist-ssr
 
 .env
 .env.local
+src/index_backup_before_premium.css

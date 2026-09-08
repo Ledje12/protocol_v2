@@ -2839,3 +2839,84 @@ h1 {
       0.01ms !important;
   }
 }
+
+/* =========================================================
+   MULTI STEP SCENES
+   ========================================================= */
+
+.scene-progress {
+  position: relative;
+  z-index: 1;
+
+  margin-bottom: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.18em;
+
+  color: #a47aae;
+}
+
+
+.scene-progress span:last-child {
+  color: #77617d;
+}
+
+
+.scene-step-title {
+  position: relative;
+  z-index: 1;
+
+  margin:
+    0
+    0
+    12px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.17em;
+
+  text-transform: uppercase;
+
+  color: #c3a1ca;
+}
+
+
+.game-card-scene
+.card-prompt {
+  color: #f7eff8;
+}
+
+
+.scene-next {
+  border-color:
+    rgba(170, 119, 182, 0.58);
+
+  background:
+    linear-gradient(
+      135deg,
+      #824b8d 0%,
+      #66366f 52%,
+      #47244e 100%
+    );
+
+  box-shadow:
+    0 14px 38px
+    rgba(67, 28, 76, 0.24),
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.08);
+}
+
+.scene-progress span:first-child {
+  color: #c69aac;
+}
+
+.game-card-scene:has(.scene-progress) {
+  isolation: isolate;
+}
