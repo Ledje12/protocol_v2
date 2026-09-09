@@ -1747,41 +1747,74 @@ function CalibrationScreen({
             </>
           ) : (
             <>
-              <div>
-                <p className="kicker">
-                  VOUS ÊTES ALIGNÉS
-                </p>
+              <div className="protocol-opening">
 
-                <h1>
-                  On peut
-                  <br />
-                  commencer.
-                </h1>
+                <div className="protocol-opening-mark">
+                  <span />
+                  <p>PROTOCOL EST PRÊT</p>
+                  <span />
+                </div>
 
-                <p className="intro">
-                  PROTOCOL connaît maintenant
-                  le terrain sur lequel vous
-                  pouvez jouer tous les deux.
-                </p>
-              </div>
+                <div className="protocol-opening-title">
+                  <span className="protocol-opening-small">
+                    CE SOIR
+                  </span>
 
-              <div className="shared-ready">
-                <span>✓</span>
+                  <h1>
+                    Ne cherchez pas
+                    <br />
+                    à prévoir la suite.
+                  </h1>
+                </div>
 
-                <div>
-                  <strong>
-                    Profil commun créé
-                  </strong>
+                <div className="protocol-opening-copy">
 
                   <p>
-                    Vos réponses individuelles
-                    restent privées.
+                    PROTOCOL connaît maintenant
+                    <br />
+                    ce que vous avez choisi
+                    d’explorer.
                   </p>
+
+                  <div className="protocol-opening-divider" />
+
+                  <p className="protocol-opening-emphasis">
+                    Vos envies.
+                    <br />
+                    Vos limites.
+                    <br />
+                    Et le terrain entre les deux.
+                  </p>
+
+                  <div className="protocol-opening-divider" />
+
+                  <p className="protocol-opening-final">
+                    Certaines cartes vous feront parler.
+                    <br />
+                    D’autres agir.
+                    <br />
+                    Parfois, vous ne lirez pas
+                    la même chose.
+                  </p>
+
                 </div>
+
+                <p className="protocol-opening-whisper">
+                  Laissez simplement le jeu monter.
+                </p>
+
               </div>
 
+
+              {error && (
+                <p className="error">
+                  {error}
+                </p>
+              )}
+
+
               <button
-                className="primary"
+                className="primary protocol-opening-button"
                 onClick={async () => {
                   try {
                     setError("");
@@ -1808,7 +1841,9 @@ function CalibrationScreen({
                     navigate(
                       `/game/${code}/play`
                     );
+
                   } catch (err) {
+
                     console.error(
                       "START PROTOCOL ERROR:",
                       err
@@ -1822,13 +1857,19 @@ function CalibrationScreen({
                 }}
               >
                 <span>
-                  Entrer dans PROTOCOL
+                  COMMENCER
                 </span>
 
                 <span>→</span>
               </button>
+
+
+              <p className="protocol-opening-safety">
+                PASS · AUTRE PROPOSITION · STOP
+              </p>
             </>
           )}
+
         </section>
 
         <Footer />
@@ -2186,23 +2227,108 @@ function PlayScreen({
     setShowTypePicker,
   ] = useState(false);
 
+  const [activeRules, setActiveRules] =
+    useState([]);
+
     async function loadSceneState(
     currentCard
-  ) {
-    if (
-      !currentCard ||
-      currentCard.type !== "scene" ||
-      !playerNumber
     ) {
-      setSceneState(null);
-      return;
+      if (
+        !currentCard ||
+        currentCard.type !== "scene" ||
+        !playerNumber
+      ) {
+        setSceneState(null);
+        return;
+      }
+
+      const {
+        data,
+        error,
+      } = await supabase.rpc(
+        "get_scene_state",
+        {
+          p_game_code: code,
+          p_player_no: playerNumber,
+        }
+      );
+
+      if (error) {
+        console.error(
+          "Erreur scene:",
+          error
+        );
+
+        setSceneState(null);
+
+        return;
+      }
+
+      if (!data?.is_multistep) {
+        setSceneState(null);
+        return;
+      }
+
+      setSceneState(data);
     }
+
+async function loadActiveRules() {
+  if (!playerNumber) {
+    setActiveRules([]);
+    return;
+  }
+
+  const {
+    data,
+    error,
+  } = await supabase.rpc(
+    "get_active_rules",
+    {
+      p_game_code: code,
+      p_player_no: playerNumber,
+    }
+  );
+
+  console.log(
+    `ACTIVE RULES P${playerNumber}:`,
+    data
+  );
+
+  if (error) {
+    console.error(
+      "ACTIVE RULES ERROR:",
+      error
+    );
+
+    return;
+  }
+
+  setActiveRules(
+    Array.isArray(data)
+      ? data
+      : []
+  );
+}
+
+async function handleSceneRead() {
+  if (
+    !playerNumber ||
+    nextLoading ||
+    mySceneStepRead
+  ) {
+    return;
+  }
+
+  setNextLoading(true);
+  setError("");
+
+  try {
 
     const {
       data,
       error,
     } = await supabase.rpc(
-      "get_scene_state",
+      "mark_scene_step_read",
       {
         p_game_code: code,
         p_player_no: playerNumber,
@@ -2210,25 +2336,35 @@ function PlayScreen({
     );
 
     if (error) {
-      console.error(
-        "Erreur scene:",
-        error
-      );
-
-      setSceneState(null);
-
-      return;
+      throw error;
     }
 
-    if (!data?.is_multistep) {
-      setSceneState(null);
-      return;
-    }
+    console.log(
+      "SCENE READ:",
+      data
+    );
 
-    setSceneState(data);
+    await loadState();
+
+  } catch (err) {
+
+    console.error(
+      "SCENE READ ERROR:",
+      err
+    );
+
+    setError(
+      err?.message ||
+      "Impossible de confirmer la lecture."
+    );
+
+  } finally {
+
+    setNextLoading(false);
   }
+}
 
-async function handleSceneNext() {
+  async function handleSceneNext() {
   if (!playerNumber || nextLoading) {
     return;
   }
@@ -2309,7 +2445,9 @@ async function handleSceneNext() {
         phase,
         finished_at,
         shared_profile,
-        scene_step_no
+        scene_step_no,
+        scene_step_read_player_1,
+        scene_step_read_player_2
       `)
       .eq("code", code)
       .single();
@@ -2361,7 +2499,11 @@ async function handleSceneNext() {
     setGame(gameData);
     setCard(cardData);
 
-    await loadSceneState(cardData);
+    await Promise.all([
+      loadSceneState(cardData),
+      loadActiveRules(),
+    ]);
+
   };
 
 
@@ -3052,14 +3194,26 @@ async function handleSceneNext() {
     game.active_player ===
     playerNumber;
 
+  const mySceneStepRead =
+    playerNumber === 1
+      ? game.scene_step_read_player_1
+      : game.scene_step_read_player_2;
 
-  const typeLabels = {
-    truth: "VÉRITÉ",
-    action: "ACTION",
-    duel: "DUEL",
-    scene: "SCÈNE",
-  };
+  const partnerSceneStepRead =
+    playerNumber === 1
+      ? game.scene_step_read_player_2
+      : game.scene_step_read_player_1;
 
+  const bothSceneStepRead =
+    game.scene_step_read_player_1 &&
+    game.scene_step_read_player_2;
+
+    const typeLabels = {
+      truth: "VÉRITÉ",
+      action: "ACTION",
+      duel: "DUEL",
+      scene: "SCÈNE",
+    };
 
   const phaseLabels = {
     warmup:
@@ -3451,6 +3605,52 @@ async function handleSceneNext() {
             CARD
             =================================== */}
 
+          {activeRules.length > 0 && (
+            <div className="active-rules">
+
+              {activeRules.map((rule) => (
+                <div
+                  key={rule.id}
+                  className="active-rule"
+                >
+                  <div className="active-rule-top">
+
+                    <div className="active-rule-label">
+                      <span className="active-rule-dot">
+                        ◉
+                      </span>
+
+                      <span>
+                        RÈGLE ACTIVE
+                      </span>
+                    </div>
+
+                    <span className="active-rule-duration">
+                      {rule.remaining_turns}
+                      {" "}
+                      {rule.remaining_turns === 1
+                        ? "carte"
+                        : "cartes"}
+                    </span>
+
+                  </div>
+
+                  <strong className="active-rule-title">
+                    {rule.title}
+                  </strong>
+
+                  <p className="active-rule-text">
+                    {renderProtocolText(
+                      rule.rule_text
+                    )}
+                  </p>
+
+                </div>
+              ))}
+
+            </div>
+          )}
+
           <div
             className={`game-card game-card-${card.type}`}
           >
@@ -3591,81 +3791,139 @@ async function handleSceneNext() {
 
             <div className="turn-actions">
 
-              {sceneState?.is_multistep ? (
+          {sceneState?.is_multistep ? (
 
-                sceneState.is_last ? (
+            sceneState.is_private ? (
 
-                  <button
-                    className="primary"
-
-                    onClick={() =>
-                      advanceGame(
-                        "done"
-                      )
-                    }
-
-                    disabled={
-                      nextLoading
-                    }
-                  >
-                    <span>
-                      {nextLoading
-                        ? "Un instant…"
-                        : "Scène terminée"}
-                    </span>
-
-                    <span>→</span>
-                  </button>
-
-                ) : (
-
-                  <button
-                    className="primary scene-next"
-
-                    onClick={
-                      handleSceneNext
-                    }
-
-                    disabled={
-                      nextLoading
-                    }
-                  >
-                    <span>
-                      {nextLoading
-                        ? "Un instant…"
-                        : "Continuer la scène"}
-                    </span>
-
-                    <span>→</span>
-                  </button>
-
-                )
-
-              ) : (
+              !mySceneStepRead ? (
 
                 <button
                   className="primary"
-
-                  onClick={() =>
-                    advanceGame(
-                      "done"
-                    )
-                  }
-
-                  disabled={
-                    nextLoading
-                  }
+                  onClick={handleSceneRead}
+                  disabled={nextLoading}
                 >
                   <span>
                     {nextLoading
                       ? "Un instant…"
-                      : "C'est fait"}
+                      : "J'ai lu"}
+                  </span>
+
+                  <span>✓</span>
+                </button>
+
+              ) : !bothSceneStepRead ? (
+
+                <div className="ready-box">
+                  <div className="check">
+                    ✓
+                  </div>
+
+                  <div>
+                    <strong>
+                      Tu as lu.
+                    </strong>
+
+                    <span>
+                      On attend l'autre.
+                    </span>
+                  </div>
+                </div>
+
+              ) : sceneState.is_last ? (
+
+                <button
+                  className="primary"
+                  onClick={() =>
+                    advanceGame("done")
+                  }
+                  disabled={nextLoading}
+                >
+                  <span>
+                    {nextLoading
+                      ? "Un instant…"
+                      : "Scène terminée"}
                   </span>
 
                   <span>→</span>
                 </button>
 
-              )}
+              ) : (
+
+                <button
+                  className="primary scene-next"
+                  onClick={handleSceneNext}
+                  disabled={nextLoading}
+                >
+                  <span>
+                    {nextLoading
+                      ? "Un instant…"
+                      : "Continuer la scène"}
+                  </span>
+
+                  <span>→</span>
+                </button>
+
+              )
+
+            ) : (
+
+              sceneState.is_last ? (
+
+                <button
+                  className="primary"
+                  onClick={() =>
+                    advanceGame("done")
+                  }
+                  disabled={nextLoading}
+                >
+                  <span>
+                    {nextLoading
+                      ? "Un instant…"
+                      : "Scène terminée"}
+                  </span>
+
+                  <span>→</span>
+                </button>
+
+              ) : (
+
+                <button
+                  className="primary scene-next"
+                  onClick={handleSceneNext}
+                  disabled={nextLoading}
+                >
+                  <span>
+                    {nextLoading
+                      ? "Un instant…"
+                      : "Continuer la scène"}
+                  </span>
+
+                  <span>→</span>
+                </button>
+
+              )
+
+            )
+
+          ) : (
+
+            <button
+              className="primary"
+              onClick={() =>
+                advanceGame("done")
+              }
+              disabled={nextLoading}
+            >
+              <span>
+                {nextLoading
+                  ? "Un instant…"
+                  : "C'est fait"}
+              </span>
+
+              <span>→</span>
+            </button>
+
+          )}
 
 
               <div className="alternative-actions">
@@ -3714,20 +3972,70 @@ async function handleSceneNext() {
 
             <div className="waiting-turn">
 
-              <span className="pulse-dot" />
+              {sceneState?.is_multistep &&
+              sceneState?.is_private ? (
 
-              <div>
+                !mySceneStepRead ? (
 
-                <strong>
+                  <button
+                    className="primary"
+                    onClick={handleSceneRead}
+                    disabled={nextLoading}
+                  >
+                    <span>
+                      {nextLoading
+                        ? "Un instant…"
+                        : "J'ai lu"}
+                    </span>
+
+                    <span>✓</span>
+                  </button>
+
+                ) : !partnerSceneStepRead ? (
+
+                  <div className="ready-box">
+                    <div className="check">
+                      ✓
+                    </div>
+
+                    <div>
+                      <strong>
+                        Tu as lu.
+                      </strong>
+
+                      <span>
+                        On attend l'autre.
+                      </span>
+                    </div>
+                  </div>
+
+                ) : (
+
+                  <div className="ready-box">
+                    <div className="check">
+                      ✓
+                    </div>
+
+                    <div>
+                      <strong>
+                        Vous avez lu.
+                      </strong>
+
+                      <span>
+                        {activePlayerName} peut continuer.
+                      </span>
+                    </div>
+                  </div>
+
+                )
+
+              ) : (
+
+                <p className="waiting-text">
                   À {activePlayerName} de jouer.
-                </strong>
-
-                <p>
-                  La prochaine carte apparaîtra
-                  automatiquement.
                 </p>
 
-              </div>
+              )}
 
             </div>
 
