@@ -4372,3 +4372,135 @@ h1 {
   }
 
 }
+
+/* =========================================
+   MICRO POLISH 1 — DENSITÉ MOBILE
+   ========================================= */
+
+@media (max-width: 480px) {
+  .play,
+  .question-screen,
+  .calibration-result,
+  .final-screen {
+    padding-top: max(14px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .play {
+    gap: 10px;
+  }
+
+  .game-card {
+    margin-top: clamp(18px, 4vh, 34px);
+    padding: 24px 20px;
+    border-radius: 22px;
+  }
+
+  .play-bottom {
+    margin-top: 14px;
+  }
+
+  .waiting-turn,
+  .ready-box {
+    margin-top: 8px;
+    min-height: 64px;
+  }
+
+  .alternative-actions {
+    margin-top: 10px;
+    gap: 10px;
+  }
+
+  .primary,
+  .secondary {
+    min-height: 58px;
+  }
+
+  .text-action {
+    min-height: 46px;
+  }
+}
+
+/* =========================================
+   MICRO POLISH 2 — ÉCRAN FINAL
+   ========================================= */
+
+@media (max-width: 480px) {
+  .final-screen {
+    gap: 22px;
+    padding-top: max(18px, env(safe-area-inset-top));
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+
+  .final-intro h1 {
+    max-width: 320px;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+  }
+
+  .final-text {
+    max-width: 310px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #a5929a;
+  }
+
+  .final-score-card {
+    margin-top: 4px;
+    padding: 20px 18px;
+  }
+
+  .final-result {
+    padding: 12px 0;
+  }
+
+  .final-closing p {
+    font-size: 17px;
+    line-height: 1.45;
+  }
+
+  .final-replay {
+    margin-top: 4px;
+  }
+}
+
+/* =========================================
+   MICRO POLISH 3 — HEADER / SCORE
+   ========================================= */
+
+@media (max-width: 480px) {
+  .header {
+    min-height: 30px;
+    padding-inline: 2px;
+  }
+
+  .logo {
+    font-size: 9px;
+    letter-spacing: 0.24em;
+  }
+
+  .score-board {
+    gap: 10px;
+    padding-right: 8px;
+  }
+
+  .score-board > div {
+    gap: 4px;
+  }
+
+  .score-board strong {
+    font-size: 19px;
+  }
+
+  .play-meta {
+    margin-top: 2px;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+  }
+
+  .card-type {
+    padding: 6px 12px;
+  }
+}
