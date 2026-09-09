@@ -2889,6 +2889,23 @@ async function handleSceneRead() {
       card?.prompt
     );
 
+  const displayPrompt =
+    sceneState?.is_multistep
+      ? renderProtocolText(
+          sceneState.prompt
+        )
+      : cardText;
+
+  const promptLength =
+    displayPrompt?.length || 0;
+
+  const promptSizeClass =
+    promptLength > 180
+      ? "card-prompt-long"
+      : promptLength > 105
+        ? "card-prompt-medium"
+        : "card-prompt-short";
+
 
    /* =========================================
      PARTIE TERMINEE
@@ -3652,6 +3669,7 @@ async function handleSceneRead() {
           )}
 
           <div
+            key={`${card.id}-${sceneState?.step_no || 0}`}
             className={`game-card game-card-${card.type}`}
           >
 
@@ -3685,12 +3703,10 @@ async function handleSceneRead() {
           </p>
         )}
 
-        <p className="card-prompt">
-          {sceneState?.is_multistep
-            ? renderProtocolText(
-            sceneState.prompt
-          )
-            : cardText}
+        <p
+          className={`card-prompt ${promptSizeClass}`}
+        >
+          {displayPrompt}
         </p>
 
         </div>
