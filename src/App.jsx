@@ -2227,6 +2227,11 @@ function PlayScreen({
     setShowTypePicker,
   ] = useState(false);
 
+  const [
+    showBonuses,
+    setShowBonuses,
+  ] = useState(false);
+
   const [activeRules, setActiveRules] =
     useState([]);
 
@@ -2900,9 +2905,9 @@ async function handleSceneRead() {
     displayPrompt?.length || 0;
 
   const promptSizeClass =
-    promptLength > 180
+    promptLength > 135
       ? "card-prompt-long"
-      : promptLength > 105
+      : promptLength > 80
         ? "card-prompt-medium"
         : "card-prompt-short";
 
@@ -3313,124 +3318,167 @@ async function handleSceneRead() {
       </header>
 
 
-      {/* =====================================
-          BONUS
-          ===================================== */}
+    {/* =====================================
+        BONUS
+        ===================================== */}
 
-      <div className="bonus-bar">
+    <div
+      className={
+        showBonuses
+          ? "bonus-panel bonus-panel-open"
+          : "bonus-panel"
+      }
+    >
 
-        <button
-          className={
-            myBonuses.double_reward
-              ? "bonus-button bonus-owned"
-              : "bonus-button"
-          }
-          onClick={() =>
-            buyBonus(
-              "double_reward"
-            )
-          }
-          disabled={
-            nextLoading ||
-            myBonuses.double_reward ||
-            myScore < 3
-          }
-        >
-          <span>
-            Double enjeu
+      <button
+        type="button"
+        className="bonus-toggle"
+        onClick={() =>
+          setShowBonuses(
+            (current) => !current
+          )
+        }
+      >
+        <span className="bonus-toggle-label">
+          AVANTAGES
+        </span>
+
+        <span className="bonus-toggle-meta">
+          {myScore} pts
+          <span className="bonus-toggle-dot">
+            ·
           </span>
-
-          <strong>
-            {myBonuses.double_reward
-              ? "PRÊT"
-              : "3 pts"}
-          </strong>
-        </button>
+          {showBonuses
+            ? "FERMER"
+            : "OUVRIR"}
+        </span>
+      </button>
 
 
-        <button
-          className={
-            myBonuses.take_control ||
-            myBonuses.take_control_armed
-              ? "bonus-button bonus-owned"
-              : "bonus-button"
-          }
-          onClick={() =>
-            buyBonus(
-              "take_control"
-            )
-          }
-          disabled={
-            nextLoading ||
-            myBonuses.take_control ||
-            myBonuses.take_control_armed ||
-            myScore < 3
-          }
-        >
-          <span>
-            Prendre la main
-          </span>
+      {showBonuses && (
 
-          <strong>
-            {myBonuses.take_control_armed
-              ? "ACTIF"
-              : myBonuses.take_control
+        <div className="bonus-bar">
+
+
+          <button
+            className={
+              myBonuses.double_reward
+                ? "bonus-button bonus-owned"
+                : "bonus-button"
+            }
+            onClick={() =>
+              buyBonus(
+                "double_reward"
+              )
+            }
+            disabled={
+              nextLoading ||
+              myBonuses.double_reward ||
+              myScore < 3
+            }
+          >
+            <span>
+              Double enjeu
+            </span>
+
+            <strong>
+              {myBonuses.double_reward
                 ? "PRÊT"
                 : "3 pts"}
-          </strong>
-        </button>
+            </strong>
+          </button>
 
 
-        <button
-          className={
-            myBonuses.choose_type ||
-            myBonuses.choose_type_armed
-              ? "bonus-button bonus-owned"
-              : "bonus-button"
-          }
-          onClick={() => {
-
-            if (
-              myBonuses.choose_type
-            ) {
-              setShowTypePicker(
-                true
-              );
-
-              return;
+          <button
+            className={
+              myBonuses.take_control ||
+              myBonuses.take_control_armed
+                ? "bonus-button bonus-owned"
+                : "bonus-button"
             }
+            onClick={() =>
+              buyBonus(
+                "take_control"
+              )
+            }
+            disabled={
+              nextLoading ||
+              myBonuses.take_control ||
+              myBonuses.take_control_armed ||
+              myScore < 3
+            }
+          >
+            <span>
+              Prendre la main
+            </span>
 
-            buyBonus(
-              "choose_type"
-            );
-          }}
-          disabled={
-            nextLoading ||
-            Boolean(
+            <strong>
+              {myBonuses.take_control_armed
+                ? "ACTIF"
+                : myBonuses.take_control
+                  ? "PRÊT"
+                  : "3 pts"}
+            </strong>
+          </button>
+
+
+          <button
+            className={
+              myBonuses.choose_type ||
               myBonuses.choose_type_armed
-            ) ||
-            (
-              !myBonuses.choose_type &&
-              myScore < 2
-            )
-          }
-        >
-          <span>
-            Imposer le type
-          </span>
+                ? "bonus-button bonus-owned"
+                : "bonus-button"
+            }
+            onClick={() => {
 
-          <strong>
-            {myBonuses.choose_type_armed
-              ? myBonuses
-                  .choose_type_armed
-                  .toUpperCase()
-              : myBonuses.choose_type
-                ? "UTILISER"
-                : "2 pts"}
-          </strong>
-        </button>
+              if (
+                myBonuses.choose_type
+              ) {
+                setShowBonuses(false);
 
-      </div>
+                setShowTypePicker(
+                  true
+                );
+
+                return;
+              }
+
+              buyBonus(
+                "choose_type"
+              );
+            }}
+            disabled={
+              nextLoading ||
+              Boolean(
+                myBonuses.choose_type_armed
+              ) ||
+              (
+                !myBonuses.choose_type &&
+                myScore < 2
+              )
+            }
+          >
+            <span>
+              Imposer le type
+            </span>
+
+            <strong>
+              {myBonuses.choose_type_armed
+                ? myBonuses
+                    .choose_type_armed
+                    .toUpperCase()
+                : myBonuses.choose_type
+                  ? "UTILISER"
+                  : "2 pts"}
+            </strong>
+          </button>
+
+
+        </div>
+
+      )}
+
+    </div>
 
 
       {/* =====================================

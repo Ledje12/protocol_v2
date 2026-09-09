@@ -3824,3 +3824,551 @@ h1 {
   }
 
 }
+
+/* =========================================================
+   PROTOCOL
+   PREMIUM COMPACT PASS
+   Target principal : iPhone 17 Pro Max
+   CSS viewport : 440 x 956
+   Browser visible : ~796-836px
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   TYPOGRAPHIE PREMIUM
+
+   Baskerville est particulièrement belle sur iOS.
+   Aucun téléchargement de font nécessaire.
+   --------------------------------------------------------- */
+
+.game-card .card-prompt,
+.protocol-opening-title h1,
+.protocol-opening-copy,
+.protocol-opening-whisper,
+.final-screen h1,
+.final-screen .final-message {
+  font-family:
+    Baskerville,
+    "Iowan Old Style",
+    "Palatino Linotype",
+    Georgia,
+    serif;
+}
+
+
+/* ---------------------------------------------------------
+   PAGE DE JEU
+
+   CRITIQUE :
+   on tue les répartitions verticales excessives.
+   --------------------------------------------------------- */
+
+.play {
+  display: flex !important;
+  flex-direction: column !important;
+
+  justify-content:
+    flex-start !important;
+
+  gap: 12px !important;
+
+  min-height: 0 !important;
+
+  padding-top: 8px !important;
+  padding-bottom:
+    calc(
+      14px +
+      env(safe-area-inset-bottom)
+    ) !important;
+}
+
+
+/* ---------------------------------------------------------
+   HEADER JEU
+   --------------------------------------------------------- */
+
+.play-header,
+.header {
+  flex-shrink: 0;
+}
+
+
+/* ---------------------------------------------------------
+   BONUS COMPACT
+   --------------------------------------------------------- */
+
+.bonus-panel {
+  width: 100%;
+
+  margin:
+    4px 0
+    12px;
+
+  padding:
+    0
+    clamp(
+      18px,
+      5vw,
+      28px
+    );
+}
+
+
+.bonus-toggle {
+  width: 100%;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding:
+    0
+    16px;
+
+  border:
+    1px solid
+    rgba(200, 112, 143, 0.16);
+
+  border-radius: 16px;
+
+  background:
+    rgba(22, 8, 14, 0.46);
+
+  color:
+    rgba(255, 244, 248, 0.62);
+
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+.bonus-toggle-label {
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  letter-spacing: 0.2em;
+
+  color:
+    rgba(218, 126, 160, 0.82);
+}
+
+
+.bonus-toggle-meta {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+
+  font-size: 9px;
+  font-weight: 500;
+
+  letter-spacing: 0.12em;
+
+  color:
+    rgba(255, 255, 255, 0.32);
+}
+
+
+.bonus-toggle-dot {
+  color:
+    rgba(204, 94, 134, 0.58);
+}
+
+
+.bonus-panel-open
+.bonus-toggle {
+  border-color:
+    rgba(205, 100, 140, 0.3);
+
+  background:
+    rgba(36, 10, 21, 0.72);
+}
+
+
+/* bonus dépliés */
+
+.bonus-panel .bonus-bar {
+  display: grid !important;
+
+  grid-template-columns:
+    1fr 1fr 1fr;
+
+  gap: 7px !important;
+
+  margin:
+    8px 0
+    0 !important;
+
+  padding: 0 !important;
+}
+
+
+.bonus-panel .bonus-button {
+  min-width: 0;
+
+  height: 54px !important;
+  min-height: 54px !important;
+
+  padding:
+    8px
+    9px !important;
+
+  border-radius:
+    15px !important;
+
+  display: flex;
+  flex-direction: column;
+
+  justify-content:
+    center;
+
+  align-items:
+    flex-start;
+
+  gap: 3px;
+}
+
+
+.bonus-panel
+.bonus-button span {
+  font-size: 10px;
+
+  line-height: 1.08;
+
+  text-align: left;
+}
+
+
+.bonus-panel
+.bonus-button strong {
+  font-size: 9px;
+
+  letter-spacing:
+    0.08em;
+}
+
+
+/* ---------------------------------------------------------
+   META
+   ACTION · AUDREY · 4/20
+   --------------------------------------------------------- */
+
+.play-meta {
+  width: 100%;
+
+  margin:
+    0 0
+    8px !important;
+
+  min-height: 32px;
+
+  flex-shrink: 0;
+}
+
+
+/* ---------------------------------------------------------
+   REGLES ACTIVES
+   --------------------------------------------------------- */
+
+.active-rules {
+  margin:
+    0 0
+    6px !important;
+}
+
+
+.active-rule {
+  padding:
+    14px
+    16px !important;
+
+  min-height:
+    0 !important;
+
+  border-radius:
+    17px !important;
+}
+
+
+.active-rule-top {
+  margin-bottom:
+    7px !important;
+}
+
+
+.active-rule-title {
+  margin-bottom:
+    3px !important;
+
+  font-size:
+    12px !important;
+}
+
+
+.active-rule-text {
+  font-family:
+    Baskerville,
+    "Iowan Old Style",
+    Georgia,
+    serif;
+
+  font-size:
+    15px !important;
+
+  line-height:
+    1.28 !important;
+}
+
+
+/* ---------------------------------------------------------
+   CARTE
+   --------------------------------------------------------- */
+
+.game-card {
+  width: 100%;
+
+  margin:
+    0 !important;
+
+  min-height:
+    0 !important;
+
+  padding:
+    26px
+    28px
+    28px !important;
+
+  border-radius:
+    24px !important;
+
+  flex-shrink: 0;
+}
+
+
+/* titre de carte */
+
+.game-card .kicker {
+  margin:
+    0 0
+    18px !important;
+
+  font-size:
+    10px;
+
+  line-height:
+    1.2;
+
+  letter-spacing:
+    0.23em;
+}
+
+
+/* ---------------------------------------------------------
+   PROMPT
+
+   volontairement plus éditorial et moins massif.
+   --------------------------------------------------------- */
+
+.card-prompt {
+  margin: 0 !important;
+
+  font-weight:
+    400 !important;
+
+  letter-spacing:
+    -0.018em !important;
+
+  text-wrap:
+    pretty;
+
+  hanging-punctuation:
+    first last;
+}
+
+
+.card-prompt-short {
+  font-size:
+    clamp(
+      39px,
+      9.5vw,
+      44px
+    ) !important;
+
+  line-height:
+    1.02 !important;
+}
+
+
+.card-prompt-medium {
+  font-size:
+    clamp(
+      32px,
+      7.8vw,
+      36px
+    ) !important;
+
+  line-height:
+    1.055 !important;
+}
+
+
+.card-prompt-long {
+  font-size:
+    clamp(
+      27px,
+      6.7vw,
+      31px
+    ) !important;
+
+  line-height:
+    1.08 !important;
+}
+
+
+/* ---------------------------------------------------------
+   ACTIONS SOUS LA CARTE
+   --------------------------------------------------------- */
+
+.play-bottom {
+  width: 100%;
+
+  margin:
+    0 !important;
+
+  padding:
+    0 0
+    env(safe-area-inset-bottom)
+    !important;
+
+  flex-shrink: 0;
+}
+
+
+.play-bottom .primary,
+.play-bottom button {
+  min-height:
+    56px;
+}
+
+
+/* ---------------------------------------------------------
+   IPHONE PRO MAX
+
+   17 Pro Max = 440 CSS px
+   On laisse un peu d'air horizontal.
+   --------------------------------------------------------- */
+
+@media
+  (min-width: 430px)
+  and
+  (max-width: 460px)
+  and
+  (orientation: portrait) {
+
+  .play {
+    gap:
+      10px !important;
+  }
+
+
+  .play-meta {
+    margin-bottom:
+      5px !important;
+  }
+
+
+  .game-card {
+    padding:
+      25px
+      30px
+      27px !important;
+  }
+
+
+  .bonus-panel {
+    margin-bottom:
+      8px;
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   PETITE HAUTEUR REELLE AVEC BARRES NAVIGATEUR
+
+   Cas réel Chrome/Safari sur votre iPhone.
+   --------------------------------------------------------- */
+
+@media
+  (max-height: 850px)
+  and
+  (orientation: portrait) {
+
+  .bonus-panel {
+    margin-top:
+      0;
+
+    margin-bottom:
+      6px;
+  }
+
+
+  .play {
+    gap:
+      8px !important;
+
+    padding-top:
+      2px !important;
+  }
+
+
+  .play-meta {
+    margin-bottom:
+      2px !important;
+  }
+
+
+  .game-card {
+    padding-top:
+      22px !important;
+
+    padding-bottom:
+      23px !important;
+  }
+
+
+  .game-card .kicker {
+    margin-bottom:
+      14px !important;
+  }
+
+
+  .card-prompt-short {
+    font-size:
+      38px !important;
+  }
+
+
+  .card-prompt-medium {
+    font-size:
+      32px !important;
+  }
+
+
+  .card-prompt-long {
+    font-size:
+      27px !important;
+  }
+
+}
