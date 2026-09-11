@@ -4504,3 +4504,141 @@ h1 {
     padding: 6px 12px;
   }
 }
+
+/* =========================================================
+   FINAL POLISH — TEXT GUTTERS
+   Respiration des textes sans réduire les encadrements
+   ========================================================= */
+
+:root {
+  --protocol-text-gutter: 20px;
+}
+
+
+/* ---------------------------------------------------------
+   HEADER
+   Logo / éléments texte un peu décollés des bords
+   --------------------------------------------------------- */
+
+.header {
+  padding-left: var(--protocol-text-gutter) !important;
+  padding-right: var(--protocol-text-gutter) !important;
+}
+
+
+/* ---------------------------------------------------------
+   TEXTES ÉDITORIAUX PRINCIPAUX
+   Titres, kickers, descriptions, labels
+   --------------------------------------------------------- */
+
+.home > h1,
+.home > .kicker,
+.home > .intro,
+
+.join > h1,
+.join > .kicker,
+.join > .intro,
+
+.lobby > h1,
+.lobby > .kicker,
+.lobby > .intro,
+
+.calibration > h1,
+.calibration > .kicker,
+.calibration > .intro,
+
+.question-screen > h1,
+.question-screen > .kicker,
+.question-screen > .intro,
+.question-screen > .progress-label,
+
+.calibration-result > h1,
+.calibration-result > .kicker,
+.calibration-result > .intro,
+
+.identity > h1,
+.identity > .kicker,
+.identity > .intro,
+
+.final-screen > h1,
+.final-screen > .kicker,
+.final-screen > .intro {
+  margin-left: var(--protocol-text-gutter) !important;
+  margin-right: var(--protocol-text-gutter) !important;
+}
+
+
+/* ---------------------------------------------------------
+   IDENTITY
+   Le bloc de titre est parfois enveloppé dans un conteneur
+   --------------------------------------------------------- */
+
+.identity > div:first-child:not(.identity-form) {
+  padding-left: var(--protocol-text-gutter);
+  padding-right: var(--protocol-text-gutter);
+}
+
+
+/* Label "NOM DE SESSION"
+   L'input lui-même reste pleine largeur
+   --------------------------------------------------------- */
+
+.identity-name > span {
+  padding-left: var(--protocol-text-gutter);
+  padding-right: var(--protocol-text-gutter);
+}
+
+
+/* ---------------------------------------------------------
+   PLAY
+   Meta hors carte uniquement.
+   On NE touche PAS au contenu de .game-card :
+   il possède déjà son propre padding interne.
+   --------------------------------------------------------- */
+
+.play-meta {
+  padding-left: var(--protocol-text-gutter);
+  padding-right: var(--protocol-text-gutter);
+}
+
+
+/* ---------------------------------------------------------
+   FOOTER
+   "Session privée" / "Pour adultes consentants"
+   --------------------------------------------------------- */
+
+.footer {
+  padding-left: var(--protocol-text-gutter);
+  padding-right: var(--protocol-text-gutter);
+}
+
+
+/* ---------------------------------------------------------
+   SÉCURITÉ
+   Les éléments encadrés gardent exactement leur largeur.
+   Pas de marge supplémentaire.
+   --------------------------------------------------------- */
+
+.game-card,
+.code-card,
+.privacy,
+.ready-box,
+.waiting-partner,
+.shared-ready,
+.waiting-turn,
+.final-score-card,
+.identity-name input,
+.identity-symbols,
+.primary,
+.secondary,
+.calibration-option,
+.preference-button,
+.control-button,
+.duel-buttons,
+.alternative-actions,
+.bonus-panel,
+.type-picker,
+.active-rule {
+  margin-left: 0;
+  margin-right: 0;
+}
