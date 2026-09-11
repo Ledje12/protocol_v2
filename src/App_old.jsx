@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import "./notifications.css";
 
 /* =========================================================
    SUPABASE
@@ -151,13 +150,6 @@ function getRoute() {
     };
   }
 
-  if (path === "/settings") {
-    return {
-      screen: "settings",
-      code: null,
-    };
-  }
-
   if (path === "/join") {
     return {
       screen: "join",
@@ -280,14 +272,6 @@ function App() {
       );
     };
   }, []);
-
-  if (route.screen === "settings") {
-    return (
-      <SettingsScreen
-        navigate={navigate}
-      />
-    );
-  }
 
   if (route.screen === "join") {
     return (
@@ -434,14 +418,9 @@ function HomeScreen({ navigate }) {
           PROTOCOL
         </span>
 
-        <button
-          type="button"
-          className="settings-trigger"
-          onClick={() => navigate("/settings")}
-          aria-label="Réglages"
-        >
-          <span aria-hidden="true">⌁</span>
-        </button>
+        <span className="for-two">
+          for two
+        </span>
       </header>
 
       <section className="home">
@@ -498,237 +477,6 @@ function HomeScreen({ navigate }) {
             <span>→</span>
           </button>
         </div>
-      </section>
-
-      <Footer />
-    </main>
-  );
-}
-
-/* =========================================================
-   SETTINGS
-   ========================================================= */
-
-function SettingsScreen({ navigate }) {
-  const [permission, setPermission] =
-    useState(() => {
-      if (!("Notification" in window)) {
-        return "unsupported";
-      }
-
-      return Notification.permission;
-    });
-
-  const [requesting, setRequesting] =
-    useState(false);
-
-  const [message, setMessage] =
-    useState("");
-
-  const isStandalone =
-    window.matchMedia?.(
-      "(display-mode: standalone)"
-    )?.matches ||
-    window.navigator.standalone === true;
-
-  const requestNotifications =
-    async () => {
-      if (!("Notification" in window)) {
-        setPermission("unsupported");
-        return;
-      }
-
-      try {
-        setRequesting(true);
-        setMessage("");
-
-        const result =
-          await Notification.requestPermission();
-
-        setPermission(result);
-
-        if (result === "granted") {
-          setMessage(
-            "Cet iPhone est prêt pour les notifications PROTOCOL."
-          );
-        } else if (result === "denied") {
-          setMessage(
-            "Les notifications sont bloquées dans les réglages iOS."
-          );
-        }
-      } catch (err) {
-        console.error(
-          "NOTIFICATION PERMISSION ERROR:",
-          err
-        );
-
-        setMessage(
-          "Impossible d’activer les notifications sur cet appareil."
-        );
-      } finally {
-        setRequesting(false);
-      }
-    };
-
-  const status =
-    permission === "granted"
-      ? {
-          label: "ACTIVES",
-          title: "Tu ne manqueras rien.",
-          text:
-            "Invitations et signaux PROTOCOL pourront apparaître directement sur cet iPhone.",
-          className: "is-on",
-        }
-      : permission === "denied"
-        ? {
-            label: "BLOQUÉES",
-            title: "iOS garde la porte fermée.",
-            text:
-              "Les notifications ont été refusées. Elles peuvent être réactivées depuis les réglages de l’iPhone.",
-            className: "is-off",
-          }
-        : permission === "unsupported"
-          ? {
-              label: "INDISPONIBLE",
-              title: "Pas sur cet appareil.",
-              text:
-                "Ce navigateur ne permet pas d’utiliser les notifications PROTOCOL.",
-              className: "is-off",
-            }
-          : {
-              label: "DÉSACTIVÉES",
-              title: "Un signe. Au bon moment.",
-              text:
-                "Autorise PROTOCOL à t’envoyer une invitation ou un signal discret lorsque l’autre a envie de jouer.",
-              className: "",
-            };
-
-  return (
-    <main className="app protocol-settings-page">
-      <div className="glow glow-center" />
-
-      <header className="header">
-        <button
-          className="back"
-          onClick={() => navigate("/")}
-          aria-label="Retour"
-        >
-          ←
-        </button>
-
-        <span className="logo">
-          PROTOCOL
-        </span>
-
-        <span className="settings-header-dot">
-          •
-        </span>
-      </header>
-
-      <section className="protocol-settings">
-        <div className="protocol-settings-intro">
-          <p className="kicker">
-            RÉGLAGES
-          </p>
-
-          <h1>
-            Restez
-            <br />
-            connectés.
-          </h1>
-
-          <p className="intro">
-            Quelques signaux seulement.
-            <br />
-            Jamais de bruit inutile.
-          </p>
-        </div>
-
-        <div
-          className={
-            `notification-card ${status.className}`
-          }
-        >
-          <div className="notification-card-top">
-            <div className="notification-orb">
-              <span />
-            </div>
-
-            <span className="notification-status">
-              {status.label}
-            </span>
-          </div>
-
-          <div className="notification-card-copy">
-            <span className="notification-eyebrow">
-              NOTIFICATIONS
-            </span>
-
-            <h2>
-              {status.title}
-            </h2>
-
-            <p>
-              {status.text}
-            </p>
-          </div>
-
-          {!isStandalone &&
-            permission !== "granted" && (
-              <p className="notification-hint">
-                Sur iPhone, ouvre PROTOCOL depuis
-                l’icône ajoutée à l’écran d’accueil.
-              </p>
-            )}
-
-          {message && (
-            <p className="notification-message">
-              {message}
-            </p>
-          )}
-
-          {permission === "default" && (
-            <button
-              type="button"
-              className="notification-enable"
-              onClick={requestNotifications}
-              disabled={requesting}
-            >
-              <span>
-                {requesting
-                  ? "Activation…"
-                  : "Activer les notifications"}
-              </span>
-
-              <span className="notification-arrow">
-                →
-              </span>
-            </button>
-          )}
-
-          {permission === "granted" && (
-            <div className="notification-enabled">
-              <span className="notification-check">
-                ✓
-              </span>
-
-              <div>
-                <strong>
-                  Notifications autorisées
-                </strong>
-
-                <span>
-                  Cet appareil est prêt.
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <p className="settings-privacy">
-          Le contenu sensible ne sera pas affiché
-          dans les notifications.
-        </p>
       </section>
 
       <Footer />
