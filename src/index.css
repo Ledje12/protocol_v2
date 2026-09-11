@@ -4506,18 +4506,18 @@ h1 {
 }
 
 /* =========================================================
-   FINAL POLISH — TEXT GUTTERS
-   Respiration des textes sans réduire les encadrements
+   FINAL POLISH — TEXT GUTTERS V2
+   Léger retrait du texte uniquement.
+   Les encadrements restent pleine largeur.
    ========================================================= */
 
 :root {
-  --protocol-text-gutter: 20px;
+  --protocol-text-gutter: 12px;
 }
 
 
 /* ---------------------------------------------------------
    HEADER
-   Logo / éléments texte un peu décollés des bords
    --------------------------------------------------------- */
 
 .header {
@@ -4527,96 +4527,102 @@ h1 {
 
 
 /* ---------------------------------------------------------
-   TEXTES ÉDITORIAUX PRINCIPAUX
-   Titres, kickers, descriptions, labels
+   TEXTES PRINCIPAUX
+   Descendants et non enfants directs
    --------------------------------------------------------- */
 
-.home > h1,
-.home > .kicker,
-.home > .intro,
+.home .kicker,
+.home h1,
+.home .intro,
 
-.join > h1,
-.join > .kicker,
-.join > .intro,
+.join .kicker,
+.join h1,
+.join .intro,
 
-.lobby > h1,
-.lobby > .kicker,
-.lobby > .intro,
+.lobby .kicker,
+.lobby h1,
+.lobby .intro,
 
-.calibration > h1,
-.calibration > .kicker,
-.calibration > .intro,
+.calibration .kicker,
+.calibration h1,
+.calibration .intro,
 
-.question-screen > h1,
-.question-screen > .kicker,
-.question-screen > .intro,
-.question-screen > .progress-label,
+.question-screen .kicker,
+.question-screen h1,
+.question-screen .intro,
+.question-screen .progress-label,
 
-.calibration-result > h1,
-.calibration-result > .kicker,
-.calibration-result > .intro,
+.calibration-result .kicker,
+.calibration-result h1,
+.calibration-result .intro,
 
-.identity > h1,
-.identity > .kicker,
-.identity > .intro,
+.identity .kicker,
+.identity h1,
+.identity .intro,
 
-.final-screen > h1,
-.final-screen > .kicker,
-.final-screen > .intro {
-  margin-left: var(--protocol-text-gutter) !important;
-  margin-right: var(--protocol-text-gutter) !important;
+.final-screen .kicker,
+.final-screen h1,
+.final-screen .intro {
+  padding-left: var(--protocol-text-gutter) !important;
+  padding-right: var(--protocol-text-gutter) !important;
+
+  box-sizing: border-box;
 }
 
 
 /* ---------------------------------------------------------
-   IDENTITY
-   Le bloc de titre est parfois enveloppé dans un conteneur
+   ÉCRAN D'INTRO / OPENING
+   Au cas où certains écrans utilisent ces composants
    --------------------------------------------------------- */
 
-.identity > div:first-child:not(.identity-form) {
-  padding-left: var(--protocol-text-gutter);
-  padding-right: var(--protocol-text-gutter);
+.protocol-opening-title,
+.protocol-opening-copy,
+.protocol-opening-whisper,
+.protocol-opening-safety {
+  padding-left: var(--protocol-text-gutter) !important;
+  padding-right: var(--protocol-text-gutter) !important;
+
+  box-sizing: border-box;
 }
 
 
-/* Label "NOM DE SESSION"
-   L'input lui-même reste pleine largeur
+/* ---------------------------------------------------------
+   LABELS DE FORMULAIRE
+   Les champs restent pleine largeur
    --------------------------------------------------------- */
 
 .identity-name > span {
-  padding-left: var(--protocol-text-gutter);
-  padding-right: var(--protocol-text-gutter);
+  padding-left: var(--protocol-text-gutter) !important;
+  padding-right: var(--protocol-text-gutter) !important;
 }
 
 
 /* ---------------------------------------------------------
-   PLAY
-   Meta hors carte uniquement.
-   On NE touche PAS au contenu de .game-card :
-   il possède déjà son propre padding interne.
+   META DE JEU HORS CARTE
    --------------------------------------------------------- */
 
 .play-meta {
-  padding-left: var(--protocol-text-gutter);
-  padding-right: var(--protocol-text-gutter);
+  padding-left: var(--protocol-text-gutter) !important;
+  padding-right: var(--protocol-text-gutter) !important;
 }
 
 
 /* ---------------------------------------------------------
    FOOTER
-   "Session privée" / "Pour adultes consentants"
+   La bordure reste pleine largeur,
+   seul le contenu respire.
    --------------------------------------------------------- */
 
 .footer {
-  padding-left: var(--protocol-text-gutter);
-  padding-right: var(--protocol-text-gutter);
+  padding-left: var(--protocol-text-gutter) !important;
+  padding-right: var(--protocol-text-gutter) !important;
+
+  box-sizing: border-box;
 }
 
 
 /* ---------------------------------------------------------
-   SÉCURITÉ
-   Les éléments encadrés gardent exactement leur largeur.
-   Pas de marge supplémentaire.
+   ON NE TOUCHE PAS AUX ENCADREMENTS
    --------------------------------------------------------- */
 
 .game-card,
@@ -4639,6 +4645,6 @@ h1 {
 .bonus-panel,
 .type-picker,
 .active-rule {
-  margin-left: 0;
-  margin-right: 0;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
