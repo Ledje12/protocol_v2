@@ -7,6 +7,11 @@ export default defineConfig({
     react(),
 
     VitePWA({
+      strategies: 'injectManifest',
+
+      srcDir: 'src',
+      filename: 'sw.js',
+
       registerType: 'autoUpdate',
 
       includeAssets: [
@@ -50,7 +55,7 @@ export default defineConfig({
         ],
       },
 
-      workbox: {
+      injectManifest: {
         globPatterns: [
           '**/*.{js,css,html,ico,png,svg}',
         ],
