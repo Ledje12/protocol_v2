@@ -362,6 +362,69 @@ function HomeScreen({ navigate }) {
   const [error, setError] =
     useState("");
 
+  const [inviteLoading, setInviteLoading] =
+    useState(false);
+
+  const [inviteMessage, setInviteMessage] =
+    useState("");
+
+  const sendInvitation = async () => {
+    const sender = getPushOwner();
+
+    if (!sender) {
+      setInviteMessage(
+        "Enregistre d’abord cet appareil dans les réglages."
+      );
+      return;
+    }
+
+    try {
+      setInviteLoading(true);
+      setInviteMessage("");
+
+      const {
+        data,
+        error: functionError,
+      } = await supabase.functions.invoke(
+        "send-invitation",
+        {
+          body: {
+            sender,
+          },
+        }
+      );
+
+      if (functionError) {
+        throw functionError;
+      }
+
+      if (!data?.success) {
+        throw new Error(
+          data?.error ||
+          "Impossible d’envoyer l’invitation."
+        );
+      }
+
+      setInviteMessage(
+        sender === "jerome"
+          ? "Signal envoyé à Audrey."
+          : "Signal envoyé à Jérôme."
+      );
+    } catch (err) {
+      console.error(
+        "SEND INVITATION ERROR:",
+        err
+      );
+
+      setInviteMessage(
+        err?.message ||
+        "Impossible d’envoyer l’invitation."
+      );
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
   const createGame = async () => {
     try {
       setLoading(true);
@@ -475,6 +538,27 @@ function HomeScreen({ navigate }) {
               {error}
             </p>
           )}
+
+          {inviteMessage && (
+            <p className="small-text">
+              {inviteMessage}
+            </p>
+          )}
+
+          <button
+            type="button"
+            className="secondary"
+            onClick={sendInvitation}
+            disabled={inviteLoading}
+          >
+            <span>
+              {inviteLoading
+                ? "Envoi…"
+                : "On joue ce soir ?"}
+            </span>
+
+            <span>♡</span>
+          </button>
 
           <button
             className="primary"
