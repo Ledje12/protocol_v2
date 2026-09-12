@@ -284,3 +284,53 @@
     border-radius: 25px;
   }
 }
+
+.device-owner-section {
+  margin-top: 22px;
+}
+
+.device-owner-label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.device-owner-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  margin-bottom: 22px;
+}
+
+.device-owner-button {
+  width: 100%;
+  min-height: 58px;
+
+  padding: 0 18px;
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.018);
+
+  color: rgba(255, 255, 255, 0.68);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.device-owner-button.active {
+  border-color: rgba(255, 255, 255, 0.82);
+
+  background: rgba(255, 255, 255, 0.075);
+
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.notification-enabled {
+  margin-top: 0 !important;
+}

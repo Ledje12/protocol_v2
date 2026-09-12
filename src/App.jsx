@@ -859,88 +859,52 @@ function SettingsScreen({ navigate }) {
               </p>
             )}
 
-          {permission !== "unsupported" &&
-            permission !== "denied" && (
-              <div
-                style={{
-                  marginTop: "22px",
-                }}
-              >
-                <span
-                  className="notification-eyebrow"
-                  style={{
-                    display: "block",
-                    marginBottom: "10px",
-                  }}
-                >
-                  CET APPAREIL APPARTIENT À
-                </span>
+{permission !== "unsupported" &&
+  permission !== "denied" && (
+    <div className="device-owner-section">
+      <span className="notification-eyebrow device-owner-label">
+        CET APPAREIL APPARTIENT À
+      </span>
 
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "10px",
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={() => {
-                      if (owner !== "jerome") {
-                        setSubscribed(false);
-                      }
+      <div className="device-owner-selector">
+        <button
+          type="button"
+          className={`device-owner-button ${
+            owner === "jerome" ? "active" : ""
+          }`}
+          onClick={() => {
+            if (owner !== "jerome") {
+              setSubscribed(false);
+            }
 
-                      setOwner("jerome");
-                      setMessage("");
-                    }}
-                    aria-pressed={
-                      owner === "jerome"
-                    }
-                    style={
-                      owner === "jerome"
-                        ? {
-                            borderColor:
-                              "rgba(255,255,255,.9)",
-                            background:
-                              "rgba(255,255,255,.12)",
-                          }
-                        : undefined
-                    }
-                  >
-                    <span>Jérôme</span>
-                  </button>
+            setOwner("jerome");
+            setMessage("");
+          }}
+          aria-pressed={owner === "jerome"}
+        >
+          Jérôme
+        </button>
 
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={() => {
-                      if (owner !== "audrey") {
-                        setSubscribed(false);
-                      }
+        <button
+          type="button"
+          className={`device-owner-button ${
+            owner === "audrey" ? "active" : ""
+          }`}
+          onClick={() => {
+            if (owner !== "audrey") {
+              setSubscribed(false);
+            }
 
-                      setOwner("audrey");
-                      setMessage("");
-                    }}
-                    aria-pressed={
-                      owner === "audrey"
-                    }
-                    style={
-                      owner === "audrey"
-                        ? {
-                            borderColor:
-                              "rgba(255,255,255,.9)",
-                            background:
-                              "rgba(255,255,255,.12)",
-                          }
-                        : undefined
-                    }
-                  >
-                    <span>Audrey</span>
-                  </button>
-                </div>
-              </div>
-            )}
+            setOwner("audrey");
+            setMessage("");
+          }}
+          aria-pressed={owner === "audrey"}
+        >
+          Audrey
+        </button>
+      </div>
+    </div>
+  )}
 
           {message && (
             <p className="notification-message">
