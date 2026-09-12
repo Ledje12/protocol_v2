@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./notifications.css";
+import {
+  getCurrentPushSubscription,
+  getPushOwner,
+  registerPushNotifications,
+} from "./pushNotifications.js";
 
 /* =========================================================
    SUPABASE
@@ -519,6 +524,15 @@ function SettingsScreen({ navigate }) {
       return Notification.permission;
     });
 
+  const [owner, setOwner] =
+    useState(() => getPushOwner());
+
+  const [subscribed, setSubscribed] =
+    useState(false);
+
+  const [checkingSubscription, setCheckingSubscription] =
+    useState(true);
+
   const [requesting, setRequesting] =
     useState(false);
 
@@ -531,10 +545,66 @@ function SettingsScreen({ navigate }) {
     )?.matches ||
     window.navigator.standalone === true;
 
-  const requestNotifications =
+  useEffect(() => {
+    let active = true;
+
+    const checkSubscription = async () => {
+      if (
+        !("Notification" in window) ||
+        Notification.permission !== "granted"
+      ) {
+        if (active) {
+          setSubscribed(false);
+          setCheckingSubscription(false);
+        }
+
+        return;
+      }
+
+      try {
+        const subscription =
+          await getCurrentPushSubscription();
+
+        if (active) {
+          setSubscribed(
+            Boolean(subscription) &&
+            Boolean(getPushOwner())
+          );
+        }
+      } catch (err) {
+        console.error(
+          "PUSH SUBSCRIPTION CHECK ERROR:",
+          err
+        );
+
+        if (active) {
+          setSubscribed(false);
+        }
+      } finally {
+        if (active) {
+          setCheckingSubscription(false);
+        }
+      }
+    };
+
+    checkSubscription();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const activatePushNotifications =
     async () => {
       if (!("Notification" in window)) {
         setPermission("unsupported");
+        return;
+      }
+
+      if (!owner) {
+        setMessage(
+          "Choisis d’abord à qui appartient cet appareil."
+        );
         return;
       }
 
@@ -543,26 +613,35 @@ function SettingsScreen({ navigate }) {
         setMessage("");
 
         const result =
-          await Notification.requestPermission();
+          await registerPushNotifications({
+            ownerKey: owner,
+            supabaseClient: supabase,
+          });
 
-        setPermission(result);
+        setPermission(Notification.permission);
+        setSubscribed(Boolean(result?.subscription));
 
-        if (result === "granted") {
-          setMessage(
-            "Cet iPhone est prêt pour les notifications PROTOCOL."
-          );
-        } else if (result === "denied") {
-          setMessage(
-            "Les notifications sont bloquées dans les réglages iOS."
-          );
-        }
+        setMessage(
+          owner === "jerome"
+            ? "Cet iPhone est enregistré pour Jérôme."
+            : "Cet iPhone est enregistré pour Audrey."
+        );
       } catch (err) {
         console.error(
-          "NOTIFICATION PERMISSION ERROR:",
+          "PUSH ACTIVATION ERROR:",
           err
         );
 
+        if (
+          "Notification" in window
+        ) {
+          setPermission(
+            Notification.permission
+          );
+        }
+
         setMessage(
+          err?.message ||
           "Impossible d’activer les notifications sur cet appareil."
         );
       } finally {
@@ -571,37 +650,46 @@ function SettingsScreen({ navigate }) {
     };
 
   const status =
-    permission === "granted"
+    permission === "granted" &&
+    subscribed
       ? {
           label: "ACTIVES",
           title: "Tu ne manqueras rien.",
           text:
-            "Invitations et signaux PROTOCOL pourront apparaître directement sur cet iPhone.",
+            "Cet appareil est enregistré et peut recevoir les invitations PROTOCOL.",
           className: "is-on",
         }
-      : permission === "denied"
+      : permission === "granted"
         ? {
-            label: "BLOQUÉES",
-            title: "iOS garde la porte fermée.",
+            label: "À FINALISER",
+            title: "Encore une seconde.",
             text:
-              "Les notifications ont été refusées. Elles peuvent être réactivées depuis les réglages de l’iPhone.",
-            className: "is-off",
+              "iOS autorise déjà les notifications. Il reste à enregistrer cet appareil dans PROTOCOL.",
+            className: "",
           }
-        : permission === "unsupported"
+        : permission === "denied"
           ? {
-              label: "INDISPONIBLE",
-              title: "Pas sur cet appareil.",
+              label: "BLOQUÉES",
+              title: "iOS garde la porte fermée.",
               text:
-                "Ce navigateur ne permet pas d’utiliser les notifications PROTOCOL.",
+                "Les notifications ont été refusées. Elles peuvent être réactivées depuis les réglages de l’iPhone.",
               className: "is-off",
             }
-          : {
-              label: "DÉSACTIVÉES",
-              title: "Un signe. Au bon moment.",
-              text:
-                "Autorise PROTOCOL à t’envoyer une invitation ou un signal discret lorsque l’autre a envie de jouer.",
-              className: "",
-            };
+          : permission === "unsupported"
+            ? {
+                label: "INDISPONIBLE",
+                title: "Pas sur cet appareil.",
+                text:
+                  "Ce navigateur ne permet pas d’utiliser les notifications PROTOCOL.",
+                className: "is-off",
+              }
+            : {
+                label: "DÉSACTIVÉES",
+                title: "Un signe. Au bon moment.",
+                text:
+                  "Autorise PROTOCOL à t’envoyer une invitation ou un signal discret lorsque l’autre a envie de jouer.",
+                className: "",
+              };
 
   return (
     <main className="app protocol-settings-page">
@@ -655,7 +743,9 @@ function SettingsScreen({ navigate }) {
             </div>
 
             <span className="notification-status">
-              {status.label}
+              {checkingSubscription
+                ? "VÉRIFICATION"
+                : status.label}
             </span>
           </div>
 
@@ -665,11 +755,15 @@ function SettingsScreen({ navigate }) {
             </span>
 
             <h2>
-              {status.title}
+              {checkingSubscription
+                ? "On vérifie cet appareil."
+                : status.title}
             </h2>
 
             <p>
-              {status.text}
+              {checkingSubscription
+                ? "PROTOCOL vérifie si cet iPhone possède déjà un abonnement Push."
+                : status.text}
             </p>
           </div>
 
@@ -681,48 +775,144 @@ function SettingsScreen({ navigate }) {
               </p>
             )}
 
+          {permission !== "unsupported" &&
+            permission !== "denied" && (
+              <div
+                style={{
+                  marginTop: "22px",
+                }}
+              >
+                <span
+                  className="notification-eyebrow"
+                  style={{
+                    display: "block",
+                    marginBottom: "10px",
+                  }}
+                >
+                  CET APPAREIL APPARTIENT À
+                </span>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => {
+                      if (owner !== "jerome") {
+                        setSubscribed(false);
+                      }
+
+                      setOwner("jerome");
+                      setMessage("");
+                    }}
+                    aria-pressed={
+                      owner === "jerome"
+                    }
+                    style={
+                      owner === "jerome"
+                        ? {
+                            borderColor:
+                              "rgba(255,255,255,.9)",
+                            background:
+                              "rgba(255,255,255,.12)",
+                          }
+                        : undefined
+                    }
+                  >
+                    <span>Jérôme</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => {
+                      if (owner !== "audrey") {
+                        setSubscribed(false);
+                      }
+
+                      setOwner("audrey");
+                      setMessage("");
+                    }}
+                    aria-pressed={
+                      owner === "audrey"
+                    }
+                    style={
+                      owner === "audrey"
+                        ? {
+                            borderColor:
+                              "rgba(255,255,255,.9)",
+                            background:
+                              "rgba(255,255,255,.12)",
+                          }
+                        : undefined
+                    }
+                  >
+                    <span>Audrey</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
           {message && (
             <p className="notification-message">
               {message}
             </p>
           )}
 
-          {permission === "default" && (
-            <button
-              type="button"
-              className="notification-enable"
-              onClick={requestNotifications}
-              disabled={requesting}
-            >
-              <span>
-                {requesting
-                  ? "Activation…"
-                  : "Activer les notifications"}
-              </span>
-
-              <span className="notification-arrow">
-                →
-              </span>
-            </button>
-          )}
-
-          {permission === "granted" && (
-            <div className="notification-enabled">
-              <span className="notification-check">
-                ✓
-              </span>
-
-              <div>
-                <strong>
-                  Notifications autorisées
-                </strong>
-
+          {permission !== "unsupported" &&
+            permission !== "denied" &&
+            !subscribed &&
+            !checkingSubscription && (
+              <button
+                type="button"
+                className="notification-enable"
+                onClick={activatePushNotifications}
+                disabled={
+                  requesting ||
+                  !owner
+                }
+              >
                 <span>
-                  Cet appareil est prêt.
+                  {requesting
+                    ? "Enregistrement…"
+                    : permission === "granted"
+                      ? "Enregistrer cet appareil"
+                      : "Activer les notifications"}
                 </span>
+
+                <span className="notification-arrow">
+                  →
+                </span>
+              </button>
+            )}
+
+          {permission === "granted" &&
+            subscribed && (
+              <div className="notification-enabled">
+                <span className="notification-check">
+                  ✓
+                </span>
+
+                <div>
+                  <strong>
+                    Notifications activées
+                  </strong>
+
+                  <span>
+                    {owner === "jerome"
+                      ? "Appareil de Jérôme"
+                      : owner === "audrey"
+                        ? "Appareil d’Audrey"
+                        : "Cet appareil est prêt."}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <p className="settings-privacy">
