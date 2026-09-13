@@ -175,7 +175,7 @@
   margin:
     0
     0
-    52px;
+    68px;
 
   max-width: 520px;
 
@@ -188,7 +188,7 @@
 
   font-size: 19px;
 
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 
@@ -201,119 +201,108 @@
       minmax(0, 1fr)
     );
 
-  gap: 10px;
+  gap: 12px;
 
-  margin-bottom: 32px;
+  margin-bottom: 38px;
 }
 
 
 .card-level {
   padding:
-    14px
-    16px;
+    17px
+    18px;
 
-  border: 1px solid rgba(
-    255,
-    255,
-    255,
-    0.09
-  );
+  border:
+    1px
+    solid
+    rgba(
+      255,
+      255,
+      255,
+      0.10
+    );
 
-  border-radius: 16px;
+  border-radius: 18px;
 
-  background: rgba(
-    255,
-    255,
-    255,
-    0.025
-  );
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.035
+    );
 
   display: flex;
+
   align-items: center;
-  justify-content: space-between;
-}
 
-
-.card-level-label {
-  color: rgba(
-    244,
-    239,
-    241,
-    0.42
-  );
-
-  font-size: 10px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.12em;
-}
-
-
-.card-level-value {
-  color: #f4eff1;
-
-  font-size: 18px;
-
-  font-weight: 600;
+  justify-content:
+    space-between;
 }
 
 
 .card-propose {
   width: 100%;
-  min-height: 54px;
+
+  min-height: 58px;
 
   border: 0;
 
   border-radius: 18px;
 
-  background: #d75d8d;
+  background:
+    linear-gradient(
+      135deg,
+      #ff4f9a,
+      #ff2f7f
+    );
 
-  color: #fff;
+  color: #ffffff;
 
   font-family: inherit;
 
   font-size: 16px;
 
-  font-weight: 650;
+  font-weight: 700;
 
-  opacity: 0.45;
+  letter-spacing: 0.01em;
+
+  box-shadow:
+    0
+    10px
+    30px
+    rgba(
+      255,
+      47,
+      127,
+      0.28
+    );
+
+  opacity: 1;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
 }
 
 
-.card-center {
-  display: flex;
-  flex-direction: column;
+.card-propose:active {
+  transform:
+    scale(0.985);
 
-  align-items: center;
-  justify-content: center;
-
-  gap: 18px;
-
-  padding-left: 24px;
-  padding-right: 24px;
-
-  text-align: center;
-}
-
-.card-send-message {
-  margin:
+  box-shadow:
     0
-    0
-    14px;
-
-  text-align: center;
-
-  color: rgba(
-    244,
-    239,
-    241,
-    0.62
-  );
-
-  font-size: 14px;
-
-  line-height: 1.4;
+    6px
+    18px
+    rgba(
+      255,
+      47,
+      127,
+      0.22
+    );
 }
 
 
@@ -321,4 +310,7 @@
   opacity: 0.55;
 
   cursor: default;
+
+  filter:
+    saturate(0.65);
 }
