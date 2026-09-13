@@ -336,53 +336,45 @@
 }
 
 /* =========================================================
-   SETTINGS SPACING POLISH
+   SETTINGS SPACING POLISH - COMPACT
    ========================================================= */
 
 .notification-card {
   padding:
-    30px
+    24px
     28px
-    30px;
+    22px;
 }
 
 
 .notification-card-copy {
-  margin-top: 34px;
+  margin-top: 22px;
 }
 
 
 .notification-card-copy h2 {
   margin:
-    10px
+    6px
     0
-    14px;
+    8px;
 }
 
 
 .notification-card-copy p {
-  margin:
-    0;
+  margin: 0;
 
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 
-/* Espace avant le choix Jérôme / Audrey */
-.notification-card
-.notification-eyebrow {
-  line-height: 1.3;
-}
-
-
-/* Le bloc de confirmation ne doit plus coller aux boutons */
+/* Décale légèrement la confirmation des boutons */
 .notification-enabled {
-  margin-top: 22px;
+  margin-top: 10px;
 }
 
 
-/* Un peu plus d'air sous la carte */
+/* Espace sous la grande carte */
 .protocol-settings
 .settings-privacy {
-  margin-top: 28px;
+  margin-top: 16px;
 }
