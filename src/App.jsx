@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./notifications.css";
 import LibraryScreen from "./LibraryScreen.jsx";
+import CardScreen from "./CardScreen.jsx";
 import {
   getCurrentPushSubscription,
   getPushOwner,
@@ -171,6 +172,20 @@ function getRoute() {
     };
   }
 
+  const cardMatch =
+  path.match(
+    /^\/card\/(\d+)\/?$/
+  );
+
+if (cardMatch) {
+  return {
+    screen: "card",
+    cardId: Number(
+      cardMatch[1]
+    ),
+  };
+}
+
   if (path === "/join") {
     return {
       screen: "join",
@@ -323,6 +338,33 @@ function App() {
       />
     );
   }
+
+  if (route.screen === "card") {
+  const ownerKey =
+    getPushOwner();
+
+  if (!ownerKey) {
+    navigate(
+      "/settings",
+      true
+    );
+
+    return null;
+  }
+
+  return (
+    <CardScreen
+      supabase={supabase}
+      cardId={route.cardId}
+      ownerKey={ownerKey}
+      onBack={() =>
+        navigate(
+          "/library"
+        )
+      }
+    />
+  );
+}
 
   if (route.screen === "join") {
     return (
