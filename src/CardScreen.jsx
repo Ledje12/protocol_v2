@@ -50,6 +50,16 @@ export default function CardScreen({
   const [error, setError] =
     useState("");
 
+  const [
+    sending,
+    setSending,
+  ] = useState(false);
+
+  const [
+    sendMessage,
+    setSendMessage,
+  ] = useState("");
+
 
   const recipient =
     getCardRecipient(
@@ -156,6 +166,71 @@ export default function CardScreen({
     cardId,
     recipient?.key,
   ]);
+
+
+  const sendCard =
+    async () => {
+      if (
+        !card ||
+        sending
+      ) {
+        return;
+      }
+
+      try {
+        setSending(true);
+        setSendMessage("");
+
+        const {
+          data,
+          error:
+            functionError,
+        } =
+          await supabase.functions.invoke(
+            "send-card-invitation",
+            {
+              body: {
+                sender:
+                  ownerKey,
+
+                card_id:
+                  card.id,
+              },
+            }
+          );
+
+        if (functionError) {
+          throw functionError;
+        }
+
+        if (!data?.success) {
+          throw new Error(
+            data?.error ||
+              "Impossible d’envoyer cette carte."
+          );
+        }
+
+        setSendMessage(
+          recipient?.name
+            ? `Carte envoyée à ${recipient.name}.`
+            : "Carte envoyée."
+        );
+
+      } catch (err) {
+        console.error(
+          "SEND CARD ERROR:",
+          err
+        );
+
+        setSendMessage(
+          err?.message ||
+            "Impossible d’envoyer cette carte."
+        );
+
+      } finally {
+        setSending(false);
+      }
+    };
 
 
   if (loading) {
@@ -306,14 +381,25 @@ export default function CardScreen({
         </div>
 
 
+        {sendMessage && (
+          <p className="card-send-message">
+            {sendMessage}
+          </p>
+        )}
+
+
         <button
           type="button"
           className="card-propose"
-          disabled
+          onClick={sendCard}
+          disabled={sending}
         >
-          Proposer à{" "}
-          {recipient?.name ||
-            "mon partenaire"}
+          {sending
+            ? "Envoi…"
+            : `Proposer à ${
+                recipient?.name ||
+                "mon partenaire"
+              }`}
         </button>
 
       </section>

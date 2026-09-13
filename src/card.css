@@ -175,7 +175,7 @@
   margin:
     0
     0
-    34px;
+    52px;
 
   max-width: 520px;
 
@@ -294,4 +294,31 @@
   padding-right: 24px;
 
   text-align: center;
+}
+
+.card-send-message {
+  margin:
+    0
+    0
+    14px;
+
+  text-align: center;
+
+  color: rgba(
+    244,
+    239,
+    241,
+    0.62
+  );
+
+  font-size: 14px;
+
+  line-height: 1.4;
+}
+
+
+.card-propose:disabled {
+  opacity: 0.55;
+
+  cursor: default;
 }
