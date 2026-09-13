@@ -4,7 +4,8 @@ import {
 } from "react";
 
 import {
-  getCardRecipient,
+  getPerson,
+  getPartner,
   personalizeCardPrompt,
 } from "./cardPersonalization.js";
 
@@ -39,8 +40,10 @@ export default function CardScreen({
   supabase,
   cardId,
   ownerKey,
+  activeKey,
   onBack,
 }) {
+
   const [card, setCard] =
     useState(null);
 
@@ -61,20 +64,32 @@ export default function CardScreen({
   ] = useState("");
 
 
-  const recipient =
-    getCardRecipient(
-      ownerKey
+  const activePerson =
+    getPerson(
+      activeKey
     );
+
+  const senderPerson =
+    getPartner(
+      activeKey
+    );
+
+  const canPropose =
+    ownerKey !== activeKey;
 
 
   useEffect(() => {
-    let active = true;
+    let mounted = true;
+
 
     const loadCard =
       async () => {
+
         try {
+
           setLoading(true);
           setError("");
+
 
           const {
             data,
@@ -115,121 +130,174 @@ export default function CardScreen({
               )
               .single();
 
+
           if (queryError) {
             throw queryError;
           }
 
-          if (!active) {
+
+          if (!mounted) {
             return;
           }
 
+
+          if (
+            data.target_sex &&
+            activePerson &&
+            data.target_sex !==
+              activePerson.sex
+          ) {
+            throw new Error(
+              "Cette carte n'est pas compatible avec ce destinataire."
+            );
+          }
+
+
           const displayPrompt =
-            recipient
+            activeKey
               ? personalizeCardPrompt(
                   data.prompt,
-                  recipient.key
+                  activeKey
                 )
               : data.prompt;
+
 
           setCard({
             ...data,
             displayPrompt,
           });
 
+
         } catch (err) {
+
           console.error(
             "CARD LOAD ERROR:",
             err
           );
 
-          if (active) {
+
+          if (mounted) {
             setError(
+              err?.message ||
               "Impossible de charger cette carte."
             );
           }
 
+
         } finally {
-          if (active) {
-            setLoading(false);
+
+          if (mounted) {
+            setLoading(
+              false
+            );
           }
+
         }
+
       };
+
 
     loadCard();
 
+
     return () => {
-      active = false;
+      mounted = false;
     };
 
   }, [
     supabase,
     cardId,
-    recipient?.key,
+    activeKey,
+    activePerson?.sex,
   ]);
 
 
   const sendCard =
     async () => {
+
       if (
         !card ||
-        sending
+        sending ||
+        !canPropose
       ) {
         return;
       }
 
+
       try {
-        setSending(true);
-        setSendMessage("");
+
+        setSending(
+          true
+        );
+
+        setSendMessage(
+          ""
+        );
+
 
         const {
           data,
           error:
             functionError,
         } =
-          await supabase.functions.invoke(
-            "send-card-invitation",
-            {
-              body: {
-                sender:
-                  ownerKey,
+          await supabase
+            .functions
+            .invoke(
+              "send-card-invitation",
+              {
+                body: {
+                  sender:
+                    ownerKey,
 
-                card_id:
-                  card.id,
-              },
-            }
-          );
+                  card_id:
+                    card.id,
+                },
+              }
+            );
+
 
         if (functionError) {
           throw functionError;
         }
 
+
         if (!data?.success) {
           throw new Error(
             data?.error ||
-              "Impossible d’envoyer cette carte."
+            "Impossible d’envoyer cette carte."
           );
         }
 
+
         setSendMessage(
-          recipient?.name
-            ? `Carte envoyée à ${recipient.name}.`
+          activePerson?.name
+            ? `Carte envoyée à ${activePerson.name}.`
             : "Carte envoyée."
         );
 
+
       } catch (err) {
+
         console.error(
           "SEND CARD ERROR:",
           err
         );
 
+
         setSendMessage(
           err?.message ||
-            "Impossible d’envoyer cette carte."
+          "Impossible d’envoyer cette carte."
         );
 
+
       } finally {
-        setSending(false);
+
+        setSending(
+          false
+        );
+
       }
+
     };
 
 
@@ -283,6 +351,7 @@ export default function CardScreen({
           ←
         </button>
 
+
         <div className="card-topbar-text">
 
           <span className="card-logo">
@@ -291,8 +360,10 @@ export default function CardScreen({
 
           <span className="card-recipient">
             Pour{" "}
-            {recipient?.name ||
-              "ton partenaire"}
+            {
+              activePerson?.name ||
+              "ton partenaire"
+            }
           </span>
 
         </div>
@@ -305,9 +376,11 @@ export default function CardScreen({
         <div className="card-meta-top">
 
           <span className="card-type">
-            {getTypeLabel(
-              card.type
-            )}
+            {
+              getTypeLabel(
+                card.type
+              )
+            }
           </span>
 
           <span className="card-number">
@@ -381,26 +454,44 @@ export default function CardScreen({
         </div>
 
 
-        {sendMessage && (
+        {canPropose ? (
+          <>
+
+            {sendMessage && (
+              <p className="card-send-message">
+                {sendMessage}
+              </p>
+            )}
+
+
+            <button
+              type="button"
+              className="card-propose"
+              onClick={
+                sendCard
+              }
+              disabled={
+                sending
+              }
+            >
+              {sending
+                ? "Envoi…"
+                : `Proposer à ${
+                    activePerson?.name ||
+                    "mon partenaire"
+                  }`}
+            </button>
+
+          </>
+        ) : (
           <p className="card-send-message">
-            {sendMessage}
+            Proposé par{" "}
+            {
+              senderPerson?.name ||
+              "ton partenaire"
+            }.
           </p>
         )}
-
-
-        <button
-          type="button"
-          className="card-propose"
-          onClick={sendCard}
-          disabled={sending}
-        >
-          {sending
-            ? "Envoi…"
-            : `Proposer à ${
-                recipient?.name ||
-                "mon partenaire"
-              }`}
-        </button>
 
       </section>
 

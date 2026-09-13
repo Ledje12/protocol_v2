@@ -173,18 +173,29 @@ function getRoute() {
   }
 
   const cardMatch =
-  path.match(
-    /^\/card\/(\d+)\/?$/
-  );
+    path.match(
+      /^\/card\/(\d+)\/?$/
+    );
 
-if (cardMatch) {
-  return {
-    screen: "card",
-    cardId: Number(
-      cardMatch[1]
-    ),
-  };
-}
+  if (cardMatch) {
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const activeKey =
+      params.get("for");
+
+    return {
+      screen: "card",
+
+      cardId: Number(
+        cardMatch[1]
+      ),
+
+      activeKey,
+    };
+  }
 
   if (path === "/join") {
     return {
@@ -331,8 +342,13 @@ function App() {
         ownerKey={ownerKey}
         onBack={() => navigate("/")}
         onOpenCard={(cardId) => {
+          const recipientKey =
+            ownerKey === "jerome"
+              ? "audrey"
+              : "jerome";
+
           navigate(
-            `/card/${cardId}`
+            `/card/${cardId}?for=${recipientKey}`
           );
         }}
       />
@@ -340,31 +356,40 @@ function App() {
   }
 
   if (route.screen === "card") {
-  const ownerKey =
-    getPushOwner();
+    const ownerKey =
+      getPushOwner();
 
-  if (!ownerKey) {
-    navigate(
-      "/settings",
-      true
+    if (!ownerKey) {
+      navigate(
+        "/settings",
+        true
+      );
+
+      return null;
+    }
+
+    const activeKey =
+      route.activeKey ||
+      (
+        ownerKey === "jerome"
+          ? "audrey"
+          : "jerome"
+      );
+
+    return (
+      <CardScreen
+        supabase={supabase}
+        cardId={route.cardId}
+        ownerKey={ownerKey}
+        activeKey={activeKey}
+        onBack={() =>
+          navigate(
+            "/library"
+          )
+        }
+      />
     );
-
-    return null;
   }
-
-  return (
-    <CardScreen
-      supabase={supabase}
-      cardId={route.cardId}
-      ownerKey={ownerKey}
-      onBack={() =>
-        navigate(
-          "/library"
-        )
-      }
-    />
-  );
-}
 
   if (route.screen === "join") {
     return (
