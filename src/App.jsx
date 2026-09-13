@@ -974,7 +974,7 @@ function SettingsScreen({ navigate }) {
             permission !== "denied" && (
               <div
                 style={{
-                  marginTop: "12px",
+                  marginTop: "10px",
                 }}
               >
                 <span
