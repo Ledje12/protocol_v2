@@ -369,7 +369,7 @@
 
 /* Décale légèrement la confirmation des boutons */
 .notification-enabled {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 
@@ -377,4 +377,40 @@
 .protocol-settings
 .settings-privacy {
   margin-top: 16px;
+}
+
+/* Rond à gauche de ACTIVES */
+.notification-orb {
+  width: 48px;
+  height: 48px;
+
+  min-width: 48px;
+  min-height: 48px;
+
+  flex: 0 0 48px;
+
+  aspect-ratio: 1 / 1;
+
+  border-radius: 50%;
+}
+
+
+/* Bloc NOTIFICATIONS / Tu ne manqueras rien */
+.notification-card-copy {
+  margin-top: 10px;
+}
+
+
+.notification-card-copy h2 {
+  margin:
+    4px
+    0
+    6px;
+}
+
+
+.notification-card-copy p {
+  margin: 0;
+
+  line-height: 1.4;
 }
