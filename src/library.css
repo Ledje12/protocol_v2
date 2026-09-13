@@ -1,0 +1,523 @@
+/* =========================================================
+   PROTOCOL
+   LIBRARY
+   ========================================================= */
+
+.library-screen {
+  min-height: 100dvh;
+  box-sizing: border-box;
+
+  padding:
+    calc(22px + env(safe-area-inset-top))
+    18px
+    calc(36px + env(safe-area-inset-bottom));
+
+  background:
+    #050405;
+
+  color:
+    rgba(255, 255, 255, 0.94);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.library-topbar {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  margin-bottom: 24px;
+}
+
+
+.library-back {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 auto;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 255, 255, 0.04);
+
+  color: white;
+
+  font-size: 22px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+
+.library-heading {
+  min-width: 0;
+}
+
+
+.library-kicker {
+  margin-bottom: 3px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.22em;
+
+  opacity: 0.42;
+}
+
+
+.library-heading h1,
+.library-topbar h1 {
+  margin: 0;
+
+  font-size: 30px;
+  line-height: 1.05;
+
+  font-weight: 650;
+}
+
+
+.library-viewer {
+  margin-top: 6px;
+
+  font-size: 13px;
+
+  opacity: 0.48;
+}
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.library-search-wrap {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  margin-bottom: 16px;
+}
+
+
+.library-search-icon {
+  position: absolute;
+  left: 15px;
+
+  font-size: 20px;
+
+  opacity: 0.4;
+
+  pointer-events: none;
+}
+
+
+.library-search {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding:
+    14px
+    42px
+    14px
+    44px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 16px;
+
+  outline: none;
+
+  background:
+    rgba(255, 255, 255, 0.055);
+
+  color: white;
+
+  font: inherit;
+
+  font-size: 15px;
+
+  -webkit-appearance: none;
+}
+
+
+.library-search::placeholder {
+  color:
+    rgba(255, 255, 255, 0.35);
+}
+
+
+.library-search:focus {
+  border-color:
+    rgba(255, 255, 255, 0.26);
+
+  background:
+    rgba(255, 255, 255, 0.075);
+}
+
+
+.library-search-clear {
+  position: absolute;
+  right: 10px;
+
+  width: 32px;
+  height: 32px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color:
+    rgba(255, 255, 255, 0.55);
+
+  font-size: 22px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
+
+.library-filter-row {
+  display: flex;
+  gap: 8px;
+
+  overflow-x: auto;
+
+  margin:
+    0
+    -18px
+    14px;
+
+  padding:
+    0
+    18px
+    4px;
+
+  scrollbar-width: none;
+}
+
+
+.library-filter-row::-webkit-scrollbar {
+  display: none;
+}
+
+
+.library-filter {
+  flex: 0 0 auto;
+
+  padding:
+    9px
+    13px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.1);
+
+  border-radius: 999px;
+
+  background:
+    rgba(255, 255, 255, 0.035);
+
+  color:
+    rgba(255, 255, 255, 0.58);
+
+  font: inherit;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.library-filter.active {
+  border-color:
+    rgba(255, 255, 255, 0.36);
+
+  background:
+    rgba(255, 255, 255, 0.13);
+
+  color: white;
+}
+
+
+/* =========================================================
+   INTENSITY
+   ========================================================= */
+
+.library-intensity-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-bottom: 17px;
+
+  font-size: 11px;
+
+  color:
+    rgba(255, 255, 255, 0.42);
+}
+
+
+.library-intensity-row > span {
+  margin-right: 3px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.12em;
+}
+
+
+.library-level {
+  width: 31px;
+  height: 31px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.1);
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  color:
+    rgba(255, 255, 255, 0.48);
+
+  font: inherit;
+
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+
+.library-level:first-of-type {
+  width: auto;
+
+  padding:
+    0
+    10px;
+
+  border-radius: 999px;
+}
+
+
+.library-level.active {
+  border-color:
+    rgba(255, 255, 255, 0.38);
+
+  background:
+    rgba(255, 255, 255, 0.13);
+
+  color: white;
+}
+
+
+/* =========================================================
+   COUNT
+   ========================================================= */
+
+.library-count {
+  margin-bottom: 12px;
+
+  font-size: 12px;
+
+  color:
+    rgba(255, 255, 255, 0.38);
+}
+
+
+.library-count strong {
+  color:
+    rgba(255, 255, 255, 0.72);
+}
+
+
+/* =========================================================
+   CARD LIST
+   ========================================================= */
+
+.library-list {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+
+.library-card {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 17px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.095);
+
+  border-radius: 19px;
+
+  background:
+    rgba(255, 255, 255, 0.035);
+
+  color: inherit;
+
+  text-align: left;
+
+  font: inherit;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+.library-card:active {
+  transform:
+    scale(0.992);
+
+  background:
+    rgba(255, 255, 255, 0.06);
+}
+
+
+.library-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 9px;
+}
+
+
+.library-card-type {
+  font-size: 9px;
+  font-weight: 750;
+
+  letter-spacing: 0.16em;
+
+  color:
+    rgba(255, 255, 255, 0.42);
+}
+
+
+.library-card-id {
+  font-size: 10px;
+
+  color:
+    rgba(255, 255, 255, 0.22);
+}
+
+
+.library-card-title {
+  margin:
+    0
+    0
+    8px;
+
+  font-size: 18px;
+  line-height: 1.2;
+
+  font-weight: 650;
+}
+
+
+.library-card-prompt {
+  font-size: 14px;
+  line-height: 1.48;
+
+  color:
+    rgba(255, 255, 255, 0.68);
+}
+
+
+/* =========================================================
+   LEVELS
+   ========================================================= */
+
+.library-card-levels {
+  display: flex;
+  gap: 8px;
+
+  margin-top: 15px;
+}
+
+
+.library-card-levels > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  padding:
+    5px
+    8px;
+
+  border-radius: 8px;
+
+  background:
+    rgba(255, 255, 255, 0.045);
+}
+
+
+.library-card-levels span {
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  color:
+    rgba(255, 255, 255, 0.3);
+}
+
+
+.library-card-levels strong {
+  font-size: 11px;
+  font-weight: 650;
+
+  color:
+    rgba(255, 255, 255, 0.7);
+}
+
+
+/* =========================================================
+   STATES
+   ========================================================= */
+
+.library-loading,
+.library-error,
+.library-empty {
+  padding: 40px 10px;
+
+  text-align: center;
+
+  font-size: 14px;
+
+  color:
+    rgba(255, 255, 255, 0.48);
+}
+
+
+.library-error {
+  color:
+    rgba(255, 180, 180, 0.82);
+}
+
+
+.library-empty-symbol {
+  margin-bottom: 10px;
+
+  font-size: 30px;
+
+  opacity: 0.3;
+}

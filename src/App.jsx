@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./notifications.css";
+import LibraryScreen from "./LibraryScreen.jsx";
 import {
   getCurrentPushSubscription,
   getPushOwner,
@@ -163,6 +164,13 @@ function getRoute() {
     };
   }
 
+  if (path === "/library") {
+    return {
+      screen: "library",
+      code: null,
+    };
+  }
+
   if (path === "/join") {
     return {
       screen: "join",
@@ -290,6 +298,29 @@ function App() {
     return (
       <SettingsScreen
         navigate={navigate}
+      />
+    );
+  }
+
+  if (route.screen === "library") {
+    const ownerKey = getPushOwner();
+
+    if (!ownerKey) {
+      navigate("/settings", true);
+      return null;
+    }
+
+    return (
+      <LibraryScreen
+        supabase={supabase}
+        ownerKey={ownerKey}
+        onBack={() => navigate("/")}
+        onOpenCard={(cardId) => {
+          console.log(
+            "OPEN LIBRARY CARD:",
+            cardId
+          );
+        }}
       />
     );
   }
@@ -558,6 +589,20 @@ function HomeScreen({ navigate }) {
             </span>
 
             <span>♡</span>
+          </button>
+
+          <button
+            type="button"
+            className="secondary"
+            onClick={() =>
+              navigate("/library")
+            }
+          >
+            <span>
+              Bibliothèque
+            </span>
+
+            <span>→</span>
           </button>
 
           <button
@@ -859,52 +904,88 @@ function SettingsScreen({ navigate }) {
               </p>
             )}
 
-{permission !== "unsupported" &&
-  permission !== "denied" && (
-    <div className="device-owner-section">
-      <span className="notification-eyebrow device-owner-label">
-        CET APPAREIL APPARTIENT À
-      </span>
+          {permission !== "unsupported" &&
+            permission !== "denied" && (
+              <div
+                style={{
+                  marginTop: "22px",
+                }}
+              >
+                <span
+                  className="notification-eyebrow"
+                  style={{
+                    display: "block",
+                    marginBottom: "10px",
+                  }}
+                >
+                  CET APPAREIL APPARTIENT À
+                </span>
 
-      <div className="device-owner-selector">
-        <button
-          type="button"
-          className={`device-owner-button ${
-            owner === "jerome" ? "active" : ""
-          }`}
-          onClick={() => {
-            if (owner !== "jerome") {
-              setSubscribed(false);
-            }
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                  }}
+                >
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => {
+                      if (owner !== "jerome") {
+                        setSubscribed(false);
+                      }
 
-            setOwner("jerome");
-            setMessage("");
-          }}
-          aria-pressed={owner === "jerome"}
-        >
-          Jérôme
-        </button>
+                      setOwner("jerome");
+                      setMessage("");
+                    }}
+                    aria-pressed={
+                      owner === "jerome"
+                    }
+                    style={
+                      owner === "jerome"
+                        ? {
+                            borderColor:
+                              "rgba(255,255,255,.9)",
+                            background:
+                              "rgba(255,255,255,.12)",
+                          }
+                        : undefined
+                    }
+                  >
+                    <span>Jérôme</span>
+                  </button>
 
-        <button
-          type="button"
-          className={`device-owner-button ${
-            owner === "audrey" ? "active" : ""
-          }`}
-          onClick={() => {
-            if (owner !== "audrey") {
-              setSubscribed(false);
-            }
+                  <button
+                    type="button"
+                    className="secondary"
+                    onClick={() => {
+                      if (owner !== "audrey") {
+                        setSubscribed(false);
+                      }
 
-            setOwner("audrey");
-            setMessage("");
-          }}
-          aria-pressed={owner === "audrey"}
-        >
-          Audrey
-        </button>
-      </div>
-    </div>
-  )}
+                      setOwner("audrey");
+                      setMessage("");
+                    }}
+                    aria-pressed={
+                      owner === "audrey"
+                    }
+                    style={
+                      owner === "audrey"
+                        ? {
+                            borderColor:
+                              "rgba(255,255,255,.9)",
+                            background:
+                              "rgba(255,255,255,.12)",
+                          }
+                        : undefined
+                    }
+                  >
+                    <span>Audrey</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
           {message && (
             <p className="notification-message">
