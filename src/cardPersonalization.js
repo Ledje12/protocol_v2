@@ -8,111 +8,120 @@ const PEOPLE = {
     key: "jerome",
     name: "Jérôme",
     sex: "male",
-    subjectPronoun: "il",
-    objectPronoun: "lui",
   },
 
   audrey: {
     key: "audrey",
     name: "Audrey",
     sex: "female",
-    subjectPronoun: "elle",
-    objectPronoun: "elle",
   },
 };
 
-
 /* =========================================================
-   GET PERSON
+   PEOPLE HELPERS
    ========================================================= */
 
-export function getPerson(ownerKey) {
-  return PEOPLE[ownerKey] || null;
+export function getPerson(
+  personKey
+) {
+  return PEOPLE[personKey] || null;
 }
 
-
-/* =========================================================
-   GET PARTNER
-   ========================================================= */
-
-export function getPartner(ownerKey) {
-  if (ownerKey === "jerome") {
+export function getPartner(
+  personKey
+) {
+  if (personKey === "jerome") {
     return PEOPLE.audrey;
   }
 
-  if (ownerKey === "audrey") {
+  if (personKey === "audrey") {
     return PEOPLE.jerome;
   }
 
   return null;
 }
 
+/*
+ * Personne qui recevra la carte.
+ *
+ * Exemple :
+ * appareil Jérôme -> carte préparée pour Audrey
+ * appareil Audrey -> carte préparée pour Jérôme
+ */
+export function getCardRecipient(
+  ownerKey
+) {
+  return getPartner(ownerKey);
+}
 
 /* =========================================================
-   CARD COMPATIBILITY
+   COMPATIBILITY
    ========================================================= */
 
-export function isCardCompatible(
+/*
+ * IMPORTANT :
+ * target_sex correspond à la personne ACTIVE
+ * de la carte.
+ *
+ * Dans la bibliothèque, la personne active est
+ * le partenaire auquel on envisage de proposer
+ * la carte.
+ */
+export function isCardCompatibleForRecipient(
   card,
-  viewerKey
+  ownerKey
 ) {
-  const viewer =
-    getPerson(viewerKey);
+  if (!card) {
+    return false;
+  }
 
-  if (!viewer || !card) {
+  const recipient =
+    getCardRecipient(ownerKey);
+
+  if (!recipient) {
     return false;
   }
 
   /*
-   * Une carte sans target_sex
-   * convient aux deux.
+   * Carte universelle
    */
-
   if (!card.target_sex) {
     return true;
   }
 
-  /*
-   * Une carte sexuée doit correspondre
-   * à la personne qui exécute la carte.
-   */
-
   return (
-    card.target_sex === viewer.sex
+    card.target_sex === recipient.sex
   );
 }
 
-
 /* =========================================================
-   PERSONALIZE PROMPT
+   TEXT PERSONALIZATION
    ========================================================= */
 
 export function personalizeCardPrompt(
   prompt,
-  viewerKey
+  activeKey
 ) {
   if (!prompt) {
     return "";
   }
 
   const active =
-    getPerson(viewerKey);
+    getPerson(activeKey);
 
   const partner =
-    getPartner(viewerKey);
+    getPartner(activeKey);
 
   if (!active || !partner) {
-    return prompt;
+    return String(prompt);
   }
 
   let text =
     String(prompt);
 
-
-  /* ---------------------------------------------------------
-     PLACEHOLDERS
-     --------------------------------------------------------- */
-
+  /*
+   * Placeholders explicites
+   */
   text = text
     .replace(
       /\{\{active\}\}/gi,
@@ -123,17 +132,15 @@ export function personalizeCardPrompt(
       partner.name
     );
 
-
-  /* ---------------------------------------------------------
-     PRONOMS GENRES
-     
-     On traite uniquement les formulations
-     explicitement génériques présentes dans
-     les cartes.
-     --------------------------------------------------------- */
-
+  /*
+   * Pronoms relatifs au partenaire
+   *
+   * Exemple :
+   * "qu'il ou elle remarque"
+   * devient :
+   * "qu'il remarque" ou "qu'elle remarque"
+   */
   if (partner.sex === "female") {
-
     text = text
       .replace(
         /\bil ou elle\b/gi,
@@ -151,9 +158,7 @@ export function personalizeCardPrompt(
         /\belle ou lui\b/gi,
         "elle"
       );
-
   } else {
-
     text = text
       .replace(
         /\bil ou elle\b/gi,
@@ -173,21 +178,47 @@ export function personalizeCardPrompt(
       );
   }
 
-
   return text;
 }
 
-
 /* =========================================================
-   COMPLETE DISPLAY CARD
+   LIBRARY CARD PERSONALIZATION
    ========================================================= */
 
-export function personalizeCard(
+/*
+ * Dans la bibliothèque :
+ *
+ * ownerKey = personne qui consulte l'appareil
+ *
+ * La carte est préparée pour le partenaire.
+ *
+ * Jérôme consulte :
+ * active = Audrey
+ * partner = Jérôme
+ *
+ * Audrey consulte :
+ * active = Jérôme
+ * partner = Audrey
+ */
+export function personalizeCardForLibrary(
   card,
-  viewerKey
+  ownerKey
 ) {
   if (!card) {
     return null;
+  }
+
+  const recipient =
+    getCardRecipient(ownerKey);
+
+  if (!recipient) {
+    return {
+      ...card,
+      displayPrompt:
+        card.prompt || "",
+      compatible: false,
+      recipient: null,
+    };
   }
 
   return {
@@ -196,13 +227,15 @@ export function personalizeCard(
     displayPrompt:
       personalizeCardPrompt(
         card.prompt,
-        viewerKey
+        recipient.key
       ),
 
     compatible:
-      isCardCompatible(
+      isCardCompatibleForRecipient(
         card,
-        viewerKey
+        ownerKey
       ),
+
+    recipient,
   };
 }

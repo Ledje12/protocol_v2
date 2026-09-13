@@ -5,15 +5,109 @@ import {
 } from "react";
 
 import {
-  getPerson,
-  personalizeCard,
+  getCardRecipient,
+  personalizeCardForLibrary,
 } from "./cardPersonalization.js";
 
 import "./library.css";
 
 
 /* =========================================================
-   PROTOCOL
+   CONSTANTS
+   ========================================================= */
+
+const TYPE_FILTERS = [
+  {
+    value: "all",
+    label: "Toutes",
+  },
+  {
+    value: "action",
+    label: "Actions",
+  },
+  {
+    value: "truth",
+    label: "Vérités",
+  },
+  {
+    value: "duel",
+    label: "Duels",
+  },
+  {
+    value: "scene",
+    label: "Scènes",
+  },
+];
+
+const INTENSITY_FILTERS = [
+  {
+    value: "all",
+    label: "Toutes",
+  },
+  {
+    value: 1,
+    label: "1",
+  },
+  {
+    value: 2,
+    label: "2",
+  },
+  {
+    value: 3,
+    label: "3",
+  },
+  {
+    value: 4,
+    label: "4",
+  },
+  {
+    value: 5,
+    label: "5",
+  },
+];
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function normaliseSearchText(
+  value
+) {
+  return String(value || "")
+    .toLocaleLowerCase("fr")
+    .normalize("NFD")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    );
+}
+
+function getTypeLabel(
+  type
+) {
+  switch (type) {
+    case "action":
+      return "ACTION";
+
+    case "truth":
+      return "VÉRITÉ";
+
+    case "duel":
+      return "DUEL";
+
+    case "scene":
+      return "SCÈNE";
+
+    default:
+      return String(
+        type || "CARTE"
+      ).toUpperCase();
+  }
+}
+
+
+/* =========================================================
    LIBRARY SCREEN
    ========================================================= */
 
@@ -23,7 +117,6 @@ export default function LibraryScreen({
   onBack,
   onOpenCard,
 }) {
-
   const [cards, setCards] =
     useState([]);
 
@@ -36,85 +129,93 @@ export default function LibraryScreen({
   const [search, setSearch] =
     useState("");
 
-  const [typeFilter, setTypeFilter] =
-    useState("all");
+  const [
+    selectedType,
+    setSelectedType,
+  ] = useState("all");
 
-  const [intensityFilter, setIntensityFilter] =
-    useState("all");
+  const [
+    selectedIntensity,
+    setSelectedIntensity,
+  ] = useState("all");
 
 
-  const viewer =
-    getPerson(ownerKey);
+  /* =======================================================
+     RECIPIENT
+     ======================================================= */
+
+  const recipient =
+    getCardRecipient(
+      ownerKey
+    );
 
 
-  /* =========================================================
+  /* =======================================================
      LOAD CARDS
-     ========================================================= */
+     ======================================================= */
 
   useEffect(() => {
-
     let active = true;
-
 
     const loadCards =
       async () => {
-
         try {
-
           setLoading(true);
           setError("");
 
-
           const {
             data,
-            error: queryError,
-          } = await supabase
-            .from("protocol_cards")
-            .select(`
-              id,
-              type,
-              title,
-              prompt,
-              intensity,
-              tension,
-              sensations,
-              unexpected,
-              active,
-              target_sex,
-              library_version,
-              library_key
-            `)
-            .eq(
-              "library_version",
-              "v2"
-            )
-            .eq(
-              "active",
-              true
-            )
-            .order(
-              "id",
-              {
-                ascending: true,
-              }
-            );
-
+            error:
+              queryError,
+          } =
+            await supabase
+              .from(
+                "protocol_cards"
+              )
+              .select(
+                `
+                  id,
+                  type,
+                  title,
+                  prompt,
+                  intensity,
+                  tension,
+                  sensations,
+                  unexpected,
+                  active,
+                  target_sex,
+                  library_version,
+                  library_key
+                `
+              )
+              .eq(
+                "library_version",
+                "v2"
+              )
+              .eq(
+                "active",
+                true
+              )
+              .order(
+                "id",
+                {
+                  ascending: true,
+                }
+              );
 
           if (queryError) {
             throw queryError;
           }
 
-
           if (!active) {
             return;
           }
 
-
-          const personalized =
+          const personalised =
             (data || [])
               .map(
                 (card) =>
-                  personalizeCard(
+                  personalizeCardForLibrary(
                     card,
                     ownerKey
                   )
@@ -124,42 +225,31 @@ export default function LibraryScreen({
                   card.compatible
               );
 
-
           setCards(
-            personalized
+            personalised
           );
 
-
         } catch (err) {
-
           console.error(
             "LIBRARY LOAD ERROR:",
             err
           );
 
-
           if (active) {
-
             setError(
-              "Impossible de charger la bibliothèque."
+              err?.message ||
+                "Impossible de charger la bibliothèque."
             );
-
           }
 
-
         } finally {
-
           if (active) {
             setLoading(false);
           }
-
         }
-
       };
 
-
     loadCards();
-
 
     return () => {
       active = false;
@@ -171,177 +261,78 @@ export default function LibraryScreen({
   ]);
 
 
-  /* =========================================================
-     FILTERS
-     ========================================================= */
+  /* =======================================================
+     FILTERING
+     ======================================================= */
 
-  const filteredCards =
+  const visibleCards =
     useMemo(() => {
-
-      const normalizedSearch =
-        search
-          .trim()
-          .toLocaleLowerCase(
-            "fr"
-          );
-
+      const searchValue =
+        normaliseSearchText(
+          search
+        );
 
       return cards.filter(
         (card) => {
-
-          /* -------------------------------------------------
-             TYPE
-             ------------------------------------------------- */
-
           if (
-            typeFilter !== "all" &&
-            card.type !== typeFilter
+            selectedType !==
+              "all" &&
+            card.type !==
+              selectedType
           ) {
             return false;
           }
 
-
-          /* -------------------------------------------------
-             INTENSITY
-             ------------------------------------------------- */
-
           if (
-            intensityFilter !== "all" &&
-            Number(card.intensity) !==
-              Number(intensityFilter)
+            selectedIntensity !==
+              "all" &&
+            Number(
+              card.intensity
+            ) !==
+              Number(
+                selectedIntensity
+              )
           ) {
             return false;
           }
 
+          if (
+            !searchValue
+          ) {
+            return true;
+          }
 
-          /* -------------------------------------------------
-             SEARCH
-             ------------------------------------------------- */
-
-          if (normalizedSearch) {
-
-            const haystack =
+          const haystack =
+            normaliseSearchText(
               [
                 card.title,
                 card.displayPrompt,
                 card.type,
-              ]
-                .filter(Boolean)
-                .join(" ")
-                .toLocaleLowerCase(
-                  "fr"
-                );
+                card.library_key,
+              ].join(" ")
+            );
 
-
-            if (
-              !haystack.includes(
-                normalizedSearch
-              )
-            ) {
-              return false;
-            }
-
-          }
-
-
-          return true;
-
+          return haystack.includes(
+            searchValue
+          );
         }
       );
-
     }, [
       cards,
       search,
-      typeFilter,
-      intensityFilter,
+      selectedType,
+      selectedIntensity,
     ]);
 
 
-  /* =========================================================
-     TYPE LABEL
-     ========================================================= */
-
-  const getTypeLabel =
-    (type) => {
-
-      switch (type) {
-
-        case "action":
-          return "ACTION";
-
-        case "truth":
-          return "VÉRITÉ";
-
-        case "duel":
-          return "DUEL";
-
-        case "scene":
-          return "SCÈNE";
-
-        default:
-          return String(type || "")
-            .toUpperCase();
-
-      }
-
-    };
-
-
-  /* =========================================================
-     LOADING
-     ========================================================= */
-
-  if (loading) {
-
-    return (
-      <main className="library-screen">
-
-        <div className="library-topbar">
-
-          <button
-            type="button"
-            className="library-back"
-            onClick={onBack}
-          >
-            ←
-          </button>
-
-          <div>
-            <div className="library-kicker">
-              PROTOCOL
-            </div>
-
-            <h1>
-              Bibliothèque
-            </h1>
-          </div>
-
-        </div>
-
-
-        <div className="library-loading">
-          Chargement des cartes…
-        </div>
-
-      </main>
-    );
-
-  }
-
-
-  /* =========================================================
-     SCREEN
-     ========================================================= */
+  /* =======================================================
+     RENDER
+     ======================================================= */
 
   return (
+    <main className="library-page">
 
-    <main className="library-screen">
-
-      {/* =====================================================
-          HEADER
-          ===================================================== */}
-
-      <div className="library-topbar">
+      <header className="library-topbar">
 
         <button
           type="button"
@@ -352,307 +343,272 @@ export default function LibraryScreen({
           ←
         </button>
 
-
         <div className="library-heading">
 
-          <div className="library-kicker">
+          <span className="library-logo">
             PROTOCOL
-          </div>
+          </span>
+
+          <span className="library-target">
+            Pour{" "}
+            {recipient?.name ||
+              "ton partenaire"}
+          </span>
+
+        </div>
+
+      </header>
+
+
+      <section className="library-content">
+
+        <div className="library-intro">
+
+          <p className="kicker">
+            BIBLIOTHÈQUE
+          </p>
 
           <h1>
-            Bibliothèque
+            Trouve
+            <br />
+            l’idée parfaite.
           </h1>
 
-          {viewer && (
-            <div className="library-viewer">
-              Pour {viewer.name}
+          <p className="intro">
+            Les cartes affichées sont
+            préparées pour{" "}
+            <strong>
+              {recipient?.name ||
+                "ton partenaire"}
+            </strong>
+            .
+          </p>
+
+        </div>
+
+
+        <div className="library-controls">
+
+          <label className="library-search">
+
+            <span className="library-search-icon">
+              ⌕
+            </span>
+
+            <input
+              type="search"
+              value={search}
+              onChange={(
+                event
+              ) =>
+                setSearch(
+                  event.target
+                    .value
+                )
+              }
+              placeholder="Chercher une carte..."
+              autoComplete="off"
+            />
+
+          </label>
+
+
+          <div className="library-filter-block">
+
+            <span className="library-filter-label">
+              TYPE
+            </span>
+
+            <div className="library-filter-row">
+
+              {TYPE_FILTERS.map(
+                (filter) => (
+                  <button
+                    key={
+                      filter.value
+                    }
+                    type="button"
+                    className={
+                      selectedType ===
+                      filter.value
+                        ? "library-filter active"
+                        : "library-filter"
+                    }
+                    onClick={() =>
+                      setSelectedType(
+                        filter.value
+                      )
+                    }
+                  >
+                    {
+                      filter.label
+                    }
+                  </button>
+                )
+              )}
+
+            </div>
+
+          </div>
+
+
+          <div className="library-filter-block">
+
+            <span className="library-filter-label">
+              INTENSITÉ
+            </span>
+
+            <div className="library-filter-row">
+
+              {INTENSITY_FILTERS.map(
+                (filter) => (
+                  <button
+                    key={
+                      filter.value
+                    }
+                    type="button"
+                    className={
+                      selectedIntensity ===
+                      filter.value
+                        ? "library-filter active"
+                        : "library-filter"
+                    }
+                    onClick={() =>
+                      setSelectedIntensity(
+                        filter.value
+                      )
+                    }
+                  >
+                    {
+                      filter.label
+                    }
+                  </button>
+                )
+              )}
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div className="library-count">
+
+          {loading
+            ? "Chargement…"
+            : `${visibleCards.length} carte${
+                visibleCards.length >
+                1
+                  ? "s"
+                  : ""
+              }`}
+
+        </div>
+
+
+        {error && (
+          <p className="error">
+            {error}
+          </p>
+        )}
+
+
+        {!loading &&
+          !error &&
+          visibleCards.length ===
+            0 && (
+            <div className="library-empty">
+
+              <p>
+                Aucune carte ne
+                correspond à ces
+                filtres.
+              </p>
+
             </div>
           )}
 
-        </div>
 
-      </div>
+        {!loading &&
+          !error && (
+            <div className="library-list">
 
+              {visibleCards.map(
+                (card) => (
+                  <button
+                    key={card.id}
+                    type="button"
+                    className="library-card"
+                    onClick={() =>
+                      onOpenCard?.(
+                        card.id
+                      )
+                    }
+                  >
 
-      {/* =====================================================
-          SEARCH
-          ===================================================== */}
+                    <div className="library-card-header">
 
-      <div className="library-search-wrap">
+                      <span className="library-card-type">
+                        {getTypeLabel(
+                          card.type
+                        )}
+                      </span>
 
-        <span className="library-search-icon">
-          ⌕
-        </span>
+                      <span className="library-card-id">
+                        #{card.id}
+                      </span>
 
-        <input
-          className="library-search"
-          type="search"
-          value={search}
-          onChange={
-            (event) =>
-              setSearch(
-                event.target.value
-              )
-          }
-          placeholder="Rechercher un mot, un défi…"
-          autoComplete="off"
-        />
-
-        {search && (
-
-          <button
-            type="button"
-            className="library-search-clear"
-            onClick={
-              () =>
-                setSearch("")
-            }
-          >
-            ×
-          </button>
-
-        )}
-
-      </div>
+                    </div>
 
 
-      {/* =====================================================
-          TYPE FILTER
-          ===================================================== */}
-
-      <div className="library-filter-row">
-
-        {[
-          ["all", "Toutes"],
-          ["action", "Actions"],
-          ["truth", "Vérités"],
-          ["duel", "Duels"],
-          ["scene", "Scènes"],
-        ].map(
-          ([value, label]) => (
-
-            <button
-              key={value}
-              type="button"
-              className={
-                typeFilter === value
-                  ? "library-filter active"
-                  : "library-filter"
-              }
-              onClick={
-                () =>
-                  setTypeFilter(
-                    value
-                  )
-              }
-            >
-              {label}
-            </button>
-
-          )
-        )}
-
-      </div>
+                    <h2 className="library-card-title">
+                      {card.title}
+                    </h2>
 
 
-      {/* =====================================================
-          INTENSITY FILTER
-          ===================================================== */}
-
-      <div className="library-intensity-row">
-
-        <span>
-          Intensité
-        </span>
-
-        {[
-          ["all", "Toutes"],
-          ["1", "1"],
-          ["2", "2"],
-          ["3", "3"],
-        ].map(
-          ([value, label]) => (
-
-            <button
-              key={value}
-              type="button"
-              className={
-                intensityFilter === value
-                  ? "library-level active"
-                  : "library-level"
-              }
-              onClick={
-                () =>
-                  setIntensityFilter(
-                    value
-                  )
-              }
-            >
-              {label}
-            </button>
-
-          )
-        )}
-
-      </div>
+                    <p className="library-card-prompt">
+                      {
+                        card.displayPrompt
+                      }
+                    </p>
 
 
-      {/* =====================================================
-          COUNTER
-          ===================================================== */}
+                    <div className="library-card-levels">
 
-      <div className="library-count">
+                      <span>
+                        I{" "}
+                        {card.intensity}
+                      </span>
 
-        <strong>
-          {filteredCards.length}
-        </strong>
+                      <span>
+                        T{" "}
+                        {card.tension}
+                      </span>
 
-        {" "}
+                      <span>
+                        S{" "}
+                        {card.sensations}
+                      </span>
 
-        {filteredCards.length > 1
-          ? "cartes"
-          : "carte"}
+                      <span>
+                        U{" "}
+                        {
+                          card.unexpected
+                        }
+                      </span>
 
-      </div>
+                    </div>
 
+                  </button>
+                )
+              )}
 
-      {/* =====================================================
-          ERROR
-          ===================================================== */}
-
-      {error && (
-
-        <div className="library-error">
-          {error}
-        </div>
-
-      )}
-
-
-      {/* =====================================================
-          EMPTY
-          ===================================================== */}
-
-      {!error &&
-        filteredCards.length === 0 && (
-
-          <div className="library-empty">
-
-            <div className="library-empty-symbol">
-              ♢
             </div>
+          )}
 
-            <div>
-              Aucune carte ne correspond
-              à ces critères.
-            </div>
-
-          </div>
-
-        )}
-
-
-      {/* =====================================================
-          CARDS
-          ===================================================== */}
-
-      <div className="library-list">
-
-        {filteredCards.map(
-          (card) => (
-
-            <button
-              key={card.id}
-              type="button"
-              className="library-card"
-              onClick={
-                () =>
-                  onOpenCard?.(
-                    card.id
-                  )
-              }
-            >
-
-              <div className="library-card-header">
-
-                <span className="library-card-type">
-                  {getTypeLabel(
-                    card.type
-                  )}
-                </span>
-
-                <span className="library-card-id">
-                  #{card.id}
-                </span>
-
-              </div>
-
-
-              <h2 className="library-card-title">
-                {card.title}
-              </h2>
-
-
-              <div className="library-card-prompt">
-                {card.displayPrompt}
-              </div>
-
-
-              <div className="library-card-levels">
-
-                <div>
-                  <span>
-                    INT
-                  </span>
-
-                  <strong>
-                    {card.intensity}
-                  </strong>
-                </div>
-
-
-                <div>
-                  <span>
-                    TEN
-                  </span>
-
-                  <strong>
-                    {card.tension}
-                  </strong>
-                </div>
-
-
-                <div>
-                  <span>
-                    SEN
-                  </span>
-
-                  <strong>
-                    {card.sensations}
-                  </strong>
-                </div>
-
-
-                <div>
-                  <span>
-                    SUR
-                  </span>
-
-                  <strong>
-                    {card.unexpected}
-                  </strong>
-                </div>
-
-              </div>
-
-            </button>
-
-          )
-        )}
-
-      </div>
+      </section>
 
     </main>
-
   );
 }
