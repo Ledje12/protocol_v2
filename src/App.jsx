@@ -316,9 +316,8 @@ function App() {
         ownerKey={ownerKey}
         onBack={() => navigate("/")}
         onOpenCard={(cardId) => {
-          console.log(
-            "OPEN LIBRARY CARD:",
-            cardId
+          navigate(
+            `/card/${cardId}`
           );
         }}
       />
