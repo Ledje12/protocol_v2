@@ -183,8 +183,17 @@ function getRoute() {
         window.location.search
       );
 
-    const activeKey =
+    const requestedActiveKey =
       params.get("for");
+
+    const activeKey =
+      requestedActiveKey === "jerome" ||
+      requestedActiveKey === "audrey"
+        ? requestedActiveKey
+        : null;
+
+    const invitationId =
+      params.get("invite");
 
     return {
       screen: "card",
@@ -194,6 +203,8 @@ function getRoute() {
       ),
 
       activeKey,
+
+      invitationId,
     };
   }
 
@@ -379,9 +390,23 @@ function App() {
     return (
       <CardScreen
         supabase={supabase}
-        cardId={route.cardId}
-        ownerKey={ownerKey}
-        activeKey={activeKey}
+
+        cardId={
+          route.cardId
+        }
+
+        ownerKey={
+          ownerKey
+        }
+
+        activeKey={
+          activeKey
+        }
+
+        invitationId={
+          route.invitationId
+        }
+
         onBack={() =>
           navigate(
             "/library"

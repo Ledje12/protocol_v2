@@ -36,11 +36,39 @@ function getTypeLabel(
 }
 
 
+function formatOpenedTime(
+  value
+) {
+  if (!value) {
+    return "";
+  }
+
+  try {
+    return new Intl.DateTimeFormat(
+      "fr-BE",
+      {
+        hour:
+          "2-digit",
+
+        minute:
+          "2-digit",
+      }
+    ).format(
+      new Date(value)
+    );
+
+  } catch {
+    return "";
+  }
+}
+
+
 export default function CardScreen({
   supabase,
   cardId,
   ownerKey,
   activeKey,
+  invitationId,
   onBack,
 }) {
 
@@ -63,6 +91,18 @@ export default function CardScreen({
     setSendMessage,
   ] = useState("");
 
+  const [
+    trackedInvitationId,
+    setTrackedInvitationId,
+  ] = useState(
+    invitationId || null
+  );
+
+  const [
+    openedAt,
+    setOpenedAt,
+  ] = useState(null);
+
 
   const activePerson =
     getPerson(
@@ -74,12 +114,39 @@ export default function CardScreen({
       activeKey
     );
 
+
   const canPropose =
     ownerKey !== activeKey;
 
+  const isRecipient =
+    ownerKey === activeKey;
+
+
+  /* =========================================================
+     SYNC INVITATION FROM URL
+     ========================================================= */
 
   useEffect(() => {
-    let mounted = true;
+
+    if (invitationId) {
+      setTrackedInvitationId(
+        invitationId
+      );
+    }
+
+  }, [
+    invitationId,
+  ]);
+
+
+  /* =========================================================
+     LOAD CARD
+     ========================================================= */
+
+  useEffect(() => {
+
+    let mounted =
+      true;
 
 
     const loadCard =
@@ -87,8 +154,13 @@ export default function CardScreen({
 
         try {
 
-          setLoading(true);
-          setError("");
+          setLoading(
+            true
+          );
+
+          setError(
+            ""
+          );
 
 
           const {
@@ -131,12 +203,16 @@ export default function CardScreen({
               .single();
 
 
-          if (queryError) {
+          if (
+            queryError
+          ) {
             throw queryError;
           }
 
 
-          if (!mounted) {
+          if (
+            !mounted
+          ) {
             return;
           }
 
@@ -164,6 +240,7 @@ export default function CardScreen({
 
           setCard({
             ...data,
+
             displayPrompt,
           });
 
@@ -176,7 +253,9 @@ export default function CardScreen({
           );
 
 
-          if (mounted) {
+          if (
+            mounted
+          ) {
             setError(
               err?.message ||
               "Impossible de charger cette carte."
@@ -186,7 +265,9 @@ export default function CardScreen({
 
         } finally {
 
-          if (mounted) {
+          if (
+            mounted
+          ) {
             setLoading(
               false
             );
@@ -201,7 +282,8 @@ export default function CardScreen({
 
 
     return () => {
-      mounted = false;
+      mounted =
+        false;
     };
 
   }, [
@@ -211,6 +293,206 @@ export default function CardScreen({
     activePerson?.sex,
   ]);
 
+
+  /* =========================================================
+     RECIPIENT OPENS INVITATION
+     ========================================================= */
+
+  useEffect(() => {
+
+    if (
+      !isRecipient ||
+      !trackedInvitationId
+    ) {
+      return;
+    }
+
+
+    let active =
+      true;
+
+
+    const markOpened =
+      async () => {
+
+        try {
+
+          const {
+            data,
+            error:
+              rpcError,
+          } =
+            await supabase.rpc(
+              "mark_card_invitation_opened",
+              {
+                p_invitation_id:
+                  trackedInvitationId,
+
+                p_recipient_key:
+                  ownerKey,
+              }
+            );
+
+
+          if (
+            rpcError
+          ) {
+            throw rpcError;
+          }
+
+
+          if (
+            active
+          ) {
+            setOpenedAt(
+              data || null
+            );
+          }
+
+
+        } catch (err) {
+
+          console.error(
+            "MARK INVITATION OPENED ERROR:",
+            err
+          );
+
+        }
+
+      };
+
+
+    markOpened();
+
+
+    return () => {
+      active =
+        false;
+    };
+
+  }, [
+    supabase,
+    trackedInvitationId,
+    ownerKey,
+    isRecipient,
+  ]);
+
+
+  /* =========================================================
+     SENDER WATCHES OPEN STATUS
+     ========================================================= */
+
+  useEffect(() => {
+
+    if (
+      !canPropose ||
+      !trackedInvitationId
+    ) {
+      return;
+    }
+
+
+    let active =
+      true;
+
+
+    const checkStatus =
+      async () => {
+
+        try {
+
+          const {
+            data,
+            error:
+              rpcError,
+          } =
+            await supabase.rpc(
+              "get_card_invitation_status",
+              {
+                p_invitation_id:
+                  trackedInvitationId,
+
+                p_sender_key:
+                  ownerKey,
+              }
+            );
+
+
+          if (
+            rpcError
+          ) {
+            throw rpcError;
+          }
+
+
+          if (
+            !active
+          ) {
+            return;
+          }
+
+
+          const invitation =
+            Array.isArray(
+              data
+            )
+              ? data[0]
+              : data;
+
+
+          if (
+            invitation?.opened_at
+          ) {
+            setOpenedAt(
+              invitation.opened_at
+            );
+          }
+
+
+        } catch (err) {
+
+          console.error(
+            "INVITATION STATUS ERROR:",
+            err
+          );
+
+        }
+
+      };
+
+
+    checkStatus();
+
+
+    const interval =
+      window.setInterval(
+        checkStatus,
+        2000
+      );
+
+
+    return () => {
+
+      active =
+        false;
+
+      window.clearInterval(
+        interval
+      );
+
+    };
+
+  }, [
+    supabase,
+    trackedInvitationId,
+    ownerKey,
+    canPropose,
+  ]);
+
+
+  /* =========================================================
+     SEND CARD
+     ========================================================= */
 
   const sendCard =
     async () => {
@@ -232,6 +514,10 @@ export default function CardScreen({
 
         setSendMessage(
           ""
+        );
+
+        setOpenedAt(
+          null
         );
 
 
@@ -256,16 +542,46 @@ export default function CardScreen({
             );
 
 
-        if (functionError) {
+        if (
+          functionError
+        ) {
           throw functionError;
         }
 
 
-        if (!data?.success) {
+        if (
+          !data?.success
+        ) {
           throw new Error(
             data?.error ||
             "Impossible d’envoyer cette carte."
           );
+        }
+
+
+        const newInvitationId =
+          data.invitation_id;
+
+
+        if (
+          newInvitationId
+        ) {
+
+          setTrackedInvitationId(
+            newInvitationId
+          );
+
+
+          const newUrl =
+            `/card/${card.id}?for=${activeKey}&invite=${newInvitationId}`;
+
+
+          window.history.replaceState(
+            {},
+            "",
+            newUrl
+          );
+
         }
 
 
@@ -301,7 +617,13 @@ export default function CardScreen({
     };
 
 
-  if (loading) {
+  /* =========================================================
+     DISPLAY
+     ========================================================= */
+
+  if (
+    loading
+  ) {
     return (
       <main className="card-page card-center">
         <p>
@@ -327,7 +649,9 @@ export default function CardScreen({
         <button
           type="button"
           className="secondary"
-          onClick={onBack}
+          onClick={
+            onBack
+          }
         >
           Retour
         </button>
@@ -345,7 +669,9 @@ export default function CardScreen({
         <button
           type="button"
           className="card-back"
-          onClick={onBack}
+          onClick={
+            onBack
+          }
           aria-label="Retour"
         >
           ←
@@ -410,7 +736,9 @@ export default function CardScreen({
             </span>
 
             <span className="card-level-value">
-              {card.intensity}
+              {
+                card.intensity
+              }
             </span>
           </div>
 
@@ -421,7 +749,9 @@ export default function CardScreen({
             </span>
 
             <span className="card-level-value">
-              {card.tension}
+              {
+                card.tension
+              }
             </span>
           </div>
 
@@ -457,11 +787,37 @@ export default function CardScreen({
         {canPropose ? (
           <>
 
-            {sendMessage && (
+            {openedAt ? (
+
               <p className="card-send-message">
-                {sendMessage}
+                ✓ Vue par{" "}
+                {
+                  activePerson?.name
+                }
+
+                {formatOpenedTime(
+                  openedAt
+                ) && (
+                  <>
+                    {" · "}
+                    {
+                      formatOpenedTime(
+                        openedAt
+                      )
+                    }
+                  </>
+                )}
               </p>
-            )}
+
+            ) : sendMessage ? (
+
+              <p className="card-send-message">
+                {
+                  sendMessage
+                }
+              </p>
+
+            ) : null}
 
 
             <button
@@ -474,23 +830,27 @@ export default function CardScreen({
                 sending
               }
             >
-              {sending
-                ? "Envoi…"
-                : `Proposer à ${
-                    activePerson?.name ||
-                    "mon partenaire"
-                  }`}
+              {
+                sending
+                  ? "Envoi…"
+                  : `Proposer à ${
+                      activePerson?.name ||
+                      "mon partenaire"
+                    }`
+              }
             </button>
 
           </>
         ) : (
+
           <p className="card-send-message">
-            Proposé par{" "}
-            {
-              senderPerson?.name ||
-              "ton partenaire"
-            }.
+
+            {senderPerson?.name
+              ? `Proposé par ${senderPerson.name}.`
+              : "Proposé par ton partenaire."}
+
           </p>
+
         )}
 
       </section>
