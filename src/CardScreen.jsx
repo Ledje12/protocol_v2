@@ -108,6 +108,7 @@ export default function CardScreen({
     trackedInvitationId,
     setTrackedInvitationId,
   ] = useState(() => {
+
     if (invitationId) {
       return invitationId;
     }
@@ -150,10 +151,9 @@ export default function CardScreen({
   const isRecipient =
     ownerKey === activeKey;
 
-
   /* =========================================================
-     SYNC INVITATION FROM URL
-     ========================================================= */
+   SYNC INVITATION FROM URL / LOCAL STORAGE
+   ========================================================= */
 
   useEffect(() => {
 
