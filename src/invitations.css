@@ -1,0 +1,178 @@
+.invitations-page {
+  min-height: 100dvh;
+  background: #050405;
+  color: #ffffff;
+}
+
+.invitations-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding:
+    calc(env(safe-area-inset-top) + 18px)
+    18px
+    16px;
+}
+
+.invitations-back {
+  width: 42px;
+  height: 42px;
+
+  border: 0;
+  border-radius: 14px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color: #ffffff;
+
+  font-size: 22px;
+}
+
+.invitations-logo {
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: .18em;
+
+  opacity: .75;
+}
+
+.invitations-subtitle {
+  margin-top: 2px;
+
+  font-size: 14px;
+
+  opacity: .65;
+}
+
+.invitations-content {
+  padding:
+    8px
+    18px
+    calc(env(safe-area-inset-bottom) + 24px);
+}
+
+.invitations-content h1 {
+  margin:
+    0
+    0
+    18px;
+
+  font-size: 30px;
+}
+
+.invitations-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.invitation-item {
+  width: 100%;
+
+  text-align: left;
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+
+  border-radius: 18px;
+
+  padding: 16px;
+
+  background:
+    rgba(255,255,255,.045);
+
+  color: #ffffff;
+
+  transition:
+    transform .15s ease,
+    background .15s ease,
+    border-color .15s ease;
+}
+
+.invitation-item:active {
+  transform:
+    scale(.985);
+}
+
+.invitation-item.is-sent {
+  background:
+    rgba(255,255,255,.055);
+}
+
+.invitation-item.is-received {
+  opacity: .82;
+}
+
+.invitation-item.is-pending {
+  border-color:
+    rgba(255,255,255,.18);
+
+  background:
+    rgba(255,255,255,.085);
+}
+
+.invitation-item-top {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.invitation-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.invitation-type {
+  flex: 0 0 auto;
+
+  font-size: 10px;
+
+  letter-spacing: .08em;
+
+  opacity: .55;
+}
+
+.invitation-meta {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 9px;
+
+  font-size: 13px;
+
+  opacity: .65;
+}
+
+.invitation-status {
+  margin-top: 10px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.invitation-status.opened {
+  opacity: .9;
+}
+
+.invitation-status.pending {
+  opacity: 1;
+}
+
+.invitation-status.received {
+  opacity: .55;
+}
+
+.invitations-empty {
+  opacity: .6;
+}

@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import "./notifications.css";
 import LibraryScreen from "./LibraryScreen.jsx";
 import CardScreen from "./CardScreen.jsx";
+import InvitationsScreen from "./InvitationsScreen.jsx";
 import {
   getCurrentPushSubscription,
   getPushOwner,
@@ -172,6 +173,13 @@ function getRoute() {
     };
   }
 
+  if (path === "/invitations") {
+    return {
+      screen: "invitations",
+      code: null,
+    };
+  }
+
   const cardMatch =
     path.match(
       /^\/card\/(\d+)\/?$/
@@ -195,6 +203,9 @@ function getRoute() {
     const invitationId =
       params.get("invite");
 
+    const from =
+      params.get("from");
+
     return {
       screen: "card",
 
@@ -205,13 +216,8 @@ function getRoute() {
       activeKey,
 
       invitationId,
-    };
-  }
 
-  if (path === "/join") {
-    return {
-      screen: "join",
-      code: null,
+      from,
     };
   }
 
@@ -339,6 +345,42 @@ function App() {
     );
   }
 
+  if (route.screen === "invitations") {
+
+    const ownerKey =
+      getPushOwner();
+
+    if (!ownerKey) {
+      navigate(
+        "/settings",
+        true
+      );
+
+      return null;
+    }
+
+    return (
+      <InvitationsScreen
+        supabase={supabase}
+        ownerKey={ownerKey}
+        onBack={() =>
+          navigate("/")
+        }
+        onOpenCard={({
+          cardId,
+          activeKey,
+          invitationId,
+        }) => {
+
+          navigate(
+            `/card/${cardId}?for=${activeKey}&invite=${invitationId}&from=invitations`
+          );
+
+        }}
+      />
+    );
+  }
+
   if (route.screen === "library") {
     const ownerKey = getPushOwner();
 
@@ -409,7 +451,9 @@ function App() {
 
         onBack={() =>
           navigate(
-            "/library"
+            route.from === "invitations"
+              ? "/invitations"
+              : "/library"
           )
         }
       />
@@ -691,6 +735,20 @@ function HomeScreen({ navigate }) {
           >
             <span>
               Bibliothèque
+            </span>
+
+            <span>→</span>
+          </button>
+
+          <button
+            type="button"
+            className="secondary"
+            onClick={() =>
+              navigate("/invitations")
+            }
+          >
+            <span>
+              Invitations
             </span>
 
             <span>→</span>
