@@ -5665,3 +5665,191 @@ h1 {
   }
 
 }
+
+/* =========================================================
+   PHASE TRANSITION
+   ========================================================= */
+
+.phase-transition {
+  position: fixed;
+
+  top:
+    calc(
+      env(safe-area-inset-top)
+      + 76px
+    );
+
+  left: 50%;
+
+  z-index: 997;
+
+  width:
+    min(
+      calc(100% - 48px),
+      360px
+    );
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 15px 20px 16px;
+
+  text-align: center;
+
+  background:
+    rgba(5,4,5,.88);
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+
+  border-radius: 18px;
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter:
+    blur(18px);
+
+  opacity: 0;
+
+  transform:
+    translateX(-50%)
+    translateY(-10px)
+    scale(.97);
+
+  pointer-events: none;
+
+  animation:
+    protocolPhaseTransition
+    1.45s
+    cubic-bezier(.2,.8,.2,1)
+    forwards;
+}
+
+
+.phase-transition-line {
+  width: 28px;
+  height: 1px;
+
+  margin-bottom: 10px;
+
+  background:
+    rgba(255,255,255,.45);
+
+  transform: scaleX(0);
+
+  animation:
+    protocolPhaseLine
+    .5s
+    ease
+    .12s
+    forwards;
+}
+
+
+.phase-transition-small {
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: .28em;
+
+  opacity: .38;
+}
+
+
+.phase-transition strong {
+  margin-top: 5px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  letter-spacing: .16em;
+}
+
+
+.phase-transition-mark {
+  margin-top: 7px;
+
+  font-size: 9px;
+
+  opacity: .34;
+}
+
+
+/* petite différence dans les phases hautes */
+
+.phase-transition-intense {
+  border-color:
+    rgba(255,255,255,.14);
+}
+
+
+.phase-transition-finale {
+  border-color:
+    rgba(255,255,255,.20);
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes protocolPhaseTransition {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translateX(-50%)
+      translateY(-12px)
+      scale(.97);
+  }
+
+  18% {
+    opacity: 1;
+
+    transform:
+      translateX(-50%)
+      translateY(0)
+      scale(1);
+  }
+
+  72% {
+    opacity: 1;
+
+    transform:
+      translateX(-50%)
+      translateY(0)
+      scale(1);
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      translateX(-50%)
+      translateY(-5px)
+      scale(.985);
+  }
+
+}
+
+
+@keyframes protocolPhaseLine {
+
+  to {
+    transform: scaleX(1);
+  }
+
+}
+
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+
+  .phase-transition {
+    display: none;
+  }
+
+}

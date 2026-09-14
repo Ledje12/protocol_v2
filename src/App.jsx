@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./notifications.css";
 import LibraryScreen from "./LibraryScreen.jsx";
@@ -2921,6 +2925,75 @@ function CalibrationScreen({
    PLAY
    ========================================================= */
 
+function PhaseTransition({
+  phase,
+  label,
+}) {
+  const previousPhaseRef =
+    useRef(null);
+
+  const [visible, setVisible] =
+    useState(false);
+
+  useEffect(() => {
+    if (!phase) {
+      return;
+    }
+
+    /*
+     * Premier affichage :
+     * on montre aussi WARMUP.
+     */
+    const phaseChanged =
+      previousPhaseRef.current !== phase;
+
+    if (!phaseChanged) {
+      return;
+    }
+
+    previousPhaseRef.current =
+      phase;
+
+    setVisible(true);
+
+    const timer =
+      window.setTimeout(() => {
+        setVisible(false);
+      }, 1450);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [phase]);
+
+  if (!visible) {
+    return null;
+  }
+
+  return (
+    <div
+      className={
+        `phase-transition phase-transition-${phase}`
+      }
+      aria-hidden="true"
+    >
+      <div className="phase-transition-line" />
+
+      <span className="phase-transition-small">
+        PROTOCOL
+      </span>
+
+      <strong>
+        {label}
+      </strong>
+
+      <span className="phase-transition-mark">
+        ◇
+      </span>
+    </div>
+  );
+}
+  
 function PlayScreen({
   code,
   navigate,
@@ -4186,6 +4259,14 @@ async function handleSceneRead() {
     <main className="app play-page">
 
       <div className="glow glow-center" />
+
+      <PhaseTransition
+        phase={game.phase}
+        label={
+          phaseLabels[game.phase] ||
+          game.phase?.toUpperCase()
+        }
+      />
 
 
       {/* =====================================
