@@ -3400,6 +3400,60 @@ async function handleSceneRead() {
   }, [code]);
 
 
+      /* =========================================
+        FINAL STATS
+        ========================================= */
+
+      useEffect(() => {
+        if (
+          !game ||
+          game.status !== "finished"
+        ) {
+          return;
+        }
+
+        let active = true;
+
+        const loadFinalStats = async () => {
+          try {
+            const {
+              data,
+              error: statsError,
+            } = await supabase.rpc(
+              "get_protocol_final_stats",
+              {
+                p_game_code: code,
+              }
+            );
+
+            if (statsError) {
+              throw statsError;
+            }
+
+            if (active) {
+              setFinalStats(data);
+            }
+
+          } catch (err) {
+            console.error(
+              "FINAL STATS ERROR:",
+              err
+            );
+          }
+        };
+
+        loadFinalStats();
+
+        return () => {
+          active = false;
+        };
+      }, [
+        game?.status,
+        code,
+      ]);
+
+
+
   /* =========================================
      ADVANCE GAME
      ========================================= */
@@ -3676,60 +3730,6 @@ async function handleSceneRead() {
       : promptLength > 80
         ? "card-prompt-medium"
         : "card-prompt-short";
-
-
-    /* =========================================
-        FINAL STATS
-        ========================================= */
-
-      useEffect(() => {
-        if (
-          !game ||
-          game.status !== "finished"
-        ) {
-          return;
-        }
-
-        let active = true;
-
-        const loadFinalStats = async () => {
-          try {
-            const {
-              data,
-              error: statsError,
-            } = await supabase.rpc(
-              "get_protocol_final_stats",
-              {
-                p_game_code: code,
-              }
-            );
-
-            if (statsError) {
-              throw statsError;
-            }
-
-            if (active) {
-              setFinalStats(data);
-            }
-
-          } catch (err) {
-            console.error(
-              "FINAL STATS ERROR:",
-              err
-            );
-          }
-        };
-
-        loadFinalStats();
-
-        return () => {
-          active = false;
-        };
-      }, [
-        game?.status,
-        code,
-      ]);
-
 
     /* =========================================
       PARTIE TERMINEE
