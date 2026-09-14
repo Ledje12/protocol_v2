@@ -62,6 +62,19 @@ function formatOpenedTime(
   }
 }
 
+function getInvitationStorageKey(
+  cardId,
+  activeKey
+) {
+  if (
+    !cardId ||
+    !activeKey
+  ) {
+    return null;
+  }
+
+  return `protocol-card-invite-${cardId}-${activeKey}`;
+}
 
 export default function CardScreen({
   supabase,
@@ -94,9 +107,25 @@ export default function CardScreen({
   const [
     trackedInvitationId,
     setTrackedInvitationId,
-  ] = useState(
-    invitationId || null
-  );
+  ] = useState(() => {
+    if (invitationId) {
+      return invitationId;
+    }
+
+    const storageKey =
+      getInvitationStorageKey(
+        cardId,
+        activeKey
+      );
+
+    if (!storageKey) {
+      return null;
+    }
+
+    return localStorage.getItem(
+      storageKey
+    );
+  });
 
   const [
     openedAt,
@@ -128,14 +157,48 @@ export default function CardScreen({
 
   useEffect(() => {
 
+    const storageKey =
+      getInvitationStorageKey(
+        cardId,
+        activeKey
+      );
+
+    if (!storageKey) {
+      return;
+    }
+
+
     if (invitationId) {
+
+      localStorage.setItem(
+        storageKey,
+        invitationId
+      );
+
       setTrackedInvitationId(
         invitationId
+      );
+
+      return;
+    }
+
+
+    const storedInvitationId =
+      localStorage.getItem(
+        storageKey
+      );
+
+
+    if (storedInvitationId) {
+      setTrackedInvitationId(
+        storedInvitationId
       );
     }
 
   }, [
     invitationId,
+    cardId,
+    activeKey,
   ]);
 
 
@@ -570,6 +633,21 @@ export default function CardScreen({
           setTrackedInvitationId(
             newInvitationId
           );
+
+
+          const storageKey =
+            getInvitationStorageKey(
+              card.id,
+              activeKey
+            );
+
+
+          if (storageKey) {
+            localStorage.setItem(
+              storageKey,
+              newInvitationId
+            );
+          }
 
 
           const newUrl =
