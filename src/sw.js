@@ -3,6 +3,16 @@ import {
   precacheAndRoute,
 } from 'workbox-precaching'
 
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    self.clients.claim()
+  );
+});
+
 /* =========================================================
    PROTOCOL
    SERVICE WORKER
