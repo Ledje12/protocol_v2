@@ -180,6 +180,13 @@ function getRoute() {
     };
   }
 
+  if (path === "/join") {
+    return {
+      screen: "join",
+      code: null,
+    };
+  }
+
   const cardMatch =
     path.match(
       /^\/card\/(\d+)\/?$/
