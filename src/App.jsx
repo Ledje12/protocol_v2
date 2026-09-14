@@ -3936,6 +3936,13 @@ async function handleSceneRead() {
     game.active_player ===
     playerNumber;
 
+  const duelReward =
+    card?.intensity >= 5
+      ? 6
+      : card?.intensity >= 3
+        ? 4
+        : 2;
+
   const mySceneStepRead =
     playerNumber === 1
       ? game.scene_step_read_player_1
@@ -4519,7 +4526,7 @@ async function handleSceneRead() {
                   </span>
 
                   <strong>
-                    +2
+                    +{duelReward}
                   </strong>
                 </button>
 
@@ -4543,7 +4550,7 @@ async function handleSceneRead() {
                   </span>
 
                   <strong>
-                    +2
+                    +{duelReward}
                   </strong>
                 </button>
 
