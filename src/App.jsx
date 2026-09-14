@@ -2925,6 +2925,15 @@ function PlayScreen({
   code,
   navigate,
 }) {
+  const [finalStats, setFinalStats] =
+    useState(null);
+
+  const [rematchLoading, setRematchLoading] =
+    useState(false);
+
+  const [rematchError, setRematchError] =
+    useState("");
+
   const playerNumber = Number(
     sessionStorage.getItem(
       `protocol-player-${code}`
@@ -3189,9 +3198,9 @@ async function handleSceneRead() {
     }
 
     /*
-     * Partie terminée :
-     * on garde game mais plus de carte.
-     */
+    * Partie terminée :
+    * on garde game mais plus de carte.
+    */
     if (
       gameData.status ===
       "finished"
@@ -3201,10 +3210,40 @@ async function handleSceneRead() {
       return;
     }
 
+
     /*
-     * Route play mais partie pas encore
-     * réellement en cours.
-     */
+    * REVANCHE :
+    * lorsqu'un des deux joueurs relance
+    * la partie, Supabase remet le statut
+    * à "ready".
+    *
+    * Les deux téléphones sont encore sur
+    * /play à ce moment-là.
+    *
+    * Realtime ou le polling détecte donc
+    * automatiquement le changement et
+    * renvoie chaque joueur vers sa
+    * calibration, sans nouveau code.
+    */
+    if (
+      gameData.status ===
+      "ready"
+    ) {
+      setGame(gameData);
+      setCard(null);
+
+      navigate(
+        `/game/${code}/calibration`
+      );
+
+      return;
+    }
+
+
+    /*
+    * Route play mais partie pas encore
+    * réellement en cours.
+    */
     if (
       gameData.status !==
       "playing"
@@ -3639,277 +3678,430 @@ async function handleSceneRead() {
         : "card-prompt-short";
 
 
-   /* =========================================
-     PARTIE TERMINEE
-     ========================================= */
+    /* =========================================
+        FINAL STATS
+        ========================================= */
 
-  if (
-    game &&
-    game.status === "finished"
-  ) {
-    const score1 =
-      game.score_player_1 || 0;
+      useEffect(() => {
+        if (
+          !game ||
+          game.status !== "finished"
+        ) {
+          return;
+        }
 
-    const score2 =
-      game.score_player_2 || 0;
+        let active = true;
 
-
-    const winner =
-      score1 === score2
-        ? null
-        : score1 > score2
-          ? 1
-          : 2;
-
-
-    const winnerName =
-      winner === 1
-        ? player1Name
-        : winner === 2
-          ? player2Name
-          : null;
-
-
-    const maxIntensity =
-      game.shared_profile?.intensity ||
-      null;
-
-
-    let endTitle =
-      "C'était votre moment.";
-
-
-    let endText =
-      "Gardez ce qui vous a plu. Le reste pourra attendre la prochaine fois.";
-
-
-    if (maxIntensity === 1) {
-      endTitle =
-        "Tout doucement.";
-
-      endText =
-        "Vous avez choisi de prendre votre temps. Parfois, il n'en faut pas beaucoup plus.";
-    }
-
-
-    if (maxIntensity === 2) {
-      endTitle =
-        "Juste assez.";
-
-      endText =
-        "Un peu de tension, quelques surprises et probablement quelques idées à garder pour plus tard.";
-    }
-
-
-    if (maxIntensity === 3) {
-      endTitle =
-        "Vous avez joué.";
-
-      endText =
-        "Vous vous êtes provoqués, surpris et probablement donné envie d'aller un peu plus loin.";
-    }
-
-
-    if (maxIntensity === 4) {
-      endTitle =
-        "Vous êtes allés loin.";
-
-      endText =
-        "Certaines règles ont tenu. D'autres probablement beaucoup moins.";
-    }
-
-
-    if (maxIntensity === 5) {
-      endTitle =
-        "Sans filtre.";
-
-      endText =
-        "Vous aviez choisi de ne pas trop vous retenir. PROTOCOL n'a manifestement pas eu besoin d'insister beaucoup.";
-    }
-
-
-    const replay = () => {
-      navigate("/");
-    };
-
-
-    return (
-      <main className="app final-page">
-
-        <div className="final-glow final-glow-top" />
-        <div className="final-glow final-glow-bottom" />
-
-
-        <header className="header final-header">
-
-          <span className="logo">
-            PROTOCOL
-          </span>
-
-          <span className="pill">
-            Terminé
-          </span>
-
-        </header>
-
-
-        <section className="final-screen">
-
-
-          {/* =================================
-              INTRO
-              ================================= */}
-
-          <div className="final-intro">
-
-            <p className="kicker">
-              SESSION TERMINÉE
-            </p>
-
-            <h1>
-              {endTitle}
-            </h1>
-
-            <p className="final-text">
-              {endText}
-            </p>
-
-          </div>
-
-
-          {/* =================================
-              SCORE
-              ================================= */}
-
-          <div className="final-score-card">
-
-            <div
-              className={
-                winner === 1
-                  ? "final-player final-winner"
-                  : "final-player"
+        const loadFinalStats = async () => {
+          try {
+            const {
+              data,
+              error: statsError,
+            } = await supabase.rpc(
+              "get_protocol_final_stats",
+              {
+                p_game_code: code,
               }
-            >
+            );
 
-              <span className="final-player-name">
-                {player1Name}
-              </span>
+            if (statsError) {
+              throw statsError;
+            }
 
-              <strong className="final-player-score">
-                {score1}
-              </strong>
+            if (active) {
+              setFinalStats(data);
+            }
 
-            </div>
+          } catch (err) {
+            console.error(
+              "FINAL STATS ERROR:",
+              err
+            );
+          }
+        };
+
+        loadFinalStats();
+
+        return () => {
+          active = false;
+        };
+      }, [
+        game?.status,
+        code,
+      ]);
 
 
-            <div className="final-score-divider">
+    /* =========================================
+      PARTIE TERMINEE
+      ========================================= */
 
-              <span>·</span>
+    if (
+      game &&
+      game.status === "finished"
+    ) {
 
-            </div>
+      const score1 =
+        game.score_player_1 || 0;
+
+      const score2 =
+        game.score_player_2 || 0;
 
 
-            <div
-              className={
-                winner === 2
-                  ? "final-player final-winner"
-                  : "final-player"
+      const winner =
+        score1 === score2
+          ? null
+          : score1 > score2
+            ? 1
+            : 2;
+
+
+      const winnerName =
+        winner === 1
+          ? player1Name
+          : winner === 2
+            ? player2Name
+            : null;
+
+
+      const maxIntensity =
+        finalStats?.max_intensity ||
+        game.shared_profile?.intensity ||
+        null;
+
+
+      const startRematch =
+        async () => {
+
+          try {
+
+            setRematchLoading(true);
+            setRematchError("");
+
+
+            const {
+              data,
+              error: rematchRpcError,
+            } = await supabase.rpc(
+              "rematch_protocol",
+              {
+                p_game_code: code,
               }
-            >
-
-              <span className="final-player-name">
-                {player2Name}
-              </span>
-
-              <strong className="final-player-score">
-                {score2}
-              </strong>
-
-            </div>
-
-          </div>
+            );
 
 
-          {/* =================================
-              RESULT
-              ================================= */}
+            if (rematchRpcError) {
+              throw rematchRpcError;
+            }
 
-          <div className="final-result">
 
-            {winnerName ? (
-              <>
-                <span className="final-symbol">
-                  ◇
-                </span>
+            console.log(
+              "REMATCH READY:",
+              data
+            );
 
-                <p>
-                  <strong>
+
+            navigate(
+              `/game/${code}/calibration`
+            );
+
+
+          } catch (err) {
+
+            console.error(
+              "REMATCH ERROR:",
+              err
+            );
+
+
+            setRematchError(
+              err?.message ||
+              "Impossible de préparer la revanche."
+            );
+
+
+          } finally {
+
+            setRematchLoading(false);
+
+          }
+
+        };
+
+
+      const closeProtocol = () => {
+        navigate("/");
+      };
+
+
+      return (
+
+        <main className="app final-page final-wow-page">
+
+          <div className="final-glow final-glow-top" />
+          <div className="final-glow final-glow-bottom" />
+
+
+          <header className="header final-header">
+
+            <span className="logo">
+              PROTOCOL
+            </span>
+
+            <span className="pill final-pill">
+              TERMINÉ
+            </span>
+
+          </header>
+
+
+          <section className="final-screen final-wow-screen">
+
+
+            {/* =====================================
+                REVEAL
+                ===================================== */}
+
+            <div className="final-reveal">
+
+              <p className="kicker final-reveal-kicker">
+                SESSION TERMINÉE
+              </p>
+
+
+              {winnerName ? (
+
+                <>
+
+                  <p className="final-reveal-small">
+                    CE SOIR
+                  </p>
+
+                  <h1 className="final-winner-title">
                     {winnerName}
-                  </strong>
-                  {" "}
-                  termine avec quelques points d'avance.
-                </p>
-              </>
-            ) : (
-              <>
-                <span className="final-symbol">
-                  ◇
+                    <br />
+                    l'emporte.
+                  </h1>
+
+                </>
+
+              ) : (
+
+                <>
+
+                  <p className="final-reveal-small">
+                    CE SOIR
+                  </p>
+
+                  <h1 className="final-winner-title">
+                    Égalité.
+                  </h1>
+
+                </>
+
+              )}
+
+            </div>
+
+
+            {/* =====================================
+                SCORE
+                ===================================== */}
+
+            <div className="final-wow-score">
+
+              <div
+                className={
+                  winner === 1
+                    ? "final-wow-player final-wow-winner"
+                    : "final-wow-player"
+                }
+              >
+
+                <span>
+                  {player1Name}
                 </span>
 
-                <p>
-                  Aucun gagnant ce soir.
-                  <br />
-                  Ce qui semble franchement secondaire.
-                </p>
-              </>
+                <strong>
+                  {score1}
+                </strong>
+
+              </div>
+
+
+              <div className="final-wow-separator">
+                <span>—</span>
+              </div>
+
+
+              <div
+                className={
+                  winner === 2
+                    ? "final-wow-player final-wow-winner"
+                    : "final-wow-player"
+                }
+              >
+
+                <span>
+                  {player2Name}
+                </span>
+
+                <strong>
+                  {score2}
+                </strong>
+
+              </div>
+
+            </div>
+
+
+            {/* =====================================
+                STATS
+                ===================================== */}
+
+            {finalStats && (
+
+              <div className="final-stats">
+
+                <div className="final-stat">
+
+                  <strong>
+                    {finalStats.total_cards}
+                  </strong>
+
+                  <span>
+                    DÉFIS
+                  </span>
+
+                </div>
+
+
+                <div className="final-stat">
+
+                  <strong>
+                    {finalStats.duels}
+                  </strong>
+
+                  <span>
+                    DUELS
+                  </span>
+
+                </div>
+
+
+                <div className="final-stat">
+
+                  <strong>
+                    {finalStats.scenes}
+                  </strong>
+
+                  <span>
+                    {finalStats.scenes === 1
+                      ? "SCÈNE"
+                      : "SCÈNES"}
+                  </span>
+
+                </div>
+
+
+                <div className="final-stat">
+
+                  <strong>
+                    {finalStats.max_intensity}
+                  </strong>
+
+                  <span>
+                    INTENSITÉ MAX
+                  </span>
+
+                </div>
+
+              </div>
+
             )}
 
-          </div>
+
+            {/* =====================================
+                CLOSING
+                ===================================== */}
+
+            <div className="final-wow-closing">
+
+              <span className="final-symbol">
+                ◇
+              </span>
+
+              <p>
+                PROTOCOL est terminé.
+                <br />
+                La soirée, elle, ne l'est pas forcément.
+              </p>
+
+            </div>
 
 
-          {/* =================================
-              CLOSING
-              ================================= */}
+            {/* =====================================
+                ACTIONS
+                ===================================== */}
 
-          <div className="final-closing">
+            {rematchError && (
 
-            <p>
-              PROTOCOL est terminé.
-              <br />
-              La soirée, elle, ne l'est pas forcément.
-            </p>
+              <p className="error">
+                {rematchError}
+              </p>
 
-          </div>
+            )}
 
 
-          {/* =================================
-              BUTTON
-              ================================= */}
+            <div className="final-wow-actions">
 
-          <button
-            className="primary final-replay"
-            onClick={replay}
-          >
+              <button
+                className="primary final-rematch"
+                onClick={startRematch}
+                disabled={rematchLoading}
+              >
 
-            <span>
-              Rejouer
-            </span>
+                <span>
+                  {rematchLoading
+                    ? "PRÉPARATION…"
+                    : "REVANCHE"}
+                </span>
 
-            <span>
-              →
-            </span>
+                <span>
+                  ↻
+                </span>
 
-          </button>
-
-
-        </section>
+              </button>
 
 
-        <Footer />
+              <p className="final-rematch-hint">
+                Même duo.
+                {" "}
+                Nouvelle calibration.
+                {" "}
+                Aucun code à réencoder.
+              </p>
 
-      </main>
-    );
-  }
+
+              <button
+                type="button"
+                className="final-close-button"
+                onClick={closeProtocol}
+                disabled={rematchLoading}
+              >
+                TERMINER LE PROTOCOL
+              </button>
+
+            </div>
+
+          </section>
+
+
+          <Footer />
+
+        </main>
+
+      );
+    }
 
   /* =========================================
      GAME/CARD GUARD
