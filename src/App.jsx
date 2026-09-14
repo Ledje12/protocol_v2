@@ -4557,9 +4557,88 @@ async function handleSceneRead() {
           PLAY
           ===================================== */}
 
-      <section className="play">
+      <section
+        className={
+          `play play-type-${card.type} ${
+            card.intensity >= 5
+              ? "play-intensity-max"
+              : ""
+          }`
+        }
+      >
 
-        <div className="play-meta">
+        {/* =====================================
+            CARD REVEAL
+            ===================================== */}
+
+        <div
+          key={
+            `reveal-${card.id}-${sceneState?.step_no || 0}`
+          }
+          className={
+            `card-reveal card-reveal-${card.type}`
+          }
+          aria-hidden="true"
+        >
+
+          {card.type === "duel" ? (
+
+            <div className="card-reveal-inner card-reveal-duel-inner">
+
+              <span className="card-reveal-kicker">
+                DUEL
+              </span>
+
+              <div className="card-reveal-faceoff">
+
+                <strong className="card-reveal-player card-reveal-player-left">
+                  {player1Name}
+                </strong>
+
+                <span className="card-reveal-vs">
+                  VS
+                </span>
+
+                <strong className="card-reveal-player card-reveal-player-right">
+                  {player2Name}
+                </strong>
+
+              </div>
+
+              <span className="card-reveal-whisper">
+                UN SEUL GAGNE
+              </span>
+
+            </div>
+
+          ) : (
+
+            <div className="card-reveal-inner">
+
+              <span className="card-reveal-kicker">
+                {isMyTurn
+                  ? `${myName.toUpperCase()} · À TOI`
+                  : activePlayerName.toUpperCase()}
+              </span>
+
+              <strong className="card-reveal-type">
+                {typeLabels[card.type]}
+              </strong>
+
+              <span className="card-reveal-whisper">
+                {card.intensity >= 5
+                  ? "INTENSITÉ MAX"
+                  : phaseLabels[game.phase]}
+              </span>
+
+            </div>
+
+          )}
+
+        </div>
+
+
+  <div className="play-meta">
 
           <span
             className={
@@ -4644,7 +4723,13 @@ async function handleSceneRead() {
 
           <div
             key={`${card.id}-${sceneState?.step_no || 0}`}
-            className={`game-card game-card-${card.type}`}
+            className={
+              `game-card game-card-${card.type} card-reveal-content ${
+                card.intensity >= 5
+                  ? "game-card-intensity-max"
+                  : ""
+              }`
+            }
           >
 
           {card.title && (
@@ -4690,7 +4775,10 @@ async function handleSceneRead() {
             ACTIONS
             =================================== */}
 
-        <div className="play-bottom">
+        <div
+          key={`actions-${card.id}-${sceneState?.step_no || 0}`}
+          className="play-bottom card-reveal-actions"
+        >
 
 
           {/* DUEL */}

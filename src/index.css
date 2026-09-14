@@ -5190,3 +5190,478 @@ h1 {
   }
 
 }
+
+/* =========================================================
+   CARD REVEAL
+   ========================================================= */
+
+.card-reveal {
+  position: fixed;
+  inset: 0;
+
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    max(24px, env(safe-area-inset-top))
+    24px
+    max(24px, env(safe-area-inset-bottom));
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(255,255,255,.045),
+      rgba(5,4,5,.985) 46%,
+      #050405 80%
+    );
+
+  opacity: 1;
+  visibility: visible;
+
+  pointer-events: auto;
+
+  animation:
+    protocolRevealCurtain
+    1.55s
+    cubic-bezier(.22,.8,.24,1)
+    forwards;
+}
+
+
+.card-reveal-inner {
+  width: 100%;
+  max-width: 430px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+}
+
+
+.card-reveal-kicker {
+  display: block;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: .24em;
+
+  opacity: 0;
+
+  transform: translateY(8px);
+
+  animation:
+    protocolRevealKicker
+    .38s
+    ease
+    .12s
+    forwards;
+}
+
+
+.card-reveal-type {
+  display: block;
+
+  margin-top: 16px;
+
+  font-size: clamp(
+    34px,
+    10vw,
+    52px
+  );
+
+  font-weight: 600;
+
+  line-height: .95;
+
+  letter-spacing: -.045em;
+
+  opacity: 0;
+
+  transform:
+    scale(.94)
+    translateY(8px);
+
+  animation:
+    protocolRevealType
+    .55s
+    cubic-bezier(.18,.82,.24,1)
+    .28s
+    forwards;
+}
+
+
+.card-reveal-whisper {
+  display: block;
+
+  margin-top: 20px;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: .22em;
+
+  opacity: 0;
+
+  animation:
+    protocolRevealWhisper
+    .4s
+    ease
+    .62s
+    forwards;
+}
+
+
+/* =========================================================
+   DUEL REVEAL
+   ========================================================= */
+
+.card-reveal-duel::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.025),
+      transparent
+    );
+
+  transform: translateX(-100%);
+
+  animation:
+    protocolDuelSweep
+    1.3s
+    ease
+    .1s
+    forwards;
+}
+
+
+.card-reveal-duel-inner {
+  position: relative;
+  z-index: 1;
+}
+
+
+.card-reveal-faceoff {
+  width: 100%;
+
+  margin-top: 30px;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr auto 1fr;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+
+.card-reveal-player {
+  font-size: clamp(
+    24px,
+    8vw,
+    38px
+  );
+
+  font-weight: 600;
+
+  line-height: 1;
+
+  letter-spacing: -.035em;
+
+  opacity: 0;
+}
+
+
+.card-reveal-player-left {
+  text-align: right;
+
+  transform: translateX(-32px);
+
+  animation:
+    protocolDuelLeft
+    .55s
+    cubic-bezier(.18,.82,.24,1)
+    .27s
+    forwards;
+}
+
+
+.card-reveal-player-right {
+  text-align: left;
+
+  transform: translateX(32px);
+
+  animation:
+    protocolDuelRight
+    .55s
+    cubic-bezier(.18,.82,.24,1)
+    .27s
+    forwards;
+}
+
+
+.card-reveal-vs {
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: .14em;
+
+  opacity: 0;
+
+  transform: scale(.6);
+
+  animation:
+    protocolDuelVs
+    .35s
+    cubic-bezier(.18,.82,.24,1)
+    .5s
+    forwards;
+}
+
+
+/* =========================================================
+   CARD ARRIVAL
+   ========================================================= */
+
+.card-reveal-content {
+  opacity: 0;
+
+  transform:
+    translateY(18px)
+    scale(.985);
+
+  animation:
+    protocolCardArrival
+    .58s
+    cubic-bezier(.18,.82,.24,1)
+    1.02s
+    forwards;
+}
+
+
+.card-reveal-actions {
+  opacity: 0;
+
+  transform: translateY(12px);
+
+  animation:
+    protocolActionsArrival
+    .45s
+    ease
+    1.16s
+    forwards;
+}
+
+
+/* =========================================================
+   INTENSITY 5
+   ========================================================= */
+
+.game-card-intensity-max {
+  animation-name:
+    protocolCardArrivalMax;
+}
+
+
+.play-intensity-max .card-reveal {
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(255,255,255,.075),
+      rgba(5,4,5,.99) 48%,
+      #050405 82%
+    );
+}
+
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes protocolRevealCurtain {
+
+  0% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  72% {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  99% {
+    opacity: 0;
+    visibility: visible;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+}
+
+
+@keyframes protocolRevealKicker {
+
+  to {
+    opacity: .62;
+    transform: translateY(0);
+  }
+
+}
+
+
+@keyframes protocolRevealType {
+
+  to {
+    opacity: 1;
+
+    transform:
+      scale(1)
+      translateY(0);
+  }
+
+}
+
+
+@keyframes protocolRevealWhisper {
+
+  to {
+    opacity: .42;
+  }
+
+}
+
+
+@keyframes protocolDuelLeft {
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+}
+
+
+@keyframes protocolDuelRight {
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+}
+
+
+@keyframes protocolDuelVs {
+
+  to {
+    opacity: .52;
+    transform: scale(1);
+  }
+
+}
+
+
+@keyframes protocolDuelSweep {
+
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+
+}
+
+
+@keyframes protocolCardArrival {
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+@keyframes protocolCardArrivalMax {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translateY(20px)
+      scale(.965);
+  }
+
+  70% {
+    opacity: 1;
+
+    transform:
+      translateY(-2px)
+      scale(1.012);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+@keyframes protocolActionsArrival {
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (
+  prefers-reduced-motion: reduce
+) {
+
+  .card-reveal {
+    display: none;
+  }
+
+  .card-reveal-content,
+  .card-reveal-actions,
+  .game-card-intensity-max {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+}
