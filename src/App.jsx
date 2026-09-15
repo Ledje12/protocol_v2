@@ -3044,9 +3044,9 @@ function PlayScreen({
   const [activeRules, setActiveRules] =
     useState([]);
 
-    /* =========================================
-    LOCAL CARD TIMER
-    ========================================= */
+  /* =========================================
+     LOCAL CARD TIMER
+     ========================================= */
 
   const [timerRemaining, setTimerRemaining] =
     useState(null);
@@ -3060,6 +3060,28 @@ function PlayScreen({
   const timerInitialSeconds =
     Number(card?.timer_seconds) > 0
       ? Number(card.timer_seconds)
+      : null;
+
+  /*
+   * Pour un duel chronométré, la durée totale
+   * est divisée en deux manches égales.
+   *
+   * Exemple :
+   * timer_seconds = 120
+   * Joueur actif : 60 sec
+   * Partenaire   : 60 sec
+   *
+   * Le chrono reste cependant un chrono GLOBAL
+   * de 120 secondes. Le passage de manche est
+   * donc automatique et ne nécessite aucun clic.
+   */
+  const timerIsDuel =
+    card?.type === "duel" &&
+    Boolean(timerInitialSeconds);
+
+  const timerHalfSeconds =
+    timerIsDuel
+      ? timerInitialSeconds / 2
       : null;
 
   const syncTimer = () => {
@@ -3144,7 +3166,9 @@ function PlayScreen({
     const safeSeconds =
       Math.max(
         0,
-        Number(seconds) || 0
+        Math.ceil(
+          Number(seconds) || 0
+        )
       );
 
     const minutes =
@@ -3161,8 +3185,8 @@ function PlayScreen({
   };
 
   /* =========================================
-    TIMER LIFECYCLE
-    ========================================= */
+     TIMER LIFECYCLE
+     ========================================= */
 
   useEffect(() => {
     const initialSeconds =
@@ -3254,6 +3278,13 @@ function PlayScreen({
     timerInitialSeconds ??
     0;
 
+  /*
+   * Progression GLOBALE.
+   *
+   * Un duel 120 sec reste donc visuellement
+   * un cercle de 120 sec, même si l'affichage
+   * intérieur montre deux manches de 60 sec.
+   */
   const timerProgress =
     timerInitialSeconds
       ? Math.max(
@@ -3269,6 +3300,50 @@ function PlayScreen({
   const timerCompleted =
     Boolean(timerInitialSeconds) &&
     timerDisplaySeconds === 0;
+
+  /*
+   * DUEL
+   *
+   * Première moitié :
+   * active_player
+   *
+   * Deuxième moitié :
+   * partenaire
+   *
+   * On déduit la manche uniquement du temps
+   * global restant. Il n'y a donc aucun état
+   * supplémentaire susceptible de se désynchroniser.
+   */
+  const timerDuelRound =
+    timerIsDuel &&
+    timerHalfSeconds !== null
+      ? timerDisplaySeconds >
+        timerHalfSeconds
+        ? 1
+        : 2
+      : null;
+
+  /*
+   * Temps affiché DANS la manche.
+   *
+   * 120 sec total :
+   *
+   * global 120 -> affiche 1:00 joueur 1
+   * global  90 -> affiche 0:30 joueur 1
+   * global  60 -> affiche 1:00 joueur 2
+   * global  30 -> affiche 0:30 joueur 2
+   * global   0 -> affiche 0:00
+   */
+  const timerRoundSeconds =
+    timerIsDuel &&
+    timerHalfSeconds !== null
+      ? timerCompleted
+        ? 0
+        : timerDuelRound === 1
+          ? timerDisplaySeconds -
+            timerHalfSeconds
+          : timerDisplaySeconds
+      : timerDisplaySeconds;
 
     async function loadSceneState(
     currentCard
@@ -5099,14 +5174,28 @@ async function handleSceneRead() {
                 <span className="protocol-timer-label">
                   {timerCompleted
                     ? "TERMINÉ"
-                    : timerRunning
-                      ? "EN COURS"
-                      : "CHRONO"}
+                    : timerIsDuel
+                      ? timerDuelRound === 1
+                        ? (
+                            game?.active_player === 1
+                              ? game?.player_1_name || "JOUEUR 1"
+                              : game?.player_2_name || "JOUEUR 2"
+                          )
+                        : (
+                            game?.active_player === 1
+                              ? game?.player_2_name || "JOUEUR 2"
+                              : game?.player_1_name || "JOUEUR 1"
+                          )
+                      : timerRunning
+                        ? "EN COURS"
+                        : "CHRONO"}
                 </span>
 
                 <strong>
                   {formatTimer(
-                    timerDisplaySeconds
+                    timerIsDuel
+                      ? timerRoundSeconds
+                      : timerDisplaySeconds
                   )}
                 </strong>
 
