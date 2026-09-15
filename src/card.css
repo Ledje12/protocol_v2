@@ -209,7 +209,10 @@
    ========================================================= */
 
 .card-prompt {
-  margin: 0 0 32px;
+  margin:
+    0
+    0
+    40px;
 
   font-family:
     Georgia,
@@ -218,21 +221,21 @@
 
   font-size:
     clamp(
-      22px,
-      6.4vw,
-      27px
+      20px,
+      5.4vw,
+      22px
     );
 
   font-weight: 400;
-  line-height: 1.27;
-  letter-spacing: -0.015em;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 
   color:
     rgba(
       244,
       239,
       241,
-      0.92
+      0.90
     );
 }
 
@@ -271,6 +274,8 @@
   min-height: 56px;
 
   margin-top: auto;
+
+  flex-shrink: 0;
 
   border:
     1px
@@ -320,7 +325,6 @@
     );
 
   opacity: 1;
-
   cursor: pointer;
 
   transition:
