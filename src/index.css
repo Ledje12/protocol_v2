@@ -5512,7 +5512,7 @@ h1 {
 
   animation:
     protocolRevealCurtain
-    1.55s
+    2.4s
     cubic-bezier(.22,.8,.24,1)
     forwards;
 }
@@ -5544,9 +5544,9 @@ h1 {
 
   animation:
     protocolRevealKicker
-    .38s
+    .45s
     ease
-    .12s
+    .18s
     forwards;
 }
 
@@ -5576,9 +5576,9 @@ h1 {
 
   animation:
     protocolRevealType
-    .55s
+    .65s
     cubic-bezier(.18,.82,.24,1)
-    .28s
+    .38s
     forwards;
 }
 
@@ -5597,9 +5597,9 @@ h1 {
 
   animation:
     protocolRevealWhisper
-    .4s
+    .45s
     ease
-    .62s
+    .82s
     forwards;
 }
 
@@ -5626,9 +5626,9 @@ h1 {
 
   animation:
     protocolDuelSweep
-    1.3s
+    1.8s
     ease
-    .1s
+    .15s
     forwards;
 }
 
@@ -5679,9 +5679,9 @@ h1 {
 
   animation:
     protocolDuelLeft
-    .55s
+    .70s
     cubic-bezier(.18,.82,.24,1)
-    .27s
+    .38s
     forwards;
 }
 
@@ -5693,9 +5693,9 @@ h1 {
 
   animation:
     protocolDuelRight
-    .55s
+    .70s
     cubic-bezier(.18,.82,.24,1)
-    .27s
+    .38s
     forwards;
 }
 
@@ -5712,9 +5712,9 @@ h1 {
 
   animation:
     protocolDuelVs
-    .35s
+    .45s
     cubic-bezier(.18,.82,.24,1)
-    .5s
+    .72s
     forwards;
 }
 
@@ -5732,9 +5732,9 @@ h1 {
 
   animation:
     protocolCardArrival
-    .58s
+    .70s
     cubic-bezier(.18,.82,.24,1)
-    1.02s
+    1.55s
     forwards;
 }
 
@@ -5746,9 +5746,9 @@ h1 {
 
   animation:
     protocolActionsArrival
-    .45s
+    .55s
     ease
-    1.16s
+    1.72s
     forwards;
 }
 
@@ -6008,7 +6008,7 @@ h1 {
 
   animation:
     protocolPhaseTransition
-    1.45s
+    2.2s
     cubic-bezier(.2,.8,.2,1)
     forwards;
 }
