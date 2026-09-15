@@ -6538,14 +6538,47 @@ h1 {
 
 
 /* =========================================================
-   MOBILE
+   FINAL SCREEN — MOBILE COMPACT
    ========================================================= */
 
 @media (max-width: 600px) {
 
   .final-wow-screen {
-    padding-bottom: 34px;
+    padding-top: 10px;
+    padding-bottom: 22px;
   }
+
+  /* Reveal gagnant */
+
+  .final-reveal {
+    margin-bottom: 20px;
+  }
+
+  .final-reveal-kicker {
+    margin-bottom: 18px;
+  }
+
+  .final-reveal-small {
+    margin-bottom: 10px;
+  }
+
+  .final-winner-title {
+    font-size: clamp(48px, 13vw, 62px);
+    line-height: 0.94;
+  }
+
+  /* Score */
+
+  .final-wow-score {
+    margin-top: 24px;
+    min-height: 132px;
+  }
+
+  .final-wow-player strong {
+    font-size: 48px;
+  }
+
+  /* Mini résumé */
 
   .final-session-summary {
     margin-top: 20px;
@@ -6556,35 +6589,63 @@ h1 {
     letter-spacing: 0.13em;
   }
 
+  /* Conclusion */
+
   .final-afterglow {
-    margin-top: 37px;
+    margin-top: 20px;
   }
 
   .final-afterglow .final-symbol {
-    margin-bottom: 22px;
+    margin-bottom: 18px;
+  }
+
+  .final-afterglow-copy {
+    max-width: 360px;
   }
 
   .final-afterglow-lead {
-    font-size: clamp(23px, 6.8vw, 29px);
+    font-size: clamp(25px, 7vw, 31px);
+    line-height: 1.12;
+  }
+
+  .final-afterglow-lead strong {
+    margin-top: 2px;
   }
 
   .final-afterglow-text {
-    margin-top: 19px;
+    margin-top: 15px;
 
-    font-size: 12px;
-    line-height: 1.7;
+    font-size: 11px;
+    line-height: 1.55;
   }
 
+  .final-afterglow-text span {
+    margin-top: 5px;
+  }
+
+  .final-afterglow .final-symbol {
+    display: none;
+  }
+
+  /* Actions */
+
   .final-wow-actions {
-    margin-top: 34px;
+    margin-top: 24px;
+  }
+
+  .final-rematch {
+    min-height: 58px;
   }
 
   .final-rematch-hint {
-    margin-top: 11px;
+    margin-top: 9px;
+
+    font-size: 8px;
+    line-height: 1.4;
   }
 
   .final-close-button {
-    margin-top: 21px;
+    margin-top: 15px;
   }
 }
 
