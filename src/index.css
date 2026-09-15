@@ -6671,3 +6671,108 @@ h1 {
     display: none;
   }
 }
+
+/* =========================================================
+   PLAY SCREEN — FINAL SPACING + CLEAN REVEAL
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   1. ESPACE ENTRE LE SCORE / META ET LE PREMIER BLOC
+   --------------------------------------------------------- */
+
+/*
+ * Le score ne doit plus sembler collé
+ * aux règles actives ou à la carte.
+ */
+
+.play-meta {
+  margin-bottom: 14px !important;
+}
+
+
+/*
+ * Si une règle multi-tours est active,
+ * elle garde sa propre respiration avant la carte.
+ */
+
+.active-rules {
+  margin-bottom: 12px !important;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 480px) {
+
+  .play-meta {
+    margin-bottom: 12px !important;
+  }
+
+  .active-rules {
+    margin-bottom: 10px !important;
+  }
+
+}
+
+
+/*
+ * Cette règle est volontairement placée APRÈS
+ * les anciens réglages max-height:850px.
+ *
+ * On empêche donc le vieux margin-bottom:2px
+ * de reprendre le dessus sur iPhone.
+ */
+
+@media
+  (max-height: 850px)
+  and
+  (orientation: portrait) {
+
+  .play-meta {
+    margin-bottom: 10px !important;
+  }
+
+}
+
+
+/* =========================================================
+   2. CARD REVEAL — RIDEAU TOTALEMENT OPAQUE
+   ========================================================= */
+
+/*
+ * Pendant le reveal d'une nouvelle carte,
+ * RIEN de la carte précédente ou des règles actives
+ * ne doit rester visible derrière.
+ */
+
+.card-reveal {
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      #171014 0%,
+      #0b0709 38%,
+      #050405 72%,
+      #050405 100%
+    ) !important;
+}
+
+
+/*
+ * Même principe pour une intensité maximale.
+ * On garde une légère lumière centrale,
+ * mais aucune transparence vers le jeu situé dessous.
+ */
+
+.play-intensity-max .card-reveal {
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      #211218 0%,
+      #0d080a 40%,
+      #050405 74%,
+      #050405 100%
+    ) !important;
+}
