@@ -172,25 +172,10 @@ export default function LibraryScreen({
               .from(
                 "protocol_cards"
               )
-              .select(
-                `
-                  id,
-                  type,
-                  title,
-                  prompt,
-                  intensity,
-                  tension,
-                  sensations,
-                  unexpected,
-                  active,
-                  target_sex,
-                  library_version,
-                  library_key
-                `
-              )
+              .select("*")
               .eq(
                 "library_version",
-                "v2"
+                "v1"
               )
               .eq(
                 "active",
