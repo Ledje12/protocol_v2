@@ -98,7 +98,10 @@ input {
   min-height: 100svh;
 
   padding:
-    max(26px, env(safe-area-inset-top))
+    max(
+      26px,
+      calc(env(safe-area-inset-top) + 10px)
+    )
     22px
     max(20px, env(safe-area-inset-bottom));
 
@@ -6137,4 +6140,49 @@ h1 {
     display: none;
   }
 
+}
+
+/* =========================================================
+   HOME — GAME ACTIONS
+   Créer / Rejoindre au même niveau visuel
+   ========================================================= */
+
+.home .actions .primary,
+.home .actions .secondary {
+  border:
+    1px solid
+    rgba(151, 72, 101, 0.30);
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(143, 45, 80, 0.18) 0%,
+      rgba(79, 27, 48, 0.10) 48%,
+      rgba(255, 255, 255, 0.012) 100%
+    );
+
+  color:
+    #d7c5cc;
+
+  box-shadow:
+    inset 0 1px 0
+    rgba(255, 255, 255, 0.025);
+}
+
+
+.home .actions .primary:active:not(:disabled),
+.home .actions .secondary:active:not(:disabled) {
+  transform:
+    scale(0.985);
+
+  border-color:
+    rgba(197, 87, 125, 0.48);
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(143, 45, 80, 0.25) 0%,
+      rgba(79, 27, 48, 0.14) 48%,
+      rgba(255, 255, 255, 0.018) 100%
+    );
 }
