@@ -3044,6 +3044,232 @@ function PlayScreen({
   const [activeRules, setActiveRules] =
     useState([]);
 
+    /* =========================================
+    LOCAL CARD TIMER
+    ========================================= */
+
+  const [timerRemaining, setTimerRemaining] =
+    useState(null);
+
+  const [timerRunning, setTimerRunning] =
+    useState(false);
+
+  const [timerEndAt, setTimerEndAt] =
+    useState(null);
+
+  const timerInitialSeconds =
+    Number(card?.timer_seconds) > 0
+      ? Number(card.timer_seconds)
+      : null;
+
+  const syncTimer = () => {
+    if (!timerRunning || !timerEndAt) {
+      return;
+    }
+
+    const remaining =
+      Math.max(
+        0,
+        Math.ceil(
+          (timerEndAt - Date.now()) /
+            1000
+        )
+      );
+
+    setTimerRemaining(remaining);
+
+    if (remaining === 0) {
+      setTimerRunning(false);
+      setTimerEndAt(null);
+    }
+  };
+
+  const startTimer = () => {
+    if (
+      !timerInitialSeconds ||
+      timerRunning
+    ) {
+      return;
+    }
+
+    const seconds =
+      timerRemaining !== null &&
+      timerRemaining > 0
+        ? timerRemaining
+        : timerInitialSeconds;
+
+    setTimerRemaining(seconds);
+
+    setTimerEndAt(
+      Date.now() +
+        seconds * 1000
+    );
+
+    setTimerRunning(true);
+  };
+
+  const pauseTimer = () => {
+    if (!timerRunning || !timerEndAt) {
+      return;
+    }
+
+    const remaining =
+      Math.max(
+        0,
+        Math.ceil(
+          (timerEndAt - Date.now()) /
+            1000
+        )
+      );
+
+    setTimerRemaining(remaining);
+    setTimerRunning(false);
+    setTimerEndAt(null);
+  };
+
+  const resetTimer = () => {
+    if (!timerInitialSeconds) {
+      return;
+    }
+
+    setTimerRemaining(
+      timerInitialSeconds
+    );
+
+    setTimerRunning(false);
+    setTimerEndAt(null);
+  };
+
+  const formatTimer = (seconds) => {
+    const safeSeconds =
+      Math.max(
+        0,
+        Number(seconds) || 0
+      );
+
+    const minutes =
+      Math.floor(
+        safeSeconds / 60
+      );
+
+    const remainingSeconds =
+      safeSeconds % 60;
+
+    return `${minutes}:${String(
+      remainingSeconds
+    ).padStart(2, "0")}`;
+  };
+
+  /* =========================================
+    TIMER LIFECYCLE
+    ========================================= */
+
+  useEffect(() => {
+    const initialSeconds =
+      Number(card?.timer_seconds) > 0
+        ? Number(card.timer_seconds)
+        : null;
+
+    setTimerRemaining(
+      initialSeconds
+    );
+
+    setTimerRunning(false);
+    setTimerEndAt(null);
+
+  }, [
+    card?.id,
+    card?.timer_seconds,
+  ]);
+
+
+  useEffect(() => {
+    if (
+      !timerRunning ||
+      !timerEndAt
+    ) {
+      return;
+    }
+
+    syncTimer();
+
+    const interval =
+      window.setInterval(
+        syncTimer,
+        250
+      );
+
+    return () => {
+      window.clearInterval(
+        interval
+      );
+    };
+
+  }, [
+    timerRunning,
+    timerEndAt,
+  ]);
+
+
+  useEffect(() => {
+    const handleVisibilityChange =
+      () => {
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+          syncTimer();
+        }
+      };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener(
+      "focus",
+      syncTimer
+    );
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      window.removeEventListener(
+        "focus",
+        syncTimer
+      );
+    };
+
+  }, [
+    timerRunning,
+    timerEndAt,
+  ]);
+
+  const timerDisplaySeconds =
+    timerRemaining ??
+    timerInitialSeconds ??
+    0;
+
+  const timerProgress =
+    timerInitialSeconds
+      ? Math.max(
+          0,
+          Math.min(
+            1,
+            timerDisplaySeconds /
+              timerInitialSeconds
+          )
+        )
+      : 0;
+
+  const timerCompleted =
+    Boolean(timerInitialSeconds) &&
+    timerDisplaySeconds === 0;
+
     async function loadSceneState(
     currentCard
     ) {
@@ -4848,6 +5074,105 @@ async function handleSceneRead() {
         >
           {displayPrompt}
         </p>
+
+
+        {timerInitialSeconds && (
+          <div
+            className={
+              timerCompleted
+                ? "protocol-timer protocol-timer-complete"
+                : timerRunning
+                  ? "protocol-timer protocol-timer-running"
+                  : "protocol-timer"
+            }
+          >
+
+            <div
+              className="protocol-timer-ring"
+              style={{
+                "--timer-progress":
+                  `${timerProgress * 360}deg`,
+              }}
+            >
+              <div className="protocol-timer-inner">
+
+                <span className="protocol-timer-label">
+                  {timerCompleted
+                    ? "TERMINÉ"
+                    : timerRunning
+                      ? "EN COURS"
+                      : "CHRONO"}
+                </span>
+
+                <strong>
+                  {formatTimer(
+                    timerDisplaySeconds
+                  )}
+                </strong>
+
+              </div>
+            </div>
+
+
+            <div className="protocol-timer-controls">
+
+              {timerCompleted ? (
+
+                <button
+                  type="button"
+                  className="protocol-timer-main"
+                  onClick={resetTimer}
+                >
+                  RÉINITIALISER
+                </button>
+
+              ) : timerRunning ? (
+
+                <button
+                  type="button"
+                  className="protocol-timer-main"
+                  onClick={pauseTimer}
+                >
+                  PAUSE
+                </button>
+
+              ) : (
+
+                <button
+                  type="button"
+                  className="protocol-timer-main"
+                  onClick={startTimer}
+                >
+                  {timerRemaining !== null &&
+                  timerRemaining <
+                    timerInitialSeconds
+                    ? "REPRENDRE"
+                    : "DÉMARRER"}
+                </button>
+
+              )}
+
+
+              {!timerRunning &&
+                !timerCompleted &&
+                timerRemaining !== null &&
+                timerRemaining <
+                  timerInitialSeconds && (
+
+                  <button
+                    type="button"
+                    className="protocol-timer-reset"
+                    onClick={resetTimer}
+                  >
+                    RÉINITIALISER
+                  </button>
+
+                )}
+
+            </div>
+
+          </div>
+        )}
 
         </div>
 
