@@ -6776,3 +6776,38 @@ h1 {
       #050405 100%
     ) !important;
 }
+
+/* =========================================================
+   PLAY SCREEN — ESPACE AVANT LES SCORES
+   ========================================================= */
+
+/*
+ * Sépare visuellement le tableau des avantages
+ * du bloc score situé juste en dessous.
+ */
+
+.bonus-panel {
+  margin-bottom: 16px !important;
+}
+
+
+/* Écrans mobiles / hauteur réduite */
+
+@media (max-width: 480px) {
+
+  .bonus-panel {
+    margin-bottom: 14px !important;
+  }
+
+}
+
+@media
+  (max-height: 850px)
+  and
+  (orientation: portrait) {
+
+  .bonus-panel {
+    margin-bottom: 12px !important;
+  }
+
+}
