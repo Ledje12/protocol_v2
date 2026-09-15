@@ -790,63 +790,6 @@ export default function CardScreen({
           }
         </p>
 
-
-        <div className="card-level-grid">
-
-          <div className="card-level">
-            <span className="card-level-label">
-              INTENSITÉ
-            </span>
-
-            <span className="card-level-value">
-              {
-                card.intensity
-              }
-            </span>
-          </div>
-
-
-          <div className="card-level">
-            <span className="card-level-label">
-              TENSION
-            </span>
-
-            <span className="card-level-value">
-              {
-                card.tension
-              }
-            </span>
-          </div>
-
-
-          <div className="card-level">
-            <span className="card-level-label">
-              SENSATIONS
-            </span>
-
-            <span className="card-level-value">
-              {
-                card.sensations
-              }
-            </span>
-          </div>
-
-
-          <div className="card-level">
-            <span className="card-level-label">
-              IMPRÉVU
-            </span>
-
-            <span className="card-level-value">
-              {
-                card.unexpected
-              }
-            </span>
-          </div>
-
-        </div>
-
-
         {canPropose ? (
           <>
 

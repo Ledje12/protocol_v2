@@ -558,33 +558,6 @@ export default function LibraryScreen({
                       }
                     </p>
 
-
-                    <div className="library-card-levels">
-
-                      <span>
-                        I{" "}
-                        {card.intensity}
-                      </span>
-
-                      <span>
-                        T{" "}
-                        {card.tension}
-                      </span>
-
-                      <span>
-                        S{" "}
-                        {card.sensations}
-                      </span>
-
-                      <span>
-                        U{" "}
-                        {
-                          card.unexpected
-                        }
-                      </span>
-
-                    </div>
-
                   </button>
                 )
               )}
