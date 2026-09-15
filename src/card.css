@@ -1,5 +1,6 @@
 /* =========================================================
    CARD SCREEN
+   Écran autonome d'affichage / proposition d'une carte
    ========================================================= */
 
 .card-page {
@@ -7,6 +8,13 @@
 
   display: flex;
   flex-direction: column;
+
+  box-sizing: border-box;
+
+  padding:
+    env(safe-area-inset-top)
+    0
+    calc(24px + env(safe-area-inset-bottom));
 
   background:
     radial-gradient(
@@ -17,16 +25,6 @@
     #050405;
 
   color: #f4eff1;
-
-  padding:
-    env(safe-area-inset-top)
-    0
-    calc(
-      24px +
-      env(safe-area-inset-bottom)
-    );
-
-  box-sizing: border-box;
 }
 
 
@@ -34,21 +32,18 @@
    TOP BAR
    ========================================================= */
 
-.card-topbar {
+.card-page .card-topbar {
   display: flex;
   align-items: center;
   gap: 14px;
 
-  padding:
-    14px
-    18px
-    8px;
-
   box-sizing: border-box;
+
+  padding: 14px 18px 8px;
 }
 
 
-.card-back {
+.card-page .card-back {
   width: 44px;
   height: 44px;
 
@@ -58,48 +53,34 @@
   align-items: center;
   justify-content: center;
 
-  border:
-    1px
-    solid
-    rgba(
-      255,
-      255,
-      255,
-      0.12
-    );
-
-  border-radius: 50%;
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.035
-    );
-
-  color: #f4eff1;
-
-  font-size: 25px;
-
   padding: 0;
 
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.035);
+  color: #f4eff1;
+
+  font: inherit;
+  font-size: 25px;
+  line-height: 1;
+
   cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
 }
 
 
-.card-back:active {
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.07
-    );
+.card-page .card-back:active {
+  transform: scale(0.96);
+
+  background: rgba(255, 255, 255, 0.07);
 }
 
 
-.card-topbar-text {
+.card-page .card-topbar-text {
   min-width: 0;
 
   display: flex;
@@ -108,46 +89,37 @@
 }
 
 
-.card-logo {
+.card-page .card-logo {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.04em;
 }
 
 
-.card-recipient {
+.card-page .card-recipient {
   font-size: 14px;
 
-  color:
-    rgba(
-      244,
-      239,
-      241,
-      0.55
-    );
+  color: rgba(244, 239, 241, 0.55);
 }
 
 
 /* =========================================================
-   CARD CONTENT
+   CONTENT
    ========================================================= */
 
-.card-content {
+.card-page .card-content {
   flex: 1;
 
   display: flex;
   flex-direction: column;
 
-  padding:
-    32px
-    22px
-    0;
-
   box-sizing: border-box;
+
+  padding: 32px 22px 0;
 }
 
 
-.card-meta-top {
+.card-page .card-meta-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -156,7 +128,7 @@
 }
 
 
-.card-type {
+.card-page .card-type {
   color: #d75d8d;
 
   font-size: 11px;
@@ -165,14 +137,8 @@
 }
 
 
-.card-number {
-  color:
-    rgba(
-      244,
-      239,
-      241,
-      0.25
-    );
+.card-page .card-number {
+  color: rgba(244, 239, 241, 0.25);
 
   font-size: 12px;
 }
@@ -182,61 +148,56 @@
    TITLE
    ========================================================= */
 
-.card-title {
-  margin: 0 0 24px;
+.card-page .card-title {
   max-width: 380px;
+
+  margin: 0 0 24px;
 
   font-family:
     Georgia,
     "Times New Roman",
     serif;
 
-  font-size:
-    clamp(
-      38px,
-      11vw,
-      58px
-    );
-
+  font-size: clamp(38px, 11vw, 58px);
   font-weight: 400;
   line-height: 0.98;
   letter-spacing: -0.04em;
+
+  color: #f4eff1;
 }
 
 
 /* =========================================================
    PROMPT
+   Important : volontairement scopé sous .card-page pour
+   ne pas hériter des variantes du jeu dans index.css.
    ========================================================= */
 
-.card-prompt {
-  margin:
-    0
-    0
-    40px;
+.card-page .card-prompt {
+  margin: 0 0 40px;
 
   font-family:
     Georgia,
     "Times New Roman",
     serif;
 
-  font-size:
-    clamp(
-      20px,
-      5.4vw,
-      22px
-    );
-
+  font-size: clamp(19px, 5.1vw, 22px);
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.38;
   letter-spacing: -0.01em;
 
-  color:
-    rgba(
-      244,
-      239,
-      241,
-      0.90
-    );
+  color: rgba(244, 239, 241, 0.90);
+}
+
+
+/* Neutralise les classes de taille éventuelles héritées
+   du moteur de jeu si elles se retrouvent aussi sur ce texte. */
+
+.card-page .card-prompt.card-prompt-short,
+.card-page .card-prompt.card-prompt-medium,
+.card-page .card-prompt.card-prompt-long {
+  font-size: clamp(19px, 5.1vw, 22px);
+  line-height: 1.38;
 }
 
 
@@ -244,24 +205,15 @@
    INVITATION STATUS
    ========================================================= */
 
-.card-send-message {
-  margin:
-    auto
-    0
-    12px;
+.card-page .card-send-message {
+  margin: auto 0 14px;
 
   text-align: center;
 
   font-size: 13px;
   font-weight: 500;
 
-  color:
-    rgba(
-      244,
-      239,
-      241,
-      0.62
-    );
+  color: rgba(244, 239, 241, 0.62);
 }
 
 
@@ -269,62 +221,34 @@
    PROPOSE BUTTON
    ========================================================= */
 
-.card-propose {
+.card-page .card-propose {
   width: 100%;
   min-height: 56px;
 
-  margin-top: auto;
-
   flex-shrink: 0;
 
-  border:
-    1px
-    solid
-    rgba(
-      215,
-      93,
-      141,
-      0.42
-    );
+  margin-top: auto;
 
+  border: 1px solid rgba(215, 93, 141, 0.42);
   border-radius: 18px;
 
   background:
     linear-gradient(
       135deg,
-      rgba(
-        181,
-        62,
-        109,
-        0.88
-      ),
-      rgba(
-        151,
-        46,
-        88,
-        0.92
-      )
+      rgba(181, 62, 109, 0.88),
+      rgba(151, 46, 88, 0.92)
     );
 
   color: #ffffff;
 
-  font-family: inherit;
+  font: inherit;
   font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.01em;
 
   box-shadow:
-    0
-    6px
-    20px
-    rgba(
-      151,
-      46,
-      88,
-      0.14
-    );
+    0 6px 20px rgba(151, 46, 88, 0.14);
 
-  opacity: 1;
   cursor: pointer;
 
   transition:
@@ -335,33 +259,22 @@
 }
 
 
-.card-propose:active {
-  transform:
-    scale(0.985);
+.card-page .card-propose:active:not(:disabled) {
+  transform: scale(0.985);
 
-  filter:
-    brightness(1.08);
+  filter: brightness(1.08);
 
   box-shadow:
-    0
-    4px
-    14px
-    rgba(
-      151,
-      46,
-      88,
-      0.18
-    );
+    0 4px 14px rgba(151, 46, 88, 0.18);
 }
 
 
-.card-propose:disabled {
+.card-page .card-propose:disabled {
   opacity: 0.55;
 
   cursor: default;
 
-  filter:
-    saturate(0.65);
+  filter: saturate(0.65);
 }
 
 
@@ -369,7 +282,7 @@
    LOADING / ERROR
    ========================================================= */
 
-.card-center {
+.card-page.card-center {
   align-items: center;
   justify-content: center;
 
