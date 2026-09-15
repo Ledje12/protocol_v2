@@ -3045,7 +3045,7 @@ function PlayScreen({
     useState([]);
 
   /* =========================================
-     LOCAL CARD TIMER
+     SHARED CARD TIMER
      ========================================= */
 
   const [timerRemaining, setTimerRemaining] =
@@ -3057,23 +3057,27 @@ function PlayScreen({
   const [timerEndAt, setTimerEndAt] =
     useState(null);
 
+  const [timerUpdating, setTimerUpdating] =
+    useState(false);
+
+
   const timerInitialSeconds =
     Number(card?.timer_seconds) > 0
       ? Number(card.timer_seconds)
       : null;
 
+
   /*
-   * Pour un duel chronométré, la durée totale
-   * est divisée en deux manches égales.
+   * DUEL
+   *
+   * Un duel chronométré utilise la durée
+   * totale de la carte, divisée en deux.
    *
    * Exemple :
    * timer_seconds = 120
-   * Joueur actif : 60 sec
-   * Partenaire   : 60 sec
    *
-   * Le chrono reste cependant un chrono GLOBAL
-   * de 120 secondes. Le passage de manche est
-   * donc automatique et ne nécessite aucun clic.
+   * manche 1 = 60 sec
+   * manche 2 = 60 sec
    */
   const timerIsDuel =
     card?.type === "duel" &&
@@ -3084,83 +3088,353 @@ function PlayScreen({
       ? timerInitialSeconds / 2
       : null;
 
+
+  /*
+   * Calcule le temps restant à partir
+   * de l'état partagé Supabase.
+   *
+   * timer_remaining_seconds =
+   * durée restante au dernier START/PAUSE.
+   *
+   * timer_started_at =
+   * moment où le chrono a été lancé/repris.
+   */
+  const getSharedTimerRemaining = () => {
+    if (
+      !timerInitialSeconds ||
+      !game ||
+      Number(game.timer_card_id) !==
+        Number(card?.id)
+    ) {
+      return timerInitialSeconds;
+    }
+
+    const baseRemaining =
+      Number(
+        game.timer_remaining_seconds
+      );
+
+    const safeBase =
+      Number.isFinite(baseRemaining)
+        ? Math.max(
+            0,
+            baseRemaining
+          )
+        : timerInitialSeconds;
+
+    if (
+      !game.timer_running ||
+      !game.timer_started_at
+    ) {
+      return safeBase;
+    }
+
+    const startedAt =
+      new Date(
+        game.timer_started_at
+      ).getTime();
+
+    if (!Number.isFinite(startedAt)) {
+      return safeBase;
+    }
+
+    const elapsedSeconds =
+      Math.max(
+        0,
+        (
+          Date.now() -
+          startedAt
+        ) / 1000
+      );
+
+    return Math.max(
+      0,
+      Math.ceil(
+        safeBase -
+        elapsedSeconds
+      )
+    );
+  };
+
+
+  /*
+   * Synchronisation de l'affichage local
+   * depuis l'état partagé.
+   */
   const syncTimer = () => {
-    if (!timerRunning || !timerEndAt) {
+    if (!timerInitialSeconds) {
+      setTimerRemaining(null);
+      setTimerRunning(false);
+      setTimerEndAt(null);
       return;
     }
 
     const remaining =
-      Math.max(
-        0,
-        Math.ceil(
-          (timerEndAt - Date.now()) /
-            1000
-        )
+      getSharedTimerRemaining();
+
+    setTimerRemaining(
+      remaining
+    );
+
+    const sharedRunning =
+      Boolean(
+        game?.timer_running &&
+        game?.timer_started_at &&
+        Number(game?.timer_card_id) ===
+          Number(card?.id) &&
+        remaining > 0
       );
 
-    setTimerRemaining(remaining);
+    setTimerRunning(
+      sharedRunning
+    );
 
-    if (remaining === 0) {
-      setTimerRunning(false);
+    if (sharedRunning) {
+      setTimerEndAt(
+        Date.now() +
+          remaining * 1000
+      );
+    } else {
       setTimerEndAt(null);
     }
   };
 
-  const startTimer = () => {
+
+  /*
+   * DÉMARRER / REPRENDRE
+   *
+   * N'importe lequel des deux appareils
+   * peut lancer le chrono.
+   *
+   * L'heure absolue est enregistrée dans
+   * Supabase puis reçue par les deux écrans.
+   */
+  const startTimer = async () => {
     if (
       !timerInitialSeconds ||
-      timerRunning
+      timerUpdating
     ) {
       return;
     }
 
-    const seconds =
-      timerRemaining !== null &&
-      timerRemaining > 0
-        ? timerRemaining
-        : timerInitialSeconds;
+    try {
+      setTimerUpdating(true);
 
-    setTimerRemaining(seconds);
+      const sameCard =
+        Number(game?.timer_card_id) ===
+        Number(card?.id);
 
-    setTimerEndAt(
-      Date.now() +
-        seconds * 1000
-    );
+      const currentRemaining =
+        sameCard &&
+        Number(
+          game?.timer_remaining_seconds
+        ) >= 0
+          ? getSharedTimerRemaining()
+          : timerInitialSeconds;
 
-    setTimerRunning(true);
-  };
+      const seconds =
+        currentRemaining > 0
+          ? currentRemaining
+          : timerInitialSeconds;
 
-  const pauseTimer = () => {
-    if (!timerRunning || !timerEndAt) {
-      return;
-    }
+      const startedAt =
+        new Date().toISOString();
 
-    const remaining =
-      Math.max(
-        0,
-        Math.ceil(
-          (timerEndAt - Date.now()) /
-            1000
-        )
+      const {
+        error: timerError,
+      } = await supabase
+        .from("games")
+        .update({
+          timer_card_id:
+            card.id,
+
+          timer_started_at:
+            startedAt,
+
+          timer_remaining_seconds:
+            seconds,
+
+          timer_running:
+            true,
+        })
+        .eq(
+          "id",
+          game.id
+        );
+
+      if (timerError) {
+        throw timerError;
+      }
+
+      /*
+       * Mise à jour immédiate de cet appareil.
+       * L'autre recevra la même chose via
+       * Realtime / polling.
+       */
+      setTimerRemaining(
+        seconds
       );
 
-    setTimerRemaining(remaining);
-    setTimerRunning(false);
-    setTimerEndAt(null);
+      setTimerRunning(true);
+
+      setTimerEndAt(
+        Date.now() +
+          seconds * 1000
+      );
+
+      await loadState();
+
+    } catch (err) {
+      console.error(
+        "TIMER START ERROR:",
+        err
+      );
+
+      setError(
+        err?.message ||
+        "Impossible de démarrer le chrono."
+      );
+
+    } finally {
+      setTimerUpdating(false);
+    }
   };
 
-  const resetTimer = () => {
-    if (!timerInitialSeconds) {
+
+  /*
+   * PAUSE PARTAGÉE
+   */
+  const pauseTimer = async () => {
+    if (
+      !timerInitialSeconds ||
+      timerUpdating
+    ) {
       return;
     }
 
-    setTimerRemaining(
-      timerInitialSeconds
-    );
+    try {
+      setTimerUpdating(true);
 
-    setTimerRunning(false);
-    setTimerEndAt(null);
+      const remaining =
+        getSharedTimerRemaining();
+
+      const {
+        error: timerError,
+      } = await supabase
+        .from("games")
+        .update({
+          timer_card_id:
+            card.id,
+
+          timer_started_at:
+            null,
+
+          timer_remaining_seconds:
+            remaining,
+
+          timer_running:
+            false,
+        })
+        .eq(
+          "id",
+          game.id
+        );
+
+      if (timerError) {
+        throw timerError;
+      }
+
+      setTimerRemaining(
+        remaining
+      );
+
+      setTimerRunning(false);
+      setTimerEndAt(null);
+
+      await loadState();
+
+    } catch (err) {
+      console.error(
+        "TIMER PAUSE ERROR:",
+        err
+      );
+
+      setError(
+        err?.message ||
+        "Impossible de mettre le chrono en pause."
+      );
+
+    } finally {
+      setTimerUpdating(false);
+    }
   };
+
+
+  /*
+   * RESET PARTAGÉ
+   */
+  const resetTimer = async () => {
+    if (
+      !timerInitialSeconds ||
+      timerUpdating
+    ) {
+      return;
+    }
+
+    try {
+      setTimerUpdating(true);
+
+      const {
+        error: timerError,
+      } = await supabase
+        .from("games")
+        .update({
+          timer_card_id:
+            card.id,
+
+          timer_started_at:
+            null,
+
+          timer_remaining_seconds:
+            timerInitialSeconds,
+
+          timer_running:
+            false,
+        })
+        .eq(
+          "id",
+          game.id
+        );
+
+      if (timerError) {
+        throw timerError;
+      }
+
+      setTimerRemaining(
+        timerInitialSeconds
+      );
+
+      setTimerRunning(false);
+      setTimerEndAt(null);
+
+      await loadState();
+
+    } catch (err) {
+      console.error(
+        "TIMER RESET ERROR:",
+        err
+      );
+
+      setError(
+        err?.message ||
+        "Impossible de réinitialiser le chrono."
+      );
+
+    } finally {
+      setTimerUpdating(false);
+    }
+  };
+
 
   const formatTimer = (seconds) => {
     const safeSeconds =
@@ -3184,42 +3458,67 @@ function PlayScreen({
     ).padStart(2, "0")}`;
   };
 
+
   /* =========================================
      TIMER LIFECYCLE
      ========================================= */
 
+
+  /*
+   * Dès que :
+   *
+   * - la carte change
+   * - le timer partagé change
+   * - Realtime recharge game
+   *
+   * on recale l'affichage local.
+   */
   useEffect(() => {
-    const initialSeconds =
-      Number(card?.timer_seconds) > 0
-        ? Number(card.timer_seconds)
-        : null;
-
-    setTimerRemaining(
-      initialSeconds
-    );
-
-    setTimerRunning(false);
-    setTimerEndAt(null);
+    syncTimer();
 
   }, [
     card?.id,
     card?.timer_seconds,
+
+    game?.timer_card_id,
+    game?.timer_started_at,
+    game?.timer_remaining_seconds,
+    game?.timer_running,
   ]);
 
 
+  /*
+   * Animation locale.
+   *
+   * Supabase fournit la référence temporelle.
+   * Date.now() fournit l'affichage fluide.
+   *
+   * On ne fait donc PAS une requête Supabase
+   * toutes les 250 ms, évidemment.
+   */
   useEffect(() => {
     if (
       !timerRunning ||
-      !timerEndAt
+      !game?.timer_started_at
     ) {
       return;
     }
 
-    syncTimer();
-
     const interval =
       window.setInterval(
-        syncTimer,
+        () => {
+          const remaining =
+            getSharedTimerRemaining();
+
+          setTimerRemaining(
+            remaining
+          );
+
+          if (remaining <= 0) {
+            setTimerRunning(false);
+            setTimerEndAt(null);
+          }
+        },
         250
       );
 
@@ -3231,10 +3530,20 @@ function PlayScreen({
 
   }, [
     timerRunning,
-    timerEndAt,
+    game?.timer_started_at,
+    game?.timer_remaining_seconds,
+    game?.timer_card_id,
+    card?.id,
   ]);
 
 
+  /*
+   * Retour d'arrière-plan iOS / focus navigateur.
+   *
+   * On recalcule depuis l'heure absolue.
+   * Le chrono ne "gèle" donc pas lorsque
+   * Safari/PWA suspend JavaScript.
+   */
   useEffect(() => {
     const handleVisibilityChange =
       () => {
@@ -3269,21 +3578,22 @@ function PlayScreen({
     };
 
   }, [
-    timerRunning,
-    timerEndAt,
+    game?.timer_started_at,
+    game?.timer_remaining_seconds,
+    game?.timer_running,
+    game?.timer_card_id,
+    card?.id,
   ]);
+
 
   const timerDisplaySeconds =
     timerRemaining ??
     timerInitialSeconds ??
     0;
 
+
   /*
-   * Progression GLOBALE.
-   *
-   * Un duel 120 sec reste donc visuellement
-   * un cercle de 120 sec, même si l'affichage
-   * intérieur montre deux manches de 60 sec.
+   * Cercle = progression GLOBALE.
    */
   const timerProgress =
     timerInitialSeconds
@@ -3297,22 +3607,20 @@ function PlayScreen({
         )
       : 0;
 
+
   const timerCompleted =
     Boolean(timerInitialSeconds) &&
     timerDisplaySeconds === 0;
+
 
   /*
    * DUEL
    *
    * Première moitié :
-   * active_player
+   * joueur actif de la carte.
    *
    * Deuxième moitié :
-   * partenaire
-   *
-   * On déduit la manche uniquement du temps
-   * global restant. Il n'y a donc aucun état
-   * supplémentaire susceptible de se désynchroniser.
+   * partenaire.
    */
   const timerDuelRound =
     timerIsDuel &&
@@ -3323,16 +3631,17 @@ function PlayScreen({
         : 2
       : null;
 
+
   /*
-   * Temps affiché DANS la manche.
+   * Temps affiché pour la manche.
    *
-   * 120 sec total :
+   * 120 total :
    *
-   * global 120 -> affiche 1:00 joueur 1
-   * global  90 -> affiche 0:30 joueur 1
-   * global  60 -> affiche 1:00 joueur 2
-   * global  30 -> affiche 0:30 joueur 2
-   * global   0 -> affiche 0:00
+   * 120 -> Joueur actif 1:00
+   *  90 -> Joueur actif 0:30
+   *  60 -> Partenaire   1:00
+   *  30 -> Partenaire   0:30
+   *   0 -> TERMINÉ      0:00
    */
   const timerRoundSeconds =
     timerIsDuel &&
@@ -3560,6 +3869,12 @@ async function handleSceneRead() {
         phase,
         finished_at,
         shared_profile,
+
+        timer_card_id,
+        timer_started_at,
+        timer_remaining_seconds,
+        timer_running,
+
         scene_step_no,
         scene_step_read_player_1,
         scene_step_read_player_2
