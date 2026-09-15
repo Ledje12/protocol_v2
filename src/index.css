@@ -98,10 +98,7 @@ input {
   min-height: 100svh;
 
   padding:
-    max(
-      26px,
-      calc(env(safe-area-inset-top) + 10px)
-    )
+    max(26px, env(safe-area-inset-top))
     22px
     max(20px, env(safe-area-inset-bottom));
 
@@ -112,9 +109,9 @@ input {
 
   background:
     radial-gradient(
-      circle at 48% -5%,
-      rgba(132, 43, 76, 0.16),
-      transparent 31%
+      circle at 78% -12%,
+      rgba(132, 43, 76, 0.10),
+      transparent 28%
     ),
     radial-gradient(
       circle at 90% 75%,
@@ -176,8 +173,10 @@ input {
 }
 
 .glow-top {
-  top: -200px;
-  right: -130px;
+  top: -260px;
+  right: -180px;
+
+  opacity: 0.45;
 }
 
 .glow-center {
@@ -6144,45 +6143,42 @@ h1 {
 
 /* =========================================================
    HOME — GAME ACTIONS
-   Créer / Rejoindre au même niveau visuel
+   Créer / Rejoindre = bloc de jeu
    ========================================================= */
 
 .home .actions .primary,
 .home .actions .secondary {
   border:
     1px solid
-    rgba(151, 72, 101, 0.30);
+    rgba(174, 62, 103, 0.40);
 
   background:
     linear-gradient(
       110deg,
-      rgba(143, 45, 80, 0.18) 0%,
-      rgba(79, 27, 48, 0.10) 48%,
-      rgba(255, 255, 255, 0.012) 100%
+      rgba(132, 31, 68, 0.36) 0%,
+      rgba(83, 22, 46, 0.23) 52%,
+      rgba(18, 8, 13, 0.72) 100%
     );
 
-  color:
-    #d7c5cc;
+  color: #e1d0d6;
 
   box-shadow:
     inset 0 1px 0
-    rgba(255, 255, 255, 0.025);
+    rgba(255, 255, 255, 0.035);
 }
-
 
 .home .actions .primary:active:not(:disabled),
 .home .actions .secondary:active:not(:disabled) {
-  transform:
-    scale(0.985);
+  transform: scale(0.985);
 
   border-color:
-    rgba(197, 87, 125, 0.48);
+    rgba(207, 82, 126, 0.55);
 
   background:
     linear-gradient(
       110deg,
-      rgba(143, 45, 80, 0.25) 0%,
-      rgba(79, 27, 48, 0.14) 48%,
-      rgba(255, 255, 255, 0.018) 100%
+      rgba(149, 38, 78, 0.44) 0%,
+      rgba(96, 27, 53, 0.29) 52%,
+      rgba(21, 9, 15, 0.76) 100%
     );
 }

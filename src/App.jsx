@@ -734,7 +734,7 @@ function HomeScreen({ navigate }) {
                 : "On joue ce soir ?"}
             </span>
 
-            <span>♡</span>
+            <span>→</span>
           </button>
 
           <button
