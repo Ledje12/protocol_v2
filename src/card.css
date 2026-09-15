@@ -1,5 +1,12 @@
+/* =========================================================
+   CARD SCREEN
+   ========================================================= */
+
 .card-page {
   min-height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
 
   background:
     radial-gradient(
@@ -23,10 +30,13 @@
 }
 
 
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+
 .card-topbar {
   display: flex;
   align-items: center;
-
   gap: 14px;
 
   padding:
@@ -48,27 +58,44 @@
   align-items: center;
   justify-content: center;
 
-  border: 1px solid rgba(
-    255,
-    255,
-    255,
-    0.12
-  );
+  border:
+    1px
+    solid
+    rgba(
+      255,
+      255,
+      255,
+      0.12
+    );
 
   border-radius: 50%;
 
-  background: rgba(
-    255,
-    255,
-    255,
-    0.035
-  );
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.035
+    );
 
   color: #f4eff1;
 
   font-size: 25px;
 
   padding: 0;
+
+  cursor: pointer;
+}
+
+
+.card-back:active {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.07
+    );
 }
 
 
@@ -77,7 +104,6 @@
 
   display: flex;
   align-items: baseline;
-
   gap: 8px;
 }
 
@@ -85,7 +111,6 @@
 .card-logo {
   font-size: 16px;
   font-weight: 600;
-
   letter-spacing: 0.04em;
 }
 
@@ -93,16 +118,26 @@
 .card-recipient {
   font-size: 14px;
 
-  color: rgba(
-    244,
-    239,
-    241,
-    0.55
-  );
+  color:
+    rgba(
+      244,
+      239,
+      241,
+      0.55
+    );
 }
 
 
+/* =========================================================
+   CARD CONTENT
+   ========================================================= */
+
 .card-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
   padding:
     44px
     22px
@@ -125,24 +160,27 @@
   color: #d75d8d;
 
   font-size: 11px;
-
   font-weight: 700;
-
   letter-spacing: 0.22em;
 }
 
 
 .card-number {
-  color: rgba(
-    244,
-    239,
-    241,
-    0.25
-  );
+  color:
+    rgba(
+      244,
+      239,
+      241,
+      0.25
+    );
 
   font-size: 12px;
 }
 
+
+/* =========================================================
+   TITLE
+   ========================================================= */
 
 .card-title {
   margin:
@@ -157,109 +195,111 @@
     "Times New Roman",
     serif;
 
-  font-size: clamp(
-    46px,
-    13vw,
-    64px
-  );
+  font-size:
+    clamp(
+      46px,
+      13vw,
+      64px
+    );
 
   font-weight: 400;
-
   line-height: 0.96;
-
   letter-spacing: -0.045em;
 }
 
 
+/* =========================================================
+   PROMPT
+   ========================================================= */
+
 .card-prompt {
-  margin-bottom: 0;
+  margin:
+    0
+    0
+    32px;
 }
 
 
-.card-level-grid {
-  display: grid;
+/* =========================================================
+   INVITATION STATUS
+   ========================================================= */
 
-  grid-template-columns:
-    repeat(
-      2,
-      minmax(0, 1fr)
+.card-send-message {
+  margin:
+    auto
+    0
+    12px;
+
+  text-align: center;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  color:
+    rgba(
+      244,
+      239,
+      241,
+      0.62
     );
-
-  gap: 12px;
-
-  margin-bottom: 48px;
 }
 
 
-.card-level {
-  padding:
-    17px
-    18px;
+/* =========================================================
+   PROPOSE BUTTON
+   ========================================================= */
+
+.card-propose {
+  width: 100%;
+  min-height: 56px;
+
+  margin-top: auto;
 
   border:
     1px
     solid
     rgba(
-      255,
-      255,
-      255,
-      0.10
+      215,
+      93,
+      141,
+      0.42
     );
-
-  border-radius: 18px;
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.035
-    );
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content:
-    space-between;
-}
-
-
-.card-propose {
-  width: 100%;
-
-  min-height: 58px;
-
-  border: 0;
 
   border-radius: 18px;
 
   background:
     linear-gradient(
       135deg,
-      #ff4f9a,
-      #ff2f7f
+      rgba(
+        181,
+        62,
+        109,
+        0.88
+      ),
+      rgba(
+        151,
+        46,
+        88,
+        0.92
+      )
     );
 
   color: #ffffff;
 
   font-family: inherit;
-
   font-size: 16px;
-
   font-weight: 700;
-
   letter-spacing: 0.01em;
 
   box-shadow:
     0
-    10px
-    30px
+    6px
+    20px
     rgba(
-      255,
-      47,
-      127,
-      0.28
+      151,
+      46,
+      88,
+      0.14
     );
 
   opacity: 1;
@@ -269,7 +309,8 @@
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
-    filter 0.18s ease;
+    filter 0.18s ease,
+    opacity 0.18s ease;
 }
 
 
@@ -277,15 +318,18 @@
   transform:
     scale(0.985);
 
+  filter:
+    brightness(1.08);
+
   box-shadow:
     0
-    6px
-    18px
+    4px
+    14px
     rgba(
-      255,
-      47,
-      127,
-      0.22
+      151,
+      46,
+      88,
+      0.18
     );
 }
 
@@ -299,7 +343,17 @@
     saturate(0.65);
 }
 
-/* Espace entre le texte de la carte et les 4 indicateurs */
-.card-content .card-level-grid {
-  margin-top: 52px !important;
+
+/* =========================================================
+   LOADING / ERROR
+   ========================================================= */
+
+.card-center {
+  align-items: center;
+  justify-content: center;
+
+  padding-left: 24px;
+  padding-right: 24px;
+
+  text-align: center;
 }
