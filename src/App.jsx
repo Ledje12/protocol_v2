@@ -4644,68 +4644,36 @@ async function handleSceneRead() {
 
 
             {/* =====================================
-                STATS
+                SESSION SUMMARY
                 ===================================== */}
 
             {finalStats && (
+              <div className="final-session-summary">
 
-              <div className="final-stats">
+                <span>
+                  {finalStats.total_cards} DÉFIS
+                </span>
 
-                <div className="final-stat">
+                <span className="final-session-dot">
+                  ·
+                </span>
 
-                  <strong>
-                    {finalStats.total_cards}
-                  </strong>
+                <span>
+                  {finalStats.duels} DUELS
+                </span>
 
-                  <span>
-                    DÉFIS
-                  </span>
+                <span className="final-session-dot">
+                  ·
+                </span>
 
-                </div>
-
-
-                <div className="final-stat">
-
-                  <strong>
-                    {finalStats.duels}
-                  </strong>
-
-                  <span>
-                    DUELS
-                  </span>
-
-                </div>
-
-
-                <div className="final-stat">
-
-                  <strong>
-                    {finalStats.scenes}
-                  </strong>
-
-                  <span>
-                    {finalStats.scenes === 1
-                      ? "SCÈNE"
-                      : "SCÈNES"}
-                  </span>
-
-                </div>
-
-
-                <div className="final-stat">
-
-                  <strong>
-                    {finalStats.max_intensity}
-                  </strong>
-
-                  <span>
-                    INTENSITÉ MAX
-                  </span>
-
-                </div>
+                <span>
+                  {finalStats.scenes}{" "}
+                  {finalStats.scenes === 1
+                    ? "SCÈNE"
+                    : "SCÈNES"}
+                </span>
 
               </div>
-
             )}
 
 
@@ -4713,17 +4681,33 @@ async function handleSceneRead() {
                 CLOSING
                 ===================================== */}
 
-            <div className="final-wow-closing">
+            <div className="final-wow-closing final-afterglow">
 
               <span className="final-symbol">
                 ◇
               </span>
 
-              <p>
-                PROTOCOL est terminé.
-                <br />
-                La soirée, elle, ne l'est pas forcément.
-              </p>
+              <div className="final-afterglow-copy">
+
+                <p className="final-afterglow-lead">
+                  Le jeu s'arrête ici.
+                  <br />
+                  <strong>
+                    Pas forcément la soirée.
+                  </strong>
+                </p>
+
+                <p className="final-afterglow-text">
+                  Vous connaissez maintenant un peu mieux
+                  <br />
+                  les envies et les réactions de l'autre.
+                  <br />
+                  <span>
+                    À vous de décider ce que vous en faites.
+                  </span>
+                </p>
+
+              </div>
 
             </div>
 
