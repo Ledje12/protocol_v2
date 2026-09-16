@@ -77,41 +77,105 @@ function generateCode() {
    GAME SESSION SECURITY
    ========================================================= */
 
+const PROTOCOL_SESSION_KEY =
+  "protocol-active-game";
+
 function saveGameSession(
   code,
   playerNumber,
   playerToken
 ) {
-  sessionStorage.setItem(
-    `protocol-player-${code}`,
-    String(playerNumber)
-  );
+  const normalizedCode =
+    String(code || "")
+      .trim()
+      .toUpperCase();
 
-  sessionStorage.setItem(
-    `protocol-token-${code}`,
-    playerToken
+  const session = {
+    code: normalizedCode,
+    playerNumber: Number(playerNumber),
+    playerToken,
+    savedAt: new Date().toISOString(),
+  };
+
+  localStorage.setItem(
+    PROTOCOL_SESSION_KEY,
+    JSON.stringify(session)
   );
 }
 
-function getGameSession(code) {
-  const playerNumber = Number(
-    sessionStorage.getItem(
-      `protocol-player-${code}`
-    )
-  );
+function getGameSession(code = null) {
+  try {
+    const raw =
+      localStorage.getItem(
+        PROTOCOL_SESSION_KEY
+      );
 
-  const playerToken =
-    sessionStorage.getItem(
-      `protocol-token-${code}`
+    if (!raw) {
+      return {
+        code: null,
+        playerNumber: null,
+        playerToken: null,
+        valid: false,
+      };
+    }
+
+    const session =
+      JSON.parse(raw);
+
+    const sessionCode =
+      String(session?.code || "")
+        .trim()
+        .toUpperCase();
+
+    const requestedCode =
+      code
+        ? String(code)
+            .trim()
+            .toUpperCase()
+        : null;
+
+    const playerNumber =
+      Number(session?.playerNumber);
+
+    const playerToken =
+      session?.playerToken || null;
+
+    const valid =
+      Boolean(sessionCode) &&
+      [1, 2].includes(playerNumber) &&
+      Boolean(playerToken) &&
+      (
+        !requestedCode ||
+        requestedCode === sessionCode
+      );
+
+    return {
+      ...session,
+      code: sessionCode,
+      playerNumber,
+      playerToken,
+      valid,
+    };
+
+  } catch (error) {
+    console.error(
+      "GAME SESSION READ ERROR:",
+      error
     );
 
-  return {
-    playerNumber,
-    playerToken,
-    valid:
-      [1, 2].includes(playerNumber) &&
-      Boolean(playerToken),
-  };
+    return {
+      code: null,
+      playerNumber: null,
+      playerToken: null,
+      valid: false,
+    };
+  }
+}
+
+function clearGameSession() {
+  localStorage.removeItem(
+    PROTOCOL_SESSION_KEY
+  );
 }
 
 const INTENSITY_LEVELS = [
@@ -586,7 +650,182 @@ function HomeScreen({ navigate }) {
   const [inviteMessage, setInviteMessage] =
     useState("");
 
-  const sendInvitation = async () => {
+  const [resumeGame, setResumeGame] =
+    useState(null);
+
+  const [resumeLoading, setResumeLoading] =
+    useState(true);
+
+    useEffect(() => {
+      let active = true;
+
+      const checkResumeGame = async () => {
+        const session =
+          getGameSession();
+
+        if (!session.valid) {
+          if (active) {
+            setResumeGame(null);
+            setResumeLoading(false);
+          }
+
+          return;
+        }
+
+        try {
+          const {
+            data,
+            error: rpcError,
+          } = await supabase.rpc(
+            "get_protocol_game",
+            {
+              p_game_code: session.code,
+              p_player_no:
+                session.playerNumber,
+              p_player_token:
+                session.playerToken,
+            }
+          );
+
+          if (rpcError) {
+            throw rpcError;
+          }
+
+          const game =
+            Array.isArray(data)
+              ? data[0]
+              : data;
+
+          if (!game) {
+            throw new Error(
+              "Partie introuvable."
+            );
+          }
+
+          if (!active) {
+            return;
+          }
+
+          const partnerName =
+            session.playerNumber === 1
+              ? game.player_2_name
+              : game.player_1_name;
+
+          setResumeGame({
+            ...game,
+            sessionCode: session.code,
+            playerNumber:
+              session.playerNumber,
+            partnerName:
+              partnerName || null,
+          });
+
+        } catch (err) {
+          console.warn(
+            "RESUME GAME CHECK:",
+            err
+          );
+
+          /*
+          * Le token n'est plus valide,
+          * la partie n'existe plus,
+          * ou elle n'est plus accessible.
+          *
+          * On oublie uniquement la session
+          * locale. Supabase reste intact.
+          */
+          clearGameSession();
+
+          if (active) {
+            setResumeGame(null);
+          }
+
+        } finally {
+          if (active) {
+            setResumeLoading(false);
+          }
+        }
+      };
+
+      checkResumeGame();
+
+      return () => {
+        active = false;
+      };
+    }, []);
+
+    const resumeCurrentGame = () => {
+      if (!resumeGame) {
+        return;
+      }
+
+      const code =
+        resumeGame.sessionCode;
+
+      /*
+      * On reprend directement au bon
+      * endroit selon l'état réel
+      * de la partie dans Supabase.
+      */
+
+      if (
+        resumeGame.status === "playing" ||
+        resumeGame.status === "finished"
+      ) {
+        navigate(
+          `/game/${code}/play`
+        );
+
+        return;
+      }
+
+      if (
+        resumeGame.status === "calibrating" ||
+        resumeGame.status ===
+          "calibration_ready"
+      ) {
+        navigate(
+          `/game/${code}/calibration`
+        );
+
+        return;
+      }
+
+      /*
+      * Si l'identité du joueur local
+      * n'existe pas encore, retour
+      * à l'écran d'identité.
+      */
+
+      const myName =
+        resumeGame.playerNumber === 1
+          ? resumeGame.player_1_name
+          : resumeGame.player_2_name;
+
+      const mySex =
+        resumeGame.playerNumber === 1
+          ? resumeGame.player_1_sex
+          : resumeGame.player_2_sex;
+
+      if (!myName || !mySex) {
+        navigate(
+          `/game/${code}/identity`
+        );
+
+        return;
+      }
+
+      /*
+      * waiting / ready / autre état
+      * pré-jeu : lobby.
+      */
+
+      navigate(
+        `/game/${code}`
+      );
+    };
+  
+    const sendInvitation = async () => {
     const sender = getPushOwner();
 
     if (!sender) {
@@ -749,6 +988,23 @@ function HomeScreen({ navigate }) {
             <p className="small-text">
               {inviteMessage}
             </p>
+          )}
+
+          {resumeGame && !resumeLoading && (
+            <button
+              type="button"
+              className="primary"
+              onClick={resumeCurrentGame}
+            >
+              <span>
+                Reprendre la partie
+                {resumeGame.partnerName
+                  ? ` avec ${resumeGame.partnerName}`
+                  : ""}
+              </span>
+
+              <span>→</span>
+            </button>
           )}
 
           <button
