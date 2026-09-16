@@ -990,23 +990,6 @@ function HomeScreen({ navigate }) {
             </p>
           )}
 
-          {resumeGame && !resumeLoading && (
-            <button
-              type="button"
-              className="primary"
-              onClick={resumeCurrentGame}
-            >
-              <span>
-                Reprendre la partie
-                {resumeGame.partnerName
-                  ? ` avec ${resumeGame.partnerName}`
-                  : ""}
-              </span>
-
-              <span>→</span>
-            </button>
-          )}
-
           <button
             type="button"
             className="secondary"
@@ -1076,6 +1059,21 @@ function HomeScreen({ navigate }) {
 
             <span>→</span>
           </button>
+
+          
+          {resumeGame && !resumeLoading && (
+            <button
+              type="button"
+              className="secondary"
+              onClick={resumeCurrentGame}
+            >
+              <span>
+                Reprendre une partie
+              </span>
+
+              <span>→</span>
+            </button>
+          )}
         </div>
       </section>
 
