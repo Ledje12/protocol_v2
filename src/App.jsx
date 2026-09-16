@@ -73,6 +73,47 @@ function generateCode() {
   return code;
 }
 
+/* =========================================================
+   GAME SESSION SECURITY
+   ========================================================= */
+
+function saveGameSession(
+  code,
+  playerNumber,
+  playerToken
+) {
+  sessionStorage.setItem(
+    `protocol-player-${code}`,
+    String(playerNumber)
+  );
+
+  sessionStorage.setItem(
+    `protocol-token-${code}`,
+    playerToken
+  );
+}
+
+function getGameSession(code) {
+  const playerNumber = Number(
+    sessionStorage.getItem(
+      `protocol-player-${code}`
+    )
+  );
+
+  const playerToken =
+    sessionStorage.getItem(
+      `protocol-token-${code}`
+    );
+
+  return {
+    playerNumber,
+    playerToken,
+    valid:
+      [1, 2].includes(playerNumber) &&
+      Boolean(playerToken),
+  };
+}
+
 const INTENSITY_LEVELS = [
   {
     value: 1,
@@ -607,54 +648,41 @@ function HomeScreen({ navigate }) {
       setLoading(true);
       setError("");
 
-      let createdGame = null;
+      const {
+        data,
+        error: rpcError,
+      } = await supabase.rpc(
+        "create_protocol_game"
+      );
 
-      for (
-        let attempt = 0;
-        attempt < 5;
-        attempt += 1
-      ) {
-        const code = generateCode();
-
-        const {
-          data,
-          error: insertError,
-        } = await supabase
-          .from("games")
-          .insert({
-            code,
-            player_count: 1,
-            status: "waiting",
-            player_1_ready: false,
-            player_2_ready: false,
-          })
-          .select()
-          .single();
-
-        if (!insertError) {
-          createdGame = data;
-          break;
-        }
-
-        if (insertError.code !== "23505") {
-          throw insertError;
-        }
+      if (rpcError) {
+        throw rpcError;
       }
 
-      if (!createdGame) {
+      const createdGame =
+        Array.isArray(data)
+          ? data[0]
+          : data;
+
+      if (
+        !createdGame?.code ||
+        !createdGame?.player_token
+      ) {
         throw new Error(
-          "Impossible de créer une partie."
+          "Réponse de création invalide."
         );
       }
 
-      sessionStorage.setItem(
-        `protocol-player-${createdGame.code}`,
-        "1"
+      saveGameSession(
+        createdGame.code,
+        createdGame.player_no,
+        createdGame.player_token
       );
 
       navigate(
         `/game/${createdGame.code}/identity`
       );
+
     } catch (err) {
       console.error(
         "CREATE GAME ERROR:",
@@ -665,6 +693,7 @@ function HomeScreen({ navigate }) {
         err?.message ||
           "Impossible de créer la partie."
       );
+
     } finally {
       setLoading(false);
     }
@@ -1230,90 +1259,72 @@ function JoinScreen({ navigate }) {
     useState("");
 
   const joinGame = async (event) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    if (code.length !== 6) {
-      return;
+  if (code.length !== 6) {
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError("");
+
+    const normalized =
+      code.toUpperCase();
+
+    const {
+      data,
+      error: rpcError,
+    } = await supabase.rpc(
+      "join_protocol_game",
+      {
+        p_game_code: normalized,
+      }
+    );
+
+    if (rpcError) {
+      throw rpcError;
     }
 
-    try {
-      setLoading(true);
-      setError("");
+    const joinedGame =
+      Array.isArray(data)
+        ? data[0]
+        : data;
 
-      const normalized =
-        code.toUpperCase();
-
-      const {
-        data: game,
-        error: findError,
-      } = await supabase
-        .from("games")
-        .select("*")
-        .eq("code", normalized)
-        .maybeSingle();
-
-      if (findError) {
-        throw findError;
-      }
-
-      if (!game) {
-        throw new Error(
-          "Ce code n'existe pas."
-        );
-      }
-
-      if (game.player_count >= 2) {
-        throw new Error(
-          "Cette partie est déjà complète."
-        );
-      }
-
-      const {
-        data: updatedGame,
-        error: updateError,
-      } = await supabase
-        .from("games")
-        .update({
-          player_count: 2,
-          status: "ready",
-        })
-        .eq("id", game.id)
-        .eq("player_count", 1)
-        .select()
-        .maybeSingle();
-
-      if (updateError) {
-        throw updateError;
-      }
-
-      if (!updatedGame) {
-        throw new Error(
-          "La partie vient d'être rejointe."
-        );
-      }
-
-      sessionStorage.setItem(
-        `protocol-player-${normalized}`,
-        "2"
+    if (
+      !joinedGame?.code ||
+      !joinedGame?.player_token
+    ) {
+      throw new Error(
+        "Réponse de connexion invalide."
       );
+    }
+
+    saveGameSession(
+      joinedGame.code,
+      joinedGame.player_no,
+      joinedGame.player_token
+    );
 
     navigate(
-      `/game/${normalized}/identity`
+      `/game/${joinedGame.code}/identity`
     );
-    } catch (err) {
-      console.error(
-        "JOIN ERROR:",
-        err
-      );
 
-      setError(
-        err?.message ||
-          "Impossible de rejoindre."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error(
+      "JOIN ERROR:",
+      err
+    );
+
+    setError(
+      err?.message ||
+        "Impossible de rejoindre."
+    );
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="app">
@@ -1411,11 +1422,11 @@ function JoinScreen({ navigate }) {
     code,
     navigate,
   }) {
-    const playerNumber = Number(
-      sessionStorage.getItem(
-        `protocol-player-${code}`
-      )
-    );
+    const {
+      playerNumber,
+      playerToken,
+      valid: hasGameSession,
+    } = getGameSession(code);
 
     const [name, setName] =
       useState("");
@@ -1437,23 +1448,43 @@ function JoinScreen({ navigate }) {
 
       const loadIdentity =
         async () => {
+
+          if (!hasGameSession) {
+            if (active) {
+              setInitialLoading(false);
+            }
+
+            return;
+          }
+
           try {
             const {
               data,
               error: loadError,
-            } = await supabase
-              .from("games")
-              .select(`
-                player_1_name,
-                player_1_sex,
-                player_2_name,
-                player_2_sex
-              `)
-              .eq("code", code)
-              .single();
+            } = await supabase.rpc(
+              "get_protocol_game",
+              {
+                p_game_code: code,
+                p_player_no:
+                  playerNumber,
+                p_player_token:
+                  playerToken,
+              }
+            );
 
             if (loadError) {
               throw loadError;
+            }
+
+            const game =
+              Array.isArray(data)
+                ? data[0]
+                : data;
+
+            if (!game) {
+              throw new Error(
+                "Partie introuvable."
+              );
             }
 
             if (!active) {
@@ -1462,19 +1493,20 @@ function JoinScreen({ navigate }) {
 
             if (playerNumber === 1) {
               setName(
-                data.player_1_name || ""
+                game.player_1_name || ""
               );
 
               setSex(
-                data.player_1_sex || null
+                game.player_1_sex || null
               );
+
             } else {
               setName(
-                data.player_2_name || ""
+                game.player_2_name || ""
               );
 
               setSex(
-                data.player_2_sex || null
+                game.player_2_sex || null
               );
             }
 
@@ -1503,17 +1535,24 @@ function JoinScreen({ navigate }) {
         active = false;
       };
 
-    }, [code, playerNumber]);
+    }, [
+      code,
+      playerNumber,
+      playerToken,
+      hasGameSession,
+    ]);
 
 
     const saveIdentity =
       async () => {
+
         const cleanName =
           name.trim();
 
         if (
           cleanName.length < 1 ||
-          !sex
+          !sex ||
+          !hasGameSession
         ) {
           return;
         }
@@ -1522,32 +1561,25 @@ function JoinScreen({ navigate }) {
           setLoading(true);
           setError("");
 
-          const updates =
-            playerNumber === 1
-              ? {
-                  player_1_name:
-                    cleanName,
-
-                  player_1_sex:
-                    sex,
-                }
-              : {
-                  player_2_name:
-                    cleanName,
-
-                  player_2_sex:
-                    sex,
-                };
-
           const {
-            error: updateError,
-          } = await supabase
-            .from("games")
-            .update(updates)
-            .eq("code", code);
+            error: rpcError,
+          } = await supabase.rpc(
+            "save_protocol_identity",
+            {
+              p_game_code: code,
+              p_player_no:
+                playerNumber,
+              p_player_token:
+                playerToken,
+              p_name:
+                cleanName,
+              p_sex:
+                sex,
+            }
+          );
 
-          if (updateError) {
-            throw updateError;
+          if (rpcError) {
+            throw rpcError;
           }
 
           navigate(
@@ -1578,11 +1610,7 @@ function JoinScreen({ navigate }) {
     }
 
 
-    if (
-      ![1, 2].includes(
-        playerNumber
-      )
-    ) {
+    if (!hasGameSession) {
       return (
         <main className="app center">
           <p>
@@ -1757,11 +1785,11 @@ function LobbyScreen({
   const [error, setError] =
     useState("");
 
-  const playerNumber = Number(
-    sessionStorage.getItem(
-      `protocol-player-${code}`
-    )
-  );
+  const {
+    playerNumber,
+    playerToken,
+    valid: hasGameSession,
+  } = getGameSession(code);
 
   const goCalibration = () => {
     navigate(
@@ -1787,28 +1815,44 @@ function LobbyScreen({
   };
 
   const loadGame = async () => {
+    if (!hasGameSession) {
+      throw new Error(
+        "Session de partie invalide."
+      );
+    }
+
     const {
       data,
       error: loadError,
-    } = await supabase
-      .from("games")
-      .select("*")
-      .eq("code", code)
-      .maybeSingle();
+    } = await supabase.rpc(
+      "get_protocol_game",
+      {
+        p_game_code: code,
+        p_player_no:
+          playerNumber,
+        p_player_token:
+          playerToken,
+      }
+    );
 
     if (loadError) {
       throw loadError;
     }
 
-    if (!data) {
+    const gameData =
+      Array.isArray(data)
+        ? data[0]
+        : data;
+
+    if (!gameData) {
       throw new Error(
         "Partie introuvable."
       );
     }
 
-    processGame(data);
+    processGame(gameData);
 
-    return data;
+    return gameData;
   };
 
   useEffect(() => {
@@ -1844,29 +1888,6 @@ function LobbyScreen({
     initialise();
 
     /*
-     * Realtime = confort.
-     */
-    const channel = supabase
-      .channel(`protocol-${code}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "games",
-          filter: `code=eq.${code}`,
-        },
-        (payload) => {
-          if (active) {
-            processGame(
-              payload.new
-            );
-          }
-        }
-      )
-      .subscribe();
-
-    /*
      * Polling = filet de sécurité.
      *
      * Si Realtime rate un événement,
@@ -1896,16 +1917,14 @@ function LobbyScreen({
         polling
       );
 
-      supabase.removeChannel(
-        channel
-      );
     };
   }, [code]);
 
   const setReady = async () => {
     if (
       !game ||
-      readyLoading
+      readyLoading ||
+      !hasGameSession
     ) {
       return;
     }
@@ -1914,66 +1933,25 @@ function LobbyScreen({
       setReadyLoading(true);
       setError("");
 
-      const field =
-        playerNumber === 1
-          ? "player_1_ready"
-          : "player_2_ready";
-
       const {
-        data: readyGame,
         error: readyError,
-      } = await supabase
-        .from("games")
-        .update({
-          [field]: true,
-        })
-        .eq("id", game.id)
-        .select()
-        .single();
+      } = await supabase.rpc(
+        "set_protocol_ready_secure",
+        {
+          p_game_code: code,
+          p_player_no:
+            playerNumber,
+          p_player_token:
+            playerToken,
+        }
+      );
 
       if (readyError) {
         throw readyError;
       }
 
-      setGame(readyGame);
+      await loadGame();
 
-      /*
-       * Si les deux sont prêts,
-       * on démarre.
-       */
-      if (
-        readyGame.player_1_ready &&
-        readyGame.player_2_ready
-      ) {
-        const {
-          data: startedGame,
-          error: startError,
-        } = await supabase
-          .from("games")
-          .update({
-            status:
-              "calibrating",
-          })
-          .eq("id", game.id)
-          .eq(
-            "player_1_ready",
-            true
-          )
-          .eq(
-            "player_2_ready",
-            true
-          )
-          .select()
-          .single();
-
-        if (startError) {
-          throw startError;
-        }
-
-        processGame(
-          startedGame
-        );
-      }
     } catch (err) {
       console.error(
         "READY ERROR:",
@@ -1984,6 +1962,7 @@ function LobbyScreen({
         err?.message ||
           "Impossible de continuer."
       );
+
     } finally {
       setReadyLoading(false);
     }
@@ -2015,11 +1994,7 @@ function LobbyScreen({
     );
   }
 
-  if (
-    ![1, 2].includes(
-      playerNumber
-    )
-  ) {
+  if (!hasGameSession) {
     return (
       <main className="app center">
         <p>
@@ -2183,11 +2158,11 @@ function CalibrationScreen({
   code,
   navigate,
 }) {
-  const playerNumber = Number(
-    sessionStorage.getItem(
-      `protocol-player-${code}`
-    )
-  );
+  const {
+    playerNumber,
+    playerToken,
+    valid: hasGameSession,
+  } = getGameSession(code);
 
   const [stage, setStage] =
     useState("intro");
@@ -2230,39 +2205,52 @@ function CalibrationScreen({
     let active = true;
 
     const checkStatus = async () => {
+      if (!hasGameSession) {
+        return;
+      }
+
       try {
         const {
           data,
           error: statusError,
-        } = await supabase
-          .from("games")
-          .select("status")
-          .eq("code", code)
-          .single();
+        } = await supabase.rpc(
+          "get_protocol_game",
+          {
+            p_game_code: code,
+            p_player_no: playerNumber,
+            p_player_token: playerToken,
+          }
+        );
 
         if (statusError) {
           throw statusError;
         }
 
-        if (!active) {
+        const gameData =
+          Array.isArray(data)
+            ? data[0]
+            : data;
+
+        if (!gameData || !active) {
           return;
         }
 
         if (
-          data.status ===
-            "calibration_ready"
+          gameData.status ===
+          "calibration_ready"
         ) {
           setBothReady(true);
         }
 
         if (
-          data.status ===
-            "playing"
+          gameData.status ===
+          "playing"
         ) {
           navigate(
             `/game/${code}/play`
           );
         }
+
       } catch (err) {
         console.error(
           "CALIBRATION STATUS ERROR:",
@@ -2279,48 +2267,21 @@ function CalibrationScreen({
         1500
       );
 
-    const channel = supabase
-      .channel(`calibration-${code}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "games",
-          filter: `code=eq.${code}`,
-        },
-        (payload) => {
-          if (
-            payload.new.status ===
-              "calibration_ready"
-          ) {
-            setBothReady(true);
-          }
-
-          if (
-            payload.new.status ===
-              "playing"
-          ) {
-            navigate(
-              `/game/${code}/play`
-            );
-          }
-        }
-      )
-      .subscribe();
-
     return () => {
       active = false;
 
       window.clearInterval(
         interval
       );
-
-      supabase.removeChannel(
-        channel
-      );
     };
-  }, [submitted, code]);
+  }, [
+    submitted,
+    code,
+    playerNumber,
+    playerToken,
+    hasGameSession,
+    navigate,
+  ]);
 
   /* =========================================
      CHOIX CONTROLE
@@ -2385,11 +2346,13 @@ function CalibrationScreen({
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "submit_calibration",
+          "submit_calibration_secure",
           {
             p_game_code: code,
             p_player_no:
               playerNumber,
+            p_player_token:
+              playerToken,
             p_intensity:
               intensity,
             p_answers:
@@ -2554,9 +2517,13 @@ function CalibrationScreen({
                       data,
                       error: startError,
                     } = await supabase.rpc(
-                      "start_protocol",
+                      "start_protocol_secure",
                       {
                         p_game_code: code,
+                        p_player_no:
+                          playerNumber,
+                        p_player_token:
+                          playerToken,
                       }
                     );
 
@@ -3007,11 +2974,11 @@ function PlayScreen({
   const [rematchError, setRematchError] =
     useState("");
 
-  const playerNumber = Number(
-    sessionStorage.getItem(
-      `protocol-player-${code}`
-    )
-  );
+  const {
+    playerNumber,
+    playerToken,
+    valid: hasGameSession,
+  } = getGameSession(code);
 
   const [sceneState, setSceneState] =
     useState(null);
@@ -3212,7 +3179,8 @@ function PlayScreen({
   const startTimer = async () => {
     if (
       !timerInitialSeconds ||
-      timerUpdating
+      timerUpdating ||
+      !hasGameSession
     ) {
       return;
     }
@@ -3242,35 +3210,29 @@ function PlayScreen({
 
       const {
         error: timerError,
-      } = await supabase
-        .from("games")
-        .update({
-          timer_card_id:
+      } = await supabase.rpc(
+        "update_protocol_timer",
+        {
+          p_game_code: code,
+          p_player_no:
+            playerNumber,
+          p_player_token:
+            playerToken,
+          p_card_id:
             card.id,
-
-          timer_started_at:
+          p_started_at:
             startedAt,
-
-          timer_remaining_seconds:
+          p_remaining_seconds:
             seconds,
-
-          timer_running:
+          p_running:
             true,
-        })
-        .eq(
-          "id",
-          game.id
-        );
+        }
+      );
 
       if (timerError) {
         throw timerError;
       }
 
-      /*
-       * Mise à jour immédiate de cet appareil.
-       * L'autre recevra la même chose via
-       * Realtime / polling.
-       */
       setTimerRemaining(
         seconds
       );
@@ -3307,7 +3269,8 @@ function PlayScreen({
   const pauseTimer = async () => {
     if (
       !timerInitialSeconds ||
-      timerUpdating
+      timerUpdating ||
+      !hasGameSession
     ) {
       return;
     }
@@ -3320,25 +3283,24 @@ function PlayScreen({
 
       const {
         error: timerError,
-      } = await supabase
-        .from("games")
-        .update({
-          timer_card_id:
+      } = await supabase.rpc(
+        "update_protocol_timer",
+        {
+          p_game_code: code,
+          p_player_no:
+            playerNumber,
+          p_player_token:
+            playerToken,
+          p_card_id:
             card.id,
-
-          timer_started_at:
+          p_started_at:
             null,
-
-          timer_remaining_seconds:
+          p_remaining_seconds:
             remaining,
-
-          timer_running:
+          p_running:
             false,
-        })
-        .eq(
-          "id",
-          game.id
-        );
+        }
+      );
 
       if (timerError) {
         throw timerError;
@@ -3376,7 +3338,8 @@ function PlayScreen({
   const resetTimer = async () => {
     if (
       !timerInitialSeconds ||
-      timerUpdating
+      timerUpdating ||
+      !hasGameSession
     ) {
       return;
     }
@@ -3386,25 +3349,24 @@ function PlayScreen({
 
       const {
         error: timerError,
-      } = await supabase
-        .from("games")
-        .update({
-          timer_card_id:
+      } = await supabase.rpc(
+        "update_protocol_timer",
+        {
+          p_game_code: code,
+          p_player_no:
+            playerNumber,
+          p_player_token:
+            playerToken,
+          p_card_id:
             card.id,
-
-          timer_started_at:
+          p_started_at:
             null,
-
-          timer_remaining_seconds:
+          p_remaining_seconds:
             timerInitialSeconds,
-
-          timer_running:
+          p_running:
             false,
-        })
-        .eq(
-          "id",
-          game.id
-        );
+        }
+      );
 
       if (timerError) {
         throw timerError;
@@ -3670,10 +3632,13 @@ function PlayScreen({
         data,
         error,
       } = await supabase.rpc(
-        "get_scene_state",
+        "get_scene_state_secure",
         {
           p_game_code: code,
-          p_player_no: playerNumber,
+          p_player_no:
+            playerNumber,
+          p_player_token:
+            playerToken,
         }
       );
 
@@ -3706,10 +3671,13 @@ async function loadActiveRules() {
     data,
     error,
   } = await supabase.rpc(
-    "get_active_rules",
+    "get_active_rules_secure",
     {
       p_game_code: code,
-      p_player_no: playerNumber,
+      p_player_no:
+        playerNumber,
+      p_player_token:
+        playerToken,
     }
   );
 
@@ -3752,10 +3720,13 @@ async function handleSceneRead() {
       data,
       error,
     } = await supabase.rpc(
-      "mark_scene_step_read",
+      "mark_scene_step_read_secure",
       {
         p_game_code: code,
-        p_player_no: playerNumber,
+        p_player_no:
+          playerNumber,
+        p_player_token:
+          playerToken,
       }
     );
 
@@ -3801,10 +3772,13 @@ async function handleSceneRead() {
       data,
       error,
     } = await supabase.rpc(
-      "advance_scene_step",
+      "advance_scene_step_secure",
       {
         p_game_code: code,
-        p_player_no: playerNumber,
+        p_player_no:
+          playerNumber,
+        p_player_token:
+          playerToken,
       }
     );
 
@@ -3841,49 +3815,39 @@ async function handleSceneRead() {
      ========================================= */
 
   const loadState = async () => {
+    if (!hasGameSession) {
+      throw new Error(
+        "Session de partie invalide."
+      );
+    }
+
     const {
-      data: gameData,
+      data,
       error: gameError,
-    } = await supabase
-      .from("games")
-      .select(`
-        id,
-        code,
-        status,
-        turn_no,
-        active_player,
-        current_card_id,
-
-        player_1_name,
-        player_1_sex,
-        player_2_name,
-        player_2_sex,
-
-        score_player_1,
-        score_player_2,
-
-        bonus_player_1,
-        bonus_player_2,
-
-        target_turns,
-        phase,
-        finished_at,
-        shared_profile,
-
-        timer_card_id,
-        timer_started_at,
-        timer_remaining_seconds,
-        timer_running,
-
-        scene_step_no,
-        scene_step_read_player_1,
-        scene_step_read_player_2
-      `)
-      .eq("code", code)
-      .single();
+    } = await supabase.rpc(
+      "get_protocol_game",
+      {
+        p_game_code: code,
+        p_player_no:
+          playerNumber,
+        p_player_token:
+          playerToken,
+      }
+    );
 
     if (gameError) {
       throw gameError;
+    }
+
+    const gameData =
+      Array.isArray(data)
+        ? data[0]
+        : data;
+
+    if (!gameData) {
+      throw new Error(
+        "Partie introuvable."
+      );
     }
 
     /*
@@ -3899,20 +3863,11 @@ async function handleSceneRead() {
       return;
     }
 
-
     /*
     * REVANCHE :
     * lorsqu'un des deux joueurs relance
     * la partie, Supabase remet le statut
     * à "ready".
-    *
-    * Les deux téléphones sont encore sur
-    * /play à ce moment-là.
-    *
-    * Realtime ou le polling détecte donc
-    * automatiquement le changement et
-    * renvoie chaque joueur vers sa
-    * calibration, sans nouveau code.
     */
     if (
       gameData.status ===
@@ -3927,7 +3882,6 @@ async function handleSceneRead() {
 
       return;
     }
-
 
     /*
     * Route play mais partie pas encore
@@ -3963,7 +3917,6 @@ async function handleSceneRead() {
       loadSceneState(cardData),
       loadActiveRules(),
     ]);
-
   };
 
 
@@ -4001,43 +3954,6 @@ async function handleSceneRead() {
 
 
     initialise();
-
-
-    /* =======================================
-      REALTIME
-      ======================================= */
-
-    const channel = supabase
-      .channel(
-        `play-${code}`
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "games",
-          filter:
-            `code=eq.${code}`,
-        },
-        async () => {
-          if (!active) {
-            return;
-          }
-
-          try {
-            await loadState();
-
-          } catch (err) {
-            console.error(
-              "PLAY REALTIME ERROR:",
-              err
-            );
-          }
-        }
-      )
-      .subscribe();
-
 
     /* =======================================
       POLLING DE SECURITE
@@ -4080,10 +3996,6 @@ async function handleSceneRead() {
       window.clearInterval(
         polling
       );
-
-      supabase.removeChannel(
-        channel
-      );
     };
 
   }, [code]);
@@ -4109,9 +4021,13 @@ async function handleSceneRead() {
               data,
               error: statsError,
             } = await supabase.rpc(
-              "get_protocol_final_stats",
+              "get_protocol_final_stats_secure",
               {
                 p_game_code: code,
+                p_player_no:
+                  playerNumber,
+                p_player_token:
+                  playerToken,
               }
             );
 
@@ -4139,6 +4055,8 @@ async function handleSceneRead() {
       }, [
         game?.status,
         code,
+        playerNumber,
+        playerToken,
       ]);
 
 
@@ -4160,9 +4078,13 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "advance_protocol",
+          "advance_protocol_secure",
           {
             p_game_code: code,
+            p_player_no:
+              playerNumber,
+            p_player_token:
+              playerToken,
             p_action: action,
             p_duel_winner:
               duelWinner,
@@ -4211,11 +4133,13 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "buy_protocol_bonus",
+          "buy_protocol_bonus_secure",
           {
             p_game_code: code,
             p_player_no:
               playerNumber,
+            p_player_token:
+              playerToken,
             p_bonus: bonus,
           }
         );
@@ -4262,11 +4186,13 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "use_choose_type",
+          "use_choose_type_secure",
           {
             p_game_code: code,
             p_player_no:
               playerNumber,
+            p_player_token:
+              playerToken,
             p_card_type:
               cardType,
           }
@@ -4471,9 +4397,13 @@ async function handleSceneRead() {
               data,
               error: rematchRpcError,
             } = await supabase.rpc(
-              "rematch_protocol",
+              "rematch_protocol_secure",
               {
                 p_game_code: code,
+                p_player_no:
+                  playerNumber,
+                p_player_token:
+                  playerToken,
               }
             );
 
@@ -5197,13 +5127,16 @@ async function handleSceneRead() {
               const {
                 error: bonusError,
               } = await supabase.rpc(
-                "use_take_control",
+                "use_take_control_secure",
                 {
                   p_game_code:
                     code,
 
                   p_player_no:
                     playerNumber,
+
+                  p_player_token:
+                    playerToken,
                 }
               );
 
