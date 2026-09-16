@@ -6819,3 +6819,30 @@ h1 {
 .play-page .play-header {
   margin-bottom: 18px !important;
 }
+
+/* =========================================================
+   RESUME GAME NOTIFICATION
+   ========================================================= */
+
+.resume-action-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resume-notification-dot {
+  display: inline-block;
+
+  width: 9px;
+  height: 9px;
+
+  flex: 0 0 9px;
+
+  border-radius: 999px;
+
+  background: #ff3b30;
+
+  box-shadow:
+    0 0 0 2px rgba(255, 59, 48, 0.12),
+    0 0 10px rgba(255, 59, 48, 0.35);
+}

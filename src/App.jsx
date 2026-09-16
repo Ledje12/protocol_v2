@@ -178,6 +178,65 @@ function clearGameSession() {
   );
 }
 
+const PROTOCOL_LAST_SEEN_CARD_KEY =
+  "protocol-last-seen-card";
+
+function getLastSeenCard(code) {
+  try {
+    const raw =
+      localStorage.getItem(
+        PROTOCOL_LAST_SEEN_CARD_KEY
+      );
+
+    if (!raw) {
+      return null;
+    }
+
+    const seen =
+      JSON.parse(raw);
+
+    const normalizedCode =
+      String(code || "")
+        .trim()
+        .toUpperCase();
+
+    if (
+      seen?.code !== normalizedCode
+    ) {
+      return null;
+    }
+
+    return seen?.cardId ?? null;
+
+  } catch (error) {
+    console.error(
+      "LAST SEEN CARD READ ERROR:",
+      error
+    );
+
+    return null;
+  }
+}
+
+function saveLastSeenCard(
+  code,
+  cardId
+) {
+  if (!code || !cardId) {
+    return;
+  }
+
+  localStorage.setItem(
+    PROTOCOL_LAST_SEEN_CARD_KEY,
+    JSON.stringify({
+      code: String(code)
+        .trim()
+        .toUpperCase(),
+      cardId: Number(cardId),
+    })
+  );
+}
+
 const INTENSITY_LEVELS = [
   {
     value: 1,
@@ -656,6 +715,9 @@ function HomeScreen({ navigate }) {
   const [resumeLoading, setResumeLoading] =
     useState(true);
 
+  const [resumeHasUpdate, setResumeHasUpdate] =
+    useState(false);
+
     useEffect(() => {
       let active = true;
 
@@ -720,6 +782,44 @@ function HomeScreen({ navigate }) {
               partnerName || null,
           });
 
+          const currentCardId =
+            game.current_card_id ?? null;
+
+          const lastSeenCardId =
+            getLastSeenCard(session.code);
+
+          /*
+          * Première détection :
+          * on initialise simplement la carte vue.
+          * Pas de faux badge rouge.
+          */
+          if (
+            currentCardId &&
+            lastSeenCardId === null
+          ) {
+            saveLastSeenCard(
+              session.code,
+              currentCardId
+            );
+
+            setResumeHasUpdate(false);
+
+          /*
+          * Une autre carte est maintenant
+          * active sur le serveur.
+          */
+          } else if (
+            currentCardId &&
+            lastSeenCardId !== null &&
+            Number(currentCardId) !==
+              Number(lastSeenCardId)
+          ) {
+            setResumeHasUpdate(true);
+
+          } else {
+            setResumeHasUpdate(false);
+          }
+
         } catch (err) {
           console.warn(
             "RESUME GAME CHECK:",
@@ -761,6 +861,15 @@ function HomeScreen({ navigate }) {
 
       const code =
         resumeGame.sessionCode;
+
+      if (resumeGame.current_card_id) {
+        saveLastSeenCard(
+          code,
+          resumeGame.current_card_id
+        );
+      }
+
+      setResumeHasUpdate(false);
 
       /*
       * On reprend directement au bon
@@ -1071,7 +1180,16 @@ function HomeScreen({ navigate }) {
                 Reprendre une partie
               </span>
 
-              <span>→</span>
+              <span className="resume-action-end">
+                {resumeHasUpdate && (
+                  <span
+                    className="resume-notification-dot"
+                    aria-label="La partie a avancé"
+                  />
+                )}
+
+                <span>→</span>
+              </span>
             </button>
           )}
         </div>
