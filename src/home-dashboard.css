@@ -1,14 +1,12 @@
 /* =========================================================
    PROTOCOL V2
-   HOME DASHBOARD
+   HOME V4
    ========================================================= */
 
 .protocol-home-page {
-  --home-pink: #ef7cab;
-  --home-pink-strong: #f58bb8;
-  --home-pink-soft: rgba(239, 124, 171, 0.58);
-  --home-border: rgba(239, 124, 171, 0.2);
-  --home-text-soft: rgba(255, 255, 255, 0.46);
+  --pink: #ef7caf;
+  --pink-bright: #ff91bd;
+  --pink-border: rgba(239, 124, 175, .22);
 
   width: 100%;
   height: 100dvh;
@@ -20,50 +18,81 @@
 
   background:
     radial-gradient(
-      circle at 34% 8%,
-      rgba(115, 34, 70, 0.25),
-      transparent 35%
+      circle at 50% -5%,
+      rgba(113, 34, 72, .28),
+      transparent 38%
     ),
-    radial-gradient(
-      circle at 86% 43%,
-      rgba(73, 24, 69, 0.13),
-      transparent 34%
-    ),
-    #080609;
+    #070608;
 }
 
 .protocol-home-page * {
   box-sizing: border-box;
 }
 
+
 /* =========================================================
    HEADER
    ========================================================= */
 
 .protocol-home-header {
-  height: 54px;
-
-  padding:
-    0
-    22px;
+  height: 60px;
 
   display: flex;
   align-items: center;
+  justify-content: center;
 
   position: relative;
   z-index: 5;
 }
 
-.protocol-home-header .logo {
-  font-size: 0.67rem;
-  letter-spacing: 0.35em;
-
-  color:
-    rgba(255, 255, 255, 0.82);
+.protocol-home-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.protocol-home-brand-name {
+  font-size: .86rem;
+  letter-spacing: .38em;
+
+  color:
+    rgba(255,255,255,.88);
+}
+
+.protocol-home-brand-sub {
+  margin-top: 4px;
+
+  display: grid;
+
+  grid-template-columns:
+    30px
+    auto
+    30px;
+
+  align-items: center;
+
+  gap: 9px;
+}
+
+.protocol-home-brand-sub span {
+  height: 1px;
+
+  background:
+    rgba(255,255,255,.22);
+}
+
+.protocol-home-brand-sub small {
+  font-size: .5rem;
+
+  letter-spacing: .32em;
+
+  color:
+    rgba(255,255,255,.58);
+}
+
+
 /* =========================================================
-   MAIN GRID
+   DASHBOARD
    ========================================================= */
 
 .protocol-home-dashboard {
@@ -73,159 +102,126 @@
   height:
     calc(
       100dvh -
-      54px -
+      60px -
       env(safe-area-inset-bottom, 0px)
     );
 
   margin: 0 auto;
 
   padding:
-    2px
-    18px
+    0
+    17px
     max(
-      10px,
+      7px,
       env(safe-area-inset-bottom)
     );
 
   display: grid;
 
   grid-template-rows:
-    minmax(0, 0.82fr)
+    minmax(0, 1fr)
+    auto
     auto
     auto;
 
-  gap: 11px;
+  gap: 10px;
 }
+
 
 /* =========================================================
    HERO
    ========================================================= */
 
 .protocol-home-hero-card {
-  position: relative;
-
   min-height: 0;
+
+  position: relative;
 
   overflow: hidden;
 
-  border-radius: 30px;
+  border-radius: 31px;
 
   border:
     1px solid
-    rgba(224, 111, 158, 0.2);
+    rgba(239,124,175,.19);
 
   background:
-    linear-gradient(
-      145deg,
-      #23151e,
-      #100b10 65%,
-      #0a080b
-    );
+    #160d13;
 
   box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    0 22px 65px
+    rgba(0,0,0,.4),
+    inset
+    0
+    1px
+    0
+    rgba(255,255,255,.035);
 }
 
-/* ambiance abstraite du hero */
 
-.protocol-home-hero-visual {
+/*
+ * Préparé pour une vraie image.
+ *
+ * Lorsque tu ajouteras :
+ *
+ * public/protocol-home-hero.webp
+ *
+ * elle apparaîtra automatiquement.
+ */
+
+.protocol-home-hero-image {
   position: absolute;
   inset: 0;
 
   background:
     radial-gradient(
-      ellipse at 18% 30%,
-      rgba(216, 109, 150, 0.2),
-      transparent 33%
+      circle at 25% 22%,
+      rgba(211,89,139,.22),
+      transparent 32%
     ),
     radial-gradient(
-      ellipse at 78% 25%,
-      rgba(122, 55, 112, 0.25),
-      transparent 33%
+      circle at 78% 28%,
+      rgba(121,51,112,.25),
+      transparent 34%
     ),
-    radial-gradient(
-      ellipse at 54% 72%,
-      rgba(91, 31, 62, 0.14),
-      transparent 42%
-    );
-}
+    url("/protocol-home-hero.webp")
+      center 35% /
+      cover
+      no-repeat;
 
-.protocol-home-hero-visual::before {
-  content: "";
-
-  position: absolute;
-
-  width: 60%;
-  height: 90%;
-
-  top: -8%;
-  right: -12%;
-
-  border-radius:
-    48%
-    30%
-    58%
-    38%;
+  opacity: .72;
 
   transform:
-    rotate(-14deg);
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(222, 111, 157, 0.11),
-      rgba(94, 34, 74, 0.02)
-    );
+    scale(1.02);
 }
 
-.protocol-home-hero-visual::after {
-  content: "";
-
-  position: absolute;
-
-  width: 68%;
-  height: 74%;
-
-  left: -20%;
-  bottom: -22%;
-
-  border-radius: 50%;
-
-  background:
-    radial-gradient(
-      ellipse,
-      rgba(176, 66, 112, 0.13),
-      transparent 70%
-    );
-}
-
-.protocol-home-hero-shade {
+.protocol-home-hero-gradient {
   position: absolute;
   inset: 0;
 
   background:
     linear-gradient(
       180deg,
-      rgba(8, 5, 8, 0.03) 0%,
-      rgba(8, 5, 8, 0.1) 42%,
-      rgba(8, 5, 8, 0.64) 100%
+      rgba(8,5,8,.13) 0%,
+      rgba(8,5,8,.18) 38%,
+      rgba(8,5,8,.63) 69%,
+      rgba(8,5,8,.94) 100%
     );
 }
 
-/* =========================================================
-   HERO CONTENT
-   ========================================================= */
+
+/* ---------- CONTENT ---------- */
 
 .protocol-home-hero-content {
   position: relative;
   z-index: 2;
 
+  width: 100%;
   height: 100%;
 
   padding:
-    20px
-    20px
+    19px
+    19px
     16px;
 
   display: flex;
@@ -235,19 +231,27 @@
 .protocol-home-eyebrow {
   margin: 0;
 
-  font-size: 0.58rem;
+  font-size: .56rem;
   font-weight: 600;
 
-  letter-spacing: 0.32em;
+  letter-spacing: .34em;
 
   color:
-    rgba(255, 255, 255, 0.5);
+    rgba(255,255,255,.52);
 }
 
-/* ---------- TITLE ---------- */
 
-.protocol-home-hero-title-row {
-  margin-top: 14px;
+/* =========================================================
+   HERO COPY
+   ========================================================= */
+
+.protocol-home-title-line {
+  margin-top:
+    clamp(
+      13px,
+      2vh,
+      20px
+    );
 
   display: flex;
   align-items: flex-start;
@@ -256,63 +260,65 @@
   gap: 14px;
 }
 
-.protocol-home-hero-title-row h1 {
+.protocol-home-title-line h1 {
   margin: 0;
 
   font-size:
     clamp(
       3.15rem,
-      6.2vh,
-      4rem
+      6vh,
+      3.9rem
     );
 
-  line-height: 0.9;
+  line-height: .91;
+
+  letter-spacing: -.055em;
 
   font-weight: 400;
-
-  letter-spacing: -0.05em;
 }
+
 
 /* ---------- STATUS ---------- */
 
 .protocol-home-status {
+  margin-top: 13px;
+
   display: flex;
 
-  gap: 9px;
-
-  margin-top: 12px;
+  gap: 10px;
 }
 
 .protocol-status-dot {
-  flex: 0 0 auto;
-
   width: 9px;
   height: 9px;
 
   margin-top: 5px;
 
+  flex: 0 0 auto;
+
   border-radius: 50%;
 
   background:
-    rgba(255, 255, 255, 0.2);
+    rgba(255,255,255,.22);
 }
 
 .protocol-status-dot.is-active {
   background:
-    var(--home-pink);
+    var(--pink);
 
   box-shadow:
-    0 0 14px
-    rgba(239, 124, 171, 0.75);
+    0 0 15px
+    rgba(239,124,175,.8);
 }
 
 .protocol-home-status strong {
   display: block;
 
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: .94rem;
 
-  line-height: 1.18;
+  line-height: 1.2;
+
+  font-weight: 500;
 }
 
 .protocol-home-status p {
@@ -323,33 +329,37 @@
     0
     0;
 
-  font-size: 0.76rem;
+  font-size: .73rem;
 
-  line-height: 1.35;
+  line-height: 1.38;
 
   color:
-    rgba(255, 255, 255, 0.4);
+    rgba(255,255,255,.43);
 }
+
 
 /* ---------- LEVEL ---------- */
 
 .protocol-home-level {
   flex: 0 0 auto;
 
-  min-width: 84px;
+  min-width: 90px;
+
+  margin-top: 3px;
 
   padding:
     10px
-    11px;
-
-  border-radius: 20px;
+    12px
+    9px;
 
   border:
     1px solid
-    rgba(239, 124, 171, 0.22);
+    rgba(239,124,175,.24);
+
+  border-radius: 21px;
 
   background:
-    rgba(255, 255, 255, 0.035);
+    rgba(7,5,8,.35);
 
   backdrop-filter:
     blur(12px);
@@ -359,11 +369,12 @@
 
 .protocol-level-dots {
   display: flex;
+
   justify-content: center;
 
   gap: 5px;
 
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .protocol-level-dots span {
@@ -373,47 +384,52 @@
   border-radius: 50%;
 
   background:
-    var(--home-pink);
+    var(--pink-bright);
 
   box-shadow:
-    0 0 10px
-    rgba(239, 124, 171, 0.55);
+    0 0 11px
+    rgba(255,145,189,.7);
 }
 
 .protocol-home-level strong {
-  font-size: 0.61rem;
+  display: block;
+
+  font-size: .62rem;
   font-weight: 500;
+}
+
+.protocol-home-level small {
+  display: block;
+
+  margin-top: 3px;
+
+  font-size: .39rem;
+
+  letter-spacing: .18em;
 
   color:
-    rgba(255, 255, 255, 0.72);
+    rgba(255,255,255,.35);
 }
+
 
 /* =========================================================
    HERO ACTIONS
    ========================================================= */
 
-.protocol-home-main-actions {
+.protocol-home-hero-actions {
   margin-top: auto;
 }
+
 
 /* ---------- PRIMARY ---------- */
 
 .protocol-home-primary {
-  position: relative;
-
   width: 100%;
-
-  min-height: 58px;
+  min-height: 59px;
 
   padding:
     0
-    20px;
-
-  border:
-    1px solid
-    rgba(255, 167, 204, 0.62);
-
-  border-radius: 22px;
+    17px;
 
   display: flex;
   align-items: center;
@@ -421,43 +437,47 @@
 
   gap: 13px;
 
+  border:
+    1px solid
+    rgba(255,166,203,.67);
+
+  border-radius: 22px;
+
   background:
     linear-gradient(
       110deg,
-      rgba(232, 102, 146, 0.92),
-      rgba(126, 45, 124, 0.88)
+      rgba(233,104,148,.94),
+      rgba(133,46,130,.91)
     );
 
   color: white;
 
   box-shadow:
-    0 12px 30px
-    rgba(164, 47, 104, 0.22),
+    0
+    12px
+    31px
+    rgba(171,52,111,.26),
     inset
     0
     1px
     0
-    rgba(255, 255, 255, 0.18);
+    rgba(255,255,255,.21);
 
   font: inherit;
 
-  font-size: 1.02rem;
+  font-size: 1rem;
   font-weight: 500;
 
   cursor: pointer;
 }
 
-.protocol-home-primary svg {
-  flex: 0 0 auto;
-}
-
 .protocol-home-primary:active {
   transform:
-    scale(0.985);
+    scale(.985);
 }
 
 .protocol-home-primary.is-loading {
-  opacity: 0.6;
+  opacity: .6;
 }
 
 .protocol-home-live-dot {
@@ -467,16 +487,13 @@
   border-radius: 50%;
 
   background: white;
-
-  box-shadow:
-    0 0 12px
-    rgba(255, 255, 255, 0.8);
 }
+
 
 /* ---------- SESSION ---------- */
 
 .protocol-home-session {
-  height: 23px;
+  height: 22px;
 
   display: flex;
   align-items: center;
@@ -484,240 +501,105 @@
 
   gap: 7px;
 
-  font-size: 0.65rem;
+  font-size: .63rem;
 
   color:
-    rgba(255, 255, 255, 0.39);
+    rgba(255,255,255,.4);
 }
 
 .protocol-home-session strong {
   font-weight: 500;
 
   color:
-    rgba(255, 255, 255, 0.67);
+    rgba(255,255,255,.68);
 }
 
-/* ---------- SECONDARY ---------- */
 
-.protocol-home-secondary-actions {
-  margin-top: 8px;
+/* ---------- NEW GAME ---------- */
 
-  display: grid;
+.protocol-home-newgame {
+  width: 100%;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 9px;
-}
-
-.protocol-home-secondary-actions button {
-  min-width: 0;
   height: 47px;
-
-  padding:
-    0
-    12px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  gap: 8px;
+  gap: 10px;
 
   border:
     1px solid
-    rgba(239, 124, 171, 0.24);
+    rgba(239,124,175,.36);
 
-  border-radius: 17px;
+  border-radius: 18px;
 
   background:
-    rgba(10, 8, 11, 0.42);
+    rgba(8,6,9,.35);
 
   backdrop-filter:
     blur(10px);
 
   color:
-    rgba(255, 255, 255, 0.8);
+    rgba(255,255,255,.8);
 
   font: inherit;
 
-  font-size: 0.8rem;
+  font-size: .81rem;
 
   cursor: pointer;
 }
 
-.protocol-home-secondary-actions button:active {
-  transform:
-    scale(0.985);
-}
-
-.protocol-home-secondary-actions svg {
+.protocol-home-newgame svg {
   color:
-    rgba(239, 124, 171, 0.8);
-
-  flex: 0 0 auto;
+    var(--pink);
 }
 
-/* =========================================================
-   SIGNAL
-   ========================================================= */
 
-.protocol-home-signals {
-  min-height: 0;
-}
+/* ---------- JOIN ---------- */
 
-.protocol-home-section-title {
-  height: 28px;
+.protocol-home-join-link {
+  width: 100%;
 
-  display: grid;
+  height: 29px;
 
-  grid-template-columns:
-    20px
-    auto
-    1fr;
-
-  gap: 9px;
-
-  align-items: center;
-}
-
-.protocol-home-section-line {
-  height: 1px;
-
-  background:
-    var(--home-pink-soft);
-}
-
-.protocol-home-section-title h2 {
-  margin: 0;
-
-  font-size: 0.92rem;
-
-  font-weight: 500;
-}
-
-.protocol-home-section-title small {
-  justify-self: end;
-
-  font-size: 0.47rem;
-
-  letter-spacing: 0.25em;
-
-  color:
-    rgba(255, 255, 255, 0.28);
-}
-
-/* ---------- SIGNAL CARDS ---------- */
-
-.protocol-home-signal-grid {
-  margin-top: 8px;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 10px;
-}
-
-.protocol-home-signal-grid button {
-  min-width: 0;
-
-  height:
-    clamp(
-      94px,
-      11.5vh,
-      106px
-    );
-
-  padding:
-    10px
-    5px;
+  margin-top: 1px;
 
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  gap: 9px;
+  gap: 6px;
 
-  border:
-    1px solid
-    rgba(239, 124, 171, 0.16);
+  border: 0;
 
-  border-radius: 24px;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(35, 19, 29, 0.62),
-      rgba(13, 10, 14, 0.72)
-    );
+  background: none;
 
   color:
-    rgba(255, 255, 255, 0.83);
-
-  box-shadow:
-    inset
-    0
-    1px
-    0
-    rgba(255, 255, 255, 0.025);
+    rgba(255,255,255,.39);
 
   font: inherit;
+
+  font-size: .65rem;
 
   cursor: pointer;
 }
 
-.protocol-home-signal-grid button:active {
-  transform:
-    scale(0.97);
-}
-
-.protocol-home-icon-pink {
-  display: flex;
-
+.protocol-home-join-link svg {
   color:
-    rgba(244, 126, 178, 0.92);
-
-  transform:
-    scale(0.92);
-
-  opacity: 0.95;
-
-  filter:
-    drop-shadow(
-      0
-      0
-      7px
-      rgba(239, 124, 171, 0.14)
-    );
+    rgba(239,124,175,.58);
 }
 
-.protocol-home-signal-grid strong {
-  font-size:
-    clamp(
-      0.73rem,
-      1.7vh,
-      0.85rem
-    );
-
-  line-height: 1.16;
-
-  text-align: center;
-
-  font-weight: 500;
-}
 
 /* =========================================================
-   NAV
+   NAVIGATION
    ========================================================= */
 
 .protocol-home-nav {
   display: grid;
 
   grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+    repeat(3,minmax(0,1fr));
 
   gap: 9px;
 }
@@ -725,34 +607,30 @@
 .protocol-home-nav button {
   min-width: 0;
 
-  height:
-    clamp(
-      52px,
-      6.8vh,
-      60px
-    );
+  height: 69px;
 
   padding:
-    5px;
+    7px
+    3px;
 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
-  gap: 4px;
+  gap: 3px;
 
   border:
     1px solid
-    rgba(255, 255, 255, 0.065);
+    rgba(255,255,255,.07);
 
-  border-radius: 18px;
+  border-radius: 19px;
 
   background:
-    rgba(255, 255, 255, 0.014);
+    rgba(255,255,255,.015);
 
   color:
-    rgba(255, 255, 255, 0.55);
+    rgba(255,255,255,.65);
 
   font: inherit;
 
@@ -761,17 +639,23 @@
 
 .protocol-home-nav button:active {
   transform:
-    scale(0.97);
+    scale(.97);
 }
 
-.protocol-home-nav svg {
-  opacity: 0.9;
-}
+.protocol-home-nav strong {
+  margin-top: 2px;
 
-.protocol-home-nav button > span:last-child {
-  font-size: 0.62rem;
-
+  font-size: .68rem;
   font-weight: 500;
+}
+
+.protocol-home-nav small {
+  font-size: .38rem;
+
+  letter-spacing: .17em;
+
+  color:
+    rgba(255,255,255,.27);
 }
 
 .protocol-home-nav-icon {
@@ -786,20 +670,190 @@
   width: 6px;
   height: 6px;
 
-  right: -7px;
   top: -2px;
+  right: -7px;
 
   border-radius: 50%;
 
   background:
-    var(--home-pink);
+    var(--pink);
 
   box-shadow:
     0
     0
     9px
-    rgba(239, 124, 171, 0.8);
+    rgba(239,124,175,.8);
 }
+
+
+/* =========================================================
+   SIGNS
+   ========================================================= */
+
+.protocol-home-signals {
+  min-height: 0;
+}
+
+
+/* ---------- TITLE ---------- */
+
+.protocol-home-section-title {
+  height: 25px;
+
+  display: grid;
+
+  grid-template-columns:
+    18px
+    auto
+    1fr;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.protocol-home-section-line {
+  height: 1px;
+
+  background:
+    rgba(239,124,175,.66);
+}
+
+.protocol-home-section-title h2 {
+  margin: 0;
+
+  font-size: .88rem;
+
+  font-weight: 500;
+}
+
+.protocol-home-section-title small {
+  justify-self: end;
+
+  font-size: .4rem;
+
+  letter-spacing: .21em;
+
+  color:
+    rgba(255,255,255,.25);
+}
+
+
+/* ---------- CARDS ---------- */
+
+.protocol-home-signal-grid {
+  margin-top: 6px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3,minmax(0,1fr));
+
+  gap: 9px;
+}
+
+.protocol-home-signal-grid button {
+  min-width: 0;
+
+  height:
+    clamp(
+      80px,
+      9.5vh,
+      91px
+    );
+
+  padding:
+    8px
+    4px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border:
+    1px solid
+    rgba(239,124,175,.17);
+
+  border-radius: 21px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(34,18,28,.6),
+      rgba(12,9,13,.72)
+    );
+
+  color:
+    rgba(255,255,255,.83);
+
+  font: inherit;
+
+  cursor: pointer;
+}
+
+.protocol-home-signal-grid button:active {
+  transform:
+    scale(.97);
+}
+
+.protocol-home-icon-pink {
+  display: flex;
+
+  color:
+    rgba(248,132,183,.94);
+}
+
+.protocol-home-signal-grid strong {
+  font-size: .72rem;
+
+  line-height: 1.15;
+
+  text-align: center;
+
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.protocol-home-footer {
+  height: 19px;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    auto
+    1fr;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.protocol-home-footer span {
+  height: 1px;
+
+  background:
+    rgba(255,255,255,.075);
+}
+
+.protocol-home-footer p {
+  margin: 0;
+
+  font-size: .42rem;
+
+  letter-spacing: .2em;
+
+  color:
+    rgba(255,255,255,.27);
+}
+
 
 /* =========================================================
    MESSAGES
@@ -809,20 +863,21 @@
   margin:
     0
     0
-    6px;
+    5px;
 
   text-align: center;
 
-  font-size: 0.67rem;
+  font-size: .64rem;
 
   color:
-    rgba(255, 255, 255, 0.58);
+    rgba(255,255,255,.58);
 }
 
 .protocol-home-message.is-error {
   color:
-    rgba(255, 141, 155, 0.9);
+    rgba(255,142,154,.9);
 }
+
 
 /* =========================================================
    JOIN SHEET
@@ -839,7 +894,7 @@
   align-items: flex-end;
 
   background:
-    rgba(0, 0, 0, 0.66);
+    rgba(0,0,0,.67);
 
   backdrop-filter:
     blur(8px);
@@ -866,7 +921,7 @@
 
   border-top:
     1px solid
-    rgba(239, 124, 171, 0.25);
+    rgba(239,124,175,.25);
 
   background:
     linear-gradient(
@@ -879,7 +934,7 @@
     0
     -24px
     80px
-    rgba(0, 0, 0, 0.55);
+    rgba(0,0,0,.55);
 }
 
 .protocol-join-close {
@@ -896,10 +951,10 @@
   border-radius: 50%;
 
   background:
-    rgba(255, 255, 255, 0.05);
+    rgba(255,255,255,.05);
 
   color:
-    rgba(255, 255, 255, 0.62);
+    rgba(255,255,255,.62);
 
   font-size: 1.4rem;
 }
@@ -923,12 +978,12 @@
     0
     18px;
 
-  font-size: 0.81rem;
+  font-size: .81rem;
 
   line-height: 1.45;
 
   color:
-    rgba(255, 255, 255, 0.44);
+    rgba(255,255,255,.44);
 }
 
 .protocol-join-sheet form {
@@ -948,14 +1003,14 @@
 
   border:
     1px solid
-    rgba(239, 124, 171, 0.28);
+    rgba(239,124,175,.28);
 
   border-radius: 18px;
 
   outline: none;
 
   background:
-    rgba(255, 255, 255, 0.035);
+    rgba(255,255,255,.035);
 
   color: white;
 
@@ -966,21 +1021,14 @@
   font-size: 1.65rem;
   font-weight: 600;
 
-  letter-spacing: 0.36em;
+  letter-spacing: .36em;
 
   text-transform: uppercase;
 }
 
 .protocol-join-sheet input:focus {
   border-color:
-    rgba(239, 124, 171, 0.72);
-
-  box-shadow:
-    0
-    0
-    0
-    3px
-    rgba(239, 124, 171, 0.07);
+    rgba(239,124,175,.72);
 }
 
 .protocol-join-submit {
@@ -1013,41 +1061,48 @@
 }
 
 .protocol-join-submit:disabled {
-  opacity: 0.4;
+  opacity: .4;
 }
 
+
 /* =========================================================
-   SHORTER IPHONE
+   SHORTER PHONE
    ========================================================= */
 
 @media (max-height: 760px) {
 
-  .protocol-home-dashboard {
-    gap: 9px;
+  .protocol-home-header {
+    height: 52px;
+  }
 
-    grid-template-rows:
-      minmax(0, 0.76fr)
-      auto
-      auto;
+  .protocol-home-dashboard {
+    height:
+      calc(
+        100dvh -
+        52px -
+        env(safe-area-inset-bottom,0px)
+      );
+
+    gap: 7px;
   }
 
   .protocol-home-hero-content {
     padding:
-      16px
+      15px
       17px
-      14px;
+      12px;
   }
 
-  .protocol-home-hero-title-row {
-    margin-top: 12px;
+  .protocol-home-title-line {
+    margin-top: 9px;
   }
 
-  .protocol-home-hero-title-row h1 {
-    font-size: 3rem;
+  .protocol-home-title-line h1 {
+    font-size: 2.9rem;
   }
 
   .protocol-home-status {
-    margin-top: 10px;
+    margin-top: 9px;
   }
 
   .protocol-home-status p {
@@ -1055,18 +1110,31 @@
   }
 
   .protocol-home-primary {
-    min-height: 53px;
+    min-height: 51px;
   }
 
-  .protocol-home-secondary-actions button {
-    height: 41px;
+  .protocol-home-newgame {
+    height: 40px;
   }
 
-  .protocol-home-signal-grid button {
-    height: 82px;
+  .protocol-home-join-link {
+    height: 22px;
   }
 
   .protocol-home-nav button {
-    height: 50px;
+    height: 58px;
   }
+
+  .protocol-home-nav small {
+    display: none;
+  }
+
+  .protocol-home-signal-grid button {
+    height: 72px;
+  }
+
+  .protocol-home-footer {
+    display: none;
+  }
+
 }
