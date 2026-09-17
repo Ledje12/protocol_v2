@@ -693,6 +693,110 @@ function App() {
   );
 }
 
+function HomeIcon({
+  name,
+  size = 24,
+  strokeWidth = 1.6,
+}) {
+  const common = {
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth,
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": true,
+  };
+
+  if (name === "play") {
+    return (
+      <svg {...common}>
+        <path d="M8 5.5v13l10-6.5-10-6.5Z" />
+      </svg>
+    );
+  }
+
+  if (name === "sparkles") {
+    return (
+      <svg {...common}>
+        <path d="M12 3l1.15 3.1L16 7.25l-2.85 1.15L12 11.5 10.85 8.4 8 7.25l2.85-1.15L12 3Z" />
+        <path d="M18.25 13.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7.7-1.8Z" />
+        <path d="M6 13l.9 2.4 2.35.85-2.35.9L6 19.5l-.9-2.35-2.35-.9 2.35-.85L6 13Z" />
+      </svg>
+    );
+  }
+
+  if (name === "join") {
+    return (
+      <svg {...common}>
+        <path d="M14 5h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4" />
+        <path d="M10 8l4 4-4 4" />
+        <path d="M14 12H4" />
+      </svg>
+    );
+  }
+
+  if (name === "heart") {
+    return (
+      <svg {...common}>
+        <path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z" />
+      </svg>
+    );
+  }
+
+  if (name === "dice") {
+    return (
+      <svg {...common}>
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
+        <circle cx="8" cy="8" r=".8" fill="currentColor" stroke="none" />
+        <circle cx="16" cy="8" r=".8" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="12" r=".8" fill="currentColor" stroke="none" />
+        <circle cx="8" cy="16" r=".8" fill="currentColor" stroke="none" />
+        <circle cx="16" cy="16" r=".8" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  }
+
+  if (name === "moon") {
+    return (
+      <svg {...common}>
+        <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.7 8.7 0 1 0 20.5 14.2Z" />
+      </svg>
+    );
+  }
+
+  if (name === "book") {
+    return (
+      <svg {...common}>
+        <path d="M4 19.5a2.5 2.5 0 0 1 2.5-2.5H20" />
+        <path d="M6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5v-13A2.5 2.5 0 0 1 6.5 3Z" />
+      </svg>
+    );
+  }
+
+  if (name === "mail") {
+    return (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="3" />
+        <path d="m4.5 7 7.5 6 7.5-6" />
+      </svg>
+    );
+  }
+
+  if (name === "settings") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.7 1.7 0 0 0 .35 1.9l.05.05-2.85 2.85-.05-.05A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H9.6v-.1A1.7 1.7 0 0 0 8.2 19.3a1.7 1.7 0 0 0-1.9.35l-.05.05-2.85-2.85.05-.05A1.7 1.7 0 0 0 3.8 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H2V9.6h.1A1.7 1.7 0 0 0 3.7 8.2a1.7 1.7 0 0 0-.35-1.9l-.05-.05L6.15 3.4l.05.05A1.7 1.7 0 0 0 8.1 3.8a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2h4v.1a1.7 1.7 0 0 0 1.4 1.6 1.7 1.7 0 0 0 1.9-.35l.05-.05 2.85 2.85-.05.05a1.7 1.7 0 0 0-.35 1.9 1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4h.1v4h-.1a1.7 1.7 0 0 0-1.6 1.5Z" />
+      </svg>
+    );
+  }
+
+  return null;
+}
+
 /* =========================================================
    HOME
    ========================================================= */
@@ -1143,10 +1247,8 @@ function HomeScreen({ navigate }) {
 
   return (
     <main className="app protocol-home-page">
-      <div className="glow glow-top" />
-      <div className="protocol-home-ambient" />
 
-      <header className="header protocol-home-header">
+      <header className="protocol-home-header">
         <span className="logo">
           PROTOCOL
         </span>
@@ -1154,75 +1256,207 @@ function HomeScreen({ navigate }) {
 
       <section className="protocol-home-dashboard">
 
-        {/* HERO */}
-        <div className="protocol-home-hero">
+        {/* =========================================
+            HERO
+            ========================================= */}
 
-          <div className="protocol-home-hero-card">
+        <section className="protocol-home-hero-card">
 
-            <div className="protocol-home-hero-image" />
+          <div className="protocol-home-hero-visual" />
 
-            <div className="protocol-home-hero-overlay">
+          <div className="protocol-home-hero-shade" />
 
-              <p className="protocol-home-kicker">
-                PLUS LOIN ENSEMBLE
-              </p>
+          <div className="protocol-home-hero-content">
 
-              <div className="protocol-home-hero-top">
+            <p className="protocol-home-eyebrow">
+              PLUS LOIN ENSEMBLE
+            </p>
 
-                <div>
-                  <h1>
-                    Ce soir
-                  </h1>
+            <div className="protocol-home-hero-title-row">
 
-                  <div className="protocol-home-status">
+              <div>
+                <h1>
+                  Ce soir
+                </h1>
 
-                    <span
-                      className={
-                        resumeHasUpdate
-                          ? "protocol-status-dot is-active"
-                          : "protocol-status-dot"
-                      }
+                <div className="protocol-home-status">
+
+                  <span
+                    className={
+                      resumeHasUpdate
+                        ? "protocol-status-dot is-active"
+                        : "protocol-status-dot"
+                    }
+                  />
+
+                  <div>
+                    <strong>
+                      {resumeGame
+                        ? resumeGame.partnerName
+                          ? `${resumeGame.partnerName} est prêt${resumeGame.partnerName === "Audrey" ? "e" : ""} à jouer`
+                          : "Votre partie vous attend"
+                        : "À vous de lancer le jeu"}
+                    </strong>
+
+                    <p>
+                      {resumeGame
+                        ? "Le jeu reprend là où vous vous êtes arrêtés."
+                        : "Une soirée. Deux téléphones. Un terrain commun."}
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              {resumeGame?.shared_profile?.intensity && (
+                <div className="protocol-home-level">
+
+                  <div className="protocol-level-dots">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+
+                  <strong>
+                    Niveau{" "}
+                    {
+                      resumeGame
+                        .shared_profile
+                        .intensity
+                    }
+                  </strong>
+
+                </div>
+              )}
+
+            </div>
+
+
+            {/* CTA PRINCIPAL */}
+
+            <div className="protocol-home-main-actions">
+
+              {error && (
+                <p className="protocol-home-message is-error">
+                  {error}
+                </p>
+              )}
+
+              {inviteMessage && (
+                <p className="protocol-home-message">
+                  {inviteMessage}
+                </p>
+              )}
+
+              {resumeGame &&
+              !resumeLoading ? (
+
+                <>
+                  <button
+                    type="button"
+                    className="protocol-home-primary"
+                    onClick={resumeCurrentGame}
+                  >
+                    <HomeIcon
+                      name="play"
+                      size={23}
+                      strokeWidth={1.8}
                     />
 
-                    <div>
-                      <strong>
-                        {resumeGame
-                          ? resumeGame.partnerName
-                            ? `${resumeGame.partnerName} est prêt${resumeGame.partnerName === "Audrey" ? "e" : ""} à jouer`
-                            : "Votre partie vous attend"
-                          : "À vous de lancer le jeu"}
-                      </strong>
+                    <span>
+                      Reprendre PROTOCOL
+                    </span>
 
-                      <span>
-                        {resumeGame
-                          ? "Le jeu reprend là où vous vous êtes arrêtés."
-                          : "Une soirée. Deux téléphones. Un terrain commun."}
-                      </span>
-                    </div>
+                    {resumeHasUpdate && (
+                      <i className="protocol-home-live-dot" />
+                    )}
+                  </button>
 
+                  <div className="protocol-home-session">
+                    <span>
+                      Partie{" "}
+                      {resumeGame.sessionCode}
+                    </span>
+
+                    <span>·</span>
+
+                    <strong>
+                      {resumeGame.active_player ===
+                      resumeGame.playerNumber
+                        ? "À toi"
+                        : resumeGame.partnerName
+                          ? `À ${resumeGame.partnerName}`
+                          : "En cours"}
+                    </strong>
                   </div>
+                </>
+
+              ) : !resumeLoading ? (
+
+                <button
+                  type="button"
+                  className="protocol-home-primary"
+                  onClick={createGame}
+                  disabled={loading}
+                >
+                  <HomeIcon
+                    name="play"
+                    size={23}
+                    strokeWidth={1.8}
+                  />
+
+                  <span>
+                    {loading
+                      ? "Création…"
+                      : "Lancer PROTOCOL"}
+                  </span>
+                </button>
+
+              ) : (
+
+                <div className="protocol-home-primary is-loading">
+                  Préparation…
                 </div>
 
-                {resumeGame?.shared_profile?.intensity && (
-                  <div className="protocol-home-level">
+              )}
 
-                    <div className="protocol-level-dots">
-                      {Array.from({
-                        length: Math.min(
-                          3,
-                          resumeGame.shared_profile.intensity
-                        ),
-                      }).map((_, index) => (
-                        <span key={index} />
-                      ))}
-                    </div>
 
-                    <small>
-                      Niveau {resumeGame.shared_profile.intensity}
-                    </small>
+              {/* SECONDARY */}
 
-                  </div>
-                )}
+              <div className="protocol-home-secondary-actions">
+
+                <button
+                  type="button"
+                  onClick={createGame}
+                  disabled={loading}
+                >
+                  <HomeIcon
+                    name="sparkles"
+                    size={20}
+                  />
+
+                  <span>
+                    Nouvelle partie
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setJoinCode("");
+                    setJoinError("");
+                    setJoinOpen(true);
+                  }}
+                >
+                  <HomeIcon
+                    name="join"
+                    size={20}
+                  />
+
+                  <span>
+                    Rejoindre
+                  </span>
+                </button>
 
               </div>
 
@@ -1230,138 +1464,27 @@ function HomeScreen({ navigate }) {
 
           </div>
 
-        </div>
+        </section>
 
 
-        {/* ACTION PRINCIPALE */}
-        <div className="protocol-home-play">
+        {/* =========================================
+            SIGNAUX
+            ========================================= */}
 
-          {error && (
-            <p className="protocol-home-message is-error">
-              {error}
-            </p>
-          )}
-
-          {inviteMessage && (
-            <p className="protocol-home-message">
-              {inviteMessage}
-            </p>
-          )}
-
-          {resumeGame &&
-            !resumeLoading ? (
-            <>
-              <button
-                type="button"
-                className="protocol-home-resume"
-                onClick={
-                  resumeCurrentGame
-                }
-              >
-                <span className="protocol-home-play-icon">
-                  ▶
-                </span>
-
-                <span>
-                  Reprendre PROTOCOL
-                </span>
-
-                {resumeHasUpdate && (
-                  <span className="protocol-home-update-dot" />
-                )}
-              </button>
-
-              <div className="protocol-home-context">
-                <span>
-                  Partie{" "}
-                  {
-                    resumeGame.sessionCode
-                  }
-                </span>
-
-                <span>·</span>
-
-                <strong>
-                  {resumeGame.active_player ===
-                  resumeGame.playerNumber
-                    ? "À toi"
-                    : resumeGame.partnerName
-                      ? `À ${resumeGame.partnerName}`
-                      : "En cours"}
-                </strong>
-              </div>
-            </>
-          ) : !resumeLoading ? (
-            <button
-              type="button"
-              className="protocol-home-resume"
-              onClick={createGame}
-              disabled={loading}
-            >
-              <span className="protocol-home-play-icon">
-                ◇
-              </span>
-
-              <span>
-                {loading
-                  ? "Création…"
-                  : "Lancer PROTOCOL"}
-              </span>
-            </button>
-          ) : (
-            <div className="protocol-home-resume is-loading">
-              Préparation…
-            </div>
-          )}
-
-          <div className="protocol-home-game-actions">
-
-            <button
-              type="button"
-              onClick={createGame}
-              disabled={loading}
-            >
-              <span>◇</span>
-
-              <strong>
-                {loading
-                  ? "Création…"
-                  : "Nouvelle partie"}
-              </strong>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setJoinCode("");
-                setJoinError("");
-                setJoinOpen(true);
-              }}
-            >
-              <span>⌁</span>
-
-              <strong>
-                Rejoindre
-              </strong>
-            </button>
-
-          </div>
-        </div>
-
-
-        {/* SIGNAL */}
-        <div className="protocol-home-signals">
+        <section className="protocol-home-signals">
 
           <div className="protocol-home-section-title">
-            <span />
 
-            <strong>
+            <span className="protocol-home-section-line" />
+
+            <h2>
               Un signe ?
-            </strong>
+            </h2>
 
             <small>
               JUSTE ENTRE VOUS
             </small>
+
           </div>
 
           <div className="protocol-home-signal-grid">
@@ -1369,14 +1492,15 @@ function HomeScreen({ navigate }) {
             <button
               type="button"
               onClick={() =>
-                sendInvitation(
-                  "tempted"
-                )
+                sendInvitation("tempted")
               }
               disabled={inviteLoading}
             >
-              <span className="protocol-signal-icon">
-                ♡
+              <span className="protocol-home-icon-pink">
+                <HomeIcon
+                  name="heart"
+                  size={30}
+                />
               </span>
 
               <strong>
@@ -1384,17 +1508,19 @@ function HomeScreen({ navigate }) {
               </strong>
             </button>
 
+
             <button
               type="button"
               onClick={() =>
-                sendInvitation(
-                  "surprise"
-                )
+                sendInvitation("surprise")
               }
               disabled={inviteLoading}
             >
-              <span className="protocol-signal-icon">
-                ◇
+              <span className="protocol-home-icon-pink">
+                <HomeIcon
+                  name="dice"
+                  size={30}
+                />
               </span>
 
               <strong>
@@ -1402,17 +1528,19 @@ function HomeScreen({ navigate }) {
               </strong>
             </button>
 
+
             <button
               type="button"
               onClick={() =>
-                sendInvitation(
-                  "tonight"
-                )
+                sendInvitation("tonight")
               }
               disabled={inviteLoading}
             >
-              <span className="protocol-signal-icon">
-                ◐
+              <span className="protocol-home-icon-pink">
+                <HomeIcon
+                  name="moon"
+                  size={30}
+                />
               </span>
 
               <strong>
@@ -1421,10 +1549,14 @@ function HomeScreen({ navigate }) {
             </button>
 
           </div>
-        </div>
+
+        </section>
 
 
-        {/* NAVIGATION */}
+        {/* =========================================
+            NAVIGATION
+            ========================================= */}
+
         <nav className="protocol-home-nav">
 
           <button
@@ -1433,32 +1565,39 @@ function HomeScreen({ navigate }) {
               navigate("/library")
             }
           >
-            <span>▤</span>
-            <strong>
+            <HomeIcon
+              name="book"
+              size={23}
+            />
+
+            <span>
               Bibliothèque
-            </strong>
+            </span>
           </button>
+
 
           <button
             type="button"
             onClick={() =>
-              navigate(
-                "/invitations"
-              )
+              navigate("/invitations")
             }
           >
-            <span className="protocol-nav-icon">
-              ◇
+            <span className="protocol-home-nav-icon">
+              <HomeIcon
+                name="mail"
+                size={23}
+              />
 
               {resumeHasUpdate && (
                 <i />
               )}
             </span>
 
-            <strong>
+            <span>
               Invitations
-            </strong>
+            </span>
           </button>
+
 
           <button
             type="button"
@@ -1466,10 +1605,14 @@ function HomeScreen({ navigate }) {
               navigate("/settings")
             }
           >
-            <span>⌁</span>
-            <strong>
+            <HomeIcon
+              name="settings"
+              size={23}
+            />
+
+            <span>
               Réglages
-            </strong>
+            </span>
           </button>
 
         </nav>
@@ -1477,20 +1620,26 @@ function HomeScreen({ navigate }) {
       </section>
 
 
-      {/* JOIN BOTTOM SHEET */}
+      {/* =========================================
+          JOIN BOTTOM SHEET
+          ========================================= */}
+
       {joinOpen && (
+
         <div
           className="protocol-join-overlay"
           onClick={() =>
             setJoinOpen(false)
           }
         >
+
           <div
             className="protocol-join-sheet"
             onClick={(event) =>
               event.stopPropagation()
             }
           >
+
             <button
               type="button"
               className="protocol-join-close"
@@ -1502,7 +1651,7 @@ function HomeScreen({ navigate }) {
               ×
             </button>
 
-            <p className="protocol-home-kicker">
+            <p className="protocol-home-eyebrow">
               REJOINDRE
             </p>
 
@@ -1517,13 +1666,13 @@ function HomeScreen({ navigate }) {
             </p>
 
             <form
-              onSubmit={
-                joinGameFromHome
-              }
+              onSubmit={joinGameFromHome}
             >
+
               <input
                 value={joinCode}
                 onChange={(event) => {
+
                   setJoinCode(
                     event.target.value
                       .toUpperCase()
@@ -1541,7 +1690,6 @@ function HomeScreen({ navigate }) {
                 autoFocus
                 autoComplete="off"
                 spellCheck="false"
-                inputMode="text"
               />
 
               {joinError && (
@@ -1554,8 +1702,7 @@ function HomeScreen({ navigate }) {
                 type="submit"
                 className="protocol-join-submit"
                 disabled={
-                  joinCode.length !==
-                    6 ||
+                  joinCode.length !== 6 ||
                   joinLoading
                 }
               >
@@ -1565,11 +1712,17 @@ function HomeScreen({ navigate }) {
                     : "Rejoindre la partie"}
                 </span>
 
-                <span>→</span>
+                <span>
+                  →
+                </span>
               </button>
+
             </form>
+
           </div>
+
         </div>
+
       )}
 
     </main>
