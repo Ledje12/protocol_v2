@@ -1335,28 +1335,16 @@ function HomeScreen({ navigate }) {
 
               <div className="protocol-home-status">
 
-                <span
-                  className={
-                    resumeHasUpdate
-                      ? "protocol-status-dot is-active"
-                      : "protocol-status-dot"
-                  }
-                />
+                <span className="protocol-status-dot is-active" />
 
                 <div>
 
                   <strong>
-                    {resumeGame
-                      ? resumeGame.partnerName
-                        ? `${resumeGame.partnerName} est prêt${resumeGame.partnerName === "Audrey" ? "e" : ""} à jouer`
-                        : "Votre partie vous attend"
-                      : "À vous de lancer le jeu"}
+                    Ce soir, laissez le jeu prendre les commandes.
                   </strong>
 
                   <p>
-                    {resumeGame
-                      ? "Le jeu reprend là où vous vous êtes arrêtés."
-                      : "Une soirée. Deux téléphones. Un terrain commun."}
+                    À deux. À votre rythme. Sans prévoir la suite.
                   </p>
 
                 </div>

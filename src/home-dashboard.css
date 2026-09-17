@@ -164,12 +164,14 @@
 .protocol-home-hero-card {
   position: relative;
 
-  flex: 0 0
-    clamp(
-      405px,
-      49.5dvh,
-      430px
-    );
+  .protocol-home-hero-card {
+    flex: 0 0
+      clamp(
+        445px,
+        53dvh,
+        470px
+      );
+  }
 
   min-height: 0;
 
@@ -382,14 +384,31 @@
 .protocol-home-status strong {
   display: block;
 
-  font-size: 1rem;
+  max-width: 310px;
 
-  line-height: 1.2;
+  font-size: 1.02rem;
+  line-height: 1.22;
 
   font-weight: 500;
 
   color:
-    rgba(255, 255, 255, 0.95);
+    rgba(255, 255, 255, 0.96);
+}
+
+.protocol-home-status p {
+  max-width: 310px;
+
+  margin:
+    6px
+    0
+    0;
+
+  font-size: 0.80rem;
+
+  line-height: 1.42;
+
+  color:
+    rgba(255, 255, 255, 0.54);
 }
 
 .protocol-home-status p {
@@ -503,11 +522,12 @@
 
 .protocol-home-hero-actions {
   margin-top: auto;
+  padding-top: 26px;
 
   display: flex;
   flex-direction: column;
 
-  gap: 10px;
+  gap: 12px;
 }
 
 
