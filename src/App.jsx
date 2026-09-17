@@ -5,6 +5,7 @@ import {
 } from "react";
 import { createClient } from "@supabase/supabase-js";
 import "./notifications.css";
+import "./home-dashboard.css";
 import LibraryScreen from "./LibraryScreen.jsx";
 import CardScreen from "./CardScreen.jsx";
 import InvitationsScreen from "./InvitationsScreen.jsx";
@@ -718,6 +719,18 @@ function HomeScreen({ navigate }) {
   const [resumeHasUpdate, setResumeHasUpdate] =
     useState(false);
 
+  const [joinOpen, setJoinOpen] =
+    useState(false);
+
+  const [joinCode, setJoinCode] =
+    useState("");
+
+  const [joinLoading, setJoinLoading] =
+    useState(false);
+
+  const [joinError, setJoinError] =
+    useState("");
+
     useEffect(() => {
       let active = true;
 
@@ -934,7 +947,9 @@ function HomeScreen({ navigate }) {
       );
     };
   
-    const sendInvitation = async () => {
+  const sendInvitation = async (
+    signal = "tonight"
+  ) => {
     const sender = getPushOwner();
 
     if (!sender) {
@@ -956,6 +971,7 @@ function HomeScreen({ navigate }) {
         {
           body: {
             sender,
+            signal,
           },
         }
       );
@@ -967,15 +983,20 @@ function HomeScreen({ navigate }) {
       if (!data?.success) {
         throw new Error(
           data?.error ||
-          "Impossible d’envoyer l’invitation."
+            "Impossible d’envoyer le signal."
         );
       }
 
+      const messages = {
+        tempted: "Signal envoyé.",
+        surprise: "Signal envoyé.",
+        tonight: "Signal envoyé.",
+      };
+
       setInviteMessage(
-        sender === "jerome"
-          ? "Signal envoyé à Audrey."
-          : "Signal envoyé à Jérôme."
+        messages[signal] || "Signal envoyé."
       );
+
     } catch (err) {
       console.error(
         "SEND INVITATION ERROR:",
@@ -984,13 +1005,86 @@ function HomeScreen({ navigate }) {
 
       setInviteMessage(
         err?.message ||
-        "Impossible d’envoyer l’invitation."
+          "Impossible d’envoyer le signal."
       );
+
     } finally {
       setInviteLoading(false);
     }
   };
 
+  const joinGameFromHome = async (
+    event
+  ) => {
+    event?.preventDefault();
+
+    if (joinCode.length !== 6) {
+      return;
+    }
+
+    try {
+      setJoinLoading(true);
+      setJoinError("");
+
+      const normalized =
+        joinCode.toUpperCase();
+
+      const {
+        data,
+        error: rpcError,
+      } = await supabase.rpc(
+        "join_protocol_game",
+        {
+          p_game_code: normalized,
+        }
+      );
+
+      if (rpcError) {
+        throw rpcError;
+      }
+
+      const joinedGame =
+        Array.isArray(data)
+          ? data[0]
+          : data;
+
+      if (
+        !joinedGame?.code ||
+        !joinedGame?.player_token
+      ) {
+        throw new Error(
+          "Réponse de connexion invalide."
+        );
+      }
+
+      saveGameSession(
+        joinedGame.code,
+        joinedGame.player_no,
+        joinedGame.player_token
+      );
+
+      setJoinOpen(false);
+
+      navigate(
+        `/game/${joinedGame.code}/identity`
+      );
+
+    } catch (err) {
+      console.error(
+        "JOIN FROM HOME ERROR:",
+        err
+      );
+
+      setJoinError(
+        err?.message ||
+          "Impossible de rejoindre cette partie."
+      );
+
+    } finally {
+      setJoinLoading(false);
+    }
+  };
+  
   const createGame = async () => {
     try {
       setLoading(true);
@@ -1048,10 +1142,11 @@ function HomeScreen({ navigate }) {
   };
 
   return (
-    <main className="app">
+    <main className="app protocol-home-page">
       <div className="glow glow-top" />
+      <div className="protocol-home-ambient" />
 
-      <header className="header">
+      <header className="header protocol-home-header">
         <span className="logo">
           PROTOCOL
         </span>
@@ -1059,143 +1154,437 @@ function HomeScreen({ navigate }) {
         <button
           type="button"
           className="settings-trigger"
-          onClick={() => navigate("/settings")}
+          onClick={() =>
+            navigate("/settings")
+          }
           aria-label="Réglages"
         >
-          <span aria-hidden="true">⌁</span>
+          <span aria-hidden="true">
+            ⌁
+          </span>
         </button>
       </header>
 
-      <section className="home">
-        <div>
-          <p className="kicker">
-            UNE EXPÉRIENCE À DEUX
-          </p>
+      <section className="protocol-home-dashboard">
 
-          <h1>
-            Jusqu’où
-            <br />
-            irez-vous ?
-          </h1>
+        {/* HERO */}
+        <div className="protocol-home-hero">
 
-          <p className="intro">
-            Un jeu privé qui s’adapte à
-            vos envies, vos limites et à
-            ce que vous êtes prêts à
-            découvrir ensemble.
-          </p>
+          <div className="protocol-home-hero-top">
+            <div>
+              <p className="protocol-home-kicker">
+                CE SOIR
+              </p>
+
+              <h1>
+                Ce soir
+              </h1>
+            </div>
+
+            {resumeGame?.shared_profile
+              ?.intensity && (
+              <div className="protocol-home-level">
+                <div className="protocol-level-dots">
+                  {Array.from({
+                    length: Math.min(
+                      3,
+                      resumeGame
+                        .shared_profile
+                        .intensity
+                    ),
+                  }).map((_, index) => (
+                    <span key={index} />
+                  ))}
+                </div>
+
+                <small>
+                  Niveau{" "}
+                  {
+                    resumeGame
+                      .shared_profile
+                      .intensity
+                  }
+                </small>
+              </div>
+            )}
+          </div>
+
+          <div className="protocol-home-status">
+            <span
+              className={
+                resumeHasUpdate
+                  ? "protocol-status-dot is-active"
+                  : "protocol-status-dot"
+              }
+            />
+
+            <div>
+              <strong>
+                {resumeGame
+                  ? resumeGame.partnerName
+                    ? `${resumeGame.partnerName} est connecté${resumeGame.partnerName === "Audrey" ? "e" : ""}.`
+                    : "Votre partie vous attend."
+                  : "À vous de lancer le jeu."}
+              </strong>
+
+              <span>
+                {resumeGame
+                  ? "PROTOCOL reprend exactement là où vous vous êtes arrêtés."
+                  : "Une soirée. Deux téléphones. Un terrain commun."}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="actions">
+
+        {/* ACTION PRINCIPALE */}
+        <div className="protocol-home-play">
+
           {error && (
-            <p className="error">
+            <p className="protocol-home-message is-error">
               {error}
             </p>
           )}
 
           {inviteMessage && (
-            <p className="small-text">
+            <p className="protocol-home-message">
               {inviteMessage}
             </p>
           )}
 
+          {resumeGame &&
+            !resumeLoading ? (
+            <>
+              <button
+                type="button"
+                className="protocol-home-resume"
+                onClick={
+                  resumeCurrentGame
+                }
+              >
+                <span className="protocol-home-play-icon">
+                  ▶
+                </span>
+
+                <span>
+                  Reprendre PROTOCOL
+                </span>
+
+                {resumeHasUpdate && (
+                  <span className="protocol-home-update-dot" />
+                )}
+              </button>
+
+              <div className="protocol-home-context">
+                <span>
+                  Partie{" "}
+                  {
+                    resumeGame.sessionCode
+                  }
+                </span>
+
+                <span>·</span>
+
+                <strong>
+                  {resumeGame.active_player ===
+                  resumeGame.playerNumber
+                    ? "À toi"
+                    : resumeGame.partnerName
+                      ? `À ${resumeGame.partnerName}`
+                      : "En cours"}
+                </strong>
+              </div>
+            </>
+          ) : !resumeLoading ? (
+            <button
+              type="button"
+              className="protocol-home-resume"
+              onClick={createGame}
+              disabled={loading}
+            >
+              <span className="protocol-home-play-icon">
+                ◇
+              </span>
+
+              <span>
+                {loading
+                  ? "Création…"
+                  : "Lancer PROTOCOL"}
+              </span>
+            </button>
+          ) : (
+            <div className="protocol-home-resume is-loading">
+              Préparation…
+            </div>
+          )}
+
+          <div className="protocol-home-game-actions">
+
+            <button
+              type="button"
+              onClick={createGame}
+              disabled={loading}
+            >
+              <span>◇</span>
+
+              <strong>
+                {loading
+                  ? "Création…"
+                  : "Nouvelle partie"}
+              </strong>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setJoinCode("");
+                setJoinError("");
+                setJoinOpen(true);
+              }}
+            >
+              <span>⌁</span>
+
+              <strong>
+                Rejoindre
+              </strong>
+            </button>
+
+          </div>
+        </div>
+
+
+        {/* SIGNAL */}
+        <div className="protocol-home-signals">
+
+          <div className="protocol-home-section-title">
+            <span />
+
+            <strong>
+              Un signe ?
+            </strong>
+
+            <small>
+              JUSTE ENTRE VOUS
+            </small>
+          </div>
+
+          <div className="protocol-home-signal-grid">
+
+            <button
+              type="button"
+              onClick={() =>
+                sendInvitation(
+                  "tempted"
+                )
+              }
+              disabled={inviteLoading}
+            >
+              <span className="protocol-signal-icon">
+                ♡
+              </span>
+
+              <strong>
+                Ça me tente
+              </strong>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                sendInvitation(
+                  "surprise"
+                )
+              }
+              disabled={inviteLoading}
+            >
+              <span className="protocol-signal-icon">
+                ◇
+              </span>
+
+              <strong>
+                Surprends-moi
+              </strong>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                sendInvitation(
+                  "tonight"
+                )
+              }
+              disabled={inviteLoading}
+            >
+              <span className="protocol-signal-icon">
+                ◐
+              </span>
+
+              <strong>
+                Ce soir ?
+              </strong>
+            </button>
+
+          </div>
+        </div>
+
+
+        {/* NAVIGATION */}
+        <nav className="protocol-home-nav">
+
           <button
             type="button"
-            className="secondary"
-            onClick={sendInvitation}
-            disabled={inviteLoading}
-          >
-            <span>
-              {inviteLoading
-                ? "Envoi…"
-                : "On joue ce soir ?"}
-            </span>
-
-            <span>→</span>
-          </button>
-
-          <button
-            type="button"
-            className="secondary"
             onClick={() =>
               navigate("/library")
             }
           >
-            <span>
+            <span>▤</span>
+            <strong>
               Bibliothèque
-            </span>
-
-            <span>→</span>
+            </strong>
           </button>
 
           <button
             type="button"
-            className="secondary"
             onClick={() =>
-              navigate("/invitations")
+              navigate(
+                "/invitations"
+              )
             }
           >
-            <span>
+            <span className="protocol-nav-icon">
+              ◇
+
+              {resumeHasUpdate && (
+                <i />
+              )}
+            </span>
+
+            <strong>
               Invitations
-            </span>
-
-            <span>→</span>
+            </strong>
           </button>
 
           <button
-            className="primary"
-            onClick={createGame}
-            disabled={loading}
-          >
-            <span>
-              {loading
-                ? "Création…"
-                : "Créer une partie"}
-            </span>
-
-            <span>→</span>
-          </button>
-
-          <button
-            className="secondary"
+            type="button"
             onClick={() =>
-              navigate("/join")
+              navigate("/settings")
             }
           >
-            <span>
-              Rejoindre une partie
-            </span>
-
-            <span>→</span>
+            <span>⌁</span>
+            <strong>
+              Réglages
+            </strong>
           </button>
 
-          
-          {resumeGame && !resumeLoading && (
-            <button
-              type="button"
-              className="secondary"
-              onClick={resumeCurrentGame}
-            >
-              <span>
-                Reprendre une partie
-              </span>
+        </nav>
 
-              <span className="resume-action-end">
-                {resumeHasUpdate && (
-                  <span
-                    className="resume-notification-dot"
-                    aria-label="La partie a avancé"
-                  />
-                )}
 
-                <span>→</span>
-              </span>
-            </button>
-          )}
+        <div className="protocol-home-footer">
+          <span />
+          <p>
+            PRIVÉ · DISCRET · À DEUX
+          </p>
+          <span />
         </div>
+
       </section>
 
-      <Footer />
+
+      {/* JOIN BOTTOM SHEET */}
+      {joinOpen && (
+        <div
+          className="protocol-join-overlay"
+          onClick={() =>
+            setJoinOpen(false)
+          }
+        >
+          <div
+            className="protocol-join-sheet"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <button
+              type="button"
+              className="protocol-join-close"
+              onClick={() =>
+                setJoinOpen(false)
+              }
+              aria-label="Fermer"
+            >
+              ×
+            </button>
+
+            <p className="protocol-home-kicker">
+              REJOINDRE
+            </p>
+
+            <h2>
+              Entre le code.
+            </h2>
+
+            <p className="protocol-join-copy">
+              Le code à six caractères
+              affiché sur le téléphone de
+              ton partenaire.
+            </p>
+
+            <form
+              onSubmit={
+                joinGameFromHome
+              }
+            >
+              <input
+                value={joinCode}
+                onChange={(event) => {
+                  setJoinCode(
+                    event.target.value
+                      .toUpperCase()
+                      .replace(
+                        /[^A-Z0-9]/g,
+                        ""
+                      )
+                      .slice(0, 6)
+                  );
+
+                  setJoinError("");
+                }}
+                placeholder="XXXXXX"
+                maxLength={6}
+                autoFocus
+                autoComplete="off"
+                spellCheck="false"
+                inputMode="text"
+              />
+
+              {joinError && (
+                <p className="protocol-home-message is-error">
+                  {joinError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="protocol-join-submit"
+                disabled={
+                  joinCode.length !==
+                    6 ||
+                  joinLoading
+                }
+              >
+                <span>
+                  {joinLoading
+                    ? "Connexion…"
+                    : "Rejoindre la partie"}
+                </span>
+
+                <span>→</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </main>
   );
 }

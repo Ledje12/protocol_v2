@@ -1,0 +1,1096 @@
+/* =========================================================
+   PROTOCOL — HOME DASHBOARD
+   ========================================================= */
+
+.protocol-home-page {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+.protocol-home-page * {
+  box-sizing: border-box;
+}
+
+
+/* ---------- AMBIANCE ---------- */
+
+.protocol-home-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.protocol-home-ambient::before {
+  content: "";
+  position: absolute;
+  width: 70vw;
+  height: 42vh;
+  top: 2vh;
+  left: 15vw;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(186, 67, 116, 0.14),
+      rgba(93, 35, 77, 0.05) 45%,
+      transparent 72%
+    );
+
+  filter: blur(18px);
+}
+
+
+/* ---------- HEADER ---------- */
+
+.protocol-home-header {
+  position: relative;
+  z-index: 3;
+  flex: 0 0 auto;
+}
+
+
+/* ---------- LAYOUT ---------- */
+
+.protocol-home-dashboard {
+  position: relative;
+  z-index: 2;
+
+  height:
+    calc(
+      100dvh -
+      74px -
+      env(safe-area-inset-top, 0px)
+    );
+
+  max-width: 520px;
+  margin: 0 auto;
+
+  padding:
+    4px
+    22px
+    max(
+      12px,
+      env(safe-area-inset-bottom)
+    );
+
+  display: grid;
+
+  grid-template-rows:
+    auto
+    auto
+    auto
+    auto
+    auto;
+
+  align-content: space-between;
+
+  gap: clamp(
+    9px,
+    1.7vh,
+    18px
+  );
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.protocol-home-hero {
+  min-height: 0;
+}
+
+.protocol-home-hero-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.protocol-home-kicker {
+  margin: 0 0 5px;
+
+  font-size: 0.61rem;
+  letter-spacing: 0.25em;
+  font-weight: 700;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.42
+    );
+}
+
+.protocol-home-hero h1 {
+  margin: 0;
+
+  font-size:
+    clamp(
+      2.45rem,
+      6.5vh,
+      4rem
+    );
+
+  line-height: 0.92;
+  font-weight: 400;
+  letter-spacing: -0.045em;
+}
+
+.protocol-home-level {
+  flex: 0 0 auto;
+
+  min-width: 78px;
+
+  padding: 10px 12px;
+
+  border:
+    1px solid
+    rgba(
+      218,
+      120,
+      164,
+      0.22
+    );
+
+  border-radius: 20px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.025
+    );
+
+  text-align: center;
+}
+
+.protocol-level-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+
+  margin-bottom: 5px;
+}
+
+.protocol-level-dots span {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(
+      235,
+      103,
+      159,
+      0.95
+    );
+
+  box-shadow:
+    0 0 12px
+    rgba(
+      235,
+      103,
+      159,
+      0.55
+    );
+}
+
+.protocol-home-level small {
+  display: block;
+
+  font-size: 0.62rem;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.62
+    );
+}
+
+
+/* ---------- STATUS ---------- */
+
+.protocol-home-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-top:
+    clamp(
+      8px,
+      1.4vh,
+      15px
+    );
+}
+
+.protocol-status-dot {
+  width: 8px;
+  height: 8px;
+
+  margin-top: 5px;
+
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.2
+    );
+}
+
+.protocol-status-dot.is-active {
+  background: #e86b9e;
+
+  box-shadow:
+    0 0 14px
+    rgba(
+      232,
+      107,
+      158,
+      0.7
+    );
+}
+
+.protocol-home-status div {
+  display: grid;
+  gap: 2px;
+}
+
+.protocol-home-status strong {
+  font-size:
+    clamp(
+      0.89rem,
+      1.8vh,
+      1rem
+    );
+
+  font-weight: 500;
+}
+
+.protocol-home-status span {
+  font-size:
+    clamp(
+      0.7rem,
+      1.55vh,
+      0.82rem
+    );
+
+  line-height: 1.35;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.44
+    );
+}
+
+
+/* =========================================================
+   PLAY
+   ========================================================= */
+
+.protocol-home-play {
+  min-height: 0;
+}
+
+.protocol-home-resume {
+  width: 100%;
+
+  min-height:
+    clamp(
+      54px,
+      7.6vh,
+      68px
+    );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  padding: 0 18px;
+
+  border: 1px solid
+    rgba(
+      238,
+      129,
+      177,
+      0.7
+    );
+
+  border-radius: 21px;
+
+  background:
+    linear-gradient(
+      115deg,
+      rgba(
+        228,
+        95,
+        135,
+        0.86
+      ),
+      rgba(
+        130,
+        43,
+        122,
+        0.74
+      )
+    );
+
+  color: white;
+
+  box-shadow:
+    0 10px 38px
+    rgba(
+      168,
+      48,
+      107,
+      0.19
+    );
+
+  font: inherit;
+  font-size:
+    clamp(
+      0.94rem,
+      2vh,
+      1.08rem
+    );
+
+  cursor: pointer;
+}
+
+.protocol-home-resume.is-loading {
+  opacity: 0.65;
+}
+
+.protocol-home-play-icon {
+  font-size: 0.8rem;
+}
+
+.protocol-home-update-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: white;
+
+  box-shadow:
+    0 0 12px
+    rgba(
+      255,
+      255,
+      255,
+      0.8
+    );
+}
+
+.protocol-home-context {
+  min-height: 23px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  font-size: 0.68rem;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.38
+    );
+}
+
+.protocol-home-context strong {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.66
+    );
+
+  font-weight: 500;
+}
+
+
+/* ---------- NOUVELLE / JOIN ---------- */
+
+.protocol-home-game-actions {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 9px;
+}
+
+.protocol-home-game-actions button {
+  min-height:
+    clamp(
+      43px,
+      5.8vh,
+      52px
+    );
+
+  padding: 0 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border:
+    1px solid
+    rgba(
+      215,
+      117,
+      158,
+      0.32
+    );
+
+  border-radius: 16px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.018
+    );
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.77
+    );
+
+  font: inherit;
+  cursor: pointer;
+}
+
+.protocol-home-game-actions strong {
+  font-size: 0.76rem;
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   SIGNALS
+   ========================================================= */
+
+.protocol-home-signals {
+  min-height: 0;
+}
+
+.protocol-home-section-title {
+  display: grid;
+
+  grid-template-columns:
+    20px
+    auto
+    1fr;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 8px;
+}
+
+.protocol-home-section-title
+  > span {
+  height: 1px;
+
+  background:
+    rgba(
+      229,
+      112,
+      160,
+      0.75
+    );
+}
+
+.protocol-home-section-title strong {
+  font-size: 0.83rem;
+  font-weight: 500;
+}
+
+.protocol-home-section-title small {
+  justify-self: end;
+
+  font-size: 0.49rem;
+  letter-spacing: 0.2em;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.28
+    );
+}
+
+.protocol-home-signal-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+.protocol-home-signal-grid button {
+  height:
+    clamp(
+      62px,
+      9.2vh,
+      82px
+    );
+
+  padding: 8px 4px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  border:
+    1px solid
+    rgba(
+      217,
+      109,
+      155,
+      0.2
+    );
+
+  border-radius: 17px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.018
+    );
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.75
+    );
+
+  font: inherit;
+  cursor: pointer;
+}
+
+.protocol-home-signal-grid
+  button:active {
+  transform: scale(0.97);
+}
+
+.protocol-signal-icon {
+  font-size:
+    clamp(
+      1rem,
+      2.4vh,
+      1.35rem
+    );
+
+  color:
+    rgba(
+      236,
+      126,
+      173,
+      0.9
+    );
+}
+
+.protocol-home-signal-grid strong {
+  font-size:
+    clamp(
+      0.66rem,
+      1.55vh,
+      0.78rem
+    );
+
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   BOTTOM NAV
+   ========================================================= */
+
+.protocol-home-nav {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+.protocol-home-nav button {
+  height:
+    clamp(
+      49px,
+      6.9vh,
+      62px
+    );
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 3px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.065
+    );
+
+  border-radius: 15px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.012
+    );
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.58
+    );
+
+  font: inherit;
+  cursor: pointer;
+}
+
+.protocol-home-nav
+  button > span {
+  font-size: 1rem;
+}
+
+.protocol-home-nav strong {
+  font-size: 0.63rem;
+  font-weight: 500;
+}
+
+.protocol-nav-icon {
+  position: relative;
+}
+
+.protocol-nav-icon i {
+  position: absolute;
+
+  width: 6px;
+  height: 6px;
+
+  top: -2px;
+  right: -6px;
+
+  border-radius: 50%;
+
+  background: #e86b9e;
+
+  box-shadow:
+    0 0 10px
+    rgba(
+      232,
+      107,
+      158,
+      0.75
+    );
+}
+
+
+/* ---------- FOOT ---------- */
+
+.protocol-home-footer {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    auto
+    1fr;
+
+  align-items: center;
+
+  gap: 10px;
+
+  min-height: 12px;
+}
+
+.protocol-home-footer span {
+  height: 1px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.07
+    );
+}
+
+.protocol-home-footer p {
+  margin: 0;
+
+  font-size: 0.43rem;
+
+  letter-spacing: 0.23em;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.21
+    );
+}
+
+
+/* ---------- MESSAGES ---------- */
+
+.protocol-home-message {
+  margin: 0 0 5px;
+
+  text-align: center;
+
+  font-size: 0.68rem;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.55
+    );
+}
+
+.protocol-home-message.is-error {
+  color:
+    rgba(
+      255,
+      144,
+      144,
+      0.88
+    );
+}
+
+
+/* =========================================================
+   JOIN SHEET
+   ========================================================= */
+
+.protocol-join-overlay {
+  position: fixed;
+  z-index: 100;
+
+  inset: 0;
+
+  display: flex;
+  align-items: flex-end;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.62
+    );
+
+  backdrop-filter: blur(7px);
+}
+
+.protocol-join-sheet {
+  position: relative;
+
+  width: 100%;
+
+  padding:
+    25px
+    24px
+    max(
+      24px,
+      env(safe-area-inset-bottom)
+    );
+
+  border-radius:
+    28px
+    28px
+    0
+    0;
+
+  border-top:
+    1px solid
+    rgba(
+      223,
+      117,
+      164,
+      0.28
+    );
+
+  background:
+    linear-gradient(
+      180deg,
+      #171014,
+      #0b090b
+    );
+
+  box-shadow:
+    0 -25px 80px
+    rgba(
+      0,
+      0,
+      0,
+      0.5
+    );
+}
+
+.protocol-join-close {
+  position: absolute;
+
+  top: 14px;
+  right: 18px;
+
+  width: 36px;
+  height: 36px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.05
+    );
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.6
+    );
+
+  font-size: 1.4rem;
+}
+
+.protocol-join-sheet h2 {
+  margin: 4px 0 6px;
+
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+
+.protocol-join-copy {
+  max-width: 320px;
+
+  margin:
+    0
+    0
+    19px;
+
+  font-size: 0.82rem;
+  line-height: 1.5;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.42
+    );
+}
+
+.protocol-join-sheet form {
+  display: grid;
+  gap: 12px;
+}
+
+.protocol-join-sheet input {
+  width: 100%;
+  height: 70px;
+
+  padding: 0 15px;
+
+  border:
+    1px solid
+    rgba(
+      227,
+      123,
+      169,
+      0.28
+    );
+
+  border-radius: 18px;
+
+  outline: none;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.035
+    );
+
+  color: white;
+
+  text-align: center;
+
+  font: inherit;
+  font-size: 1.65rem;
+  font-weight: 600;
+
+  letter-spacing: 0.36em;
+
+  text-transform: uppercase;
+}
+
+.protocol-join-sheet
+  input:focus {
+  border-color:
+    rgba(
+      230,
+      119,
+      169,
+      0.75
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      216,
+      91,
+      148,
+      0.08
+    );
+}
+
+.protocol-join-submit {
+  height: 58px;
+
+  padding: 0 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border: 0;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      115deg,
+      rgba(
+        226,
+        91,
+        135,
+        0.88
+      ),
+      rgba(
+        127,
+        44,
+        122,
+        0.85
+      )
+    );
+
+  color: white;
+
+  font: inherit;
+  font-weight: 500;
+}
+
+.protocol-join-submit:disabled {
+  opacity: 0.4;
+}
+
+
+/* =========================================================
+   SMALL / SHORT IPHONES
+   ========================================================= */
+
+@media (
+  max-height: 730px
+) {
+
+  .protocol-home-dashboard {
+    gap: 7px;
+
+    padding-top: 0;
+    padding-bottom: 8px;
+  }
+
+  .protocol-home-hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .protocol-home-status {
+    margin-top: 6px;
+  }
+
+  .protocol-home-status
+    span {
+    display: none;
+  }
+
+  .protocol-home-level {
+    padding: 7px 10px;
+  }
+
+  .protocol-home-resume {
+    min-height: 51px;
+  }
+
+  .protocol-home-signal-grid
+    button {
+    height: 58px;
+  }
+
+  .protocol-home-nav
+    button {
+    height: 45px;
+  }
+
+  .protocol-home-footer {
+    display: none;
+  }
+}
