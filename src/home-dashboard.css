@@ -1468,3 +1468,256 @@
   color:
     rgba(255, 255, 255, 0.31);
 }
+
+/* =========================================================
+   PROTOCOL
+   CINEMATIC HOME REVEAL
+   ========================================================= */
+
+@keyframes protocolHeroReveal {
+
+  0% {
+    opacity: 0;
+    transform:
+      translateY(10px)
+      scale(.985);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+@keyframes protocolFadeUp {
+
+  0% {
+    opacity: 0;
+    transform:
+      translateY(12px);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+@keyframes protocolSoftFade {
+
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+
+}
+
+
+/* ---------- HERO ---------- */
+
+.protocol-home-hero-card {
+  animation:
+    protocolHeroReveal
+    .72s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+/* ---------- HERO COPY ---------- */
+
+.protocol-home-eyebrow {
+  animation:
+    protocolFadeUp
+    .55s
+    .12s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+.protocol-home-title-line {
+  animation:
+    protocolFadeUp
+    .62s
+    .20s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+.protocol-home-status {
+  animation:
+    protocolFadeUp
+    .62s
+    .30s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+/* ---------- ACTIONS ---------- */
+
+.protocol-home-primary {
+  animation:
+    protocolFadeUp
+    .58s
+    .42s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+.protocol-home-join-main {
+  animation:
+    protocolFadeUp
+    .58s
+    .50s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+.protocol-home-resume-link {
+  animation:
+    protocolSoftFade
+    .48s
+    .60s
+    ease
+    both;
+}
+
+
+/* ---------- MAIN NAV ---------- */
+
+.protocol-home-nav {
+  animation:
+    protocolFadeUp
+    .62s
+    .62s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+/* ---------- SIGNALS ---------- */
+
+.protocol-home-signals {
+  animation:
+    protocolFadeUp
+    .62s
+    .73s
+    cubic-bezier(.22, .8, .28, 1)
+    both;
+}
+
+
+/* ---------- FOOTER ---------- */
+
+.protocol-home-footer {
+  animation:
+    protocolSoftFade
+    .55s
+    .88s
+    ease
+    both;
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .protocol-home-hero-card,
+  .protocol-home-eyebrow,
+  .protocol-home-title-line,
+  .protocol-home-status,
+  .protocol-home-primary,
+  .protocol-home-join-main,
+  .protocol-home-resume-link,
+  .protocol-home-nav,
+  .protocol-home-signals,
+  .protocol-home-footer {
+
+    animation: none !important;
+  }
+
+}
+
+/* =========================================================
+   PRIMARY CTA — ONE SHOT SHINE
+   ========================================================= */
+
+@keyframes protocolCtaShine {
+
+  0% {
+    transform:
+      translateX(-180%)
+      rotate(18deg);
+  }
+
+  100% {
+    transform:
+      translateX(430%)
+      rotate(18deg);
+  }
+
+}
+
+
+.protocol-home-primary::after {
+  content: "";
+
+  position: absolute;
+
+  top: -40%;
+  left: -20%;
+
+  width: 22%;
+  height: 180%;
+
+  transform:
+    translateX(-180%)
+    rotate(18deg);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.18),
+      transparent
+    );
+
+  pointer-events: none;
+
+  animation:
+    protocolCtaShine
+    .9s
+    1.15s
+    ease
+    1
+    both;
+}
+
+
+/* Pas de mouvement si l'utilisateur préfère réduire les animations */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .protocol-home-primary::after {
+    animation: none !important;
+  }
+
+}
