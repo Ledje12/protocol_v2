@@ -1,12 +1,14 @@
 /* =========================================================
    PROTOCOL V2
-   HOME
+   HOME DASHBOARD
    ========================================================= */
 
 .protocol-home-page {
   --home-pink: #ef7cab;
-  --home-pink-soft: rgba(239, 124, 171, .58);
-  --home-border: rgba(239, 124, 171, .2);
+  --home-pink-strong: #f58bb8;
+  --home-pink-soft: rgba(239, 124, 171, 0.58);
+  --home-border: rgba(239, 124, 171, 0.2);
+  --home-text-soft: rgba(255, 255, 255, 0.46);
 
   width: 100%;
   height: 100dvh;
@@ -18,14 +20,14 @@
 
   background:
     radial-gradient(
-      circle at 35% 8%,
-      rgba(115, 34, 70, .25),
+      circle at 34% 8%,
+      rgba(115, 34, 70, 0.25),
       transparent 35%
     ),
     radial-gradient(
-      circle at 85% 45%,
-      rgba(73, 24, 69, .13),
-      transparent 35%
+      circle at 86% 43%,
+      rgba(73, 24, 69, 0.13),
+      transparent 34%
     ),
     #080609;
 }
@@ -33,7 +35,6 @@
 .protocol-home-page * {
   box-sizing: border-box;
 }
-
 
 /* =========================================================
    HEADER
@@ -44,7 +45,7 @@
 
   padding:
     0
-    24px;
+    22px;
 
   display: flex;
   align-items: center;
@@ -54,10 +55,12 @@
 }
 
 .protocol-home-header .logo {
-  font-size: .67rem;
-  letter-spacing: .35em;
-}
+  font-size: 0.67rem;
+  letter-spacing: 0.35em;
 
+  color:
+    rgba(255, 255, 255, 0.82);
+}
 
 /* =========================================================
    MAIN GRID
@@ -77,7 +80,7 @@
   margin: 0 auto;
 
   padding:
-    4px
+    2px
     18px
     max(
       10px,
@@ -87,13 +90,12 @@
   display: grid;
 
   grid-template-rows:
-    minmax(0, 1fr)
+    minmax(0, 0.82fr)
     auto
     auto;
 
-  gap: 14px;
+  gap: 11px;
 }
-
 
 /* =========================================================
    HERO
@@ -110,7 +112,7 @@
 
   border:
     1px solid
-    rgba(224, 111, 158, .2);
+    rgba(224, 111, 158, 0.2);
 
   background:
     linear-gradient(
@@ -121,16 +123,11 @@
     );
 
   box-shadow:
-    0 25px 70px rgba(0, 0, 0, .38),
-    inset 0 1px 0 rgba(255, 255, 255, .035);
+    0 24px 64px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
-
-/*
- * Pas de stock-photo douteuse.
- * Pour le moment on crée une ambiance abstraite,
- * sombre et sensuelle uniquement en CSS.
- */
+/* ambiance abstraite du hero */
 
 .protocol-home-hero-visual {
   position: absolute;
@@ -138,18 +135,18 @@
 
   background:
     radial-gradient(
-      ellipse at 20% 32%,
-      rgba(216, 109, 150, .22),
-      transparent 34%
+      ellipse at 18% 30%,
+      rgba(216, 109, 150, 0.2),
+      transparent 33%
     ),
     radial-gradient(
       ellipse at 78% 25%,
-      rgba(122, 55, 112, .28),
-      transparent 34%
+      rgba(122, 55, 112, 0.25),
+      transparent 33%
     ),
     radial-gradient(
-      ellipse at 56% 70%,
-      rgba(91, 31, 62, .17),
+      ellipse at 54% 72%,
+      rgba(91, 31, 62, 0.14),
       transparent 42%
     );
 }
@@ -159,10 +156,10 @@
 
   position: absolute;
 
-  width: 62%;
-  height: 92%;
+  width: 60%;
+  height: 90%;
 
-  top: -10%;
+  top: -8%;
   right: -12%;
 
   border-radius:
@@ -172,16 +169,14 @@
     38%;
 
   transform:
-    rotate(-15deg);
+    rotate(-14deg);
 
   background:
     linear-gradient(
       145deg,
-      rgba(222, 111, 157, .12),
-      rgba(94, 34, 74, .025)
+      rgba(222, 111, 157, 0.11),
+      rgba(94, 34, 74, 0.02)
     );
-
-  filter: blur(1px);
 }
 
 .protocol-home-hero-visual::after {
@@ -190,17 +185,17 @@
   position: absolute;
 
   width: 68%;
-  height: 75%;
+  height: 74%;
 
-  left: -22%;
-  bottom: -20%;
+  left: -20%;
+  bottom: -22%;
 
   border-radius: 50%;
 
   background:
     radial-gradient(
       ellipse,
-      rgba(176, 66, 112, .16),
+      rgba(176, 66, 112, 0.13),
       transparent 70%
     );
 }
@@ -212,14 +207,15 @@
   background:
     linear-gradient(
       180deg,
-      rgba(8, 5, 8, .05) 0%,
-      rgba(8, 5, 8, .12) 42%,
-      rgba(8, 5, 8, .66) 100%
+      rgba(8, 5, 8, 0.03) 0%,
+      rgba(8, 5, 8, 0.1) 42%,
+      rgba(8, 5, 8, 0.64) 100%
     );
 }
 
-
-/* ---------- HERO CONTENT ---------- */
+/* =========================================================
+   HERO CONTENT
+   ========================================================= */
 
 .protocol-home-hero-content {
   position: relative;
@@ -228,9 +224,9 @@
   height: 100%;
 
   padding:
-    clamp(20px, 2.8vh, 28px)
     20px
-    18px;
+    20px
+    16px;
 
   display: flex;
   flex-direction: column;
@@ -239,31 +235,25 @@
 .protocol-home-eyebrow {
   margin: 0;
 
-  font-size: .58rem;
+  font-size: 0.58rem;
   font-weight: 600;
 
-  letter-spacing: .32em;
+  letter-spacing: 0.32em;
 
   color:
-    rgba(255, 255, 255, .5);
+    rgba(255, 255, 255, 0.5);
 }
-
 
 /* ---------- TITLE ---------- */
 
 .protocol-home-hero-title-row {
-  margin-top:
-    clamp(
-      20px,
-      3.4vh,
-      34px
-    );
+  margin-top: 14px;
 
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 
-  gap: 15px;
+  gap: 14px;
 }
 
 .protocol-home-hero-title-row h1 {
@@ -271,27 +261,26 @@
 
   font-size:
     clamp(
-      3.45rem,
-      7.1vh,
-      4.5rem
+      3.15rem,
+      6.2vh,
+      4rem
     );
 
-  line-height: .88;
+  line-height: 0.9;
 
   font-weight: 400;
 
-  letter-spacing: -.055em;
+  letter-spacing: -0.05em;
 }
-
 
 /* ---------- STATUS ---------- */
 
 .protocol-home-status {
   display: flex;
 
-  gap: 10px;
+  gap: 9px;
 
-  margin-top: 18px;
+  margin-top: 12px;
 }
 
 .protocol-status-dot {
@@ -305,7 +294,7 @@
   border-radius: 50%;
 
   background:
-    rgba(255, 255, 255, .2);
+    rgba(255, 255, 255, 0.2);
 }
 
 .protocol-status-dot.is-active {
@@ -314,34 +303,33 @@
 
   box-shadow:
     0 0 14px
-    rgba(239, 124, 171, .75);
+    rgba(239, 124, 171, 0.75);
 }
 
 .protocol-home-status strong {
   display: block;
 
-  font-size: .98rem;
+  font-size: 0.95rem;
   font-weight: 500;
 
-  line-height: 1.2;
+  line-height: 1.18;
 }
 
 .protocol-home-status p {
-  max-width: 290px;
+  max-width: 285px;
 
   margin:
-    4px
+    3px
     0
     0;
 
-  font-size: .79rem;
+  font-size: 0.76rem;
 
-  line-height: 1.42;
+  line-height: 1.35;
 
   color:
-    rgba(255, 255, 255, .46);
+    rgba(255, 255, 255, 0.4);
 }
-
 
 /* ---------- LEVEL ---------- */
 
@@ -358,10 +346,10 @@
 
   border:
     1px solid
-    rgba(239, 124, 171, .22);
+    rgba(239, 124, 171, 0.22);
 
   background:
-    rgba(255, 255, 255, .035);
+    rgba(255, 255, 255, 0.035);
 
   backdrop-filter:
     blur(12px);
@@ -389,17 +377,16 @@
 
   box-shadow:
     0 0 10px
-    rgba(239, 124, 171, .55);
+    rgba(239, 124, 171, 0.55);
 }
 
 .protocol-home-level strong {
-  font-size: .61rem;
+  font-size: 0.61rem;
   font-weight: 500;
 
   color:
-    rgba(255, 255, 255, .72);
+    rgba(255, 255, 255, 0.72);
 }
-
 
 /* =========================================================
    HERO ACTIONS
@@ -409,7 +396,6 @@
   margin-top: auto;
 }
 
-
 /* ---------- PRIMARY ---------- */
 
 .protocol-home-primary {
@@ -417,7 +403,7 @@
 
   width: 100%;
 
-  min-height: 64px;
+  min-height: 58px;
 
   padding:
     0
@@ -425,7 +411,7 @@
 
   border:
     1px solid
-    rgba(255, 167, 204, .65);
+    rgba(255, 167, 204, 0.62);
 
   border-radius: 22px;
 
@@ -438,24 +424,24 @@
   background:
     linear-gradient(
       110deg,
-      rgba(229, 103, 145, .94),
-      rgba(137, 50, 132, .92)
+      rgba(232, 102, 146, 0.92),
+      rgba(126, 45, 124, 0.88)
     );
 
   color: white;
 
   box-shadow:
-    0 15px 38px
-    rgba(164, 47, 104, .25),
+    0 12px 30px
+    rgba(164, 47, 104, 0.22),
     inset
     0
     1px
     0
-    rgba(255, 255, 255, .2);
+    rgba(255, 255, 255, 0.18);
 
   font: inherit;
 
-  font-size: 1.03rem;
+  font-size: 1.02rem;
   font-weight: 500;
 
   cursor: pointer;
@@ -467,11 +453,11 @@
 
 .protocol-home-primary:active {
   transform:
-    scale(.985);
+    scale(0.985);
 }
 
 .protocol-home-primary.is-loading {
-  opacity: .6;
+  opacity: 0.6;
 }
 
 .protocol-home-live-dot {
@@ -484,14 +470,13 @@
 
   box-shadow:
     0 0 12px
-    rgba(255, 255, 255, .8);
+    rgba(255, 255, 255, 0.8);
 }
-
 
 /* ---------- SESSION ---------- */
 
 .protocol-home-session {
-  height: 24px;
+  height: 23px;
 
   display: flex;
   align-items: center;
@@ -499,19 +484,18 @@
 
   gap: 7px;
 
-  font-size: .65rem;
+  font-size: 0.65rem;
 
   color:
-    rgba(255, 255, 255, .39);
+    rgba(255, 255, 255, 0.39);
 }
 
 .protocol-home-session strong {
   font-weight: 500;
 
   color:
-    rgba(255, 255, 255, .67);
+    rgba(255, 255, 255, 0.67);
 }
-
 
 /* ---------- SECONDARY ---------- */
 
@@ -528,7 +512,7 @@
 
 .protocol-home-secondary-actions button {
   min-width: 0;
-  height: 49px;
+  height: 47px;
 
   padding:
     0
@@ -542,33 +526,37 @@
 
   border:
     1px solid
-    rgba(239, 124, 171, .24);
+    rgba(239, 124, 171, 0.24);
 
   border-radius: 17px;
 
   background:
-    rgba(10, 8, 11, .42);
+    rgba(10, 8, 11, 0.42);
 
   backdrop-filter:
     blur(10px);
 
   color:
-    rgba(255, 255, 255, .8);
+    rgba(255, 255, 255, 0.8);
 
   font: inherit;
 
-  font-size: .8rem;
+  font-size: 0.8rem;
 
   cursor: pointer;
 }
 
+.protocol-home-secondary-actions button:active {
+  transform:
+    scale(0.985);
+}
+
 .protocol-home-secondary-actions svg {
   color:
-    rgba(239, 124, 171, .8);
+    rgba(239, 124, 171, 0.8);
 
   flex: 0 0 auto;
 }
-
 
 /* =========================================================
    SIGNAL
@@ -603,7 +591,7 @@
 .protocol-home-section-title h2 {
   margin: 0;
 
-  font-size: .92rem;
+  font-size: 0.92rem;
 
   font-weight: 500;
 }
@@ -611,16 +599,15 @@
 .protocol-home-section-title small {
   justify-self: end;
 
-  font-size: .47rem;
+  font-size: 0.47rem;
 
-  letter-spacing: .25em;
+  letter-spacing: 0.25em;
 
   color:
-    rgba(255, 255, 255, .28);
+    rgba(255, 255, 255, 0.28);
 }
 
-
-/* ---------- CARDS ---------- */
+/* ---------- SIGNAL CARDS ---------- */
 
 .protocol-home-signal-grid {
   margin-top: 8px;
@@ -630,7 +617,7 @@
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 9px;
+  gap: 10px;
 }
 
 .protocol-home-signal-grid button {
@@ -638,9 +625,9 @@
 
   height:
     clamp(
-      98px,
-      12.5vh,
-      114px
+      94px,
+      11.5vh,
+      106px
     );
 
   padding:
@@ -656,26 +643,26 @@
 
   border:
     1px solid
-    rgba(239, 124, 171, .16);
+    rgba(239, 124, 171, 0.16);
 
-  border-radius: 21px;
+  border-radius: 24px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(30, 17, 26, .72),
-      rgba(12, 9, 13, .82)
+      rgba(35, 19, 29, 0.62),
+      rgba(13, 10, 14, 0.72)
     );
 
   color:
-    rgba(255, 255, 255, .83);
+    rgba(255, 255, 255, 0.83);
 
   box-shadow:
     inset
     0
     1px
     0
-    rgba(255, 255, 255, .025);
+    rgba(255, 255, 255, 0.025);
 
   font: inherit;
 
@@ -684,30 +671,35 @@
 
 .protocol-home-signal-grid button:active {
   transform:
-    scale(.97);
+    scale(0.97);
 }
 
 .protocol-home-icon-pink {
   display: flex;
 
   color:
-    var(--home-pink);
+    rgba(244, 126, 178, 0.92);
+
+  transform:
+    scale(0.92);
+
+  opacity: 0.95;
 
   filter:
     drop-shadow(
       0
       0
       7px
-      rgba(239, 124, 171, .16)
+      rgba(239, 124, 171, 0.14)
     );
 }
 
 .protocol-home-signal-grid strong {
   font-size:
     clamp(
-      .73rem,
-      1.75vh,
-      .86rem
+      0.73rem,
+      1.7vh,
+      0.85rem
     );
 
   line-height: 1.16;
@@ -716,7 +708,6 @@
 
   font-weight: 500;
 }
-
 
 /* =========================================================
    NAV
@@ -736,9 +727,9 @@
 
   height:
     clamp(
-      58px,
-      7.5vh,
-      68px
+      52px,
+      6.8vh,
+      60px
     );
 
   padding:
@@ -749,19 +740,19 @@
   align-items: center;
   justify-content: center;
 
-  gap: 5px;
+  gap: 4px;
 
   border:
     1px solid
-    rgba(255, 255, 255, .065);
+    rgba(255, 255, 255, 0.065);
 
   border-radius: 18px;
 
   background:
-    rgba(255, 255, 255, .014);
+    rgba(255, 255, 255, 0.014);
 
   color:
-    rgba(255, 255, 255, .57);
+    rgba(255, 255, 255, 0.55);
 
   font: inherit;
 
@@ -770,11 +761,15 @@
 
 .protocol-home-nav button:active {
   transform:
-    scale(.97);
+    scale(0.97);
+}
+
+.protocol-home-nav svg {
+  opacity: 0.9;
 }
 
 .protocol-home-nav button > span:last-child {
-  font-size: .67rem;
+  font-size: 0.62rem;
 
   font-weight: 500;
 }
@@ -803,9 +798,8 @@
     0
     0
     9px
-    rgba(239, 124, 171, .8);
+    rgba(239, 124, 171, 0.8);
 }
-
 
 /* =========================================================
    MESSAGES
@@ -819,20 +813,19 @@
 
   text-align: center;
 
-  font-size: .67rem;
+  font-size: 0.67rem;
 
   color:
-    rgba(255, 255, 255, .58);
+    rgba(255, 255, 255, 0.58);
 }
 
 .protocol-home-message.is-error {
   color:
-    rgba(255, 141, 155, .9);
+    rgba(255, 141, 155, 0.9);
 }
 
-
 /* =========================================================
-   JOIN
+   JOIN SHEET
    ========================================================= */
 
 .protocol-join-overlay {
@@ -846,7 +839,7 @@
   align-items: flex-end;
 
   background:
-    rgba(0, 0, 0, .66);
+    rgba(0, 0, 0, 0.66);
 
   backdrop-filter:
     blur(8px);
@@ -873,7 +866,7 @@
 
   border-top:
     1px solid
-    rgba(239, 124, 171, .25);
+    rgba(239, 124, 171, 0.25);
 
   background:
     linear-gradient(
@@ -886,7 +879,7 @@
     0
     -24px
     80px
-    rgba(0, 0, 0, .55);
+    rgba(0, 0, 0, 0.55);
 }
 
 .protocol-join-close {
@@ -903,10 +896,10 @@
   border-radius: 50%;
 
   background:
-    rgba(255, 255, 255, .05);
+    rgba(255, 255, 255, 0.05);
 
   color:
-    rgba(255, 255, 255, .62);
+    rgba(255, 255, 255, 0.62);
 
   font-size: 1.4rem;
 }
@@ -930,12 +923,12 @@
     0
     18px;
 
-  font-size: .81rem;
+  font-size: 0.81rem;
 
   line-height: 1.45;
 
   color:
-    rgba(255, 255, 255, .44);
+    rgba(255, 255, 255, 0.44);
 }
 
 .protocol-join-sheet form {
@@ -955,14 +948,14 @@
 
   border:
     1px solid
-    rgba(239, 124, 171, .28);
+    rgba(239, 124, 171, 0.28);
 
   border-radius: 18px;
 
   outline: none;
 
   background:
-    rgba(255, 255, 255, .035);
+    rgba(255, 255, 255, 0.035);
 
   color: white;
 
@@ -973,14 +966,21 @@
   font-size: 1.65rem;
   font-weight: 600;
 
-  letter-spacing: .36em;
+  letter-spacing: 0.36em;
 
   text-transform: uppercase;
 }
 
 .protocol-join-sheet input:focus {
   border-color:
-    rgba(239, 124, 171, .72);
+    rgba(239, 124, 171, 0.72);
+
+  box-shadow:
+    0
+    0
+    0
+    3px
+    rgba(239, 124, 171, 0.07);
 }
 
 .protocol-join-submit {
@@ -1013,37 +1013,41 @@
 }
 
 .protocol-join-submit:disabled {
-  opacity: .4;
+  opacity: 0.4;
 }
 
-
 /* =========================================================
-   IPHONE PLUS COURT
+   SHORTER IPHONE
    ========================================================= */
 
 @media (max-height: 760px) {
 
   .protocol-home-dashboard {
-    gap: 10px;
+    gap: 9px;
+
+    grid-template-rows:
+      minmax(0, 0.76fr)
+      auto
+      auto;
   }
 
   .protocol-home-hero-content {
     padding:
+      16px
       17px
-      18px
-      15px;
+      14px;
   }
 
   .protocol-home-hero-title-row {
-    margin-top: 15px;
+    margin-top: 12px;
   }
 
   .protocol-home-hero-title-row h1 {
-    font-size: 3.15rem;
+    font-size: 3rem;
   }
 
   .protocol-home-status {
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
   .protocol-home-status p {
@@ -1051,18 +1055,18 @@
   }
 
   .protocol-home-primary {
-    min-height: 55px;
+    min-height: 53px;
   }
 
   .protocol-home-secondary-actions button {
-    height: 43px;
+    height: 41px;
   }
 
   .protocol-home-signal-grid button {
-    height: 86px;
+    height: 82px;
   }
 
   .protocol-home-nav button {
-    height: 54px;
+    height: 50px;
   }
 }
