@@ -1370,157 +1370,98 @@ function HomeScreen({ navigate }) {
 
             <div className="protocol-home-hero-actions">
 
-
               {error && (
-
                 <p className="protocol-home-message is-error">
                   {error}
                 </p>
-
               )}
 
-
               {inviteMessage && (
-
                 <p className="protocol-home-message">
                   {inviteMessage}
                 </p>
-
               )}
 
 
-              {/* PRIMARY */}
-
-              {resumeGame &&
-              !resumeLoading ? (
-
-                <>
-
-                  <button
-                    type="button"
-                    className="protocol-home-primary"
-                    onClick={resumeCurrentGame}
-                  >
-
-                    <HomeIcon
-                      name="play"
-                      size={24}
-                      strokeWidth={1.7}
-                    />
-
-                    <span>
-                      Reprendre PROTOCOL
-                    </span>
-
-                    {resumeHasUpdate && (
-                      <i className="protocol-home-live-dot" />
-                    )}
-
-                  </button>
-
-
-                  <div className="protocol-home-session">
-
-                    <span>
-                      Partie{" "}
-                      {resumeGame.sessionCode}
-                    </span>
-
-                    <span>·</span>
-
-                    <strong>
-                      {resumeGame.active_player ===
-                      resumeGame.playerNumber
-                        ? "À toi"
-                        : resumeGame.partnerName
-                          ? `À ${resumeGame.partnerName}`
-                          : "En cours"}
-                    </strong>
-
-                  </div>
-
-                </>
-
-              ) : !resumeLoading ? (
-
-                <button
-                  type="button"
-                  className="protocol-home-primary"
-                  onClick={createGame}
-                  disabled={loading}
-                >
-
-                  <HomeIcon
-                    name="play"
-                    size={24}
-                    strokeWidth={1.7}
-                  />
-
-                  <span>
-                    {loading
-                      ? "Création…"
-                      : "Lancer PROTOCOL"}
-                  </span>
-
-                </button>
-
-              ) : (
-
-                <div className="protocol-home-primary is-loading">
-                  Préparation…
-                </div>
-
-              )}
-
-
-              {/* NEW GAME */}
+              {/* 1 — LANCER */}
 
               <button
                 type="button"
-                className="protocol-home-newgame"
+                className="protocol-home-primary"
                 onClick={createGame}
                 disabled={loading}
               >
 
                 <HomeIcon
-                  name="dice"
-                  size={22}
+                  name="play"
+                  size={24}
+                  strokeWidth={1.7}
                 />
 
                 <span>
                   {loading
                     ? "Création…"
-                    : "Lancer une nouvelle partie"}
+                    : "Lancer une partie"}
                 </span>
 
               </button>
 
 
-              {/* JOIN */}
+              {/* 2 — REJOINDRE */}
 
               <button
                 type="button"
-                className="protocol-home-join-link"
+                className="protocol-home-join-main"
                 onClick={() => {
-
                   setJoinCode("");
                   setJoinError("");
                   setJoinOpen(true);
-
                 }}
               >
 
                 <HomeIcon
                   name="join"
-                  size={16}
+                  size={20}
                 />
 
                 <span>
-                  Rejoindre avec un code
+                  Rejoindre une partie
                 </span>
 
               </button>
 
+
+              {/* 3 — REPRENDRE */}
+
+              {resumeGame && !resumeLoading && (
+
+                <button
+                  type="button"
+                  className="protocol-home-resume-link"
+                  onClick={resumeCurrentGame}
+                >
+
+                  <HomeIcon
+                    name="play"
+                    size={15}
+                    strokeWidth={1.6}
+                  />
+
+                  <span>
+                    Reprendre la partie
+                  </span>
+
+                  <small>
+                    {resumeGame.sessionCode}
+                  </small>
+
+                  {resumeHasUpdate && (
+                    <i className="protocol-home-live-dot" />
+                  )}
+
+                </button>
+
+              )}
 
             </div>
 

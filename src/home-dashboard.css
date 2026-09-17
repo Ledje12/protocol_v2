@@ -1,22 +1,12 @@
 /* =========================================================
    PROTOCOL V2
-   HOME DASHBOARD — FINAL POLISH
+   HOME DASHBOARD — FINAL
    ========================================================= */
 
 .protocol-home-page {
   --p-bg: #070508;
-  --p-bg-soft: #0d080c;
-
   --p-pink: #ef77aa;
   --p-pink-light: #ff9ac3;
-  --p-pink-deep: #a52f70;
-
-  --p-white: rgba(255, 255, 255, 0.95);
-  --p-white-85: rgba(255, 255, 255, 0.85);
-  --p-white-70: rgba(255, 255, 255, 0.70);
-  --p-white-52: rgba(255, 255, 255, 0.52);
-  --p-white-34: rgba(255, 255, 255, 0.34);
-  --p-white-18: rgba(255, 255, 255, 0.18);
 
   width: 100%;
   height: 100dvh;
@@ -26,7 +16,7 @@
 
   position: relative;
 
-  color: var(--p-white);
+  color: rgba(255, 255, 255, 0.95);
 
   background:
     radial-gradient(
@@ -86,10 +76,6 @@
 
   color:
     rgba(255, 255, 255, 0.88);
-
-  text-shadow:
-    0 0 18px
-    rgba(255, 255, 255, 0.04);
 }
 
 .protocol-home-brand-sub {
@@ -172,7 +158,7 @@
 
 
 /* =========================================================
-   HERO CARD
+   HERO
    ========================================================= */
 
 .protocol-home-hero-card {
@@ -205,9 +191,7 @@
 }
 
 
-/* =========================================================
-   HERO IMAGE
-   ========================================================= */
+/* ---------- IMAGE ---------- */
 
 .protocol-home-hero-image {
   position: absolute;
@@ -262,7 +246,7 @@
 }
 
 
-/* ---------- HERO OVERLAY ---------- */
+/* ---------- OVERLAY ---------- */
 
 .protocol-home-hero-gradient {
   position: absolute;
@@ -302,9 +286,6 @@
   flex-direction: column;
 }
 
-
-/* ---------- EYEBROW ---------- */
-
 .protocol-home-eyebrow {
   margin: 0;
 
@@ -321,7 +302,7 @@
 
 
 /* =========================================================
-   TITLE BLOCK
+   TITLE
    ========================================================= */
 
 .protocol-home-title-line {
@@ -390,9 +371,7 @@
     var(--p-pink-light);
 
   box-shadow:
-    0
-    0
-    10px
+    0 0 10px
     rgba(255, 130, 182, 0.95),
     0
     0
@@ -424,8 +403,6 @@
   font-size: 0.78rem;
 
   line-height: 1.4;
-
-  font-weight: 400;
 
   color:
     rgba(255, 255, 255, 0.52);
@@ -466,10 +443,6 @@
 
   -webkit-backdrop-filter:
     blur(14px);
-
-  box-shadow:
-    inset 0 1px 0
-    rgba(255, 255, 255, 0.07);
 
   text-align: center;
 }
@@ -517,8 +490,6 @@
 
   font-size: 0.38rem;
 
-  font-weight: 600;
-
   letter-spacing: 0.19em;
 
   color:
@@ -527,7 +498,7 @@
 
 
 /* =========================================================
-   HERO ACTION AREA
+   ACTIONS
    ========================================================= */
 
 .protocol-home-hero-actions {
@@ -540,7 +511,7 @@
 }
 
 
-/* ---------- MAIN CTA ---------- */
+/* ---------- 1. LANCER ---------- */
 
 .protocol-home-primary {
   position: relative;
@@ -581,10 +552,6 @@
     12px
     32px
     rgba(188, 51, 118, 0.31),
-    0
-    0
-    36px
-    rgba(216, 73, 144, 0.08),
     inset
     0
     1px
@@ -596,8 +563,6 @@
   font-size: 1.02rem;
   font-weight: 500;
 
-  letter-spacing: 0.005em;
-
   cursor: pointer;
 
   transition:
@@ -605,104 +570,17 @@
     filter 120ms ease;
 }
 
-.protocol-home-primary::before {
-  content: "";
-
-  position: absolute;
-
-  width: 48%;
-  height: 200%;
-
-  left: -40%;
-  top: -50%;
-
-  transform:
-    rotate(18deg);
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.11),
-      transparent
-    );
-
-  pointer-events: none;
-}
-
-.protocol-home-primary svg {
-  flex: 0 0 auto;
-
-  filter:
-    drop-shadow(
-      0
-      0
-      4px
-      rgba(255, 255, 255, 0.18)
-    );
-}
-
 .protocol-home-primary:active {
   transform:
     scale(0.985);
-
-  filter:
-    brightness(1.04);
-}
-
-.protocol-home-primary.is-loading {
-  opacity: 0.58;
-}
-
-.protocol-home-live-dot {
-  width: 7px;
-  height: 7px;
-
-  border-radius: 999px;
-
-  background:
-    white;
-
-  box-shadow:
-    0
-    0
-    12px
-    rgba(255, 255, 255, 0.9);
 }
 
 
-/* ---------- SESSION INFO ---------- */
+/* ---------- 2. REJOINDRE ---------- */
 
-.protocol-home-session {
-  min-height: 20px;
-
-  margin-top: -2px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 7px;
-
-  font-size: 0.62rem;
-
-  color:
-    rgba(255, 255, 255, 0.41);
-}
-
-.protocol-home-session strong {
-  font-weight: 500;
-
-  color:
-    rgba(255, 255, 255, 0.72);
-}
-
-
-/* ---------- SECONDARY ACTION ---------- */
-
-.protocol-home-newgame {
+.protocol-home-join-main {
   width: 100%;
-  height: 46px;
+  height: 48px;
 
   padding:
     0
@@ -716,67 +594,53 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.34);
+    rgba(239, 119, 170, 0.37);
 
   border-radius: 18px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(34, 17, 27, 0.64),
-      rgba(11, 8, 11, 0.72)
+      rgba(39, 18, 31, 0.68),
+      rgba(12, 8, 12, 0.76)
     );
 
-  backdrop-filter:
-    blur(11px);
-
-  -webkit-backdrop-filter:
-    blur(11px);
-
   color:
-    rgba(255, 255, 255, 0.86);
+    rgba(255, 255, 255, 0.88);
 
   box-shadow:
     inset
     0
     1px
     0
-    rgba(255, 255, 255, 0.035);
+    rgba(255, 255, 255, 0.04);
 
   font: inherit;
 
-  font-size: 0.82rem;
-  font-weight: 450;
+  font-size: 0.84rem;
+  font-weight: 500;
 
   cursor: pointer;
 }
 
-.protocol-home-newgame svg {
+.protocol-home-join-main svg {
   color:
     var(--p-pink-light);
-
-  filter:
-    drop-shadow(
-      0
-      0
-      5px
-      rgba(239, 119, 170, 0.18)
-    );
 }
 
-.protocol-home-newgame:active {
+.protocol-home-join-main:active {
   transform:
     scale(0.985);
 }
 
 
-/* ---------- SMALL ACTION ---------- */
+/* ---------- 3. REPRENDRE ---------- */
 
-.protocol-home-join-link {
+.protocol-home-resume-link {
+  position: relative;
+
   width: 100%;
-  min-height: 24px;
-
-  margin-top: -2px;
+  min-height: 28px;
 
   display: flex;
   align-items: center;
@@ -790,24 +654,50 @@
     transparent;
 
   color:
-    rgba(255, 255, 255, 0.46);
+    rgba(255, 255, 255, 0.48);
 
   font: inherit;
 
   font-size: 0.64rem;
-  font-weight: 450;
 
   cursor: pointer;
 }
 
-.protocol-home-join-link svg {
+.protocol-home-resume-link svg {
   color:
     rgba(239, 119, 170, 0.72);
 }
 
-.protocol-home-join-link:active {
+.protocol-home-resume-link small {
+  margin-left: 2px;
+
+  font-size: 0.52rem;
+
+  letter-spacing: 0.12em;
+
   color:
-    rgba(255, 255, 255, 0.75);
+    rgba(255, 255, 255, 0.28);
+}
+
+.protocol-home-resume-link:active {
+  color:
+    rgba(255, 255, 255, 0.74);
+}
+
+.protocol-home-live-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 999px;
+
+  background:
+    var(--p-pink-light);
+
+  box-shadow:
+    0
+    0
+    9px
+    rgba(255, 145, 189, 0.8);
 }
 
 
@@ -847,8 +737,6 @@
 
   gap: 5px;
 
-  overflow: hidden;
-
   border:
     1px solid
     rgba(239, 119, 170, 0.20);
@@ -858,89 +746,28 @@
   background:
     linear-gradient(
       180deg,
-      rgba(44, 22, 36, 0.72) 0%,
-      rgba(17, 11, 16, 0.75) 100%
+      rgba(44, 22, 36, 0.72),
+      rgba(17, 11, 16, 0.75)
     );
 
   color:
     rgba(255, 255, 255, 0.82);
 
-  box-shadow:
-    inset
-    0
-    1px
-    0
-    rgba(255, 255, 255, 0.04),
-    0
-    8px
-    24px
-    rgba(0, 0, 0, 0.13);
-
   font: inherit;
 
   cursor: pointer;
-
-  transition:
-    transform 120ms ease,
-    border-color 120ms ease,
-    background 120ms ease;
-}
-
-.protocol-home-nav button::before {
-  content: "";
-
-  position: absolute;
-
-  left: 22%;
-  right: 22%;
-  top: 0;
-
-  height: 1px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(239, 119, 170, 0.52),
-      transparent
-    );
-}
-
-.protocol-home-nav button:active {
-  transform:
-    scale(0.97);
-
-  border-color:
-    rgba(239, 119, 170, 0.37);
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(56, 25, 45, 0.80),
-      rgba(18, 11, 17, 0.78)
-    );
 }
 
 .protocol-home-nav button > svg,
 .protocol-home-nav-icon {
   color:
     rgba(248, 137, 185, 0.94);
-
-  filter:
-    drop-shadow(
-      0
-      0
-      6px
-      rgba(239, 119, 170, 0.16)
-    );
 }
 
 .protocol-home-nav strong {
   margin-top: 2px;
 
   font-size: 0.75rem;
-
-  line-height: 1;
 
   font-weight: 500;
 
@@ -953,16 +780,11 @@
 
   font-size: 0.39rem;
 
-  font-weight: 600;
-
   letter-spacing: 0.18em;
 
   color:
     rgba(255, 255, 255, 0.34);
 }
-
-
-/* ---------- INVITE DOT ---------- */
 
 .protocol-home-nav-icon {
   position: relative;
@@ -983,27 +805,16 @@
 
   background:
     var(--p-pink-light);
-
-  box-shadow:
-    0
-    0
-    10px
-    rgba(255, 145, 189, 0.9);
 }
 
 
 /* =========================================================
-   SIGNAL SECTION
+   SIGNALS
    ========================================================= */
 
 .protocol-home-signals {
   flex: 0 0 auto;
-
-  min-height: 0;
 }
-
-
-/* ---------- SECTION HEADER ---------- */
 
 .protocol-home-section-title {
   height: 27px;
@@ -1036,8 +847,6 @@
 
   font-size: 0.92rem;
 
-  line-height: 1;
-
   font-weight: 500;
 
   color:
@@ -1051,16 +860,11 @@
 
   font-size: 0.39rem;
 
-  font-weight: 600;
-
   letter-spacing: 0.20em;
 
   color:
     rgba(255, 255, 255, 0.29);
 }
-
-
-/* ---------- SIGNAL CARDS ---------- */
 
 .protocol-home-signal-grid {
   margin-top: 7px;
@@ -1108,28 +912,9 @@
   color:
     rgba(255, 255, 255, 0.77);
 
-  box-shadow:
-    inset
-    0
-    1px
-    0
-    rgba(255, 255, 255, 0.02);
-
   font: inherit;
 
   cursor: pointer;
-
-  transition:
-    transform 120ms ease,
-    border-color 120ms ease;
-}
-
-.protocol-home-signal-grid button:active {
-  transform:
-    scale(0.97);
-
-  border-color:
-    rgba(239, 119, 170, 0.29);
 }
 
 .protocol-home-icon-pink {
@@ -1138,26 +923,12 @@
   color:
     rgba(246, 128, 180, 0.90);
 
-  opacity: 0.94;
-
   transform:
     scale(0.88);
-
-  filter:
-    drop-shadow(
-      0
-      0
-      6px
-      rgba(239, 119, 170, 0.13)
-    );
 }
 
 .protocol-home-signal-grid strong {
   font-size: 0.68rem;
-
-  line-height: 1.15;
-
-  text-align: center;
 
   font-weight: 500;
 }
@@ -1205,11 +976,7 @@
 .protocol-home-footer p {
   margin: 0;
 
-  white-space: nowrap;
-
   font-size: 0.41rem;
-
-  font-weight: 500;
 
   letter-spacing: 0.20em;
 
@@ -1219,14 +986,11 @@
 
 
 /* =========================================================
-   FEEDBACK MESSAGES
+   MESSAGES
    ========================================================= */
 
 .protocol-home-message {
-  margin:
-    0
-    0
-    5px;
+  margin: 0;
 
   text-align: center;
 
@@ -1300,16 +1064,7 @@
       #1b1017,
       #080609
     );
-
-  box-shadow:
-    0
-    -30px
-    90px
-    rgba(0, 0, 0, 0.63);
 }
-
-
-/* ---------- CLOSE ---------- */
 
 .protocol-join-close {
   position: absolute;
@@ -1319,8 +1074,6 @@
 
   width: 36px;
   height: 36px;
-
-  padding: 0;
 
   border:
     1px solid
@@ -1337,9 +1090,6 @@
   font-size: 1.35rem;
 }
 
-
-/* ---------- JOIN COPY ---------- */
-
 .protocol-join-sheet h2 {
   margin:
     7px
@@ -1348,12 +1098,7 @@
 
   font-size: 1.9rem;
 
-  line-height: 1;
-
   font-weight: 400;
-
-  color:
-    rgba(255, 255, 255, 0.95);
 }
 
 .protocol-join-copy {
@@ -1371,9 +1116,6 @@
   color:
     rgba(255, 255, 255, 0.45);
 }
-
-
-/* ---------- FORM ---------- */
 
 .protocol-join-sheet form {
   display: grid;
@@ -1413,26 +1155,12 @@
   letter-spacing: 0.35em;
 
   text-transform: uppercase;
-
-  transition:
-    border-color 120ms ease,
-    box-shadow 120ms ease;
 }
 
 .protocol-join-sheet input:focus {
   border-color:
     rgba(255, 137, 186, 0.72);
-
-  box-shadow:
-    0
-    0
-    0
-    3px
-    rgba(239, 119, 170, 0.07);
 }
-
-
-/* ---------- JOIN CTA ---------- */
 
 .protocol-join-submit {
   height: 58px;
@@ -1457,12 +1185,6 @@
     );
 
   color: white;
-
-  box-shadow:
-    0
-    10px
-    28px
-    rgba(177, 48, 112, 0.20);
 
   font: inherit;
 
@@ -1504,23 +1226,8 @@
       );
   }
 
-  .protocol-home-hero-content {
-    padding:
-      17px
-      17px
-      14px;
-  }
-
-  .protocol-home-title-line {
-    margin-top: 11px;
-  }
-
   .protocol-home-title-line h1 {
     font-size: 3rem;
-  }
-
-  .protocol-home-status {
-    margin-top: 10px;
   }
 
   .protocol-home-status p {
@@ -1529,15 +1236,13 @@
 
   .protocol-home-primary {
     min-height: 51px;
-
-    font-size: 0.94rem;
   }
 
-  .protocol-home-newgame {
+  .protocol-home-join-main {
     height: 41px;
   }
 
-  .protocol-home-join-link {
+  .protocol-home-resume-link {
     min-height: 21px;
   }
 
