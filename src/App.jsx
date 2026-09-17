@@ -591,26 +591,6 @@ function App() {
 
     };
 
-    const handleBlur = () => {
-
-      showPrivacyScreen();
-
-    };
-
-
-    const handleFocus = () => {
-
-      if (
-        document.visibilityState ===
-        "visible"
-      ) {
-
-        hidePrivacyScreen();
-
-      }
-
-    };
-
 
     const handleVisibilityChange = () => {
 
@@ -657,18 +637,6 @@ function App() {
     );
 
     window.addEventListener(
-      "blur",
-      handleBlur,
-      true
-    );
-
-    window.addEventListener(
-      "focus",
-      handleFocus,
-      true
-    );
-
-    window.addEventListener(
       "pagehide",
       handlePageHide
     );
@@ -691,18 +659,6 @@ function App() {
       document.removeEventListener(
         "visibilitychange",
         handleVisibilityChange
-      );
-
-      window.removeEventListener(
-        "blur",
-        handleBlur,
-        true
-      );
-
-      window.removeEventListener(
-        "focus",
-        handleFocus,
-        true
       );
 
       window.removeEventListener(
