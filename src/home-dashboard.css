@@ -49,13 +49,14 @@
   position: relative;
   z-index: 20;
 
-  height: 66px;
+  height: 76px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  padding-top: 3px;
+  padding-top:
+    max(10px, env(safe-area-inset-top));
 }
 
 .protocol-home-brand {
@@ -136,14 +137,14 @@
   height:
     calc(
       100dvh -
-      66px -
+      76px -
       env(safe-area-inset-bottom, 0px)
     );
 
   margin: 0 auto;
 
   padding:
-    4px
+    2px
     14px
     max(
       9px,
@@ -347,11 +348,7 @@
    ========================================================= */
 
 .protocol-home-status {
-  margin-top: 18px;
-
-  display: flex;
-
-  gap: 11px;
+  margin-top: 26px;
 }
 
 .protocol-status-dot {
