@@ -1150,19 +1150,6 @@ function HomeScreen({ navigate }) {
         <span className="logo">
           PROTOCOL
         </span>
-
-        <button
-          type="button"
-          className="settings-trigger"
-          onClick={() =>
-            navigate("/settings")
-          }
-          aria-label="Réglages"
-        >
-          <span aria-hidden="true">
-            ⌁
-          </span>
-        </button>
       </header>
 
       <section className="protocol-home-dashboard">
@@ -1170,70 +1157,79 @@ function HomeScreen({ navigate }) {
         {/* HERO */}
         <div className="protocol-home-hero">
 
-          <div className="protocol-home-hero-top">
-            <div>
+          <div className="protocol-home-hero-card">
+
+            <div className="protocol-home-hero-image" />
+
+            <div className="protocol-home-hero-overlay">
+
               <p className="protocol-home-kicker">
-                CE SOIR
+                PLUS LOIN ENSEMBLE
               </p>
 
-              <h1>
-                Ce soir
-              </h1>
-            </div>
+              <div className="protocol-home-hero-top">
 
-            {resumeGame?.shared_profile
-              ?.intensity && (
-              <div className="protocol-home-level">
-                <div className="protocol-level-dots">
-                  {Array.from({
-                    length: Math.min(
-                      3,
-                      resumeGame
-                        .shared_profile
-                        .intensity
-                    ),
-                  }).map((_, index) => (
-                    <span key={index} />
-                  ))}
+                <div>
+                  <h1>
+                    Ce soir
+                  </h1>
+
+                  <div className="protocol-home-status">
+
+                    <span
+                      className={
+                        resumeHasUpdate
+                          ? "protocol-status-dot is-active"
+                          : "protocol-status-dot"
+                      }
+                    />
+
+                    <div>
+                      <strong>
+                        {resumeGame
+                          ? resumeGame.partnerName
+                            ? `${resumeGame.partnerName} est prêt${resumeGame.partnerName === "Audrey" ? "e" : ""} à jouer`
+                            : "Votre partie vous attend"
+                          : "À vous de lancer le jeu"}
+                      </strong>
+
+                      <span>
+                        {resumeGame
+                          ? "Le jeu reprend là où vous vous êtes arrêtés."
+                          : "Une soirée. Deux téléphones. Un terrain commun."}
+                      </span>
+                    </div>
+
+                  </div>
                 </div>
 
-                <small>
-                  Niveau{" "}
-                  {
-                    resumeGame
-                      .shared_profile
-                      .intensity
-                  }
-                </small>
+                {resumeGame?.shared_profile?.intensity && (
+                  <div className="protocol-home-level">
+
+                    <div className="protocol-level-dots">
+                      {Array.from({
+                        length: Math.min(
+                          3,
+                          resumeGame.shared_profile.intensity
+                        ),
+                      }).map((_, index) => (
+                        <span key={index} />
+                      ))}
+                    </div>
+
+                    <small>
+                      Niveau {resumeGame.shared_profile.intensity}
+                    </small>
+
+                  </div>
+                )}
+
               </div>
-            )}
-          </div>
 
-          <div className="protocol-home-status">
-            <span
-              className={
-                resumeHasUpdate
-                  ? "protocol-status-dot is-active"
-                  : "protocol-status-dot"
-              }
-            />
-
-            <div>
-              <strong>
-                {resumeGame
-                  ? resumeGame.partnerName
-                    ? `${resumeGame.partnerName} est connecté${resumeGame.partnerName === "Audrey" ? "e" : ""}.`
-                    : "Votre partie vous attend."
-                  : "À vous de lancer le jeu."}
-              </strong>
-
-              <span>
-                {resumeGame
-                  ? "PROTOCOL reprend exactement là où vous vous êtes arrêtés."
-                  : "Une soirée. Deux téléphones. Un terrain commun."}
-              </span>
             </div>
+
           </div>
+
         </div>
 
 
@@ -1477,15 +1473,6 @@ function HomeScreen({ navigate }) {
           </button>
 
         </nav>
-
-
-        <div className="protocol-home-footer">
-          <span />
-          <p>
-            PRIVÉ · DISCRET · À DEUX
-          </p>
-          <span />
-        </div>
 
       </section>
 
