@@ -153,7 +153,7 @@
   display: flex;
   flex-direction: column;
 
-  gap: 14px;
+  gap: 12px;
 }
 
 
@@ -164,16 +164,16 @@
 .protocol-home-hero-card {
   position: relative;
 
-  .protocol-home-hero-card {
-    flex: 0 0
-      clamp(
-        445px,
-        53dvh,
-        470px
-      );
-  }
+  flex: 1 1 auto;
 
-  min-height: 0;
+  min-height:
+    clamp(
+      455px,
+      56dvh,
+      520px
+    );
+
+  max-height: 540px;
 
   overflow: hidden;
 
@@ -202,9 +202,9 @@
   background-image:
     linear-gradient(
       90deg,
-      rgba(9, 5, 8, 0.50) 0%,
-      rgba(9, 5, 8, 0.16) 50%,
-      rgba(9, 5, 8, 0.04) 100%
+      rgba(9, 5, 8, 0.44) 0%,
+      rgba(9, 5, 8, 0.12) 49%,
+      rgba(9, 5, 8, 0.03) 100%
     ),
     url("/protocol-home-hero.png");
 
@@ -218,15 +218,15 @@
 
   background-position:
     center,
-    72% 26%;
+    74% 20%;
 
   transform:
-    scale(1.035);
+    scale(1.06);
 
   filter:
-    saturate(0.91)
+    saturate(0.92)
     contrast(1.06)
-    brightness(0.84);
+    brightness(0.86);
 }
 
 .protocol-home-hero-image::after {
@@ -257,10 +257,10 @@
   background:
     linear-gradient(
       180deg,
-      rgba(6, 3, 6, 0.06) 0%,
-      rgba(6, 3, 6, 0.08) 27%,
-      rgba(6, 3, 6, 0.21) 48%,
-      rgba(7, 4, 7, 0.70) 73%,
+      rgba(6, 3, 6, 0.05) 0%,
+      rgba(6, 3, 6, 0.07) 24%,
+      rgba(6, 3, 6, 0.16) 47%,
+      rgba(7, 4, 7, 0.63) 74%,
       rgba(7, 4, 7, 0.97) 100%
     );
 
@@ -282,7 +282,7 @@
   padding:
     22px
     20px
-    18px;
+    16px;
 
   display: flex;
   flex-direction: column;
@@ -522,12 +522,11 @@
 
 .protocol-home-hero-actions {
   margin-top: auto;
-  padding-top: 26px;
 
   display: flex;
   flex-direction: column;
 
-  gap: 12px;
+  gap: 11px;
 }
 
 
@@ -537,7 +536,7 @@
   position: relative;
 
   width: 100%;
-  min-height: 58px;
+  min-height: 56px;
 
   padding:
     0
@@ -590,17 +589,12 @@
     filter 120ms ease;
 }
 
-.protocol-home-primary:active {
-  transform:
-    scale(0.985);
-}
-
 
 /* ---------- 2. REJOINDRE ---------- */
 
 .protocol-home-join-main {
   width: 100%;
-  height: 48px;
+  height: 46px;
 
   padding:
     0
@@ -1234,16 +1228,20 @@
         env(safe-area-inset-bottom, 0px)
       );
 
-    gap: 9px;
+    gap: 8px;
   }
 
   .protocol-home-hero-card {
-    flex-basis:
+    flex: 1 1 auto;
+
+    min-height:
       clamp(
-        360px,
-        46.5dvh,
-        390px
+        395px,
+        50dvh,
+        440px
       );
+
+    max-height: 470px;
   }
 
   .protocol-home-title-line h1 {
@@ -1255,15 +1253,15 @@
   }
 
   .protocol-home-primary {
-    min-height: 51px;
+    min-height: 50px;
   }
 
   .protocol-home-join-main {
-    height: 41px;
+    height: 40px;
   }
 
   .protocol-home-resume-link {
-    min-height: 21px;
+    min-height: 20px;
   }
 
   .protocol-home-nav {
