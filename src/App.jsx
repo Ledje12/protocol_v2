@@ -513,6 +513,170 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+
+    /*
+    * PRIVACY SCREEN
+    *
+    * Masque le contenu PROTOCOL lorsque
+    * l'app passe en arrière-plan.
+    */
+
+    const existing =
+      document.getElementById(
+        "protocol-privacy-screen"
+      );
+
+    if (existing) {
+      existing.remove();
+    }
+
+
+    const privacyScreen =
+      document.createElement("div");
+
+    privacyScreen.id =
+      "protocol-privacy-screen";
+
+    privacyScreen.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+
+    privacyScreen.innerHTML = `
+      <div class="protocol-privacy-content">
+
+        <div class="protocol-privacy-logo">
+          PROTOCOL
+        </div>
+
+        <div class="protocol-privacy-version">
+          <span></span>
+          <small>V2</small>
+          <span></span>
+        </div>
+
+        <div class="protocol-privacy-symbol">
+          ◇
+        </div>
+
+        <p>
+          Privé · Discret · À deux
+        </p>
+
+      </div>
+    `;
+
+
+    document.body.appendChild(
+      privacyScreen
+    );
+
+
+    const showPrivacyScreen = () => {
+
+      privacyScreen.classList.add(
+        "is-visible"
+      );
+
+    };
+
+
+    const hidePrivacyScreen = () => {
+
+      privacyScreen.classList.remove(
+        "is-visible"
+      );
+
+    };
+
+
+    const handleVisibilityChange = () => {
+
+      if (
+        document.visibilityState ===
+        "hidden"
+      ) {
+
+        showPrivacyScreen();
+
+      } else {
+
+        hidePrivacyScreen();
+
+      }
+
+    };
+
+
+    const handlePageHide = () => {
+
+      showPrivacyScreen();
+
+    };
+
+
+    const handlePageShow = () => {
+
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+
+        hidePrivacyScreen();
+
+      }
+
+    };
+
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    window.addEventListener(
+      "pagehide",
+      handlePageHide
+    );
+
+    window.addEventListener(
+      "pageshow",
+      handlePageShow
+    );
+
+
+    /*
+    * Etat initial.
+    */
+
+    handleVisibilityChange();
+
+
+    return () => {
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+      window.removeEventListener(
+        "pagehide",
+        handlePageHide
+      );
+
+      window.removeEventListener(
+        "pageshow",
+        handlePageShow
+      );
+
+      privacyScreen.remove();
+
+    };
+
+  }, []);
+
   if (route.screen === "settings") {
     return (
       <SettingsScreen
