@@ -1632,28 +1632,107 @@ function SettingsScreen({ navigate }) {
             )}
         </div>
 
-        {hasLocalGameSession && (
-          <button
-            type="button"
-            className="secondary"
-            onClick={forgetLocalGame}
-            style={{
-              width: "100%",
-              marginTop: "16px",
-            }}
-          >
-            <span>
-              Oublier cette partie sur cet appareil
+        <div className="settings-section-card">
+          <div className="settings-section-heading">
+            <span className="settings-section-eyebrow">
+              CONFIDENTIALITÉ
             </span>
 
-            <span>×</span>
-          </button>
-        )}
+            <h2>
+              Ce qui reste entre vous
+              reste entre vous.
+            </h2>
+          </div>
 
-        <p className="settings-privacy">
-          Le contenu sensible ne sera pas affiché
-          dans les notifications.
-        </p>
+          <div className="settings-privacy-list">
+            <div className="settings-privacy-item">
+              <span className="settings-privacy-icon">
+                ◇
+              </span>
+
+              <div>
+                <strong>
+                  Notifications discrètes
+                </strong>
+
+                <span>
+                  Le contenu sensible des cartes
+                  n’est jamais affiché dans les
+                  notifications.
+                </span>
+              </div>
+            </div>
+
+            <div className="settings-privacy-item">
+              <span className="settings-privacy-icon">
+                ◇
+              </span>
+
+              <div>
+                <strong>
+                  Session privée
+                </strong>
+
+                <span>
+                  L’accès à une partie repose sur
+                  un identifiant propre à cet appareil.
+                </span>
+              </div>
+            </div>
+
+            <div className="settings-privacy-item">
+              <span className="settings-privacy-icon">
+                ◇
+              </span>
+
+              <div>
+                <strong>
+                  Contrôle local
+                </strong>
+
+                <span>
+                  Tu peux oublier la partie mémorisée
+                  sur cet appareil à tout moment.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-device-card">
+          <div>
+            <span className="settings-section-eyebrow">
+              CET APPAREIL
+            </span>
+
+            <h3>
+              Session mémorisée
+            </h3>
+
+            <p>
+              PROTOCOL conserve localement l’accès
+              nécessaire pour reprendre cette partie.
+            </p>
+          </div>
+
+          {hasLocalGameSession ? (
+            <button
+              type="button"
+              className="settings-forget-button"
+              onClick={forgetLocalGame}
+            >
+              <span>
+                Oublier cette partie
+              </span>
+
+              <span>×</span>
+            </button>
+          ) : (
+            <div className="settings-device-empty">
+              Aucune partie mémorisée sur cet appareil.
+            </div>
+          )}
+        </div>
       </section>
 
       <Footer />
