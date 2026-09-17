@@ -64,7 +64,7 @@
   flex-direction: column;
   align-items: center;
 
-  transform: translateY(-2px);
+  transform: translateY(-14px);
 }
 
 .protocol-home-brand-name {
@@ -80,7 +80,7 @@
 }
 
 .protocol-home-brand-sub {
-  margin-top: 6px;
+  margin-top: 5px;
 
   display: grid;
 
