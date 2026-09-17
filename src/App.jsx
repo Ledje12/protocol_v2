@@ -1229,6 +1229,9 @@ function SettingsScreen({ navigate }) {
   const [message, setMessage] =
     useState("");
 
+  const [hasLocalGameSession, setHasLocalGameSession] =
+    useState(() => getGameSession().valid);
+  
   const isStandalone =
     window.matchMedia?.(
       "(display-mode: standalone)"
@@ -1284,6 +1287,30 @@ function SettingsScreen({ navigate }) {
     };
   }, []);
 
+  const forgetLocalGame = () => {
+    const confirmed = window.confirm(
+      "Oublier cette partie sur cet appareil ?\n\n" +
+      "La partie restera enregistrée dans PROTOCOL, " +
+      "mais cet appareil ne pourra plus la reprendre automatiquement."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    clearGameSession();
+
+    localStorage.removeItem(
+      PROTOCOL_LAST_SEEN_CARD_KEY
+    );
+
+    setHasLocalGameSession(false);
+
+    setMessage(
+      "La partie a été oubliée sur cet appareil."
+    );
+  };
+  
   const activatePushNotifications =
     async () => {
       if (!("Notification" in window)) {
@@ -1604,6 +1631,24 @@ function SettingsScreen({ navigate }) {
               </div>
             )}
         </div>
+
+        {hasLocalGameSession && (
+          <button
+            type="button"
+            className="secondary"
+            onClick={forgetLocalGame}
+            style={{
+              width: "100%",
+              marginTop: "16px",
+            }}
+          >
+            <span>
+              Oublier cette partie sur cet appareil
+            </span>
+
+            <span>×</span>
+          </button>
+        )}
 
         <p className="settings-privacy">
           Le contenu sensible ne sera pas affiché
