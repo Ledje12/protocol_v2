@@ -5,6 +5,7 @@ import {
 
 import "./messages.css";
 
+// PROTOCOL private messaging
 
 function formatMessageTime(
   value
