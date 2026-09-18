@@ -336,9 +336,19 @@ function getRoute() {
   }
 
   if (path === "/library") {
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const challengeId =
+      params.get("challenge");
+
     return {
       screen: "library",
       code: null,
+      challengeId,
     };
   }
 
@@ -382,6 +392,9 @@ function getRoute() {
     const from =
       params.get("from");
 
+    const challengeId =
+      params.get("challenge");
+
     return {
       screen: "card",
 
@@ -394,6 +407,8 @@ function getRoute() {
       invitationId,
 
       from,
+
+      challengeId,
     };
   }
 
@@ -740,8 +755,13 @@ function App() {
               ? "audrey"
               : "jerome";
 
+          const challengeQuery =
+            route.challengeId
+              ? `&challenge=${route.challengeId}`
+              : "";
+
           navigate(
-            `/card/${cardId}?for=${recipientKey}`
+            `/card/${cardId}?for=${recipientKey}${challengeQuery}`
           );
         }}
       />
@@ -789,11 +809,17 @@ function App() {
           route.invitationId
         }
 
+        challengeId={
+          route.challengeId
+        }
+
         onBack={() =>
           navigate(
             route.from === "invitations"
               ? "/invitations"
-              : "/library"
+              : route.challengeId
+                ? `/library?challenge=${route.challengeId}`
+                : "/library"
           )
         }
       />

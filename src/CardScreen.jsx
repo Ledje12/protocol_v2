@@ -82,6 +82,7 @@ export default function CardScreen({
   ownerKey,
   activeKey,
   invitationId,
+  challengeId,
   onBack,
 }) {
 
@@ -585,6 +586,9 @@ export default function CardScreen({
 
                   card_id:
                     card.id,
+
+                  challenge_id:
+                    challengeId || null,
                 },
               }
             );
@@ -635,8 +639,13 @@ export default function CardScreen({
           }
 
 
+          const challengeQuery =
+            challengeId
+              ? `&challenge=${challengeId}`
+              : "";
+
           const newUrl =
-            `/card/${card.id}?for=${activeKey}&invite=${newInvitationId}`;
+            `/card/${card.id}?for=${activeKey}&invite=${newInvitationId}${challengeQuery}`;
 
 
           window.history.replaceState(
