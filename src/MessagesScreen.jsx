@@ -470,7 +470,7 @@ export default function MessagesScreen({
               )
             }
 
-            placeholder="Écris quelque chose que tu ne dirais pas ailleurs…"
+            placeholder="Écris-lui…"
 
             rows={
               1
