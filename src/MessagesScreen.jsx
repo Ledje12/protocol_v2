@@ -75,6 +75,10 @@ export default function MessagesScreen({
     useState(false);
 
 
+  /* =========================================================
+     LOAD MESSAGES
+     ========================================================= */
+
   useEffect(() => {
 
     let active =
@@ -194,11 +198,16 @@ export default function MessagesScreen({
   ]);
 
 
+  /* =========================================================
+     SEND MESSAGE
+     ========================================================= */
+
   const sendMessage =
     async () => {
 
       const trimmed =
         draft.trim();
+
 
       if (
         !trimmed ||
@@ -206,12 +215,6 @@ export default function MessagesScreen({
       ) {
         return;
       }
-
-
-      const recipient =
-        ownerKey === "jerome"
-          ? "audrey"
-          : "jerome";
 
 
       try {
@@ -228,40 +231,39 @@ export default function MessagesScreen({
         const {
           data,
           error:
-            insertError,
+            functionError,
         } =
           await supabase
-            .from(
-              "protocol_messages"
-            )
-            .insert({
-              sender:
-                ownerKey,
+            .functions
+            .invoke(
+              "send-message",
+              {
+                body: {
+                  sender:
+                    ownerKey,
 
-              recipient,
-
-              body:
-                trimmed,
-            })
-            .select(
-              `
-                id,
-                sender,
-                recipient,
-                body,
-                reply_to_id,
-                reaction,
-                created_at,
-                read_at
-              `
-            )
-            .single();
+                  body:
+                    trimmed,
+                },
+              }
+            );
 
 
         if (
-          insertError
+          functionError
         ) {
-          throw insertError;
+          throw functionError;
+        }
+
+
+        if (
+          !data?.success ||
+          !data?.message
+        ) {
+          throw new Error(
+            data?.error ||
+              "Impossible d’envoyer le message."
+          );
         }
 
 
@@ -270,7 +272,7 @@ export default function MessagesScreen({
             current
           ) => [
             ...current,
-            data,
+            data.message,
           ]
         );
 
@@ -305,6 +307,10 @@ export default function MessagesScreen({
     };
 
 
+  /* =========================================================
+     RENDER
+     ========================================================= */
+
   return (
     <main className="messages-page">
 
@@ -312,10 +318,13 @@ export default function MessagesScreen({
 
         <button
           type="button"
+
           className="messages-back"
+
           onClick={
             onBack
           }
+
           aria-label="Retour"
         >
           ←
@@ -409,6 +418,7 @@ export default function MessagesScreen({
                     key={
                       message.id
                     }
+
                     className={
                       isMine
                         ? "message-bubble is-mine"
@@ -422,6 +432,7 @@ export default function MessagesScreen({
                       }
                     </p>
 
+
                     <div className="message-meta">
 
                       <span>
@@ -434,6 +445,7 @@ export default function MessagesScreen({
                               : "Audrey"
                         }
                       </span>
+
 
                       <span>
                         {
