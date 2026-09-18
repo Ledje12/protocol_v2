@@ -1256,9 +1256,9 @@ function HomeScreen({ navigate }) {
       }
 
       const messages = {
-        tempted: "Signal envoyé.",
-        surprise: "Signal envoyé.",
-        tonight: "Signal envoyé.",
+        secret: "Secret proposé.",
+        challenge: "Défi proposé.",
+        tonight: "Invitation envoyée.",
       };
 
       setInviteMessage(
@@ -1736,7 +1736,7 @@ function HomeScreen({ navigate }) {
             <button
               type="button"
               onClick={() =>
-                sendInvitation("tempted")
+                sendInvitation("secret")
               }
               disabled={inviteLoading}
             >
@@ -1744,14 +1744,14 @@ function HomeScreen({ navigate }) {
               <span className="protocol-home-icon-pink">
 
                 <HomeIcon
-                  name="heart"
+                  name="sparkles"
                   size={28}
                 />
 
               </span>
 
               <strong>
-                Ça me tente
+                Un secret ?
               </strong>
 
             </button>
@@ -1760,7 +1760,7 @@ function HomeScreen({ navigate }) {
             <button
               type="button"
               onClick={() =>
-                sendInvitation("surprise")
+                sendInvitation("challenge")
               }
               disabled={inviteLoading}
             >
@@ -1775,7 +1775,7 @@ function HomeScreen({ navigate }) {
               </span>
 
               <strong>
-                Surprends-moi
+                Un défi ?
               </strong>
 
             </button>
