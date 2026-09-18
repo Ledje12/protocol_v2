@@ -9,6 +9,7 @@ import "./home-dashboard.css";
 import LibraryScreen from "./LibraryScreen.jsx";
 import CardScreen from "./CardScreen.jsx";
 import InvitationsScreen from "./InvitationsScreen.jsx";
+import MessagesScreen from "./MessagesScreen.jsx";
 import {
   getCurrentPushSubscription,
   getPushOwner,
@@ -349,6 +350,15 @@ function getRoute() {
       screen: "library",
       code: null,
       challengeId,
+    };
+  }
+
+  if (path === "/messages") {
+    return {
+      screen:
+        "messages",
+      code:
+        null,
     };
   }
 
@@ -696,6 +706,43 @@ function App() {
     return (
       <SettingsScreen
         navigate={navigate}
+      />
+    );
+  }
+
+  if (
+    route.screen ===
+    "messages"
+  ) {
+
+    const ownerKey =
+      getPushOwner();
+
+    if (
+      !ownerKey
+    ) {
+      navigate(
+        "/settings",
+        true
+      );
+
+      return null;
+    }
+
+
+    return (
+      <MessagesScreen
+        supabase={
+          supabase
+        }
+
+        ownerKey={
+          ownerKey
+        }
+
+        onBack={() =>
+          navigate("/")
+        }
       />
     );
   }
@@ -1761,9 +1808,11 @@ function HomeScreen({ navigate }) {
 
             <button
               type="button"
-              onClick={() =>
-                sendInvitation("secret")
-              }
+                onClick={() =>
+                  navigate(
+                    "/messages"
+                  )
+                }
               disabled={inviteLoading}
             >
 

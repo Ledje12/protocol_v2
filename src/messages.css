@@ -1,0 +1,239 @@
+.messages-page {
+  min-height: 100dvh;
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(110, 18, 49, 0.22),
+      transparent 42%
+    ),
+    #070507;
+
+  color:
+    #f7eef2;
+}
+
+.messages-topbar {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  gap:
+    14px;
+
+  padding:
+    18px 20px;
+}
+
+.messages-back {
+  border:
+    0;
+
+  background:
+    transparent;
+
+  color:
+    #f7eef2;
+
+  font-size:
+    28px;
+
+  cursor:
+    pointer;
+}
+
+.messages-heading {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    2px;
+}
+
+.messages-logo {
+  font-size:
+    13px;
+
+  letter-spacing:
+    0.22em;
+
+  font-weight:
+    700;
+}
+
+.messages-subtitle {
+  font-size:
+    12px;
+
+  opacity:
+    0.62;
+}
+
+.messages-content {
+  padding:
+    8px 20px 32px;
+}
+
+.messages-intro {
+  margin-bottom:
+    28px;
+}
+
+.messages-kicker {
+  margin:
+    0 0 8px;
+
+  font-size:
+    11px;
+
+  letter-spacing:
+    0.22em;
+
+  opacity:
+    0.58;
+}
+
+.messages-intro h1 {
+  margin:
+    0;
+
+  font-size:
+    clamp(
+      40px,
+      10vw,
+      64px
+    );
+
+  line-height:
+    0.92;
+
+  font-weight:
+    500;
+}
+
+.messages-intro-text {
+  margin:
+    14px 0 0;
+
+  font-size:
+    14px;
+
+  opacity:
+    0.62;
+}
+
+.messages-status,
+.messages-error {
+  font-size:
+    14px;
+}
+
+.messages-error {
+  color:
+    #ff9dbb;
+}
+
+.messages-empty {
+  margin-top:
+    48px;
+
+  text-align:
+    center;
+
+  opacity:
+    0.52;
+}
+
+.messages-thread {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    12px;
+}
+
+.message-bubble {
+  max-width:
+    82%;
+
+  padding:
+    14px 16px;
+
+  border-radius:
+    20px;
+
+  backdrop-filter:
+    blur(14px);
+
+  -webkit-backdrop-filter:
+    blur(14px);
+}
+
+.message-bubble.is-mine {
+  align-self:
+    flex-end;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(151, 32, 77, 0.34),
+      rgba(82, 18, 45, 0.24)
+    );
+
+  border:
+    1px solid
+    rgba(255, 122, 173, 0.18);
+}
+
+.message-bubble.is-theirs {
+  align-self:
+    flex-start;
+
+  background:
+    rgba(255, 255, 255, 0.055);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.07);
+}
+
+.message-body {
+  margin:
+    0;
+
+  white-space:
+    pre-wrap;
+
+  line-height:
+    1.45;
+
+  font-size:
+    15px;
+}
+
+.message-meta {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  gap:
+    12px;
+
+  margin-top:
+    8px;
+
+  font-size:
+    10px;
+
+  opacity:
+    0.48;
+}
