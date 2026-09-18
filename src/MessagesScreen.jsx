@@ -62,6 +62,18 @@ export default function MessagesScreen({
   ] =
     useState("");
 
+  const [
+    draft,
+    setDraft,
+  ] =
+    useState("");
+
+  const [
+    sending,
+    setSending,
+  ] =
+    useState(false);
+
 
   useEffect(() => {
 
@@ -182,6 +194,117 @@ export default function MessagesScreen({
   ]);
 
 
+  const sendMessage =
+    async () => {
+
+      const trimmed =
+        draft.trim();
+
+      if (
+        !trimmed ||
+        sending
+      ) {
+        return;
+      }
+
+
+      const recipient =
+        ownerKey === "jerome"
+          ? "audrey"
+          : "jerome";
+
+
+      try {
+
+        setSending(
+          true
+        );
+
+        setError(
+          ""
+        );
+
+
+        const {
+          data,
+          error:
+            insertError,
+        } =
+          await supabase
+            .from(
+              "protocol_messages"
+            )
+            .insert({
+              sender:
+                ownerKey,
+
+              recipient,
+
+              body:
+                trimmed,
+            })
+            .select(
+              `
+                id,
+                sender,
+                recipient,
+                body,
+                reply_to_id,
+                reaction,
+                created_at,
+                read_at
+              `
+            )
+            .single();
+
+
+        if (
+          insertError
+        ) {
+          throw insertError;
+        }
+
+
+        setMessages(
+          (
+            current
+          ) => [
+            ...current,
+            data,
+          ]
+        );
+
+
+        setDraft(
+          ""
+        );
+
+      } catch (
+        err
+      ) {
+
+        console.error(
+          "MESSAGE SEND ERROR:",
+          err
+        );
+
+
+        setError(
+          err?.message ||
+            "Impossible d’envoyer le message."
+        );
+
+      } finally {
+
+        setSending(
+          false
+        );
+
+      }
+
+    };
+
+
   return (
     <main className="messages-page">
 
@@ -222,9 +345,9 @@ export default function MessagesScreen({
             PRIVÉ
           </p>
 
-        <h1>
-        Entre nous.
-        </h1>
+          <h1>
+            Entre nous.
+          </h1>
 
           <p className="messages-intro-text">
             Ce qui se dit ici
@@ -330,6 +453,59 @@ export default function MessagesScreen({
 
           </div>
         )}
+
+
+        <div className="messages-composer">
+
+          <textarea
+            value={
+              draft
+            }
+
+            onChange={(
+              event
+            ) =>
+              setDraft(
+                event.target.value
+              )
+            }
+
+            placeholder="Écris quelque chose que tu ne dirais pas ailleurs…"
+
+            rows={
+              1
+            }
+
+            maxLength={
+              1200
+            }
+          />
+
+
+          <button
+            type="button"
+
+            className="messages-send"
+
+            onClick={
+              sendMessage
+            }
+
+            disabled={
+              sending ||
+              !draft.trim()
+            }
+
+            aria-label="Envoyer"
+          >
+            {
+              sending
+                ? "…"
+                : "↑"
+            }
+          </button>
+
+        </div>
 
       </section>
 

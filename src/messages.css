@@ -71,22 +71,14 @@
 }
 
 .messages-logo {
-  font-size:
-    12px;
-
-  letter-spacing:
-    0.2em;
-
-  font-weight:
-    700;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  font-weight: 700;
 }
 
 .messages-subtitle {
-  font-size:
-    13px;
-
-  opacity:
-    0.58;
+  font-size: 13px;
+  opacity: 0.58;
 }
 
 
@@ -100,17 +92,19 @@
   display: flex;
   flex-direction: column;
 
+  min-height: 0;
+
   padding:
     12px 18px
     calc(
-      24px +
+      14px +
       env(safe-area-inset-bottom)
     );
 }
 
 .messages-intro {
   margin:
-    8px 2px 22px;
+    8px 2px 18px;
 }
 
 .messages-kicker {
@@ -128,17 +122,14 @@
 }
 
 .messages-intro h1 {
-  margin:
-    0;
+  margin: 0;
 
   font-size:
     34px;
 
-  line-height:
-    1;
+  line-height: 1;
 
-  font-weight:
-    500;
+  font-weight: 500;
 }
 
 .messages-intro-text {
@@ -159,24 +150,19 @@
 
 .messages-status,
 .messages-error {
-  font-size:
-    14px;
+  font-size: 14px;
 }
 
 .messages-error {
-  color:
-    #ff9dbb;
+  color: #ff9dbb;
 }
 
 .messages-empty {
-  margin-top:
-    48px;
+  margin-top: 48px;
 
-  text-align:
-    center;
+  text-align: center;
 
-  opacity:
-    0.52;
+  opacity: 0.52;
 }
 
 
@@ -185,28 +171,34 @@
    ========================================================= */
 
 .messages-thread {
-  display:
-    flex;
+  flex: 1;
 
-  flex-direction:
-    column;
+  min-height: 0;
 
-  gap:
-    12px;
+  overflow-y: auto;
 
-  padding-bottom:
-    12px;
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  padding:
+    4px 0 14px;
+
+  scrollbar-width: none;
+}
+
+.messages-thread::-webkit-scrollbar {
+  display: none;
 }
 
 .message-bubble {
-  max-width:
-    82%;
+  max-width: 82%;
 
   padding:
     14px 16px;
 
-  border-radius:
-    20px;
+  border-radius: 20px;
 
   backdrop-filter:
     blur(14px);
@@ -216,8 +208,7 @@
 }
 
 .message-bubble.is-mine {
-  align-self:
-    flex-end;
+  align-self: flex-end;
 
   background:
     linear-gradient(
@@ -232,8 +223,7 @@
 }
 
 .message-bubble.is-theirs {
-  align-self:
-    flex-start;
+  align-self: flex-start;
 
   background:
     rgba(255, 255, 255, 0.055);
@@ -244,35 +234,127 @@
 }
 
 .message-body {
-  margin:
-    0;
+  margin: 0;
 
-  white-space:
-    pre-wrap;
+  white-space: pre-wrap;
 
-  line-height:
-    1.45;
+  line-height: 1.45;
 
-  font-size:
-    15px;
+  font-size: 15px;
 }
 
 .message-meta {
-  display:
-    flex;
+  display: flex;
 
-  justify-content:
-    space-between;
+  justify-content: space-between;
 
-  gap:
-    12px;
+  gap: 12px;
 
-  margin-top:
-    8px;
+  margin-top: 8px;
 
-  font-size:
-    10px;
+  font-size: 10px;
 
-  opacity:
-    0.48;
+  opacity: 0.48;
+}
+
+
+/* =========================================================
+   COMPOSER
+   ========================================================= */
+
+.messages-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+
+  padding-top: 10px;
+
+  flex: 0 0 auto;
+}
+
+.messages-composer textarea {
+  flex: 1;
+
+  min-height: 46px;
+  max-height: 120px;
+
+  resize: none;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-radius: 22px;
+
+  padding:
+    13px 16px;
+
+  background:
+    rgba(255, 255, 255, 0.045);
+
+  color: #f7eef2;
+
+  font: inherit;
+
+  font-size: 14px;
+
+  line-height: 1.4;
+
+  outline: none;
+
+  backdrop-filter:
+    blur(16px);
+
+  -webkit-backdrop-filter:
+    blur(16px);
+}
+
+.messages-composer textarea::placeholder {
+  color:
+    rgba(247, 238, 242, 0.34);
+}
+
+.messages-composer textarea:focus {
+  border-color:
+    rgba(255, 122, 173, 0.24);
+
+  background:
+    rgba(255, 255, 255, 0.06);
+}
+
+.messages-send {
+  width: 46px;
+  height: 46px;
+
+  flex: 0 0 auto;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(170, 42, 91, 0.95),
+      rgba(103, 24, 58, 0.95)
+    );
+
+  color: #fff;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 24px
+    rgba(94, 17, 48, 0.28);
+}
+
+.messages-send:disabled {
+  opacity: 0.28;
+
+  cursor: default;
 }
