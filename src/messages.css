@@ -1,65 +1,81 @@
 .messages-page {
   min-height: 100dvh;
+
+  display: flex;
+  flex-direction: column;
+
   background:
     radial-gradient(
       circle at top,
-      rgba(110, 18, 49, 0.22),
-      transparent 42%
+      rgba(110, 18, 49, 0.18),
+      transparent 34%
     ),
     #070507;
 
-  color:
-    #f7eef2;
+  color: #f7eef2;
+
+  padding-top:
+    env(safe-area-inset-top);
 }
 
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
+
 .messages-topbar {
-  display:
-    flex;
-
-  align-items:
-    center;
-
-  gap:
-    14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
 
   padding:
-    18px 20px;
+    12px 20px 10px;
+
+  flex: 0 0 auto;
 }
 
 .messages-back {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
   border:
-    0;
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-radius:
+    999px;
 
   background:
-    transparent;
+    rgba(255, 255, 255, 0.035);
 
   color:
     #f7eef2;
 
   font-size:
-    28px;
+    22px;
+
+  line-height:
+    1;
 
   cursor:
     pointer;
 }
 
 .messages-heading {
-  display:
-    flex;
-
-  flex-direction:
-    column;
-
-  gap:
-    2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .messages-logo {
   font-size:
-    13px;
+    12px;
 
   letter-spacing:
-    0.22em;
+    0.2em;
 
   font-weight:
     700;
@@ -67,34 +83,48 @@
 
 .messages-subtitle {
   font-size:
-    12px;
+    13px;
 
   opacity:
-    0.62;
+    0.58;
 }
 
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
 .messages-content {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
   padding:
-    8px 20px 32px;
+    12px 18px
+    calc(
+      24px +
+      env(safe-area-inset-bottom)
+    );
 }
 
 .messages-intro {
-  margin-bottom:
-    28px;
+  margin:
+    8px 2px 22px;
 }
 
 .messages-kicker {
   margin:
-    0 0 8px;
+    0 0 6px;
 
   font-size:
-    11px;
+    10px;
 
   letter-spacing:
-    0.22em;
+    0.2em;
 
   opacity:
-    0.58;
+    0.46;
 }
 
 .messages-intro h1 {
@@ -102,14 +132,10 @@
     0;
 
   font-size:
-    clamp(
-      40px,
-      10vw,
-      64px
-    );
+    34px;
 
   line-height:
-    0.92;
+    1;
 
   font-weight:
     500;
@@ -117,14 +143,19 @@
 
 .messages-intro-text {
   margin:
-    14px 0 0;
+    8px 0 0;
 
   font-size:
-    14px;
+    13px;
 
   opacity:
-    0.62;
+    0.48;
 }
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
 
 .messages-status,
 .messages-error {
@@ -148,6 +179,11 @@
     0.52;
 }
 
+
+/* =========================================================
+   THREAD
+   ========================================================= */
+
 .messages-thread {
   display:
     flex;
@@ -156,6 +192,9 @@
     column;
 
   gap:
+    12px;
+
+  padding-bottom:
     12px;
 }
 

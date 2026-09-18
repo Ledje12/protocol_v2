@@ -222,11 +222,9 @@ export default function MessagesScreen({
             PRIVÉ
           </p>
 
-          <h1>
-            Entre
-            <br />
-            nous.
-          </h1>
+        <h1>
+        Entre nous.
+        </h1>
 
           <p className="messages-intro-text">
             Ce qui se dit ici
