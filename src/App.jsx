@@ -2298,25 +2298,21 @@ function SettingsScreen({ navigate }) {
             "ready",
             async (instance) => {
               try {
-                const qrTest =
-                  await instance.getQrcode();
-
-                console.log(
-                  "LOVENSE SDK QRCODE TEST:",
-                  qrTest
-                );
-
                 instance.connectLovenseAPP();
+
+                setLovenseMessage(
+                  "Lovense Remote va s’ouvrir. Si iOS affiche la page Lovense à la place, utilise la connexion par QR."
+                );
 
               } catch (err) {
                 console.error(
-                  "LOVENSE SDK QRCODE ERROR:",
+                  "LOVENSE OPEN APP ERROR:",
                   err
                 );
 
                 setLovenseSdkError(
                   err?.message ||
-                  "Échec génération QR SDK."
+                  "Impossible d’ouvrir Lovense Remote."
                 );
 
               } finally {
@@ -2758,32 +2754,49 @@ function SettingsScreen({ navigate }) {
 
               {lovenseSdkError && (
                 <p
-                  className="notification-message"
                   style={{
-                    marginTop: "14px",
+                    margin: "12px 0 0",
+                    fontSize: "0.82rem",
+                    lineHeight: 1.45,
+                    opacity: 0.7,
                   }}
                 >
                   {lovenseSdkError}
                 </p>
               )}
 
-              <button
-                type="button"
-                className="secondary"
-                onClick={connectLovense}
-                disabled={
-                  lovenseLoading ||
-                  lovenseOpening
-                }
+              <div
                 style={{
-                  width: "100%",
-                  marginTop: "12px",
+                  marginTop: "14px",
+                  textAlign: "center",
                 }}
               >
-                {lovenseLoading
-                  ? "Génération du QR…"
-                  : "Connexion manuelle par QR"}
-              </button>
+                <button
+                  type="button"
+                  onClick={connectLovense}
+                  disabled={
+                    lovenseLoading ||
+                    lovenseOpening
+                  }
+                  style={{
+                    appearance: "none",
+                    border: "none",
+                    background: "transparent",
+                    padding: "6px 8px",
+                    color: "inherit",
+                    font: "inherit",
+                    fontSize: "0.82rem",
+                    opacity: 0.62,
+                    textDecoration: "underline",
+                    textUnderlineOffset: "3px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {lovenseLoading
+                    ? "Préparation du QR…"
+                    : "L’app ne s’ouvre pas ? Utiliser le QR"}
+                </button>
+              </div>
             </>
           )}
 
