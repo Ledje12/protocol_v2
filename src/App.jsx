@@ -2057,6 +2057,21 @@ function SettingsScreen({ navigate }) {
 
   const [hasLocalGameSession, setHasLocalGameSession] =
     useState(() => getGameSession().valid);
+
+  const [lovenseHost, setLovenseHost] =
+    useState("jerome");
+
+  const [lovenseQr, setLovenseQr] =
+    useState("");
+
+  const [lovenseCode, setLovenseCode] =
+    useState("");
+
+  const [lovenseLoading, setLovenseLoading] =
+    useState(false);
+
+  const [lovenseMessage, setLovenseMessage] =
+    useState("");
   
   const isStandalone =
     window.matchMedia?.(
@@ -2191,6 +2206,68 @@ function SettingsScreen({ navigate }) {
         setRequesting(false);
       }
     };
+
+    const connectLovense =
+      async () => {
+        try {
+          setLovenseLoading(true);
+          setLovenseMessage("");
+          setLovenseQr("");
+          setLovenseCode("");
+
+          const {
+            data,
+            error,
+          } =
+            await supabase.functions.invoke(
+              "lovense-connect",
+              {
+                body: {
+                  owner_key: lovenseHost,
+                },
+              }
+            );
+
+          if (error) {
+            throw error;
+          }
+
+          if (!data?.success) {
+            throw new Error(
+              data?.error ||
+              "Impossible de générer le QR Lovense."
+            );
+          }
+
+          setLovenseQr(
+            data.qr || ""
+          );
+
+          setLovenseCode(
+            data.code || ""
+          );
+
+          setLovenseMessage(
+            lovenseHost === "jerome"
+              ? "Scanne ce QR avec Lovense Remote sur le téléphone de Jérôme."
+              : "Scanne ce QR avec Lovense Remote sur le téléphone d’Audrey."
+          );
+
+        } catch (err) {
+          console.error(
+            "LOVENSE CONNECT ERROR:",
+            err
+          );
+
+          setLovenseMessage(
+            err?.message ||
+            "Impossible de connecter Lovense."
+          );
+
+        } finally {
+          setLovenseLoading(false);
+        }
+      };
 
   const status =
     permission === "granted" &&
@@ -2456,6 +2533,200 @@ function SettingsScreen({ navigate }) {
                 </div>
               </div>
             )}
+        </div>
+
+        <div className="settings-section-card">
+
+          <div className="settings-section-heading">
+            <span className="settings-section-eyebrow">
+              LOVENSE
+            </span>
+
+            <h2>
+              Connecter le Lush 4.
+            </h2>
+          </div>
+
+          <p
+            style={{
+              margin: "0 0 16px",
+              opacity: 0.72,
+              lineHeight: 1.5,
+            }}
+          >
+            Connecte Lovense Remote à PROTOCOL
+            pour permettre au jeu de contrôler
+            le jouet.
+          </p>
+
+
+          {!lovenseQr && (
+            <>
+              <span
+                className="settings-section-eyebrow"
+                style={{
+                  display: "block",
+                  marginBottom: "10px",
+                }}
+              >
+                LE LUSH EST CONNECTÉ AU TÉLÉPHONE DE
+              </span>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "10px",
+                  marginBottom: "14px",
+                }}
+              >
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    setLovenseHost("jerome");
+                    setLovenseMessage("");
+                  }}
+                  aria-pressed={
+                    lovenseHost === "jerome"
+                  }
+                  style={
+                    lovenseHost === "jerome"
+                      ? {
+                          borderColor:
+                            "rgba(255,255,255,.9)",
+                          background:
+                            "rgba(255,255,255,.12)",
+                        }
+                      : undefined
+                  }
+                >
+                  <span>
+                    Jérôme
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={() => {
+                    setLovenseHost("audrey");
+                    setLovenseMessage("");
+                  }}
+                  aria-pressed={
+                    lovenseHost === "audrey"
+                  }
+                  style={
+                    lovenseHost === "audrey"
+                      ? {
+                          borderColor:
+                            "rgba(255,255,255,.9)",
+                          background:
+                            "rgba(255,255,255,.12)",
+                        }
+                      : undefined
+                  }
+                >
+                  <span>
+                    Audrey
+                  </span>
+                </button>
+              </div>
+
+
+              <button
+                type="button"
+                className="notification-enable"
+                onClick={connectLovense}
+                disabled={lovenseLoading}
+              >
+                <span>
+                  {lovenseLoading
+                    ? "Génération…"
+                    : "Connecter Lovense"}
+                </span>
+
+                <span className="notification-arrow">
+                  →
+                </span>
+              </button>
+            </>
+          )}
+
+
+          {lovenseQr && (
+            <div
+              style={{
+                display: "grid",
+                justifyItems: "center",
+                gap: "12px",
+                marginTop: "12px",
+              }}
+            >
+
+              <div
+                style={{
+                  background: "#fff",
+                  padding: "12px",
+                  borderRadius: "20px",
+                }}
+              >
+                <img
+                  src={lovenseQr}
+                  alt="QR de connexion Lovense"
+                  style={{
+                    width: "220px",
+                    height: "220px",
+                    display: "block",
+                  }}
+                />
+              </div>
+
+              <strong
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                Scanne avec Lovense Remote
+                sur le téléphone de{" "}
+                {lovenseHost === "jerome"
+                  ? "Jérôme"
+                  : "Audrey"}
+              </strong>
+
+              {lovenseCode && (
+                <span
+                  style={{
+                    opacity: 0.55,
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  Code : {lovenseCode}
+                </span>
+              )}
+
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => {
+                  setLovenseQr("");
+                  setLovenseCode("");
+                  setLovenseMessage("");
+                }}
+              >
+                Générer un autre QR
+              </button>
+
+            </div>
+          )}
+
+
+          {lovenseMessage && (
+            <p className="notification-message">
+              {lovenseMessage}
+            </p>
+          )}
+
         </div>
 
         <div className="settings-section-card">
