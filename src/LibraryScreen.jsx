@@ -139,6 +139,16 @@ export default function LibraryScreen({
     setSelectedIntensity,
   ] = useState("all");
 
+    const [
+    lovenseConnected,
+    setLovenseConnected,
+  ] = useState(false);
+
+  const [
+    lovenseStatusLoading,
+    setLovenseStatusLoading,
+  ] = useState(true);
+
 
   /* =======================================================
      RECIPIENT
@@ -149,6 +159,127 @@ export default function LibraryScreen({
       ownerKey
     );
 
+    /* =======================================================
+     LOVENSE STATUS
+     ======================================================= */
+
+  useEffect(() => {
+
+    let active = true;
+
+    const checkLovenseStatus =
+      async () => {
+
+        try {
+
+          setLovenseStatusLoading(
+            true
+          );
+
+          const {
+            data,
+            error:
+              functionError,
+          } =
+            await supabase
+              .functions
+              .invoke(
+                "lovense-status",
+                {
+                  body: {
+                    host:
+                      "jerome",
+                  },
+                }
+              );
+
+          if (
+            functionError
+          ) {
+            throw functionError;
+          }
+
+          if (
+            !data?.success
+          ) {
+            throw new Error(
+              data?.error ||
+              "Impossible de vérifier Lovense."
+            );
+          }
+
+          if (
+            active
+          ) {
+            setLovenseConnected(
+              Boolean(
+                data.connected
+              )
+            );
+          }
+
+        } catch (err) {
+
+          console.error(
+            "LIBRARY LOVENSE STATUS ERROR:",
+            err
+          );
+
+          if (
+            active
+          ) {
+            setLovenseConnected(
+              false
+            );
+          }
+
+        } finally {
+
+          if (
+            active
+          ) {
+            setLovenseStatusLoading(
+              false
+            );
+          }
+
+        }
+
+      };
+
+    checkLovenseStatus();
+
+    const handleVisibilityChange =
+      () => {
+
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+          checkLovenseStatus();
+        }
+
+      };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibilityChange
+    );
+
+    return () => {
+
+      active = false;
+
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+
+    };
+
+  }, [
+    supabase,
+  ]);
 
   /* =======================================================
      LOAD CARDS
@@ -259,6 +390,16 @@ export default function LibraryScreen({
 
       return cards.filter(
         (card) => {
+            if (
+              card.lovense_mode ===
+                "required" &&
+              (
+                lovenseStatusLoading ||
+                !lovenseConnected
+              )
+            ) {
+              return false;
+            }
           if (
             selectedType !==
               "all" &&
@@ -307,6 +448,8 @@ export default function LibraryScreen({
       search,
       selectedType,
       selectedIntensity,
+      lovenseConnected,
+      lovenseStatusLoading,
     ]);
 
 
