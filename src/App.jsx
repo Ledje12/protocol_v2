@@ -2076,6 +2076,12 @@ function SettingsScreen({ navigate }) {
   const [lovenseOpening, setLovenseOpening] =
     useState(false);
 
+  const [lovenseTestLoading, setLovenseTestLoading] =
+    useState(false);
+
+  const [lovenseTestMessage, setLovenseTestMessage] =
+    useState("");
+
   const [lovenseSdkError, setLovenseSdkError] =
     useState("");
   
@@ -2344,8 +2350,7 @@ function SettingsScreen({ navigate }) {
         }
       };
     
-    const connectLovense =
-      async () => {
+      const connectLovense = async () => {
         try {
           setLovenseLoading(true);
           setLovenseMessage("");
@@ -2390,7 +2395,8 @@ function SettingsScreen({ navigate }) {
               : "Scanne ce QR avec Lovense Remote sur le téléphone d’Audrey."
           );
 
-        } catch (err) {
+        } 
+        catch (err) {
           console.error(
             "LOVENSE CONNECT ERROR:",
             err
@@ -2401,11 +2407,64 @@ function SettingsScreen({ navigate }) {
             "Impossible de connecter Lovense."
           );
 
-        } finally {
+        } 
+        finally {
           setLovenseLoading(false);
         }
       };
 
+  const testLovense = async () => {
+    try {
+      setLovenseTestLoading(true);
+      setLovenseTestMessage("");
+
+      const {
+        data,
+        error,
+      } =
+        await supabase.functions.invoke(
+          "lovense-command",
+          {
+            body: {
+              host:
+                lovenseHost,
+              intensity: 5,
+              duration: 2,
+            },
+          }
+        );
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data?.success) {
+        throw new Error(
+          data?.error ||
+          "La commande Lovense a échoué."
+        );
+      }
+
+      setLovenseTestMessage(
+        "Test envoyé au Lush."
+      );
+
+    } catch (err) {
+      console.error(
+        "LOVENSE TEST ERROR:",
+        err
+      );
+
+      setLovenseTestMessage(
+        err?.message ||
+        "Impossible de tester le Lush."
+      );
+
+    } finally {
+      setLovenseTestLoading(false);
+    }
+  };
+      
   const status =
     permission === "granted" &&
     subscribed
@@ -2901,9 +2960,60 @@ function SettingsScreen({ navigate }) {
             </p>
           )}
 
-        </div>
+          <div
+            style={{
+              marginTop: "18px",
+              paddingTop: "18px",
+              borderTop:
+                "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <span className="notification-eyebrow">
+              TEST
+            </span>
 
-        <div className="settings-section-card">
+            <p
+              style={{
+                margin: "8px 0 14px",
+                opacity: 0.7,
+                fontSize: "0.86rem",
+                lineHeight: 1.45,
+              }}
+            >
+              Envoie une vibration légère
+              de 2 secondes au jouet connecté.
+            </p>
+
+            <button
+              type="button"
+              className="secondary"
+              onClick={testLovense}
+              disabled={lovenseTestLoading}
+              style={{
+                width: "100%",
+              }}
+            >
+              {lovenseTestLoading
+                ? "Envoi…"
+                : "Tester le Lush"}
+            </button>
+
+            {lovenseTestMessage && (
+              <p
+                style={{
+                  margin: "12px 0 0",
+                  fontSize: "0.82rem",
+                  opacity: 0.7,
+                }}
+              >
+                {lovenseTestMessage}
+              </p>
+            )}
+          </div>
+
+          </div>
+
+          <div className="settings-section-card">
           <div className="settings-section-heading">
             <span className="settings-section-eyebrow">
               CONFIDENTIALITÉ
