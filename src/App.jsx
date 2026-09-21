@@ -2072,6 +2072,12 @@ function SettingsScreen({ navigate }) {
 
   const [lovenseMessage, setLovenseMessage] =
     useState("");
+
+  const [lovenseOpening, setLovenseOpening] =
+    useState(false);
+
+  const [lovenseSdkError, setLovenseSdkError] =
+    useState("");
   
   const isStandalone =
     window.matchMedia?.(
@@ -2207,6 +2213,121 @@ function SettingsScreen({ navigate }) {
       }
     };
 
+    const openLovenseRemote =
+      async () => {
+        try {
+          setLovenseOpening(true);
+          setLovenseSdkError("");
+
+          if (
+            !window.LovenseBasicSdk
+          ) {
+            throw new Error(
+              "Le SDK Lovense n’est pas chargé."
+            );
+          }
+
+          const {
+            data,
+            error,
+          } =
+            await supabase.functions.invoke(
+              "lovense-auth",
+              {
+                body: {
+                  owner_key:
+                    lovenseHost,
+                },
+              }
+            );
+
+          if (error) {
+            throw error;
+          }
+
+          if (
+            !data?.success ||
+            !data?.authToken
+          ) {
+            throw new Error(
+              data?.error ||
+              "Impossible d’initialiser Lovense."
+            );
+          }
+
+          const sdk =
+            new window.LovenseBasicSdk({
+              platform:
+                "PROTOCOL",
+
+              authToken:
+                data.authToken,
+
+              uid:
+                data.uid,
+
+              /*
+              * Remote App par défaut.
+              * Donc PAS appType: "connect".
+              */
+              debug: true,
+            });
+
+          sdk.on(
+            "sdkError",
+            (sdkError) => {
+              console.error(
+                "LOVENSE SDK ERROR:",
+                sdkError
+              );
+
+              setLovenseSdkError(
+                sdkError?.message ||
+                "Lovense Remote n’a pas pu être ouvert."
+              );
+            }
+          );
+
+          sdk.on(
+            "ready",
+            async (instance) => {
+              try {
+                instance.connectLovenseAPP();
+
+                setLovenseMessage(
+                  "Lovense Remote va s’ouvrir. Valide la connexion puis reviens dans PROTOCOL."
+                );
+              } catch (err) {
+                console.error(
+                  "LOVENSE OPEN APP ERROR:",
+                  err
+                );
+
+                setLovenseSdkError(
+                  err?.message ||
+                  "Impossible d’ouvrir Lovense Remote."
+                );
+              } finally {
+                setLovenseOpening(false);
+              }
+            }
+          );
+
+        } catch (err) {
+          console.error(
+            "LOVENSE CONNECTION ERROR:",
+            err
+          );
+
+          setLovenseSdkError(
+            err?.message ||
+            "Impossible de connecter Lovense."
+          );
+
+          setLovenseOpening(false);
+        }
+      };
+    
     const connectLovense =
       async () => {
         try {
@@ -2484,33 +2605,6 @@ function SettingsScreen({ navigate }) {
             </p>
           )}
 
-          {permission !== "unsupported" &&
-            permission !== "denied" &&
-            !subscribed &&
-            !checkingSubscription && (
-              <button
-                type="button"
-                className="notification-enable"
-                onClick={activatePushNotifications}
-                disabled={
-                  requesting ||
-                  !owner
-                }
-              >
-                <span>
-                  {requesting
-                    ? "Enregistrement…"
-                    : permission === "granted"
-                      ? "Enregistrer cet appareil"
-                      : "Activer les notifications"}
-                </span>
-
-                <span className="notification-arrow">
-                  →
-                </span>
-              </button>
-            )}
-
           {permission === "granted" &&
             subscribed && (
               <div className="notification-enabled">
@@ -2633,22 +2727,50 @@ function SettingsScreen({ navigate }) {
                 </button>
               </div>
 
-
               <button
                 type="button"
                 className="notification-enable"
-                onClick={connectLovense}
-                disabled={lovenseLoading}
+                onClick={openLovenseRemote}
+                disabled={lovenseOpening}
               >
                 <span>
-                  {lovenseLoading
-                    ? "Génération…"
-                    : "Connecter Lovense"}
+                  {lovenseOpening
+                    ? "Ouverture…"
+                    : "Ouvrir Lovense Remote"}
                 </span>
 
                 <span className="notification-arrow">
                   →
                 </span>
+              </button>
+
+              {lovenseSdkError && (
+                <p
+                  className="notification-message"
+                  style={{
+                    marginTop: "14px",
+                  }}
+                >
+                  {lovenseSdkError}
+                </p>
+              )}
+
+              <button
+                type="button"
+                className="secondary"
+                onClick={connectLovense}
+                disabled={
+                  lovenseLoading ||
+                  lovenseOpening
+                }
+                style={{
+                  width: "100%",
+                  marginTop: "12px",
+                }}
+              >
+                {lovenseLoading
+                  ? "Génération du QR…"
+                  : "Connexion manuelle par QR"}
               </button>
             </>
           )}
