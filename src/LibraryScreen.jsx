@@ -695,6 +695,33 @@ export default function LibraryScreen({
                     </h2>
 
 
+                    {card.lovense_mode &&
+                      lovenseConnected && (
+
+                        <span
+                          style={{
+                            display: "inline-block",
+                            marginBottom: "10px",
+                            fontSize: "0.68rem",
+                            opacity: 0.55,
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          LUSH
+                          {
+                            card.lovense_pattern
+                              ? ` · ${card.lovense_pattern.replaceAll(
+                                  "_",
+                                  " "
+                                )}`
+                              : ""
+                          }
+                        </span>
+
+                      )}
+
+
                     <p className="library-card-prompt">
                       {
                         card.displayPrompt

@@ -1491,19 +1491,38 @@ export default function CardScreen({
                 }}
               >
 
-                <span
-                  style={{
-                    fontSize:
-                      "0.72rem",
-                    letterSpacing:
-                      "0.14em",
-                    opacity: 0.6,
-                  }}
-                >
-                  {lovenseRunning
-                    ? "VIBRATION ACTIVE"
-                    : "LOVENSE"}
-                </span>
+                <div>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "0.72rem",
+                      letterSpacing: "0.14em",
+                      opacity: 0.6,
+                    }}
+                  >
+                    {lovenseRunning
+                      ? "VIBRATION ACTIVE"
+                      : "LOVENSE"}
+                  </span>
+
+                  {card.lovense_pattern && (
+                    <span
+                      style={{
+                        display: "block",
+                        marginTop: "4px",
+                        fontSize: "0.65rem",
+                        opacity: 0.45,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {card.lovense_pattern.replaceAll(
+                        "_",
+                        " "
+                      )}
+                    </span>
+                  )}
+                </div>
 
 
                 <strong
