@@ -2082,6 +2082,15 @@ function SettingsScreen({ navigate }) {
   const [lovenseTestMessage, setLovenseTestMessage] =
     useState("");
 
+  const [lovenseConnected, setLovenseConnected] =
+    useState(false);
+
+  const [lovenseStatusLoading, setLovenseStatusLoading] =
+    useState(true);
+
+  const [lovenseToyName, setLovenseToyName] =
+    useState("");
+
   const [lovenseSdkError, setLovenseSdkError] =
     useState("");
   
@@ -2412,6 +2421,96 @@ function SettingsScreen({ navigate }) {
           setLovenseLoading(false);
         }
       };
+
+  const checkLovenseStatus =
+    async () => {
+      try {
+        setLovenseStatusLoading(true);
+
+        const {
+          data,
+          error,
+        } =
+          await supabase.functions.invoke(
+            "lovense-status",
+            {
+              body: {
+                host:
+                  lovenseHost,
+              },
+            }
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.success) {
+          throw new Error(
+            data?.error ||
+            "Impossible de vérifier Lovense."
+          );
+        }
+
+        setLovenseConnected(
+          Boolean(data.connected)
+        );
+
+        setLovenseToyName(
+          data?.toys?.[0]?.name ||
+          ""
+        );
+
+      } catch (err) {
+        console.error(
+          "LOVENSE STATUS ERROR:",
+          err
+        );
+
+        setLovenseConnected(false);
+        setLovenseToyName("");
+
+      } finally {
+        setLovenseStatusLoading(false);
+      }
+    };
+  
+    useEffect(() => {
+      checkLovenseStatus();
+    }, [lovenseHost]);
+
+    useEffect(() => {
+    const handleLovenseReturn = () => {
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+        checkLovenseStatus();
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      handleLovenseReturn
+    );
+
+    window.addEventListener(
+      "pageshow",
+      handleLovenseReturn
+    );
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        handleLovenseReturn
+      );
+
+      window.removeEventListener(
+        "pageshow",
+        handleLovenseReturn
+      );
+    };
+  }, [lovenseHost]);
 
   const testLovense = async () => {
     try {
@@ -2799,7 +2898,38 @@ function SettingsScreen({ navigate }) {
                   <span>
                     Audrey
                   </span>
-                </button>
+                  </button>
+              </div>
+
+              <div
+                style={{
+                  marginBottom: "14px",
+                }}
+              >
+                <span
+                  className="notification-status"
+                >
+                  {lovenseStatusLoading
+                    ? "VÉRIFICATION"
+                    : lovenseConnected
+                      ? "CONNECTÉ"
+                      : "NON CONNECTÉ"}
+                </span>
+
+                {!lovenseStatusLoading &&
+                  lovenseConnected && (
+                    <p
+                      style={{
+                        margin: "8px 0 0",
+                        opacity: 0.7,
+                        fontSize: "0.84rem",
+                      }}
+                    >
+                      {lovenseToyName
+                        ? `${lovenseToyName} disponible`
+                        : "Jouet Lovense disponible"}
+                    </p>
+                  )}
               </div>
 
               <button
@@ -2988,7 +3118,10 @@ function SettingsScreen({ navigate }) {
               type="button"
               className="secondary"
               onClick={testLovense}
-              disabled={lovenseTestLoading}
+              disabled={
+                lovenseTestLoading ||
+                !lovenseConnected
+              }
               style={{
                 width: "100%",
               }}
