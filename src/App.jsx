@@ -2277,13 +2277,19 @@ function SettingsScreen({ navigate }) {
             "sdkError",
             (sdkError) => {
               console.error(
-                "LOVENSE SDK ERROR:",
-                sdkError
+                "LOVENSE SDK ERROR FULL:",
+                {
+                  code: sdkError?.code,
+                  message: sdkError?.message,
+                  raw: sdkError,
+                }
               );
 
               setLovenseSdkError(
-                sdkError?.message ||
-                "Lovense Remote n’a pas pu être ouvert."
+                sdkError?.code
+                  ? `${sdkError.code} — ${sdkError.message}`
+                  : sdkError?.message ||
+                    "Lovense Remote n’a pas pu être ouvert."
               );
             }
           );
