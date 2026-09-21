@@ -625,6 +625,10 @@ export default function CardScreen({
                   intensity,
 
                   duration,
+
+                  pattern:
+                    card.lovense_pattern ||
+                    null,
                 },
               }
             );
