@@ -2659,10 +2659,19 @@ function SettingsScreen({ navigate }) {
               style={{
                 display: "grid",
                 justifyItems: "center",
-                gap: "12px",
+                gap: "16px",
                 marginTop: "12px",
               }}
             >
+
+              <span
+                className="notification-status"
+                style={{
+                  justifySelf: "start",
+                }}
+              >
+                EN ATTENTE D’ASSOCIATION
+              </span>
 
               <div
                 style={{
@@ -2685,9 +2694,11 @@ function SettingsScreen({ navigate }) {
               <strong
                 style={{
                   textAlign: "center",
+                  lineHeight: 1.35,
                 }}
               >
                 Scanne avec Lovense Remote
+                <br />
                 sur le téléphone de{" "}
                 {lovenseHost === "jerome"
                   ? "Jérôme"
@@ -2697,8 +2708,8 @@ function SettingsScreen({ navigate }) {
               {lovenseCode && (
                 <span
                   style={{
-                    opacity: 0.55,
-                    fontSize: "0.8rem",
+                    opacity: 0.45,
+                    fontSize: "0.78rem",
                   }}
                 >
                   Code : {lovenseCode}
@@ -2713,16 +2724,24 @@ function SettingsScreen({ navigate }) {
                   setLovenseCode("");
                   setLovenseMessage("");
                 }}
+                style={{
+                  width: "100%",
+                  marginTop: "4px",
+                }}
               >
-                Générer un autre QR
+                Régénérer le QR
               </button>
 
             </div>
           )}
 
-
-          {lovenseMessage && (
-            <p className="notification-message">
+          {lovenseMessage && !lovenseQr && (
+            <p
+              className="notification-message"
+              style={{
+                marginTop: "14px",
+              }}
+            >
               {lovenseMessage}
             </p>
           )}
