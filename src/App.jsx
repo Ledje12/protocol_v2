@@ -2298,21 +2298,27 @@ function SettingsScreen({ navigate }) {
             "ready",
             async (instance) => {
               try {
+                const qrTest =
+                  await instance.getQrcode();
+
+                console.log(
+                  "LOVENSE SDK QRCODE TEST:",
+                  qrTest
+                );
+
                 instance.connectLovenseAPP();
 
-                setLovenseMessage(
-                  "Lovense Remote va s’ouvrir. Valide la connexion puis reviens dans PROTOCOL."
-                );
               } catch (err) {
                 console.error(
-                  "LOVENSE OPEN APP ERROR:",
+                  "LOVENSE SDK QRCODE ERROR:",
                   err
                 );
 
                 setLovenseSdkError(
                   err?.message ||
-                  "Impossible d’ouvrir Lovense Remote."
+                  "Échec génération QR SDK."
                 );
+
               } finally {
                 setLovenseOpening(false);
               }
