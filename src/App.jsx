@@ -2298,6 +2298,14 @@ function SettingsScreen({ navigate }) {
             "ready",
             async (instance) => {
               try {
+                const qrTest =
+                  await instance.getQrcode();
+
+                console.log(
+                  "LOVENSE SDK QRCODE:",
+                  qrTest
+                );
+
                 instance.connectLovenseAPP();
 
                 setLovenseMessage(
