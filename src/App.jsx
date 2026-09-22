@@ -1260,6 +1260,41 @@ function App() {
     coupleRefreshKey,
   ]);
 
+  useEffect(() => {
+    const refreshCoupleOnVisible = () => {
+      if (
+        document.visibilityState ===
+        "visible"
+      ) {
+        setCoupleRefreshKey(
+          (value) => value + 1
+        );
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      refreshCoupleOnVisible
+    );
+
+    window.addEventListener(
+      "pageshow",
+      refreshCoupleOnVisible
+    );
+
+    return () => {
+      document.removeEventListener(
+        "visibilitychange",
+        refreshCoupleOnVisible
+      );
+
+      window.removeEventListener(
+        "pageshow",
+        refreshCoupleOnVisible
+      );
+    };
+  }, []);
+
   const [route, setRoute] =
     useState(getRoute());
 
