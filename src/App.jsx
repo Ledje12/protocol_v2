@@ -12,7 +12,6 @@ import InvitationsScreen from "./InvitationsScreen.jsx";
 import MessagesScreen from "./MessagesScreen.jsx";
 import {
   getCurrentPushSubscription,
-  getPushOwner,
   registerPushNotifications,
 } from "./pushNotifications.js";
 
@@ -2896,9 +2895,6 @@ function SettingsScreen({
       return Notification.permission;
     });
 
-  const [owner, setOwner] =
-    useState(() => getPushOwner());
-
   const [subscribed, setSubscribed] =
     useState(false);
 
@@ -2969,52 +2965,129 @@ function SettingsScreen({
     window.navigator.standalone === true;
 
   useEffect(() => {
-    let active = true;
 
-    const checkSubscription = async () => {
-      if (
-        !("Notification" in window) ||
-        Notification.permission !== "granted"
-      ) {
-        if (active) {
-          setSubscribed(false);
-          setCheckingSubscription(false);
+    let active =
+      true;
+
+
+    const checkSubscription =
+      async () => {
+
+        if (
+          !(
+            "Notification" in
+            window
+          ) ||
+          Notification.permission !==
+            "granted"
+        ) {
+
+          if (
+            active
+          ) {
+            setSubscribed(
+              false
+            );
+
+            setCheckingSubscription(
+              false
+            );
+          }
+
+          return;
         }
 
-        return;
-      }
 
-      try {
-        const subscription =
-          await getCurrentPushSubscription();
+        try {
 
-        if (active) {
-          setSubscribed(
-            Boolean(subscription) &&
-            Boolean(getPushOwner())
+          const subscription =
+            await getCurrentPushSubscription();
+
+
+          if (
+            !subscription
+          ) {
+
+            if (
+              active
+            ) {
+              setSubscribed(
+                false
+              );
+            }
+
+            return;
+          }
+
+
+          /*
+          * Une subscription existe déjà.
+          *
+          * On la réenregistre silencieusement
+          * pour le compte Auth actuellement connecté.
+          *
+          * Ça permet aussi de migrer automatiquement
+          * les anciennes installations ownerKey.
+          */
+
+          const result =
+            await registerPushNotifications({
+              supabaseClient:
+                supabase,
+            });
+
+
+          if (
+            active
+          ) {
+            setSubscribed(
+              Boolean(
+                result?.subscription
+              )
+            );
+          }
+
+
+        } catch (err) {
+
+          console.error(
+            "PUSH SUBSCRIPTION CHECK ERROR:",
+            err
           );
-        }
-      } catch (err) {
-        console.error(
-          "PUSH SUBSCRIPTION CHECK ERROR:",
-          err
-        );
 
-        if (active) {
-          setSubscribed(false);
+
+          if (
+            active
+          ) {
+            setSubscribed(
+              false
+            );
+          }
+
+
+        } finally {
+
+          if (
+            active
+          ) {
+            setCheckingSubscription(
+              false
+            );
+          }
+
         }
-      } finally {
-        if (active) {
-          setCheckingSubscription(false);
-        }
-      }
-    };
+
+      };
+
 
     checkSubscription();
 
+
     return () => {
-      active = false;
+      active =
+        false;
     };
+
   }, []);
 
   const forgetLocalGame = () => {
@@ -3178,57 +3251,88 @@ function SettingsScreen({
 
   const activatePushNotifications =
     async () => {
-      if (!("Notification" in window)) {
-        setPermission("unsupported");
+
+      if (
+        !(
+          "Notification" in
+          window
+        )
+      ) {
+        setPermission(
+          "unsupported"
+        );
+
         return;
       }
 
-      if (!owner) {
-        setMessage(
-          "Choisis d’abord à qui appartient cet appareil."
-        );
-        return;
-      }
 
       try {
-        setRequesting(true);
-        setMessage("");
+
+        setRequesting(
+          true
+        );
+
+        setMessage(
+          ""
+        );
+
 
         const result =
           await registerPushNotifications({
-            ownerKey: owner,
-            supabaseClient: supabase,
+            supabaseClient:
+              supabase,
           });
 
-        setPermission(Notification.permission);
-        setSubscribed(Boolean(result?.subscription));
+
+        setPermission(
+          Notification.permission
+        );
+
+
+        setSubscribed(
+          Boolean(
+            result?.subscription
+          )
+        );
+
 
         setMessage(
-          owner === "jerome"
-            ? "Cet iPhone est enregistré pour Jérôme."
-            : "Cet iPhone est enregistré pour Audrey."
+          "Cet appareil est enregistré pour ton compte PROTOCOL."
         );
+
+
       } catch (err) {
+
         console.error(
           "PUSH ACTIVATION ERROR:",
           err
         );
 
+
         if (
-          "Notification" in window
+          "Notification" in
+          window
         ) {
           setPermission(
             Notification.permission
           );
         }
 
+
         setMessage(
           err?.message ||
-          "Impossible d’activer les notifications sur cet appareil."
+            "Impossible d’activer les notifications sur cet appareil."
         );
+
+
       } finally {
-        setRequesting(false);
+
+        setRequesting(
+          false
+        );
+
       }
+
     };
 
     const openLovenseRemote =
@@ -3862,89 +3966,6 @@ function SettingsScreen({
               </p>
             )}
 
-          {permission !== "unsupported" &&
-            permission !== "denied" && (
-              <div
-                style={{
-                  marginTop: "10px",
-                }}
-              >
-                <span
-                  className="notification-eyebrow"
-                  style={{
-                    display: "block",
-                    marginBottom: "10px",
-                  }}
-                >
-                  CET APPAREIL APPARTIENT À
-                </span>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "10px",
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={() => {
-                      if (owner !== "jerome") {
-                        setSubscribed(false);
-                      }
-
-                      setOwner("jerome");
-                      setMessage("");
-                    }}
-                    aria-pressed={
-                      owner === "jerome"
-                    }
-                    style={
-                      owner === "jerome"
-                        ? {
-                            borderColor:
-                              "rgba(255,255,255,.9)",
-                            background:
-                              "rgba(255,255,255,.12)",
-                          }
-                        : undefined
-                    }
-                  >
-                    <span>Jérôme</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="secondary"
-                    onClick={() => {
-                      if (owner !== "audrey") {
-                        setSubscribed(false);
-                      }
-
-                      setOwner("audrey");
-                      setMessage("");
-                    }}
-                    aria-pressed={
-                      owner === "audrey"
-                    }
-                    style={
-                      owner === "audrey"
-                        ? {
-                            borderColor:
-                              "rgba(255,255,255,.9)",
-                            background:
-                              "rgba(255,255,255,.12)",
-                          }
-                        : undefined
-                    }
-                  >
-                    <span>Audrey</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
           {message && (
             <p className="notification-message">
               {message}
@@ -3953,25 +3974,27 @@ function SettingsScreen({
 
           {permission === "granted" &&
             subscribed && (
+
               <div className="notification-enabled">
+
                 <span className="notification-check">
                   ✓
                 </span>
 
                 <div>
+
                   <strong>
                     Notifications activées
                   </strong>
 
                   <span>
-                    {owner === "jerome"
-                      ? "Appareil de Jérôme"
-                      : owner === "audrey"
-                        ? "Appareil d’Audrey"
-                        : "Cet appareil est prêt."}
+                    Cet appareil est associé à ton compte.
                   </span>
+
                 </div>
+
               </div>
+
             )}
         </div>
 
