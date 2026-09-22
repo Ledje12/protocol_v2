@@ -422,15 +422,6 @@ function getRoute() {
         window.location.search
       );
 
-    const requestedActiveKey =
-      params.get("for");
-
-    const activeKey =
-      requestedActiveKey === "jerome" ||
-      requestedActiveKey === "audrey"
-        ? requestedActiveKey
-        : null;
-
     const invitationId =
       params.get("invite");
 
@@ -446,8 +437,6 @@ function getRoute() {
       cardId: Number(
         cardMatch[1]
       ),
-
-      activeKey,
 
       invitationId,
 
@@ -1606,12 +1595,11 @@ function App() {
 
         onOpenCard={({
           cardId,
-          activeKey,
           invitationId,
         }) => {
 
           navigate(
-            `/card/${cardId}?for=${activeKey}&invite=${invitationId}&from=invitations`
+            `/card/${cardId}?invite=${invitationId}&from=invitations`
           );
 
         }}

@@ -3,10 +3,6 @@ import {
   useState,
 } from "react";
 
-import {
-  getPerson,
-} from "./cardPersonalization.js";
-
 import "./invitations.css";
 
 
@@ -447,10 +443,9 @@ export default function InvitationsScreen({
                 invitation
               ) => {
 
-                const other =
-                  getPerson(
-                    invitation.other_key
-                  );
+                const otherName =
+                  couple?.partner?.display_name ||
+                  "Partenaire";
 
 
                 const isSent =
@@ -500,14 +495,6 @@ export default function InvitationsScreen({
                       onOpenCard({
                         cardId:
                           invitation.card_id,
-
-                        /*
-                         * Encore legacy temporairement.
-                         * CardScreen utilise toujours activeKey
-                         * pour la personnalisation et les URLs.
-                         */
-                        activeKey:
-                          invitation.recipient_key,
 
                         invitationId:
                           invitation.invitation_id,
