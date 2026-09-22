@@ -1080,6 +1080,11 @@ function App() {
   const [coupleLoading, setCoupleLoading] =
     useState(true);
 
+  const [
+    coupleRefreshKey,
+    setCoupleRefreshKey,
+  ] = useState(0);
+
   useEffect(() => {
     let active = true;
 
@@ -1210,89 +1215,21 @@ function App() {
           setCoupleLoading(true);
 
           const {
-            data: membership,
-            error: membershipError,
+            data,
+            error,
           } =
-            await supabase
-              .from("protocol_couple_members")
-              .select("couple_id, user_id")
-              .eq(
-                "user_id",
-                authSession.user.id
-              )
-              .maybeSingle();
+            await supabase.rpc(
+              "get_protocol_couple"
+            );
 
-          if (membershipError) {
-            throw membershipError;
+          if (error) {
+            throw error;
           }
-
-          if (!membership?.couple_id) {
-            if (active) {
-              setCouple(null);
-            }
-
-            return;
-          }
-
-          const {
-            data: members,
-            error: membersError,
-          } =
-            await supabase
-              .from("protocol_couple_members")
-              .select("user_id")
-              .eq(
-                "couple_id",
-                membership.couple_id
-              );
-
-          if (membersError) {
-            throw membersError;
-          }
-
-          const memberIds =
-            (members || [])
-              .map((member) => member.user_id)
-              .filter(Boolean);
-
-          const {
-            data: profiles,
-            error: profilesError,
-          } =
-            await supabase
-              .from("protocol_profiles")
-              .select(
-                "user_id, display_name, sex"
-              )
-              .in(
-                "user_id",
-                memberIds
-              );
-
-          if (profilesError) {
-            throw profilesError;
-          }
-
-          const myProfile =
-            profiles?.find(
-              (item) =>
-                item.user_id ===
-                authSession.user.id
-            ) || null;
-
-          const partnerProfile =
-            profiles?.find(
-              (item) =>
-                item.user_id !==
-                authSession.user.id
-            ) || null;
 
           if (active) {
-            setCouple({
-              id: membership.couple_id,
-              me: myProfile,
-              partner: partnerProfile,
-            });
+            setCouple(
+              data ?? null
+            );
           }
 
         } catch (err) {
@@ -1318,7 +1255,10 @@ function App() {
       active = false;
     };
 
-  }, [authSession?.user?.id]);
+  }, [
+    authSession?.user?.id,
+    coupleRefreshKey,
+  ]);
 
   const [route, setRoute] =
     useState(getRoute());
@@ -1566,6 +1506,12 @@ function App() {
     return (
       <SettingsScreen
         navigate={navigate}
+        couple={couple}
+        onCoupleChanged={() =>
+          setCoupleRefreshKey(
+            (value) => value + 1
+          )
+        }
       />
     );
   }
@@ -2921,7 +2867,11 @@ function HomeScreen({ navigate , profile, }) {
    SETTINGS
    ========================================================= */
 
-function SettingsScreen({ navigate }) {
+function SettingsScreen({
+  navigate,
+  couple,
+  onCoupleChanged,
+}) {
   const [permission, setPermission] =
     useState(() => {
       if (!("Notification" in window)) {
@@ -2944,6 +2894,18 @@ function SettingsScreen({ navigate }) {
     useState(false);
 
   const [message, setMessage] =
+    useState("");
+
+  const [coupleInviteCode, setCoupleInviteCode] =
+    useState("");
+
+  const [coupleJoinCode, setCoupleJoinCode] =
+    useState("");
+
+  const [coupleActionLoading, setCoupleActionLoading] =
+    useState(false);
+
+  const [coupleMessage, setCoupleMessage] =
     useState("");
 
   const [hasLocalGameSession, setHasLocalGameSession] =
@@ -3087,6 +3049,117 @@ function SettingsScreen({ navigate }) {
       );
     }
   };
+
+  const createCoupleInvite =
+    async () => {
+      try {
+        setCoupleActionLoading(true);
+        setCoupleMessage("");
+        setCoupleInviteCode("");
+
+        const {
+          data,
+          error,
+        } =
+          await supabase.rpc(
+            "create_protocol_couple_invite"
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.code) {
+          throw new Error(
+            "Code d’association introuvable."
+          );
+        }
+
+        setCoupleInviteCode(
+          data.code
+        );
+
+        setCoupleMessage(
+          "Transmets ce code à ton partenaire. Il reste valable 24 heures."
+        );
+
+      } catch (err) {
+        console.error(
+          "COUPLE INVITE ERROR:",
+          err
+        );
+
+        setCoupleMessage(
+          err?.message ||
+          "Impossible de créer le code."
+        );
+
+      } finally {
+        setCoupleActionLoading(false);
+      }
+    };
+
+
+  const joinCouple =
+    async () => {
+
+      const cleanCode =
+        coupleJoinCode
+          .trim()
+          .toUpperCase();
+
+      if (!cleanCode) {
+        return;
+      }
+
+      try {
+        setCoupleActionLoading(true);
+        setCoupleMessage("");
+
+        const {
+          data,
+          error,
+        } =
+          await supabase.rpc(
+            "join_protocol_couple",
+            {
+              p_code: cleanCode,
+            }
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.success) {
+          throw new Error(
+            "Association impossible."
+          );
+        }
+
+        setCoupleJoinCode("");
+
+        setCoupleMessage(
+          "Partenaire associé."
+        );
+
+        onCoupleChanged?.();
+
+      } catch (err) {
+        console.error(
+          "COUPLE JOIN ERROR:",
+          err
+        );
+
+        setCoupleMessage(
+          err?.message ||
+          "Code incorrect ou expiré."
+        );
+
+      } finally {
+        setCoupleActionLoading(false);
+      }
+    };
 
   const activatePushNotifications =
     async () => {
