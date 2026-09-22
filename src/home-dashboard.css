@@ -1767,7 +1767,7 @@
   border-radius: 50%;
 
   background:
-    rgba(33, 132, 255, 0.18);
+    rgba(255, 72, 154, 0.18);
 
   filter: blur(90px);
 
@@ -1833,7 +1833,7 @@
 
   letter-spacing: 0.22em;
 
-  color: #3397ff;
+  color: #ff489a;
 }
 
 
@@ -1868,7 +1868,7 @@
 
   letter-spacing: 0.21em;
 
-  color: #3397ff;
+  color: #ff489a;
 }
 
 
@@ -1965,14 +1965,14 @@
 
 .protocol-auth-form input:focus {
   border-color:
-    rgba(51, 151, 255, 0.68);
+    rgba(255, 72, 154, 0.68);
 
   background:
     rgba(255, 255, 255, 0.075);
 
   box-shadow:
     0 0 0 4px
-    rgba(51, 151, 255, 0.10);
+    rgba(255, 72, 154, 0.10);
 }
 
 
@@ -2010,13 +2010,13 @@
   background:
     linear-gradient(
       135deg,
-      #147df5,
-      #2d9cff
+      #ff5ca8,
+      #ff3f91
     );
 
   box-shadow:
     0 14px 38px
-    rgba(20, 125, 245, 0.24);
+    rgba(255, 63, 145, 0.24);
 
   cursor: pointer;
 
@@ -2069,4 +2069,66 @@
 
   color:
     rgba(255, 255, 255, 0.58);
+}
+
+.protocol-profile-sex-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.protocol-profile-sex-option {
+  min-height: 112px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.10);
+
+  border-radius: 18px;
+
+  background:
+    rgba(255, 255, 255, 0.045);
+
+  color: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.protocol-profile-sex-option:active {
+  transform: scale(0.985);
+}
+
+.protocol-profile-sex-option.is-selected {
+  border-color:
+    rgba(255, 72, 154, 0.82);
+
+  background:
+    rgba(255, 72, 154, 0.12);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(255, 72, 154, 0.07);
+}
+
+.protocol-profile-sex-symbol {
+  font-size: 2rem;
+  line-height: 1;
+
+  color: #ff489a;
 }

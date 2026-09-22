@@ -941,58 +941,54 @@ function ProfileSetupScreen({
             </label>
 
             <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "1fr 1fr",
-                gap: "10px",
-              }}
+              className="protocol-profile-sex-grid"
             >
 
               <button
                 type="button"
-                className="secondary"
+                className={
+                  sex === "male"
+                    ? "protocol-profile-sex-option is-selected"
+                    : "protocol-profile-sex-option"
+                }
                 aria-pressed={
                   sex === "male"
                 }
                 onClick={() =>
                   setSex("male")
                 }
-                style={
-                  sex === "male"
-                    ? {
-                        borderColor:
-                          "#3397ff",
-                        background:
-                          "rgba(51,151,255,.14)",
-                      }
-                    : undefined
-                }
               >
-                Homme
+                <span className="protocol-profile-sex-symbol">
+                  ♂
+                </span>
+
+                <span>
+                  Homme
+                </span>
               </button>
+
 
               <button
                 type="button"
-                className="secondary"
+                className={
+                  sex === "female"
+                    ? "protocol-profile-sex-option is-selected"
+                    : "protocol-profile-sex-option"
+                }
                 aria-pressed={
                   sex === "female"
                 }
                 onClick={() =>
                   setSex("female")
                 }
-                style={
-                  sex === "female"
-                    ? {
-                        borderColor:
-                          "#3397ff",
-                        background:
-                          "rgba(51,151,255,.14)",
-                      }
-                    : undefined
-                }
               >
-                Femme
+                <span className="protocol-profile-sex-symbol">
+                  ♀
+                </span>
+
+                <span>
+                  Femme
+                </span>
               </button>
 
             </div>
