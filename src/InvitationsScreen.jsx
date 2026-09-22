@@ -125,19 +125,15 @@ export default function InvitationsScreen({
               .from(
                 "card_invitations"
               )
-              .select(
-                `
-                  id,
-                  card_id,
-                  sender_key,
-                  recipient_key,
-                  sender_user_id,
-                  recipient_user_id,
-                  couple_id,
-                  sent_at,
-                  opened_at
-                `
-              )
+              .select(`
+                id,
+                card_id,
+                sender_user_id,
+                recipient_user_id,
+                couple_id,
+                sent_at,
+                opened_at
+              `)
               .eq(
                 "couple_id",
                 coupleId
@@ -254,17 +250,13 @@ export default function InvitationsScreen({
 
 
                 const isSent =
-                  invitation
-                    .sender_user_id ===
+                  invitation.sender_user_id ===
                   currentUserId;
 
 
-                const otherKey =
-                  isSent
-                    ? invitation
-                        .recipient_key
-                    : invitation
-                        .sender_key;
+                const otherName =
+                  couple?.partner?.display_name ||
+                  "Partenaire";
 
 
                 return {
@@ -282,12 +274,6 @@ export default function InvitationsScreen({
                     card?.type ||
                     "",
 
-                  sender_key:
-                    invitation.sender_key,
-
-                  recipient_key:
-                    invitation.recipient_key,
-
                   sender_user_id:
                     invitation.sender_user_id,
 
@@ -301,9 +287,6 @@ export default function InvitationsScreen({
                     isSent
                       ? "sent"
                       : "received",
-
-                  other_key:
-                    otherKey,
 
                   sent_at:
                     invitation.sent_at,
