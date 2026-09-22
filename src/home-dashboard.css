@@ -1721,3 +1721,352 @@
   }
 
 }
+
+/* =========================================================
+   AUTH
+   ========================================================= */
+
+.protocol-auth-page {
+  min-height: 100dvh;
+  box-sizing: border-box;
+
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 42px)
+    22px
+    calc(env(safe-area-inset-bottom, 0px) + 30px);
+
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(30, 128, 255, 0.16),
+      transparent 42%
+    ),
+    #050609;
+
+  color: #ffffff;
+}
+
+
+.protocol-auth-glow {
+  position: absolute;
+
+  width: 360px;
+  height: 360px;
+
+  top: -230px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background:
+    rgba(33, 132, 255, 0.18);
+
+  filter: blur(90px);
+
+  pointer-events: none;
+}
+
+
+.protocol-auth-shell {
+  width: min(100%, 430px);
+
+  display: flex;
+  flex-direction: column;
+
+  position: relative;
+  z-index: 1;
+}
+
+
+.protocol-auth-brand {
+  text-align: center;
+
+  margin: 6px 0 58px;
+}
+
+
+.protocol-auth-logo {
+  font-size: clamp(2.2rem, 12vw, 3.7rem);
+  line-height: 0.95;
+
+  font-weight: 800;
+  letter-spacing: -0.07em;
+
+  color: rgba(255, 255, 255, 0.96);
+
+  text-shadow:
+    0 0 34px rgba(35, 133, 255, 0.18);
+}
+
+
+.protocol-auth-version {
+  margin-top: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+}
+
+
+.protocol-auth-version span {
+  width: 28px;
+  height: 1px;
+
+  background:
+    rgba(255, 255, 255, 0.22);
+}
+
+
+.protocol-auth-version small {
+  font-size: 0.62rem;
+  font-weight: 800;
+
+  letter-spacing: 0.22em;
+
+  color: #3397ff;
+}
+
+
+.protocol-auth-brand > p {
+  margin: 14px 0 0;
+
+  font-size: 0.73rem;
+  letter-spacing: 0.08em;
+
+  color:
+    rgba(255, 255, 255, 0.42);
+}
+
+
+.protocol-auth-card {
+  width: 100%;
+}
+
+
+.protocol-auth-copy {
+  margin-bottom: 30px;
+}
+
+
+.protocol-auth-eyebrow {
+  display: block;
+
+  margin-bottom: 12px;
+
+  font-size: 0.67rem;
+  font-weight: 800;
+
+  letter-spacing: 0.21em;
+
+  color: #3397ff;
+}
+
+
+.protocol-auth-copy h1 {
+  margin: 0;
+
+  font-size: clamp(2rem, 9vw, 2.8rem);
+  line-height: 1;
+
+  letter-spacing: -0.055em;
+
+  color: #ffffff;
+}
+
+
+.protocol-auth-copy p {
+  margin: 17px 0 0;
+
+  max-width: 360px;
+
+  font-size: 0.96rem;
+  line-height: 1.55;
+
+  color:
+    rgba(255, 255, 255, 0.56);
+}
+
+
+.protocol-auth-copy strong {
+  font-weight: 650;
+
+  color:
+    rgba(255, 255, 255, 0.82);
+}
+
+
+.protocol-auth-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 11px;
+}
+
+
+.protocol-auth-form label {
+  margin-left: 2px;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color:
+    rgba(255, 255, 255, 0.52);
+}
+
+
+.protocol-auth-form input {
+  width: 100%;
+  height: 58px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.11);
+
+  border-radius: 17px;
+
+  padding: 0 18px;
+
+  outline: none;
+
+  background:
+    rgba(255, 255, 255, 0.055);
+
+  color: #ffffff;
+
+  font: inherit;
+  font-size: 1rem;
+
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+
+.protocol-auth-form input::placeholder {
+  color:
+    rgba(255, 255, 255, 0.25);
+}
+
+
+.protocol-auth-form input:focus {
+  border-color:
+    rgba(51, 151, 255, 0.68);
+
+  background:
+    rgba(255, 255, 255, 0.075);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(51, 151, 255, 0.10);
+}
+
+
+.protocol-auth-form input.protocol-auth-code {
+  font-size: 1.55rem;
+  font-weight: 700;
+
+  letter-spacing: 0.22em;
+
+  text-align: center;
+}
+
+
+.protocol-auth-form > button[type="submit"] {
+  width: 100%;
+  min-height: 58px;
+
+  margin-top: 7px;
+
+  border: 0;
+  border-radius: 17px;
+
+  padding: 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  font: inherit;
+  font-size: 0.96rem;
+  font-weight: 750;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #147df5,
+      #2d9cff
+    );
+
+  box-shadow:
+    0 14px 38px
+    rgba(20, 125, 245, 0.24);
+
+  cursor: pointer;
+
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease;
+}
+
+
+.protocol-auth-form > button[type="submit"]:active {
+  transform: scale(0.985);
+}
+
+
+.protocol-auth-form > button[type="submit"]:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+
+.protocol-auth-arrow {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+
+.protocol-auth-back {
+  margin-top: 5px;
+
+  border: 0;
+  padding: 12px;
+
+  background: transparent;
+
+  color:
+    rgba(255, 255, 255, 0.46);
+
+  font: inherit;
+  font-size: 0.82rem;
+
+  cursor: pointer;
+}
+
+
+.protocol-auth-message {
+  margin: 19px 2px 0;
+
+  font-size: 0.84rem;
+  line-height: 1.45;
+
+  color:
+    rgba(255, 255, 255, 0.58);
+}

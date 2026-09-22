@@ -591,92 +591,197 @@ function AuthScreen({ onAuthenticated }) {
     };
 
   return (
-    <main className="protocol-home">
+    <main className="protocol-auth-page">
 
-      <section className="protocol-panel">
+      <div className="protocol-auth-glow" />
 
-        <h1>
-          PROTOCOL
-        </h1>
+      <section className="protocol-auth-shell">
 
-        {step === "email" && (
+        <header className="protocol-auth-brand">
 
-          <form onSubmit={sendCode}>
+          <div className="protocol-auth-logo">
+            PROTOCOL
+          </div>
 
-            <label>
-              Email
-            </label>
+          <div className="protocol-auth-version">
+            <span />
+            <small>V2</small>
+            <span />
+          </div>
 
-            <input
-              type="email"
-              value={email}
-              onChange={(event) =>
-                setEmail(
-                  event.target.value
-                )
-              }
-              required
-              autoComplete="email"
-            />
-
-            <button
-              type="submit"
-              disabled={loading}
-            >
-              {loading
-                ? "Envoi…"
-                : "Recevoir mon code"}
-            </button>
-
-          </form>
-
-        )}
-
-        {step === "code" && (
-
-          <form onSubmit={verifyCode}>
-
-            <label>
-              Code reçu
-            </label>
-
-            <input
-              type="text"
-              inputMode="numeric"
-              value={code}
-              onChange={(event) =>
-                setCode(
-                  event.target.value
-                    .replace(/\D/g, "")
-                    .slice(0, 8)
-                )
-              }
-              maxLength={8}
-              required
-              autoComplete="one-time-code"
-            />
-
-            <button
-              type="submit"
-              disabled={
-                loading ||
-                code.length !== 8
-              }
-            >
-              {loading
-                ? "Connexion…"
-                : "Entrer"}
-            </button>
-
-          </form>
-
-        )}
-
-        {message && (
           <p>
-            {message}
+            Privé · Discret · À deux
           </p>
-        )}
+
+        </header>
+
+
+        <section className="protocol-auth-card">
+
+          {step === "email" && (
+            <>
+              <div className="protocol-auth-copy">
+
+                <span className="protocol-auth-eyebrow">
+                  CONNEXION
+                </span>
+
+                <h1>
+                  Votre espace.
+                </h1>
+
+                <p>
+                  Recevez un code par email pour accéder à PROTOCOL.
+                </p>
+
+              </div>
+
+              <form
+                className="protocol-auth-form"
+                onSubmit={sendCode}
+              >
+
+                <label htmlFor="protocol-auth-email">
+                  Email
+                </label>
+
+                <input
+                  id="protocol-auth-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) =>
+                    setEmail(
+                      event.target.value
+                    )
+                  }
+                  required
+                  autoComplete="email"
+                  placeholder="vous@exemple.com"
+                />
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                >
+                  <span>
+                    {loading
+                      ? "Envoi…"
+                      : "Recevoir mon code"}
+                  </span>
+
+                  {!loading && (
+                    <span
+                      className="protocol-auth-arrow"
+                      aria-hidden="true"
+                    >
+                      →
+                    </span>
+                  )}
+                </button>
+
+              </form>
+            </>
+          )}
+
+
+          {step === "code" && (
+            <>
+              <div className="protocol-auth-copy">
+
+                <span className="protocol-auth-eyebrow">
+                  VÉRIFICATION
+                </span>
+
+                <h1>
+                  Presque là.
+                </h1>
+
+                <p>
+                  Entre le code à 8 chiffres envoyé à
+                  <strong>
+                    {" "}
+                    {email.trim().toLowerCase()}
+                  </strong>
+                </p>
+
+              </div>
+
+              <form
+                className="protocol-auth-form"
+                onSubmit={verifyCode}
+              >
+
+                <label htmlFor="protocol-auth-code">
+                  Code reçu
+                </label>
+
+                <input
+                  id="protocol-auth-code"
+                  className="protocol-auth-code"
+                  type="text"
+                  inputMode="numeric"
+                  value={code}
+                  onChange={(event) =>
+                    setCode(
+                      event.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 8)
+                    )
+                  }
+                  maxLength={8}
+                  required
+                  autoComplete="one-time-code"
+                  placeholder="••••••••"
+                />
+
+                <button
+                  type="submit"
+                  disabled={
+                    loading ||
+                    code.length !== 8
+                  }
+                >
+                  <span>
+                    {loading
+                      ? "Connexion…"
+                      : "Entrer dans PROTOCOL"}
+                  </span>
+
+                  {!loading && (
+                    <span
+                      className="protocol-auth-arrow"
+                      aria-hidden="true"
+                    >
+                      →
+                    </span>
+                  )}
+                </button>
+
+
+                <button
+                  type="button"
+                  className="protocol-auth-back"
+                  onClick={() => {
+                    setCode("");
+                    setMessage("");
+                    setStep("email");
+                  }}
+                >
+                  Utiliser une autre adresse
+                </button>
+
+              </form>
+            </>
+          )}
+
+
+          {message && (
+            <p className="protocol-auth-message">
+              {message}
+            </p>
+          )}
+
+        </section>
 
       </section>
 
@@ -2424,6 +2529,30 @@ function SettingsScreen({ navigate }) {
     );
   };
   
+  const logout = async () => {
+    try {
+      setMessage("");
+
+      const { error } =
+        await supabase.auth.signOut();
+
+      if (error) {
+        throw error;
+      }
+
+    } catch (err) {
+      console.error(
+        "LOGOUT ERROR:",
+        err
+      );
+
+      setMessage(
+        err?.message ||
+        "Impossible de se déconnecter."
+      );
+    }
+  };
+
   const activatePushNotifications =
     async () => {
       if (!("Notification" in window)) {
@@ -3497,6 +3626,22 @@ function SettingsScreen({ navigate }) {
               Aucune partie mémorisée sur cet appareil.
             </div>
           )}
+          <button
+            type="button"
+            className="settings-forget-button"
+            onClick={logout}
+            style={{
+              marginTop: "12px",
+            }}
+          >
+            <span>
+              Se déconnecter
+            </span>
+
+            <span>
+              →
+            </span>
+          </button>
         </div>
       </section>
 
