@@ -1074,6 +1074,12 @@ function App() {
   const [profileLoading, setProfileLoading] =
     useState(true);
 
+  const [couple, setCouple] =
+    useState(null);
+
+  const [coupleLoading, setCoupleLoading] =
+    useState(true);
+
   useEffect(() => {
     let active = true;
 
@@ -1178,6 +1184,135 @@ function App() {
       };
 
     loadProfile();
+
+    return () => {
+      active = false;
+    };
+
+  }, [authSession?.user?.id]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadCouple =
+      async () => {
+
+        if (!authSession?.user?.id) {
+          if (active) {
+            setCouple(null);
+            setCoupleLoading(false);
+          }
+
+          return;
+        }
+
+        try {
+          setCoupleLoading(true);
+
+          const {
+            data: membership,
+            error: membershipError,
+          } =
+            await supabase
+              .from("protocol_couple_members")
+              .select("couple_id, user_id")
+              .eq(
+                "user_id",
+                authSession.user.id
+              )
+              .maybeSingle();
+
+          if (membershipError) {
+            throw membershipError;
+          }
+
+          if (!membership?.couple_id) {
+            if (active) {
+              setCouple(null);
+            }
+
+            return;
+          }
+
+          const {
+            data: members,
+            error: membersError,
+          } =
+            await supabase
+              .from("protocol_couple_members")
+              .select("user_id")
+              .eq(
+                "couple_id",
+                membership.couple_id
+              );
+
+          if (membersError) {
+            throw membersError;
+          }
+
+          const memberIds =
+            (members || [])
+              .map((member) => member.user_id)
+              .filter(Boolean);
+
+          const {
+            data: profiles,
+            error: profilesError,
+          } =
+            await supabase
+              .from("protocol_profiles")
+              .select(
+                "user_id, display_name, sex"
+              )
+              .in(
+                "user_id",
+                memberIds
+              );
+
+          if (profilesError) {
+            throw profilesError;
+          }
+
+          const myProfile =
+            profiles?.find(
+              (item) =>
+                item.user_id ===
+                authSession.user.id
+            ) || null;
+
+          const partnerProfile =
+            profiles?.find(
+              (item) =>
+                item.user_id !==
+                authSession.user.id
+            ) || null;
+
+          if (active) {
+            setCouple({
+              id: membership.couple_id,
+              me: myProfile,
+              partner: partnerProfile,
+            });
+          }
+
+        } catch (err) {
+          console.error(
+            "COUPLE LOAD ERROR:",
+            err
+          );
+
+          if (active) {
+            setCouple(null);
+          }
+
+        } finally {
+          if (active) {
+            setCoupleLoading(false);
+          }
+        }
+      };
+
+    loadCouple();
 
     return () => {
       active = false;
@@ -1406,6 +1541,10 @@ function App() {
   }
 
   if (profileLoading) {
+    return null;
+  }
+
+  if (coupleLoading) {
     return null;
   }
 
