@@ -528,8 +528,8 @@ export default function InvitationsScreen({
                       <span>
                         {
                           isSent
-                            ? `→ ${other?.name || "Partenaire"}`
-                            : `← ${other?.name || "Partenaire"}`
+                            ? `→ ${otherName}`
+                            : `← ${otherName}`
                         }
                       </span>
 
