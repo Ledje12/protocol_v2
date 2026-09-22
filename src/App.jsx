@@ -648,10 +648,10 @@ function AuthScreen({ onAuthenticated }) {
                 setCode(
                   event.target.value
                     .replace(/\D/g, "")
-                    .slice(0, 6)
+                    .slice(0, 8)
                 )
               }
-              maxLength={6}
+              maxLength={8}
               required
               autoComplete="one-time-code"
             />
@@ -660,7 +660,7 @@ function AuthScreen({ onAuthenticated }) {
               type="submit"
               disabled={
                 loading ||
-                code.length !== 6
+                code.length !== 8
               }
             >
               {loading
