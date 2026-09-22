@@ -1600,11 +1600,26 @@ function App() {
 
     return (
       <InvitationsScreen
-        supabase={supabase}
-        ownerKey={ownerKey}
+        supabase={
+          supabase
+        }
+
+        ownerKey={
+          ownerKey
+        }
+
+        profile={
+          profile
+        }
+
+        couple={
+          couple
+        }
+
         onBack={() =>
           navigate("/")
         }
+
         onOpenCard={({
           cardId,
           activeKey,
@@ -1630,10 +1645,28 @@ function App() {
 
     return (
       <LibraryScreen
-        supabase={supabase}
-        ownerKey={ownerKey}
-        onBack={() => navigate("/")}
+        supabase={
+          supabase
+        }
+
+        ownerKey={
+          ownerKey
+        }
+
+        profile={
+          profile
+        }
+
+        couple={
+          couple
+        }
+
+        onBack={() =>
+          navigate("/")
+        }
+
         onOpenCard={(cardId) => {
+
           const recipientKey =
             ownerKey === "jerome"
               ? "audrey"
