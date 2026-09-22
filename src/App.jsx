@@ -1619,22 +1619,15 @@ function App() {
     );
   }
 
-  if (route.screen === "library") {
-    const ownerKey = getPushOwner();
-
-    if (!ownerKey) {
-      navigate("/settings", true);
-      return null;
-    }
+  if (
+    route.screen ===
+    "library"
+  ) {
 
     return (
       <LibraryScreen
         supabase={
           supabase
-        }
-
-        ownerKey={
-          ownerKey
         }
 
         profile={
@@ -1651,19 +1644,15 @@ function App() {
 
         onOpenCard={(cardId) => {
 
-          const recipientKey =
-            ownerKey === "jerome"
-              ? "audrey"
-              : "jerome";
-
           const challengeQuery =
             route.challengeId
-              ? `&challenge=${route.challengeId}`
+              ? `?challenge=${route.challengeId}`
               : "";
 
           navigate(
-            `/card/${cardId}?for=${recipientKey}${challengeQuery}`
+            `/card/${cardId}${challengeQuery}`
           );
+
         }}
       />
     );

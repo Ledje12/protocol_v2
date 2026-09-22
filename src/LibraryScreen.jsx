@@ -4,11 +4,6 @@ import {
   useState,
 } from "react";
 
-import {
-  getCardRecipient,
-  personalizeCardForLibrary,
-} from "./cardPersonalization.js";
-
 import "./library.css";
 
 
@@ -111,9 +106,8 @@ function getTypeLabel(
    LIBRARY SCREEN
    ========================================================= */
 
-export default function InvitationsScreen({
+export default function LibraryScreen({
   supabase,
-  ownerKey,
   profile,
   couple,
   onBack,
@@ -153,13 +147,27 @@ export default function InvitationsScreen({
 
 
   /* =======================================================
-     RECIPIENT
-     ======================================================= */
+    RECIPIENT
+    ======================================================= */
 
   const recipient =
-    getCardRecipient(
-      ownerKey
-    );
+    couple?.partner ||
+    null;
+
+
+  const partnerName =
+    recipient?.display_name ||
+    "ton partenaire";
+
+
+  const myName =
+    profile?.display_name ||
+    "toi";
+
+
+  const partnerSex =
+    recipient?.sex ||
+    null;
 
     /* =======================================================
      LOVENSE STATUS
@@ -332,11 +340,39 @@ export default function InvitationsScreen({
           const personalised =
             (data || [])
               .map(
-                (card) =>
-                  personalizeCardForLibrary(
-                    card,
-                    ownerKey
-                  )
+                (card) => {
+
+                  const compatible =
+                    !card.target_sex ||
+                    !partnerSex ||
+                    card.target_sex ===
+                      partnerSex;
+
+
+                  const displayPrompt =
+                    String(
+                      card.prompt ||
+                      ""
+                    )
+                      .replaceAll(
+                        "{{active}}",
+                        partnerName
+                      )
+                      .replaceAll(
+                        "{{partner}}",
+                        myName
+                      );
+
+
+                  return {
+                    ...card,
+
+                    compatible,
+
+                    displayPrompt,
+                  };
+
+                }
               )
               .filter(
                 (card) =>
@@ -375,7 +411,9 @@ export default function InvitationsScreen({
 
   }, [
     supabase,
-    ownerKey,
+    partnerName,
+    myName,
+    partnerSex,
   ]);
 
 
