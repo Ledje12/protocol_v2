@@ -497,15 +497,6 @@ export default function MessagesScreen({
 
                       <span>
                         {
-                          isMine
-                            ? "Moi"
-                            : "Partenaire"
-                        }
-                      </span>
-
-
-                      <span>
-                        {
                           formatMessageTime(
                             message.created_at
                           )

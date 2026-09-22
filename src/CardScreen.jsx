@@ -1168,12 +1168,9 @@ export default function CardScreen({
           await supabase
             .functions
             .invoke(
-              "send-card-invitation",
+              "send-invitation",
               {
                 body: {
-                  sender:
-                    ownerKey,
-
                   card_id:
                     card.id,
 
