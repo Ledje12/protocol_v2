@@ -1097,14 +1097,14 @@ function App() {
       supabase.auth.onAuthStateChange(
         (_event, session) => {
 
-          setProfile(null);
-          setProfileLoading(
-            Boolean(session)
-          );
-
           setAuthSession(
             session ?? null
           );
+
+          if (!session) {
+            setProfile(null);
+            setProfileLoading(false);
+          }
 
           setAuthLoading(false);
         }
