@@ -3635,6 +3635,175 @@ function SettingsScreen({
           </p>
         </div>
 
+        <div className="settings-section-card">
+
+          <div className="settings-section-heading">
+            <span className="settings-section-eyebrow">
+              PARTENAIRE
+            </span>
+
+            <h2>
+              Votre duo.
+            </h2>
+          </div>
+
+
+          {couple?.partner ? (
+            <>
+              <p
+                style={{
+                  margin: "0 0 14px",
+                  opacity: 0.72,
+                  lineHeight: 1.5,
+                }}
+              >
+                Tu es associé à{" "}
+                <strong>
+                  {couple.partner.display_name ||
+                    "ton partenaire"}
+                </strong>.
+              </p>
+
+              <span className="notification-status">
+                ASSOCIÉS
+              </span>
+            </>
+          ) : (
+            <>
+              <p
+                style={{
+                  margin: "0 0 18px",
+                  opacity: 0.72,
+                  lineHeight: 1.5,
+                }}
+              >
+                Associe ton compte à celui de ton
+                partenaire pour partager invitations,
+                messages et expériences.
+              </p>
+
+
+              <button
+                type="button"
+                className="notification-enable"
+                onClick={createCoupleInvite}
+                disabled={coupleActionLoading}
+              >
+                <span>
+                  {coupleActionLoading
+                    ? "Préparation…"
+                    : "Créer un code partenaire"}
+                </span>
+
+                <span className="notification-arrow">
+                  →
+                </span>
+              </button>
+
+
+              {coupleInviteCode && (
+                <div
+                  style={{
+                    marginTop: "16px",
+                    padding: "16px",
+                    borderRadius: "18px",
+                    background:
+                      "rgba(255,255,255,.07)",
+                    textAlign: "center",
+                  }}
+                >
+                  <span
+                    className="settings-section-eyebrow"
+                    style={{
+                      display: "block",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    CODE PARTENAIRE
+                  </span>
+
+                  <strong
+                    style={{
+                      display: "block",
+                      fontSize: "1.6rem",
+                      letterSpacing: ".16em",
+                    }}
+                  >
+                    {coupleInviteCode}
+                  </strong>
+                </div>
+              )}
+
+
+              <div
+                style={{
+                  marginTop: "22px",
+                  paddingTop: "20px",
+                  borderTop:
+                    "1px solid rgba(255,255,255,.09)",
+                }}
+              >
+                <span
+                  className="settings-section-eyebrow"
+                  style={{
+                    display: "block",
+                    marginBottom: "10px",
+                  }}
+                >
+                  J’AI DÉJÀ UN CODE
+                </span>
+
+                <input
+                  type="text"
+                  value={coupleJoinCode}
+                  onChange={(event) =>
+                    setCoupleJoinCode(
+                      event.target.value
+                        .replace(
+                          /[^a-fA-F0-9]/g,
+                          ""
+                        )
+                        .toUpperCase()
+                        .slice(0, 10)
+                    )
+                  }
+                  maxLength={10}
+                  autoComplete="off"
+                  placeholder="CODE PARTENAIRE"
+                  style={{
+                    width: "100%",
+                    boxSizing: "border-box",
+                    marginBottom: "10px",
+                  }}
+                />
+
+                <button
+                  type="button"
+                  className="secondary"
+                  onClick={joinCouple}
+                  disabled={
+                    coupleActionLoading ||
+                    coupleJoinCode.length !== 10
+                  }
+                  style={{
+                    width: "100%",
+                  }}
+                >
+                  Associer ce compte
+                </button>
+              </div>
+            </>
+          )}
+
+
+          {coupleMessage && (
+            <p className="notification-message">
+              {coupleMessage}
+            </p>
+          )}
+
+        </div>
+        
         <div
           className={
             `notification-card ${status.className}`
