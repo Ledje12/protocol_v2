@@ -2145,14 +2145,6 @@ function HomeScreen({ navigate , profile, }) {
   const sendInvitation = async (
     signal = "tonight"
   ) => {
-    const sender = getPushOwner();
-
-    if (!sender) {
-      setInviteMessage(
-        "Enregistre d’abord cet appareil dans les réglages."
-      );
-      return;
-    }
 
     try {
       setInviteLoading(true);
@@ -2165,7 +2157,6 @@ function HomeScreen({ navigate , profile, }) {
         "send-invitation",
         {
           body: {
-            sender,
             signal,
           },
         }
@@ -2183,16 +2174,23 @@ function HomeScreen({ navigate , profile, }) {
       }
 
       const messages = {
-        secret: "Secret proposé.",
-        challenge: "Défi proposé.",
-        tonight: "Invitation envoyée.",
+        secret:
+          "Secret proposé.",
+
+        challenge:
+          "Défi proposé.",
+
+        tonight:
+          "Invitation envoyée.",
       };
 
       setInviteMessage(
-        messages[signal] || "Signal envoyé."
+        messages[signal] ||
+          "Signal envoyé."
       );
 
     } catch (err) {
+
       console.error(
         "SEND INVITATION ERROR:",
         err
@@ -2204,8 +2202,13 @@ function HomeScreen({ navigate , profile, }) {
       );
 
     } finally {
-      setInviteLoading(false);
+
+      setInviteLoading(
+        false
+      );
+
     }
+
   };
 
   const joinGameFromHome = async (
