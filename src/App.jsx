@@ -789,6 +789,256 @@ function AuthScreen({ onAuthenticated }) {
   );
 }
 
+function ProfileSetupScreen({
+  user,
+  onProfileReady,
+}) {
+  const [displayName, setDisplayName] =
+    useState("");
+
+  const [sex, setSex] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const saveProfile =
+    async (event) => {
+      event.preventDefault();
+
+      const cleanName =
+        displayName.trim();
+
+      if (!cleanName || !sex) {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setMessage("");
+
+        const {
+          data,
+          error,
+        } =
+          await supabase
+            .from("protocol_profiles")
+            .upsert(
+              {
+                user_id: user.id,
+                display_name: cleanName,
+                sex,
+                updated_at:
+                  new Date().toISOString(),
+              },
+              {
+                onConflict: "user_id",
+              }
+            )
+            .select(
+              "user_id, display_name, sex"
+            )
+            .single();
+
+        if (error) {
+          throw error;
+        }
+
+        onProfileReady(data);
+
+      } catch (err) {
+        console.error(
+          "PROFILE SAVE ERROR:",
+          err
+        );
+
+        setMessage(
+          err?.message ||
+          "Impossible d’enregistrer le profil."
+        );
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  return (
+    <main className="protocol-auth-page">
+
+      <div className="protocol-auth-glow" />
+
+      <section className="protocol-auth-shell">
+
+        <header className="protocol-auth-brand">
+
+          <div className="protocol-auth-logo">
+            PROTOCOL
+          </div>
+
+          <div className="protocol-auth-version">
+            <span />
+            <small>V2</small>
+            <span />
+          </div>
+
+        </header>
+
+
+        <section className="protocol-auth-card">
+
+          <div className="protocol-auth-copy">
+
+            <span className="protocol-auth-eyebrow">
+              VOTRE PROFIL
+            </span>
+
+            <h1>
+              Qui joue ?
+            </h1>
+
+            <p>
+              Ces informations seront mémorisées
+              pour les prochaines parties.
+            </p>
+
+          </div>
+
+
+          <form
+            className="protocol-auth-form"
+            onSubmit={saveProfile}
+          >
+
+            <label htmlFor="protocol-profile-name">
+              Prénom
+            </label>
+
+            <input
+              id="protocol-profile-name"
+              type="text"
+              value={displayName}
+              onChange={(event) =>
+                setDisplayName(
+                  event.target.value
+                )
+              }
+              placeholder="Votre prénom"
+              autoComplete="given-name"
+              maxLength={40}
+              required
+            />
+
+
+            <label
+              style={{
+                marginTop: "10px",
+              }}
+            >
+              Sexe
+            </label>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns:
+                  "1fr 1fr",
+                gap: "10px",
+              }}
+            >
+
+              <button
+                type="button"
+                className="secondary"
+                aria-pressed={
+                  sex === "male"
+                }
+                onClick={() =>
+                  setSex("male")
+                }
+                style={
+                  sex === "male"
+                    ? {
+                        borderColor:
+                          "#3397ff",
+                        background:
+                          "rgba(51,151,255,.14)",
+                      }
+                    : undefined
+                }
+              >
+                Homme
+              </button>
+
+              <button
+                type="button"
+                className="secondary"
+                aria-pressed={
+                  sex === "female"
+                }
+                onClick={() =>
+                  setSex("female")
+                }
+                style={
+                  sex === "female"
+                    ? {
+                        borderColor:
+                          "#3397ff",
+                        background:
+                          "rgba(51,151,255,.14)",
+                      }
+                    : undefined
+                }
+              >
+                Femme
+              </button>
+
+            </div>
+
+
+            <button
+              type="submit"
+              disabled={
+                loading ||
+                !displayName.trim() ||
+                !sex
+              }
+            >
+              <span>
+                {loading
+                  ? "Enregistrement…"
+                  : "Continuer"}
+              </span>
+
+              {!loading && (
+                <span
+                  className="protocol-auth-arrow"
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              )}
+            </button>
+
+          </form>
+
+
+          {message && (
+            <p className="protocol-auth-message">
+              {message}
+            </p>
+          )}
+
+        </section>
+
+      </section>
+
+    </main>
+  );
+}
+
 /* =========================================================
    APP
    ========================================================= */
@@ -798,6 +1048,12 @@ function App() {
     useState(null);
 
   const [authLoading, setAuthLoading] =
+    useState(true);
+
+  const [profile, setProfile] =
+    useState(null);
+
+  const [profileLoading, setProfileLoading] =
     useState(true);
 
   useEffect(() => {
@@ -823,6 +1079,11 @@ function App() {
       supabase.auth.onAuthStateChange(
         (_event, session) => {
 
+          setProfile(null);
+          setProfileLoading(
+            Boolean(session)
+          );
+
           setAuthSession(
             session ?? null
           );
@@ -837,6 +1098,74 @@ function App() {
       authListener?.subscription?.unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadProfile =
+      async () => {
+
+        if (!authSession?.user?.id) {
+          if (active) {
+            setProfile(null);
+            setProfileLoading(false);
+          }
+
+          return;
+        }
+
+        try {
+          setProfileLoading(true);
+
+          const {
+            data,
+            error,
+          } =
+            await supabase
+              .from("protocol_profiles")
+              .select(
+                "user_id, display_name, sex"
+              )
+              .eq(
+                "user_id",
+                authSession.user.id
+              )
+              .maybeSingle();
+
+          if (error) {
+            throw error;
+          }
+
+          if (active) {
+            setProfile(
+              data ?? null
+            );
+          }
+
+        } catch (err) {
+          console.error(
+            "PROFILE LOAD ERROR:",
+            err
+          );
+
+          if (active) {
+            setProfile(null);
+          }
+
+        } finally {
+          if (active) {
+            setProfileLoading(false);
+          }
+        }
+      };
+
+    loadProfile();
+
+    return () => {
+      active = false;
+    };
+
+  }, [authSession?.user?.id]);
 
   const [route, setRoute] =
     useState(getRoute());
@@ -1053,6 +1382,24 @@ function App() {
       <AuthScreen
         onAuthenticated={
           setAuthSession
+        }
+      />
+    );
+  }
+
+  if (profileLoading) {
+    return null;
+  }
+
+  if (
+    !profile?.display_name ||
+    !profile?.sex
+  ) {
+    return (
+      <ProfileSetupScreen
+        user={authSession.user}
+        onProfileReady={
+          setProfile
         }
       />
     );
