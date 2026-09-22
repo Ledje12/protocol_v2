@@ -138,8 +138,6 @@ export default function MessagesScreen({
               .select(
                 `
                   id,
-                  sender,
-                  recipient,
                   sender_user_id,
                   recipient_user_id,
                   couple_id,
