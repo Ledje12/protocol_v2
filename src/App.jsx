@@ -3966,6 +3966,25 @@ function SettingsScreen({
               </p>
             )}
 
+          {permission === "granted" &&
+            !subscribed &&
+            !checkingSubscription && (
+              <button
+                type="button"
+                className="secondary"
+                onClick={activatePushNotifications}
+                disabled={requesting}
+                style={{
+                  marginTop: "14px",
+                  width: "100%",
+                }}
+              >
+                {requesting
+                  ? "Enregistrement…"
+                  : "Finaliser l’enregistrement"}
+              </button>
+            )}
+
           {message && (
             <p className="notification-message">
               {message}
