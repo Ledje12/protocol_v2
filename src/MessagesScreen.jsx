@@ -7,6 +7,7 @@ import "./messages.css";
 
 // PROTOCOL private messaging
 
+
 function formatMessageTime(
   value
 ) {
@@ -41,7 +42,8 @@ function formatMessageTime(
 
 export default function MessagesScreen({
   supabase,
-  ownerKey,
+  profile,
+  couple,
   onBack,
 }) {
 
@@ -76,6 +78,17 @@ export default function MessagesScreen({
     useState(false);
 
 
+  const currentUserId =
+    profile?.user_id ||
+    null;
+
+
+  const coupleId =
+    couple?.id ||
+    couple?.couple_id ||
+    null;
+
+
   /* =========================================================
      LOAD MESSAGES
      ========================================================= */
@@ -88,6 +101,19 @@ export default function MessagesScreen({
 
     const loadMessages =
       async () => {
+
+        if (
+          !currentUserId ||
+          !coupleId
+        ) {
+          if (active) {
+            setMessages([]);
+            setLoading(false);
+          }
+
+          return;
+        }
+
 
         try {
 
@@ -114,6 +140,9 @@ export default function MessagesScreen({
                   id,
                   sender,
                   recipient,
+                  sender_user_id,
+                  recipient_user_id,
+                  couple_id,
                   body,
                   reply_to_id,
                   reaction,
@@ -121,8 +150,9 @@ export default function MessagesScreen({
                   read_at
                 `
               )
-              .or(
-                `sender.eq.${ownerKey},recipient.eq.${ownerKey}`
+              .eq(
+                "couple_id",
+                coupleId
               )
               .order(
                 "created_at",
@@ -195,7 +225,8 @@ export default function MessagesScreen({
 
   }, [
     supabase,
-    ownerKey,
+    currentUserId,
+    coupleId,
   ]);
 
 
@@ -214,6 +245,18 @@ export default function MessagesScreen({
         !trimmed ||
         sending
       ) {
+        return;
+      }
+
+
+      if (
+        !currentUserId ||
+        !coupleId
+      ) {
+        setError(
+          "Ton compte partenaire n’est pas disponible."
+        );
+
         return;
       }
 
@@ -240,9 +283,6 @@ export default function MessagesScreen({
               "send-message",
               {
                 body: {
-                  sender:
-                    ownerKey,
-
                   body:
                     trimmed,
                 },
@@ -271,10 +311,29 @@ export default function MessagesScreen({
         setMessages(
           (
             current
-          ) => [
-            ...current,
-            data.message,
-          ]
+          ) => {
+
+            const alreadyExists =
+              current.some(
+                (message) =>
+                  message.id ===
+                  data.message.id
+              );
+
+
+            if (
+              alreadyExists
+            ) {
+              return current;
+            }
+
+
+            return [
+              ...current,
+              data.message,
+            ];
+
+          }
         );
 
 
@@ -398,7 +457,6 @@ export default function MessagesScreen({
 
 
         {!loading &&
-          !error &&
           messages.length >
             0 && (
 
@@ -410,8 +468,9 @@ export default function MessagesScreen({
               ) => {
 
                 const isMine =
-                  message.sender ===
-                  ownerKey;
+                  message
+                    .sender_user_id ===
+                  currentUserId;
 
 
                 return (
@@ -440,10 +499,7 @@ export default function MessagesScreen({
                         {
                           isMine
                             ? "Moi"
-                            : message.sender ===
-                              "jerome"
-                              ? "Jérôme"
-                              : "Audrey"
+                            : "Partenaire"
                         }
                       </span>
 
@@ -506,7 +562,9 @@ export default function MessagesScreen({
 
             disabled={
               sending ||
-              !draft.trim()
+              !draft.trim() ||
+              !currentUserId ||
+              !coupleId
             }
 
             aria-label="Envoyer"

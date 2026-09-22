@@ -1563,30 +1563,18 @@ function App() {
     route.screen ===
     "messages"
   ) {
-
-    const ownerKey =
-      getPushOwner();
-
-    if (
-      !ownerKey
-    ) {
-      navigate(
-        "/settings",
-        true
-      );
-
-      return null;
-    }
-
-
     return (
       <MessagesScreen
         supabase={
           supabase
         }
 
-        ownerKey={
-          ownerKey
+        profile={
+          profile
+        }
+
+        couple={
+          couple
         }
 
         onBack={() =>
