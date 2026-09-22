@@ -180,6 +180,41 @@ function clearGameSession() {
   );
 }
 
+async function saveProfileAsGameIdentity({
+  code,
+  playerNumber,
+  playerToken,
+  profile,
+}) {
+  if (
+    !code ||
+    !playerNumber ||
+    !playerToken ||
+    !profile?.display_name ||
+    !profile?.sex
+  ) {
+    throw new Error(
+      "Profil ou session de partie incomplet."
+    );
+  }
+
+  const { error } =
+    await supabase.rpc(
+      "save_protocol_identity",
+      {
+        p_game_code: code,
+        p_player_no: playerNumber,
+        p_player_token: playerToken,
+        p_name: profile.display_name,
+        p_sex: profile.sex,
+      }
+    );
+
+  if (error) {
+    throw error;
+  }
+}
+
 const PROTOCOL_LAST_SEEN_CARD_KEY =
   "protocol-last-seen-card";
 
@@ -1576,6 +1611,7 @@ function App() {
     return (
       <JoinScreen
         navigate={navigate}
+        profile={profile}
       />
     );
   }
@@ -1625,6 +1661,7 @@ function App() {
   return (
     <HomeScreen
       navigate={navigate}
+      profile={profile}
     />
   );
 }
@@ -1737,7 +1774,7 @@ function HomeIcon({
    HOME
    ========================================================= */
 
-function HomeScreen({ navigate }) {
+function HomeScreen({ navigate , profile, }) {
   const [loading, setLoading] =
     useState(false);
 
@@ -2103,10 +2140,17 @@ function HomeScreen({ navigate }) {
         joinedGame.player_token
       );
 
+      await saveProfileAsGameIdentity({
+        code: joinedGame.code,
+        playerNumber: joinedGame.player_no,
+        playerToken: joinedGame.player_token,
+        profile,
+      });
+
       setJoinOpen(false);
 
       navigate(
-        `/game/${joinedGame.code}/identity`
+        `/game/${joinedGame.code}`
       );
 
     } catch (err) {
@@ -2161,8 +2205,15 @@ function HomeScreen({ navigate }) {
         createdGame.player_token
       );
 
+      await saveProfileAsGameIdentity({
+        code: createdGame.code,
+        playerNumber: createdGame.player_no,
+        playerToken: createdGame.player_token,
+        profile,
+      });
+
       navigate(
-        `/game/${createdGame.code}/identity`
+        `/game/${createdGame.code}`
       );
 
     } catch (err) {
@@ -3997,7 +4048,7 @@ function SettingsScreen({ navigate }) {
    JOIN
    ========================================================= */
 
-function JoinScreen({ navigate }) {
+function JoinScreen({ navigate, profile, }) {
   const [code, setCode] =
     useState("");
 
@@ -4049,14 +4100,15 @@ function JoinScreen({ navigate }) {
       );
     }
 
-    saveGameSession(
-      joinedGame.code,
-      joinedGame.player_no,
-      joinedGame.player_token
-    );
+    await saveProfileAsGameIdentity({
+      code: joinedGame.code,
+      playerNumber: joinedGame.player_no,
+      playerToken: joinedGame.player_token,
+      profile,
+    });
 
     navigate(
-      `/game/${joinedGame.code}/identity`
+      `/game/${joinedGame.code}`
     );
 
   } catch (err) {
