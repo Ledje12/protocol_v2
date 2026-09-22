@@ -491,11 +491,248 @@ function getRoute() {
   };
 }
 
+function AuthScreen({ onAuthenticated }) {
+  const [email, setEmail] =
+    useState("");
+
+  const [code, setCode] =
+    useState("");
+
+  const [step, setStep] =
+    useState("email");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [message, setMessage] =
+    useState("");
+
+  const sendCode =
+    async (event) => {
+      event.preventDefault();
+
+      try {
+        setLoading(true);
+        setMessage("");
+
+        const normalizedEmail =
+          email.trim().toLowerCase();
+
+        const { error } =
+          await supabase.auth.signInWithOtp({
+            email: normalizedEmail,
+            options: {
+              shouldCreateUser: true,
+            },
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        setStep("code");
+
+        setMessage(
+          "Code envoyé par email."
+        );
+
+      } catch (err) {
+        setMessage(
+          err?.message ||
+          "Impossible d’envoyer le code."
+        );
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  const verifyCode =
+    async (event) => {
+      event.preventDefault();
+
+      try {
+        setLoading(true);
+        setMessage("");
+
+        const normalizedEmail =
+          email.trim().toLowerCase();
+
+        const { data, error } =
+          await supabase.auth.verifyOtp({
+            email: normalizedEmail,
+            token: code.trim(),
+            type: "email",
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.session) {
+          throw new Error(
+            "Session Supabase introuvable."
+          );
+        }
+
+        onAuthenticated?.(
+          data.session
+        );
+
+      } catch (err) {
+        setMessage(
+          err?.message ||
+          "Code incorrect ou expiré."
+        );
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  return (
+    <main className="protocol-home">
+
+      <section className="protocol-panel">
+
+        <h1>
+          PROTOCOL
+        </h1>
+
+        {step === "email" && (
+
+          <form onSubmit={sendCode}>
+
+            <label>
+              Email
+            </label>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(event) =>
+                setEmail(
+                  event.target.value
+                )
+              }
+              required
+              autoComplete="email"
+            />
+
+            <button
+              type="submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Envoi…"
+                : "Recevoir mon code"}
+            </button>
+
+          </form>
+
+        )}
+
+        {step === "code" && (
+
+          <form onSubmit={verifyCode}>
+
+            <label>
+              Code reçu
+            </label>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              value={code}
+              onChange={(event) =>
+                setCode(
+                  event.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 6)
+                )
+              }
+              maxLength={6}
+              required
+              autoComplete="one-time-code"
+            />
+
+            <button
+              type="submit"
+              disabled={
+                loading ||
+                code.length !== 6
+              }
+            >
+              {loading
+                ? "Connexion…"
+                : "Entrer"}
+            </button>
+
+          </form>
+
+        )}
+
+        {message && (
+          <p>
+            {message}
+          </p>
+        )}
+
+      </section>
+
+    </main>
+  );
+}
+
 /* =========================================================
    APP
    ========================================================= */
 
 function App() {
+  const [authSession, setAuthSession] =
+    useState(null);
+
+  const [authLoading, setAuthLoading] =
+    useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!active) {
+          return;
+        }
+
+        setAuthSession(
+          data?.session ?? null
+        );
+
+        setAuthLoading(false);
+      });
+
+    const {
+      data: authListener,
+    } =
+      supabase.auth.onAuthStateChange(
+        (_event, session) => {
+
+          setAuthSession(
+            session ?? null
+          );
+
+          setAuthLoading(false);
+        }
+      );
+
+    return () => {
+      active = false;
+
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
+
   const [route, setRoute] =
     useState(getRoute());
 
@@ -701,6 +938,20 @@ function App() {
     };
 
   }, []);
+
+  if (authLoading) {
+    return null;
+  }
+
+  if (!authSession) {
+    return (
+      <AuthScreen
+        onAuthenticated={
+          setAuthSession
+        }
+      />
+    );
+  }
 
   if (route.screen === "settings") {
     return (
