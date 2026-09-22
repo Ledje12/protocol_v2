@@ -463,19 +463,6 @@ function getRoute() {
    * passent AVANT /game/:code.
    */
 
-  const identityMatch =
-    path.match(
-      /^\/game\/([^/]+)\/identity\/?$/
-    );
-
-  if (identityMatch) {
-    return {
-      screen: "identity",
-      code:
-        identityMatch[1].toUpperCase(),
-    };
-  }
-
   const calibrationMatch =
     path.match(
       /^\/game\/([^/]+)\/calibration\/?$/
@@ -1627,18 +1614,6 @@ function App() {
 
   if (
     route.screen ===
-    "identity"
-  ) {
-    return (
-      <IdentityScreen
-        code={route.code}
-        navigate={navigate}
-      />
-    );
-  }
-
-  if (
-    route.screen ===
     "calibration"
   ) {
     return (
@@ -1944,7 +1919,7 @@ function HomeScreen({ navigate , profile, }) {
       };
     }, []);
 
-    const resumeCurrentGame = () => {
+    const resumeCurrentGame = async () => {
       if (!resumeGame) {
         return;
       }
@@ -2007,11 +1982,38 @@ function HomeScreen({ navigate , profile, }) {
           : resumeGame.player_2_sex;
 
       if (!myName || !mySex) {
-        navigate(
-          `/game/${code}/identity`
-        );
+        const session =
+          getGameSession(code);
 
-        return;
+        if (!session.valid) {
+          clearGameSession();
+          navigate("/");
+          return;
+        }
+
+        try {
+          await saveProfileAsGameIdentity({
+            code,
+            playerNumber:
+              session.playerNumber,
+            playerToken:
+              session.playerToken,
+            profile,
+          });
+
+        } catch (err) {
+          console.error(
+            "RESUME IDENTITY SYNC ERROR:",
+            err
+          );
+
+          setError(
+            err?.message ||
+            "Impossible de restaurer ton profil dans cette partie."
+          );
+
+          return;
+        }
       }
 
       /*
@@ -4214,357 +4216,6 @@ function JoinScreen({ navigate, profile, }) {
     </main>
   );
 }
-
-/* =========================================================
-   IDENTITY
-   ========================================================= */
-
-  function IdentityScreen({
-    code,
-    navigate,
-  }) {
-    const {
-      playerNumber,
-      playerToken,
-      valid: hasGameSession,
-    } = getGameSession(code);
-
-    const [name, setName] =
-      useState("");
-
-    const [sex, setSex] =
-      useState(null);
-
-    const [loading, setLoading] =
-      useState(false);
-
-    const [initialLoading, setInitialLoading] =
-      useState(true);
-
-    const [error, setError] =
-      useState("");
-
-    useEffect(() => {
-      let active = true;
-
-      const loadIdentity =
-        async () => {
-
-          if (!hasGameSession) {
-            if (active) {
-              setInitialLoading(false);
-            }
-
-            return;
-          }
-
-          try {
-            const {
-              data,
-              error: loadError,
-            } = await supabase.rpc(
-              "get_protocol_game",
-              {
-                p_game_code: code,
-                p_player_no:
-                  playerNumber,
-                p_player_token:
-                  playerToken,
-              }
-            );
-
-            if (loadError) {
-              throw loadError;
-            }
-
-            const game =
-              Array.isArray(data)
-                ? data[0]
-                : data;
-
-            if (!game) {
-              throw new Error(
-                "Partie introuvable."
-              );
-            }
-
-            if (!active) {
-              return;
-            }
-
-            if (playerNumber === 1) {
-              setName(
-                game.player_1_name || ""
-              );
-
-              setSex(
-                game.player_1_sex || null
-              );
-
-            } else {
-              setName(
-                game.player_2_name || ""
-              );
-
-              setSex(
-                game.player_2_sex || null
-              );
-            }
-
-          } catch (err) {
-            console.error(
-              "IDENTITY LOAD ERROR:",
-              err
-            );
-
-            if (active) {
-              setError(
-                "Impossible de charger la partie."
-              );
-            }
-
-          } finally {
-            if (active) {
-              setInitialLoading(false);
-            }
-          }
-        };
-
-      loadIdentity();
-
-      return () => {
-        active = false;
-      };
-
-    }, [
-      code,
-      playerNumber,
-      playerToken,
-      hasGameSession,
-    ]);
-
-
-    const saveIdentity =
-      async () => {
-
-        const cleanName =
-          name.trim();
-
-        if (
-          cleanName.length < 1 ||
-          !sex ||
-          !hasGameSession
-        ) {
-          return;
-        }
-
-        try {
-          setLoading(true);
-          setError("");
-
-          const {
-            error: rpcError,
-          } = await supabase.rpc(
-            "save_protocol_identity",
-            {
-              p_game_code: code,
-              p_player_no:
-                playerNumber,
-              p_player_token:
-                playerToken,
-              p_name:
-                cleanName,
-              p_sex:
-                sex,
-            }
-          );
-
-          if (rpcError) {
-            throw rpcError;
-          }
-
-          navigate(
-            `/game/${code}`
-          );
-
-        } catch (err) {
-          console.error(
-            "IDENTITY SAVE ERROR:",
-            err
-          );
-
-          setError(
-            err?.message ||
-              "Impossible d'enregistrer."
-          );
-
-        } finally {
-          setLoading(false);
-        }
-      };
-
-
-    if (initialLoading) {
-      return (
-        <LoadingScreen />
-      );
-    }
-
-
-    if (!hasGameSession) {
-      return (
-        <main className="app center">
-          <p>
-            Ce téléphone n'est pas
-            associé à cette partie.
-          </p>
-
-          <button
-            className="secondary"
-            onClick={() =>
-              navigate("/")
-            }
-          >
-            Retour
-          </button>
-        </main>
-      );
-    }
-
-
-    return (
-      <main className="app identity-page">
-        <div className="glow glow-center" />
-
-        <header className="header">
-          <span className="logo">
-            PROTOCOL
-          </span>
-
-          <span className="pill">
-            Ce soir
-          </span>
-        </header>
-
-        <section className="identity">
-
-          <div>
-            <p className="kicker">
-              TON IDENTITÉ
-            </p>
-
-            <h1>
-              Comment
-              <br />
-              t'appeler ?
-            </h1>
-
-            <p className="intro">
-              Ton prénom, un surnom ou
-              simplement celui que tu veux
-              entendre ce soir.
-            </p>
-          </div>
-
-
-          <div className="identity-form">
-
-            <label className="identity-name">
-
-              <span>
-                NOM DE SESSION
-              </span>
-
-              <input
-                type="text"
-                value={name}
-                onChange={(event) => {
-                  setName(
-                    event.target.value
-                      .slice(0, 24)
-                  );
-
-                  setError("");
-                }}
-                placeholder="Ton nom ce soir"
-                autoFocus
-                autoComplete="off"
-              />
-
-            </label>
-
-
-            <div className="identity-symbols">
-
-              <button
-                type="button"
-                className={
-                  sex === "female"
-                    ? "identity-symbol selected"
-                    : "identity-symbol"
-                }
-                onClick={() => {
-                  setSex("female");
-                  setError("");
-                }}
-                aria-label="Femme"
-              >
-                ♀
-              </button>
-
-
-              <button
-                type="button"
-                className={
-                  sex === "male"
-                    ? "identity-symbol selected"
-                    : "identity-symbol"
-                }
-                onClick={() => {
-                  setSex("male");
-                  setError("");
-                }}
-                aria-label="Homme"
-              >
-                ♂
-              </button>
-
-            </div>
-
-
-            {error && (
-              <p className="error">
-                {error}
-              </p>
-            )}
-
-
-            <button
-              className="primary"
-              onClick={saveIdentity}
-              disabled={
-                loading ||
-                !name.trim() ||
-                !sex
-              }
-            >
-              <span>
-                {loading
-                  ? "Un instant…"
-                  : "Continuer"}
-              </span>
-
-              <span>→</span>
-            </button>
-
-          </div>
-
-        </section>
-
-        <Footer />
-      </main>
-    );
-  }
 
 /* =========================================================
    LOBBY
