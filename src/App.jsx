@@ -1320,6 +1320,14 @@ function App() {
   };
 
   useEffect(() => {
+    if (route.screen === "settings") {
+      setCoupleRefreshKey(
+        (value) => value + 1
+      );
+    }
+  }, [route.screen]);
+
+  useEffect(() => {
     const handlePopState = () => {
       setRoute(getRoute());
     };
