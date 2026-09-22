@@ -21,14 +21,22 @@ function formatDateTime(
     return new Intl.DateTimeFormat(
       "fr-BE",
       {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
+        day:
+          "2-digit",
+
+        month:
+          "2-digit",
+
+        hour:
+          "2-digit",
+
+        minute:
+          "2-digit",
       }
     ).format(
       new Date(value)
     );
+
   } catch {
     return "";
   }
@@ -37,7 +45,8 @@ function formatDateTime(
 
 export default function InvitationsScreen({
   supabase,
-  ownerKey,
+  profile,
+  couple,
   onBack,
   onOpenCard,
 }) {
@@ -45,90 +54,329 @@ export default function InvitationsScreen({
   const [
     invitations,
     setInvitations,
-  ] = useState([]);
+  ] =
+    useState([]);
 
   const [
     loading,
     setLoading,
-  ] = useState(true);
+  ] =
+    useState(true);
 
   const [
     error,
     setError,
-  ] = useState("");
+  ] =
+    useState("");
+
+
+  const currentUserId =
+    profile?.user_id ||
+    null;
+
+
+  const coupleId =
+    couple?.id ||
+    couple?.couple_id ||
+    null;
 
 
   useEffect(() => {
 
-    let active = true;
+    let active =
+      true;
+
 
     const loadInvitations =
       async () => {
 
-        try {
-
-          setLoading(true);
-          setError("");
-
-          const {
-            data,
-            error: rpcError,
-          } =
-            await supabase.rpc(
-              "get_card_invitations",
-              {
-                p_owner_key:
-                  ownerKey,
-              }
-            );
-
-          if (rpcError) {
-            throw rpcError;
+        if (
+          !currentUserId ||
+          !coupleId
+        ) {
+          if (active) {
+            setInvitations([]);
+            setLoading(false);
           }
 
-          if (!active) {
+          return;
+        }
+
+
+        try {
+
+          setLoading(
+            true
+          );
+
+          setError(
+            ""
+          );
+
+
+          /* =============================================
+             INVITATIONS DU COUPLE
+             ============================================= */
+
+          const {
+            data:
+              invitationRows,
+
+            error:
+              invitationError,
+          } =
+            await supabase
+              .from(
+                "card_invitations"
+              )
+              .select(
+                `
+                  id,
+                  card_id,
+                  sender_key,
+                  recipient_key,
+                  sender_user_id,
+                  recipient_user_id,
+                  couple_id,
+                  sent_at,
+                  opened_at
+                `
+              )
+              .eq(
+                "couple_id",
+                coupleId
+              )
+              .or(
+                `sender_user_id.eq.${currentUserId},recipient_user_id.eq.${currentUserId}`
+              )
+              .order(
+                "sent_at",
+                {
+                  ascending:
+                    false,
+                }
+              );
+
+
+          if (
+            invitationError
+          ) {
+            throw invitationError;
+          }
+
+
+          const rows =
+            Array.isArray(
+              invitationRows
+            )
+              ? invitationRows
+              : [];
+
+
+          if (
+            rows.length === 0
+          ) {
+
+            if (active) {
+              setInvitations([]);
+            }
+
             return;
           }
 
-          setInvitations(
-            Array.isArray(data)
-              ? data
-              : []
-          );
 
-        } catch (err) {
+          /* =============================================
+             CARTES ASSOCIÉES
+             ============================================= */
+
+          const cardIds = [
+            ...new Set(
+              rows
+                .map(
+                  (row) =>
+                    row.card_id
+                )
+                .filter(
+                  Boolean
+                )
+            ),
+          ];
+
+
+          const {
+            data:
+              cards,
+
+            error:
+              cardsError,
+          } =
+            await supabase
+              .from(
+                "protocol_cards"
+              )
+              .select(
+                `
+                  id,
+                  title,
+                  type
+                `
+              )
+              .in(
+                "id",
+                cardIds
+              );
+
+
+          if (
+            cardsError
+          ) {
+            throw cardsError;
+          }
+
+
+          const cardMap =
+            new Map(
+              (
+                cards || []
+              ).map(
+                (card) => [
+                  card.id,
+                  card,
+                ]
+              )
+            );
+
+
+          const normalized =
+            rows.map(
+              (invitation) => {
+
+                const card =
+                  cardMap.get(
+                    invitation.card_id
+                  );
+
+
+                const isSent =
+                  invitation
+                    .sender_user_id ===
+                  currentUserId;
+
+
+                const otherKey =
+                  isSent
+                    ? invitation
+                        .recipient_key
+                    : invitation
+                        .sender_key;
+
+
+                return {
+                  invitation_id:
+                    invitation.id,
+
+                  card_id:
+                    invitation.card_id,
+
+                  card_title:
+                    card?.title ||
+                    "Carte",
+
+                  card_type:
+                    card?.type ||
+                    "",
+
+                  sender_key:
+                    invitation.sender_key,
+
+                  recipient_key:
+                    invitation.recipient_key,
+
+                  sender_user_id:
+                    invitation.sender_user_id,
+
+                  recipient_user_id:
+                    invitation.recipient_user_id,
+
+                  couple_id:
+                    invitation.couple_id,
+
+                  direction:
+                    isSent
+                      ? "sent"
+                      : "received",
+
+                  other_key:
+                    otherKey,
+
+                  sent_at:
+                    invitation.sent_at,
+
+                  opened_at:
+                    invitation.opened_at,
+                };
+
+              }
+            );
+
+
+          if (
+            active
+          ) {
+            setInvitations(
+              normalized
+            );
+          }
+
+
+        } catch (
+          err
+        ) {
 
           console.error(
             "INVITATIONS LOAD ERROR:",
             err
           );
 
-          if (active) {
+
+          if (
+            active
+          ) {
             setError(
               err?.message ||
-              "Impossible de charger les invitations."
+                "Impossible de charger les invitations."
             );
           }
 
+
         } finally {
 
-          if (active) {
-            setLoading(false);
+          if (
+            active
+          ) {
+            setLoading(
+              false
+            );
           }
 
         }
 
       };
 
+
     loadInvitations();
 
+
     return () => {
-      active = false;
+      active =
+        false;
     };
+
 
   }, [
     supabase,
-    ownerKey,
+    currentUserId,
+    coupleId,
   ]);
 
 
@@ -140,13 +388,17 @@ export default function InvitationsScreen({
         <button
           type="button"
           className="invitations-back"
-          onClick={onBack}
+          onClick={
+            onBack
+          }
           aria-label="Retour"
         >
           ←
         </button>
 
+
         <div>
+
           <div className="invitations-logo">
             PROTOCOL
           </div>
@@ -154,6 +406,7 @@ export default function InvitationsScreen({
           <div className="invitations-subtitle">
             Invitations
           </div>
+
         </div>
 
       </header>
@@ -178,7 +431,8 @@ export default function InvitationsScreen({
             {error}
           </p>
 
-        ) : invitations.length === 0 ? (
+        ) : invitations.length ===
+          0 ? (
 
           <p className="invitations-empty">
             Aucune invitation pour le moment.
@@ -189,32 +443,44 @@ export default function InvitationsScreen({
           <div className="invitations-list">
 
             {invitations.map(
-              (invitation) => {
+              (
+                invitation
+              ) => {
 
                 const other =
                   getPerson(
                     invitation.other_key
                   );
 
+
                 const isSent =
                   invitation.direction ===
                   "sent";
+
 
                 const isPending =
                   isSent &&
                   !invitation.opened_at;
 
+
                 const itemClassName = [
                   "invitation-item",
+
                   isSent
                     ? "is-sent"
                     : "is-received",
+
                   isPending
                     ? "is-pending"
                     : "",
                 ]
-                  .filter(Boolean)
-                  .join(" ");
+                  .filter(
+                    Boolean
+                  )
+                  .join(
+                    " "
+                  );
+
 
                 return (
 
@@ -222,16 +488,24 @@ export default function InvitationsScreen({
                     key={
                       invitation.invitation_id
                     }
+
                     type="button"
+
                     className={
                       itemClassName
                     }
+
                     onClick={() => {
 
                       onOpenCard({
                         cardId:
                           invitation.card_id,
 
+                        /*
+                         * Encore legacy temporairement.
+                         * CardScreen utilise toujours activeKey
+                         * pour la personnalisation et les URLs.
+                         */
                         activeKey:
                           invitation.recipient_key,
 
@@ -292,17 +566,20 @@ export default function InvitationsScreen({
                             : "invitation-status received"
                       }
                     >
+
                       {
                         isSent
                           ? invitation.opened_at
                             ? `✓ Vue ${formatDateTime(
                                 invitation.opened_at
                               )}`
-                            : "● En attente"
+                            : "○ En attente"
+
                           : invitation.opened_at
                             ? "✓ Ouverte"
                             : "Reçue"
                       }
+
                     </div>
 
                   </button>

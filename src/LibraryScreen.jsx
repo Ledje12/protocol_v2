@@ -111,9 +111,11 @@ function getTypeLabel(
    LIBRARY SCREEN
    ========================================================= */
 
-export default function LibraryScreen({
+export default function InvitationsScreen({
   supabase,
   ownerKey,
+  profile,
+  couple,
   onBack,
   onOpenCard,
 }) {

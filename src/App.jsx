@@ -1586,26 +1586,10 @@ function App() {
 
   if (route.screen === "invitations") {
 
-    const ownerKey =
-      getPushOwner();
-
-    if (!ownerKey) {
-      navigate(
-        "/settings",
-        true
-      );
-
-      return null;
-    }
-
     return (
       <InvitationsScreen
         supabase={
           supabase
-        }
-
-        ownerKey={
-          ownerKey
         }
 
         profile={
@@ -1708,7 +1692,9 @@ function App() {
 
     return (
       <CardScreen
-        supabase={supabase}
+        supabase={
+          supabase
+        }
 
         cardId={
           route.cardId
@@ -1720,6 +1706,14 @@ function App() {
 
         activeKey={
           activeKey
+        }
+
+        profile={
+          profile
+        }
+
+        couple={
+          couple
         }
 
         invitationId={

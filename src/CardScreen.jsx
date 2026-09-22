@@ -107,6 +107,8 @@ export default function CardScreen({
   cardId,
   ownerKey,
   activeKey,
+  profile,
+  couple,
   invitationId,
   challengeId,
   onBack,
