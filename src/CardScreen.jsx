@@ -4,12 +4,6 @@ import {
   useState,
 } from "react";
 
-import {
-  getPerson,
-  getPartner,
-  personalizeCardPrompt,
-} from "./cardPersonalization.js";
-
 import "./card.css";
 
 
@@ -63,6 +57,7 @@ function formatOpenedTime(
   }
 }
 
+
 function formatLovenseTime(
   seconds
 ) {
@@ -80,33 +75,23 @@ function formatLovenseTime(
   const remainingSeconds =
     safeSeconds % 60;
 
-  return `${String(minutes).padStart(
+  return `${String(
+    minutes
+  ).padStart(
     2,
     "0"
   )}:${String(
     remainingSeconds
-  ).padStart(2, "0")}`;
+  ).padStart(
+    2,
+    "0"
+  )}`;
 }
 
-function getInvitationStorageKey(
-  cardId,
-  activeKey
-) {
-  if (
-    !cardId ||
-    !activeKey
-  ) {
-    return null;
-  }
-
-  return `protocol-card-invite-${cardId}-${activeKey}`;
-}
 
 export default function CardScreen({
   supabase,
   cardId,
-  ownerKey,
-  activeKey,
   profile,
   couple,
   invitationId,
@@ -114,84 +99,92 @@ export default function CardScreen({
   onBack,
 }) {
 
-  const [card, setCard] =
+  const [
+    card,
+    setCard,
+  ] =
     useState(null);
 
-  const [loading, setLoading] =
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(true);
 
-  const [error, setError] =
+  const [
+    error,
+    setError,
+  ] =
     useState("");
 
   const [
     sending,
     setSending,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     sendMessage,
     setSendMessage,
-  ] = useState("");
+  ] =
+    useState("");
 
   const [
     trackedInvitationId,
     setTrackedInvitationId,
-  ] = useState(() => {
-
-    if (invitationId) {
-      return invitationId;
-    }
-
-    const storageKey =
-      getInvitationStorageKey(
-        cardId,
-        activeKey
-      );
-
-    if (!storageKey) {
-      return null;
-    }
-
-    return localStorage.getItem(
-      storageKey
+  ] =
+    useState(
+      invitationId || null
     );
-  });
+
+  const [
+    invitation,
+    setInvitation,
+  ] =
+    useState(null);
 
   const [
     openedAt,
     setOpenedAt,
-  ] = useState(null);
+  ] =
+    useState(null);
 
 
   const [
     lovenseConnected,
     setLovenseConnected,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     lovenseStatusLoading,
     setLovenseStatusLoading,
-  ] = useState(true);
+  ] =
+    useState(true);
 
   const [
     lovenseRunning,
     setLovenseRunning,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     lovenseRemaining,
     setLovenseRemaining,
-  ] = useState(0);
+  ] =
+    useState(0);
 
   const [
     lovenseBusy,
     setLovenseBusy,
-  ] = useState(false);
+  ] =
+    useState(false);
 
   const [
     lovenseMessage,
     setLovenseMessage,
-  ] = useState("");
+  ] =
+    useState("");
 
 
   const lovenseStartedRef =
@@ -204,71 +197,184 @@ export default function CardScreen({
     useRef(0);
 
 
+  const currentUserId =
+    profile?.user_id ||
+    null;
+
+
+  const partner =
+    couple?.partner ||
+    null;
+
+
+  /*
+   * Sans invitation :
+   * la carte est destinée au partenaire.
+   *
+   * Avec invitation reçue :
+   * le destinataire est l'utilisateur courant.
+   */
   const activePerson =
-    getPerson(
-      activeKey
-    );
+    invitation?.recipient_user_id ===
+    currentUserId
+      ? profile
+      : partner;
+
 
   const senderPerson =
-    getPartner(
-      activeKey
+    invitation?.recipient_user_id ===
+    currentUserId
+      ? partner
+      : profile;
+
+
+  /*
+   * Pas encore d'invitation :
+   * on peut proposer la carte.
+   *
+   * Invitation existante :
+   * seul son expéditeur est côté "proposition".
+   */
+  const canPropose =
+    !trackedInvitationId ||
+    invitation?.sender_user_id ===
+      currentUserId;
+
+
+  const isRecipient =
+    Boolean(
+      invitation &&
+      invitation.recipient_user_id ===
+        currentUserId
     );
 
 
-  const canPropose =
-    ownerKey !== activeKey;
-
-  const isRecipient =
-    ownerKey === activeKey;
-
   /* =========================================================
-   SYNC INVITATION FROM URL / LOCAL STORAGE
-   ========================================================= */
+     SYNC INVITATION ID FROM URL
+     ========================================================= */
 
   useEffect(() => {
 
-    const storageKey =
-      getInvitationStorageKey(
-        cardId,
-        activeKey
-      );
+    setTrackedInvitationId(
+      invitationId ||
+      null
+    );
 
-    if (!storageKey) {
-      return;
-    }
+    setInvitation(
+      null
+    );
 
-
-    if (invitationId) {
-
-      localStorage.setItem(
-        storageKey,
-        invitationId
-      );
-
-      setTrackedInvitationId(
-        invitationId
-      );
-
-      return;
-    }
-
-
-    const storedInvitationId =
-      localStorage.getItem(
-        storageKey
-      );
-
-
-    if (storedInvitationId) {
-      setTrackedInvitationId(
-        storedInvitationId
-      );
-    }
+    setOpenedAt(
+      null
+    );
 
   }, [
     invitationId,
-    cardId,
-    activeKey,
+  ]);
+
+
+  /* =========================================================
+     LOAD INVITATION
+     ========================================================= */
+
+  useEffect(() => {
+
+    let active =
+      true;
+
+
+    const loadInvitation =
+      async () => {
+
+        if (
+          !trackedInvitationId
+        ) {
+
+          if (active) {
+            setInvitation(
+              null
+            );
+          }
+
+          return;
+        }
+
+
+        try {
+
+          const {
+            data,
+            error:
+              rpcError,
+          } =
+            await supabase.rpc(
+              "get_card_invitation_secure",
+              {
+                p_invitation_id:
+                  String(
+                    trackedInvitationId
+                  ),
+              }
+            );
+
+
+          if (
+            rpcError
+          ) {
+            throw rpcError;
+          }
+
+
+          const row =
+            Array.isArray(
+              data
+            )
+              ? data[0]
+              : data;
+
+
+          if (
+            !active
+          ) {
+            return;
+          }
+
+
+          setInvitation(
+            row ||
+            null
+          );
+
+
+          setOpenedAt(
+            row?.opened_at ||
+            null
+          );
+
+
+        } catch (err) {
+
+          console.error(
+            "INVITATION LOAD ERROR:",
+            err
+          );
+
+        }
+
+      };
+
+
+    loadInvitation();
+
+
+    return () => {
+      active =
+        false;
+    };
+
+  }, [
+    supabase,
+    trackedInvitationId,
   ]);
 
 
@@ -337,7 +443,7 @@ export default function CardScreen({
 
           if (
             data.target_sex &&
-            activePerson &&
+            activePerson?.sex &&
             data.target_sex !==
               activePerson.sex
           ) {
@@ -348,12 +454,22 @@ export default function CardScreen({
 
 
           const displayPrompt =
-            activeKey
-              ? personalizeCardPrompt(
-                  data.prompt,
-                  activeKey
-                )
-              : data.prompt;
+            String(
+              data.prompt ||
+              ""
+            )
+              .replaceAll(
+                "{{active}}",
+                activePerson
+                  ?.display_name ||
+                  "ton partenaire"
+              )
+              .replaceAll(
+                "{{partner}}",
+                senderPerson
+                  ?.display_name ||
+                  "ton partenaire"
+              );
 
 
           setCard({
@@ -376,7 +492,7 @@ export default function CardScreen({
           ) {
             setError(
               err?.message ||
-              "Impossible de charger cette carte."
+                "Impossible de charger cette carte."
             );
           }
 
@@ -407,11 +523,14 @@ export default function CardScreen({
   }, [
     supabase,
     cardId,
-    activeKey,
+    activePerson?.user_id,
     activePerson?.sex,
+    activePerson?.display_name,
+    senderPerson?.display_name,
   ]);
 
-    /* =========================================================
+
+  /* =========================================================
      LOVENSE STATUS
      ========================================================= */
 
@@ -420,8 +539,14 @@ export default function CardScreen({
     if (
       !card?.lovense_mode
     ) {
-      setLovenseConnected(false);
-      setLovenseStatusLoading(false);
+      setLovenseConnected(
+        false
+      );
+
+      setLovenseStatusLoading(
+        false
+      );
+
       return;
     }
 
@@ -470,7 +595,7 @@ export default function CardScreen({
           ) {
             throw new Error(
               data?.error ||
-              "Impossible de vérifier Lovense."
+                "Impossible de vérifier Lovense."
             );
           }
 
@@ -572,7 +697,9 @@ export default function CardScreen({
         card.lovense_action !==
           "vibrate" ||
         !lovenseConnected ||
-        activeKey !== "audrey"
+        !isRecipient ||
+        activePerson?.sex !==
+          "female"
       ) {
         return;
       }
@@ -593,7 +720,8 @@ export default function CardScreen({
           Math.max(
             2,
             Number(
-              card.lovense_duration_sec
+              card
+                .lovense_duration_sec
             ) || 2
           );
 
@@ -604,7 +732,8 @@ export default function CardScreen({
             Math.min(
               20,
               Number(
-                card.lovense_intensity
+                card
+                  .lovense_intensity
               ) || 5
             )
           );
@@ -629,7 +758,8 @@ export default function CardScreen({
                   duration,
 
                   pattern:
-                    card.lovense_pattern ||
+                    card
+                      .lovense_pattern ||
                     null,
                 },
               }
@@ -648,7 +778,7 @@ export default function CardScreen({
         ) {
           throw new Error(
             data?.error ||
-            "La vibration n’a pas pu démarrer."
+              "La vibration n’a pas pu démarrer."
           );
         }
 
@@ -680,7 +810,7 @@ export default function CardScreen({
 
         setLovenseMessage(
           err?.message ||
-          "Impossible de démarrer la vibration."
+            "Impossible de démarrer la vibration."
         );
 
 
@@ -702,7 +832,9 @@ export default function CardScreen({
 
       try {
 
-        if (!silent) {
+        if (
+          !silent
+        ) {
           setLovenseBusy(
             true
           );
@@ -749,17 +881,21 @@ export default function CardScreen({
         );
 
 
-        if (!silent) {
+        if (
+          !silent
+        ) {
           setLovenseMessage(
             err?.message ||
-            "Impossible d’arrêter la vibration."
+              "Impossible d’arrêter la vibration."
           );
         }
 
 
       } finally {
 
-        if (!silent) {
+        if (
+          !silent
+        ) {
           setLovenseBusy(
             false
           );
@@ -780,7 +916,8 @@ export default function CardScreen({
       !card ||
       !trackedInvitationId ||
       !isRecipient ||
-      activeKey !== "audrey" ||
+      activePerson?.sex !==
+        "female" ||
       !card.lovense_mode ||
       card.lovense_action !==
         "vibrate" ||
@@ -792,7 +929,7 @@ export default function CardScreen({
 
 
     const triggerKey =
-      `${card.id}-${trackedInvitationId}-${activeKey}`;
+      `${card.id}-${trackedInvitationId}-${activePerson?.user_id || "unknown"}`;
 
 
     if (
@@ -815,7 +952,8 @@ export default function CardScreen({
     card?.lovense_action,
     trackedInvitationId,
     isRecipient,
-    activeKey,
+    activePerson?.user_id,
+    activePerson?.sex,
     lovenseConnected,
     lovenseStatusLoading,
   ]);
@@ -843,7 +981,8 @@ export default function CardScreen({
               0,
               Math.ceil(
                 (
-                  lovenseEndsAtRef.current -
+                  lovenseEndsAtRef
+                    .current -
                   Date.now()
                 ) /
                 1000
@@ -900,7 +1039,8 @@ export default function CardScreen({
     return () => {
 
       if (
-        !lovenseStartedRef.current
+        !lovenseStartedRef
+          .current
       ) {
         return;
       }
@@ -935,6 +1075,7 @@ export default function CardScreen({
     cardId,
   ]);
 
+
   /* =========================================================
      RECIPIENT OPENS INVITATION
      ========================================================= */
@@ -964,13 +1105,12 @@ export default function CardScreen({
               rpcError,
           } =
             await supabase.rpc(
-              "mark_card_invitation_opened",
+              "mark_card_invitation_opened_secure",
               {
                 p_invitation_id:
-                  trackedInvitationId,
-
-                p_recipient_key:
-                  ownerKey,
+                  String(
+                    trackedInvitationId
+                  ),
               }
             );
 
@@ -986,7 +1126,24 @@ export default function CardScreen({
             active
           ) {
             setOpenedAt(
-              data || null
+              data ||
+              null
+            );
+
+            setInvitation(
+              (
+                previous
+              ) =>
+                previous
+                  ? {
+                      ...previous,
+
+                      opened_at:
+                        data ||
+                        previous
+                          .opened_at,
+                    }
+                  : previous
             );
           }
 
@@ -1014,7 +1171,6 @@ export default function CardScreen({
   }, [
     supabase,
     trackedInvitationId,
-    ownerKey,
     isRecipient,
   ]);
 
@@ -1048,13 +1204,12 @@ export default function CardScreen({
               rpcError,
           } =
             await supabase.rpc(
-              "get_card_invitation_status",
+              "get_card_invitation_status_secure",
               {
                 p_invitation_id:
-                  trackedInvitationId,
-
-                p_sender_key:
-                  ownerKey,
+                  String(
+                    trackedInvitationId
+                  ),
               }
             );
 
@@ -1067,25 +1222,25 @@ export default function CardScreen({
 
 
           if (
-            !active
-          ) {
-            return;
-          }
-
-
-          const invitation =
-            Array.isArray(
-              data
-            )
-              ? data[0]
-              : data;
-
-
-          if (
-            invitation?.opened_at
+            active &&
+            data
           ) {
             setOpenedAt(
-              invitation.opened_at
+              data
+            );
+
+            setInvitation(
+              (
+                previous
+              ) =>
+                previous
+                  ? {
+                      ...previous,
+
+                      opened_at:
+                        data,
+                    }
+                  : previous
             );
           }
 
@@ -1126,7 +1281,6 @@ export default function CardScreen({
   }, [
     supabase,
     trackedInvitationId,
-    ownerKey,
     canPropose,
   ]);
 
@@ -1177,7 +1331,8 @@ export default function CardScreen({
                     card.id,
 
                   challenge_id:
-                    challengeId || null,
+                    challengeId ||
+                    null,
                 },
               }
             );
@@ -1195,7 +1350,7 @@ export default function CardScreen({
         ) {
           throw new Error(
             data?.error ||
-            "Impossible d’envoyer cette carte."
+              "Impossible d’envoyer cette carte."
           );
         }
 
@@ -1208,24 +1363,39 @@ export default function CardScreen({
           newInvitationId
         ) {
 
+          const normalizedInvitationId =
+            String(
+              newInvitationId
+            );
+
+
           setTrackedInvitationId(
-            newInvitationId
+            normalizedInvitationId
           );
 
 
-          const storageKey =
-            getInvitationStorageKey(
+          setInvitation({
+            id:
+              normalizedInvitationId,
+
+            card_id:
               card.id,
-              activeKey
-            );
 
+            sender_user_id:
+              currentUserId,
 
-          if (storageKey) {
-            localStorage.setItem(
-              storageKey,
-              newInvitationId
-            );
-          }
+            recipient_user_id:
+              partner?.user_id ||
+              null,
+
+            couple_id:
+              couple?.id ||
+              couple?.couple_id ||
+              null,
+
+            opened_at:
+              null,
+          });
 
 
           const challengeQuery =
@@ -1233,22 +1403,25 @@ export default function CardScreen({
               ? `&challenge=${challengeId}`
               : "";
 
+
           const newUrl =
-            `/card/${card.id}?for=${activeKey}&invite=${newInvitationId}${challengeQuery}`;
+            `/card/${card.id}?invite=${normalizedInvitationId}${challengeQuery}`;
 
 
-          window.history.replaceState(
-            {},
-            "",
-            newUrl
-          );
+          window.history
+            .replaceState(
+              {},
+              "",
+              newUrl
+            );
 
         }
 
 
         setSendMessage(
-          activePerson?.name
-            ? `Carte envoyée à ${activePerson.name}.`
+          activePerson
+            ?.display_name
+            ? `Carte envoyée à ${activePerson.display_name}.`
             : "Carte envoyée."
         );
 
@@ -1263,7 +1436,7 @@ export default function CardScreen({
 
         setSendMessage(
           err?.message ||
-          "Impossible d’envoyer cette carte."
+            "Impossible d’envoyer cette carte."
         );
 
 
@@ -1321,6 +1494,7 @@ export default function CardScreen({
     );
   }
 
+
   if (
     card.lovense_mode ===
       "required" &&
@@ -1376,7 +1550,8 @@ export default function CardScreen({
           onClick={() => {
 
             if (
-              lovenseStartedRef.current
+              lovenseStartedRef
+                .current
             ) {
 
               lovenseStartedRef.current =
@@ -1420,7 +1595,8 @@ export default function CardScreen({
           <span className="card-recipient">
             Pour{" "}
             {
-              activePerson?.name ||
+              activePerson
+                ?.display_name ||
               "ton partenaire"
             }
           </span>
@@ -1463,17 +1639,25 @@ export default function CardScreen({
 
         {
           isRecipient &&
-          activeKey === "audrey" &&
+          activePerson?.sex ===
+            "female" &&
           card.lovense_mode &&
           lovenseConnected && (
 
             <div
               style={{
-                marginTop: "24px",
-                padding: "16px",
+                marginTop:
+                  "24px",
+
+                padding:
+                  "16px",
+
                 border:
                   "1px solid rgba(255,255,255,0.09)",
-                borderRadius: "18px",
+
+                borderRadius:
+                  "18px",
+
                 background:
                   "rgba(255,255,255,0.035)",
               }}
@@ -1481,46 +1665,83 @@ export default function CardScreen({
 
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
                   justifyContent:
                     "space-between",
-                  gap: "16px",
-                  marginBottom: "14px",
+
+                  gap:
+                    "16px",
+
+                  marginBottom:
+                    "14px",
                 }}
               >
 
                 <div>
+
                   <span
                     style={{
-                      display: "block",
-                      fontSize: "0.72rem",
-                      letterSpacing: "0.14em",
-                      opacity: 0.6,
+                      display:
+                        "block",
+
+                      fontSize:
+                        "0.72rem",
+
+                      letterSpacing:
+                        "0.14em",
+
+                      opacity:
+                        0.6,
                     }}
                   >
-                    {lovenseRunning
-                      ? "VIBRATION ACTIVE"
-                      : "LOVENSE"}
+                    {
+                      lovenseRunning
+                        ? "VIBRATION ACTIVE"
+                        : "LOVENSE"
+                    }
                   </span>
 
+
                   {card.lovense_pattern && (
+
                     <span
                       style={{
-                        display: "block",
-                        marginTop: "4px",
-                        fontSize: "0.65rem",
-                        opacity: 0.45,
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
+                        display:
+                          "block",
+
+                        marginTop:
+                          "4px",
+
+                        fontSize:
+                          "0.65rem",
+
+                        opacity:
+                          0.45,
+
+                        letterSpacing:
+                          "0.08em",
+
+                        textTransform:
+                          "uppercase",
                       }}
                     >
-                      {card.lovense_pattern.replaceAll(
-                        "_",
-                        " "
-                      )}
+                      {
+                        card
+                          .lovense_pattern
+                          .replaceAll(
+                            "_",
+                            " "
+                          )
+                      }
                     </span>
+
                   )}
+
                 </div>
 
 
@@ -1530,9 +1751,11 @@ export default function CardScreen({
                       "tabular-nums",
                   }}
                 >
-                  {formatLovenseTime(
-                    lovenseRemaining
-                  )}
+                  {
+                    formatLovenseTime(
+                      lovenseRemaining
+                    )
+                  }
                 </strong>
 
               </div>
@@ -1540,10 +1763,14 @@ export default function CardScreen({
 
               <div
                 style={{
-                  display: "grid",
+                  display:
+                    "grid",
+
                   gridTemplateColumns:
                     "1fr 1fr",
-                  gap: "10px",
+
+                  gap:
+                    "10px",
                 }}
               >
 
@@ -1551,7 +1778,9 @@ export default function CardScreen({
                   type="button"
                   className="secondary"
                   onClick={() =>
-                    stopLovense(false)
+                    stopLovense(
+                      false
+                    )
                   }
                   disabled={
                     lovenseBusy ||
@@ -1572,9 +1801,11 @@ export default function CardScreen({
                     lovenseBusy
                   }
                 >
-                  {lovenseBusy
-                    ? "Envoi…"
-                    : "Rejouer"}
+                  {
+                    lovenseBusy
+                      ? "Envoi…"
+                      : "Rejouer"
+                  }
                 </button>
 
               </div>
@@ -1586,9 +1817,12 @@ export default function CardScreen({
                   style={{
                     margin:
                       "12px 0 0",
+
                     fontSize:
                       "0.82rem",
-                    opacity: 0.7,
+
+                    opacity:
+                      0.7,
                   }}
                 >
                   {
@@ -1612,7 +1846,8 @@ export default function CardScreen({
               <p className="card-send-message">
                 ✓ Vue par{" "}
                 {
-                  activePerson?.name
+                  activePerson
+                    ?.display_name
                 }
 
                 {formatOpenedTime(
@@ -1654,7 +1889,8 @@ export default function CardScreen({
                 sending
                   ? "Envoi…"
                   : `Proposer à ${
-                      activePerson?.name ||
+                      activePerson
+                        ?.display_name ||
                       "mon partenaire"
                     }`
               }
@@ -1665,9 +1901,12 @@ export default function CardScreen({
 
           <p className="card-send-message">
 
-            {senderPerson?.name
-              ? `Proposé par ${senderPerson.name}.`
-              : "Proposé par ton partenaire."}
+            {
+              senderPerson
+                ?.display_name
+                ? `Proposé par ${senderPerson.display_name}.`
+                : "Proposé par ton partenaire."
+            }
 
           </p>
 

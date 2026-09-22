@@ -1658,26 +1658,10 @@ function App() {
     );
   }
 
-  if (route.screen === "card") {
-    const ownerKey =
-      getPushOwner();
-
-    if (!ownerKey) {
-      navigate(
-        "/settings",
-        true
-      );
-
-      return null;
-    }
-
-    const activeKey =
-      route.activeKey ||
-      (
-        ownerKey === "jerome"
-          ? "audrey"
-          : "jerome"
-      );
+  if (
+    route.screen ===
+    "card"
+  ) {
 
     return (
       <CardScreen
@@ -1687,14 +1671,6 @@ function App() {
 
         cardId={
           route.cardId
-        }
-
-        ownerKey={
-          ownerKey
-        }
-
-        activeKey={
-          activeKey
         }
 
         profile={
@@ -1715,7 +1691,8 @@ function App() {
 
         onBack={() =>
           navigate(
-            route.from === "invitations"
+            route.from ===
+              "invitations"
               ? "/invitations"
               : route.challengeId
                 ? `/library?challenge=${route.challengeId}`
