@@ -575,10 +575,7 @@ export default function CardScreen({
               .invoke(
                 "lovense-status",
                 {
-                  body: {
-                    host:
-                      "jerome",
-                  },
+                  body: {},
                 }
               );
 
@@ -715,30 +712,6 @@ export default function CardScreen({
           ""
         );
 
-
-        const duration =
-          Math.max(
-            2,
-            Number(
-              card
-                .lovense_duration_sec
-            ) || 2
-          );
-
-
-        const intensity =
-          Math.max(
-            0,
-            Math.min(
-              20,
-              Number(
-                card
-                  .lovense_intensity
-              ) || 5
-            )
-          );
-
-
         const {
           data,
           error:
@@ -750,21 +723,14 @@ export default function CardScreen({
               "lovense-command",
               {
                 body: {
-                  host:
-                    "jerome",
+                  action:
+                    "play",
 
-                  intensity,
-
-                  duration,
-
-                  pattern:
-                    card
-                      .lovense_pattern ||
-                    null,
+                  card_id:
+                    card.id,
                 },
               }
             );
-
 
         if (
           functionError
@@ -781,6 +747,14 @@ export default function CardScreen({
               "La vibration n’a pas pu démarrer."
           );
         }
+
+        const duration =
+          Math.max(
+            2,
+            Number(
+              data?.duration
+            ) || 2
+          );
 
 
         lovenseStartedRef.current =
@@ -847,9 +821,6 @@ export default function CardScreen({
             "lovense-command",
             {
               body: {
-                host:
-                  "jerome",
-
                 action:
                   "stop",
               },
@@ -1056,9 +1027,6 @@ export default function CardScreen({
           "lovense-command",
           {
             body: {
-              host:
-                "jerome",
-
               action:
                 "stop",
             },
@@ -1563,9 +1531,6 @@ export default function CardScreen({
                   "lovense-command",
                   {
                     body: {
-                      host:
-                        "jerome",
-
                       action:
                         "stop",
                     },

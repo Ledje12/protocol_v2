@@ -196,10 +196,7 @@ export default function LibraryScreen({
               .invoke(
                 "lovense-status",
                 {
-                  body: {
-                    host:
-                      "jerome",
-                  },
+                  body: {},
                 }
               );
 

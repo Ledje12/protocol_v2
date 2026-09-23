@@ -2899,9 +2899,6 @@ function SettingsScreen({
   const [hasLocalGameSession, setHasLocalGameSession] =
     useState(() => getGameSession().valid);
 
-  const [lovenseHost, setLovenseHost] =
-    useState("jerome");
-
   const [lovenseQr, setLovenseQr] =
     useState("");
 
@@ -3317,6 +3314,7 @@ function SettingsScreen({
         try {
           setLovenseOpening(true);
           setLovenseSdkError("");
+          setLovenseMessage("");
 
           if (
             !window.LovenseBasicSdk
@@ -3333,10 +3331,7 @@ function SettingsScreen({
             await supabase.functions.invoke(
               "lovense-auth",
               {
-                body: {
-                  owner_key:
-                    lovenseHost,
-                },
+                body: {},
               }
             );
 
@@ -3346,7 +3341,8 @@ function SettingsScreen({
 
           if (
             !data?.success ||
-            !data?.authToken
+            !data?.authToken ||
+            !data?.uid
           ) {
             throw new Error(
               data?.error ||
@@ -3365,11 +3361,8 @@ function SettingsScreen({
               uid:
                 data.uid,
 
-              /*
-              * Remote App par défaut.
-              * Donc PAS appType: "connect".
-              */
-              debug: true,
+              debug:
+                true,
             });
 
           sdk.on(
@@ -3378,9 +3371,12 @@ function SettingsScreen({
               console.error(
                 "LOVENSE SDK ERROR FULL:",
                 {
-                  code: sdkError?.code,
-                  message: sdkError?.message,
-                  raw: sdkError,
+                  code:
+                    sdkError?.code,
+                  message:
+                    sdkError?.message,
+                  raw:
+                    sdkError,
                 }
               );
 
@@ -3442,69 +3438,64 @@ function SettingsScreen({
           setLovenseOpening(false);
         }
       };
-    
-      const connectLovense = async () => {
-        try {
-          setLovenseLoading(true);
-          setLovenseMessage("");
-          setLovenseQr("");
-          setLovenseCode("");
 
-          const {
-            data,
-            error,
-          } =
-            await supabase.functions.invoke(
-              "lovense-connect",
-              {
-                body: {
-                  owner_key: lovenseHost,
-                },
-              }
-            );
+  const connectLovense =
+    async () => {
+      try {
+        setLovenseLoading(true);
+        setLovenseMessage("");
+        setLovenseQr("");
+        setLovenseCode("");
 
-          if (error) {
-            throw error;
-          }
-
-          if (!data?.success) {
-            throw new Error(
-              data?.error ||
-              "Impossible de générer le QR Lovense."
-            );
-          }
-
-          setLovenseQr(
-            data.qr || ""
+        const {
+          data,
+          error,
+        } =
+          await supabase.functions.invoke(
+            "lovense-connect",
+            {
+              body: {},
+            }
           );
 
-          setLovenseCode(
-            data.code || ""
-          );
-
-          setLovenseMessage(
-            lovenseHost === "jerome"
-              ? "Scanne ce QR avec Lovense Remote sur le téléphone de Jérôme."
-              : "Scanne ce QR avec Lovense Remote sur le téléphone d’Audrey."
-          );
-
-        } 
-        catch (err) {
-          console.error(
-            "LOVENSE CONNECT ERROR:",
-            err
-          );
-
-          setLovenseMessage(
-            err?.message ||
-            "Impossible de connecter Lovense."
-          );
-
-        } 
-        finally {
-          setLovenseLoading(false);
+        if (error) {
+          throw error;
         }
-      };
+
+        if (!data?.success) {
+          throw new Error(
+            data?.error ||
+            "Impossible de générer le QR Lovense."
+          );
+        }
+
+        setLovenseQr(
+          data.qr || ""
+        );
+
+        setLovenseCode(
+          data.code || ""
+        );
+
+        setLovenseMessage(
+          "Scanne ce QR avec Lovense Remote sur le téléphone connecté au jouet."
+        );
+
+      } catch (err) {
+        console.error(
+          "LOVENSE CONNECT ERROR:",
+          err
+        );
+
+        setLovenseMessage(
+          err?.message ||
+          "Impossible de connecter Lovense."
+        );
+
+      } finally {
+        setLovenseLoading(false);
+      }
+    };
 
   const checkLovenseStatus =
     async () => {
@@ -3518,10 +3509,7 @@ function SettingsScreen({
           await supabase.functions.invoke(
             "lovense-status",
             {
-              body: {
-                host:
-                  lovenseHost,
-              },
+              body: {},
             }
           );
 
@@ -3537,7 +3525,9 @@ function SettingsScreen({
         }
 
         setLovenseConnected(
-          Boolean(data.connected)
+          Boolean(
+            data.connected
+          )
         );
 
         setLovenseToyName(
@@ -3558,20 +3548,21 @@ function SettingsScreen({
         setLovenseStatusLoading(false);
       }
     };
-  
-    useEffect(() => {
-      checkLovenseStatus();
-    }, [lovenseHost]);
 
-    useEffect(() => {
-    const handleLovenseReturn = () => {
-      if (
-        document.visibilityState ===
-        "visible"
-      ) {
-        checkLovenseStatus();
-      }
-    };
+  useEffect(() => {
+    checkLovenseStatus();
+  }, []);
+
+  useEffect(() => {
+    const handleLovenseReturn =
+      () => {
+        if (
+          document.visibilityState ===
+          "visible"
+        ) {
+          checkLovenseStatus();
+        }
+      };
 
     document.addEventListener(
       "visibilitychange",
@@ -3594,59 +3585,58 @@ function SettingsScreen({
         handleLovenseReturn
       );
     };
-  }, [lovenseHost]);
+  }, []);
 
-  const testLovense = async () => {
-    try {
-      setLovenseTestLoading(true);
-      setLovenseTestMessage("");
+  const testLovense =
+    async () => {
+      try {
+        setLovenseTestLoading(true);
+        setLovenseTestMessage("");
 
-      const {
-        data,
-        error,
-      } =
-        await supabase.functions.invoke(
-          "lovense-command",
-          {
-            body: {
-              host:
-                lovenseHost,
-              intensity: 5,
-              duration: 2,
-            },
-          }
+        const {
+          data,
+          error,
+        } =
+          await supabase.functions.invoke(
+            "lovense-command",
+            {
+              body: {
+                action:
+                  "test",
+              },
+            }
+          );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.success) {
+          throw new Error(
+            data?.error ||
+            "La commande Lovense a échoué."
+          );
+        }
+
+        setLovenseTestMessage(
+          "Test envoyé au Lush."
         );
 
-      if (error) {
-        throw error;
-      }
-
-      if (!data?.success) {
-        throw new Error(
-          data?.error ||
-          "La commande Lovense a échoué."
+      } catch (err) {
+        console.error(
+          "LOVENSE TEST ERROR:",
+          err
         );
+
+        setLovenseTestMessage(
+          err?.message ||
+          "Impossible de tester le Lush."
+        );
+
+      } finally {
+        setLovenseTestLoading(false);
       }
-
-      setLovenseTestMessage(
-        "Test envoyé au Lush."
-      );
-
-    } catch (err) {
-      console.error(
-        "LOVENSE TEST ERROR:",
-        err
-      );
-
-      setLovenseTestMessage(
-        err?.message ||
-        "Impossible de tester le Lush."
-      );
-
-    } finally {
-      setLovenseTestLoading(false);
-    }
-  };
+    };
       
   const status =
     permission === "granted" &&
@@ -4021,78 +4011,7 @@ function SettingsScreen({
 
           {!lovenseQr && (
             <>
-              <span
-                className="settings-section-eyebrow"
-                style={{
-                  display: "block",
-                  marginBottom: "10px",
-                }}
-              >
-                LE LUSH EST CONNECTÉ AU TÉLÉPHONE DE
-              </span>
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "10px",
-                  marginBottom: "14px",
-                }}
-              >
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => {
-                    setLovenseHost("jerome");
-                    setLovenseMessage("");
-                  }}
-                  aria-pressed={
-                    lovenseHost === "jerome"
-                  }
-                  style={
-                    lovenseHost === "jerome"
-                      ? {
-                          borderColor:
-                            "rgba(255,255,255,.9)",
-                          background:
-                            "rgba(255,255,255,.12)",
-                        }
-                      : undefined
-                  }
-                >
-                  <span>
-                    Jérôme
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  className="secondary"
-                  onClick={() => {
-                    setLovenseHost("audrey");
-                    setLovenseMessage("");
-                  }}
-                  aria-pressed={
-                    lovenseHost === "audrey"
-                  }
-                  style={
-                    lovenseHost === "audrey"
-                      ? {
-                          borderColor:
-                            "rgba(255,255,255,.9)",
-                          background:
-                            "rgba(255,255,255,.12)",
-                        }
-                      : undefined
-                  }
-                >
-                  <span>
-                    Audrey
-                  </span>
-                  </button>
-              </div>
-
-              <div
+                <div
                 style={{
                   marginBottom: "14px",
                 }}
@@ -4234,10 +4153,7 @@ function SettingsScreen({
               >
                 Scanne avec Lovense Remote
                 <br />
-                sur le téléphone de{" "}
-                {lovenseHost === "jerome"
-                  ? "Jérôme"
-                  : "Audrey"}
+                sur le téléphone connecté au jouet
               </strong>
 
               {lovenseCode && (

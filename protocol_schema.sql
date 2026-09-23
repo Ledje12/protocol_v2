@@ -5206,7 +5206,7 @@ ALTER TABLE "public"."protocol_couples" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."protocol_lovense_connections" (
     "id" bigint NOT NULL,
-    "uid" "text" NOT NULL,
+    "lovense_uid" "text" NOT NULL,
     "utoken" "text",
     "domain" "text",
     "http_port" "text",
@@ -5216,8 +5216,11 @@ CREATE TABLE IF NOT EXISTS "public"."protocol_lovense_connections" (
     "platform" "text",
     "app_version" "text",
     "toys" "jsonb" DEFAULT '{}'::"jsonb" NOT NULL,
-    "connected_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "connected_at" timestamp with time zone,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "couple_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 
@@ -5448,12 +5451,17 @@ ALTER TABLE ONLY "public"."protocol_couples"
 
 
 ALTER TABLE ONLY "public"."protocol_lovense_connections"
-    ADD CONSTRAINT "protocol_lovense_connections_pkey" PRIMARY KEY ("id");
+    ADD CONSTRAINT "protocol_lovense_connections_couple_user_key" UNIQUE ("couple_id", "user_id");
 
 
 
 ALTER TABLE ONLY "public"."protocol_lovense_connections"
-    ADD CONSTRAINT "protocol_lovense_connections_uid_key" UNIQUE ("uid");
+    ADD CONSTRAINT "protocol_lovense_connections_lovense_uid_key" UNIQUE ("lovense_uid");
+
+
+
+ALTER TABLE ONLY "public"."protocol_lovense_connections"
+    ADD CONSTRAINT "protocol_lovense_connections_pkey" PRIMARY KEY ("id");
 
 
 
@@ -5664,6 +5672,16 @@ ALTER TABLE ONLY "public"."protocol_couple_members"
 
 ALTER TABLE ONLY "public"."protocol_couples"
     ADD CONSTRAINT "protocol_couples_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."protocol_lovense_connections"
+    ADD CONSTRAINT "protocol_lovense_connections_couple_id_fkey" FOREIGN KEY ("couple_id") REFERENCES "public"."protocol_couples"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."protocol_lovense_connections"
+    ADD CONSTRAINT "protocol_lovense_connections_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
@@ -6129,8 +6147,6 @@ GRANT ALL ON TABLE "public"."protocol_lovense_connections" TO "service_role";
 
 
 
-GRANT ALL ON SEQUENCE "public"."protocol_lovense_connections_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."protocol_lovense_connections_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."protocol_lovense_connections_id_seq" TO "service_role";
 
 
