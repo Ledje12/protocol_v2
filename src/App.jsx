@@ -2897,6 +2897,18 @@ function SettingsScreen({
   const [lovenseSdkError, setLovenseSdkError] =
     useState("");
 
+  const [
+    lovenseDisconnectLoading,
+    setLovenseDisconnectLoading,
+  ] =
+    useState(false);
+
+  const [
+    lovenseDisconnectMessage,
+    setLovenseDisconnectMessage,
+  ] =
+    useState("");
+
   const lovenseSdkRef =
     useRef(null);
   
@@ -3968,6 +3980,146 @@ function SettingsScreen({
       }
     };
       
+  const disconnectLovense =
+    async () => {
+
+      const confirmed =
+        window.confirm(
+          "Déconnecter le jouet Lovense de PROTOCOL ?"
+        );
+
+      if (
+        !confirmed
+      ) {
+        return;
+      }
+
+
+      try {
+
+        setLovenseDisconnectLoading(
+          true
+        );
+
+        setLovenseDisconnectMessage(
+          ""
+        );
+
+        setLovenseTestMessage(
+          ""
+        );
+
+        setLovenseMessage(
+          ""
+        );
+
+        setLovenseSdkError(
+          ""
+        );
+
+
+        const {
+          data,
+          error,
+        } =
+          await supabase
+            .functions
+            .invoke(
+              "lovense-disconnect",
+              {
+                body: {},
+              }
+            );
+
+
+        if (
+          error
+        ) {
+          throw error;
+        }
+
+
+        if (
+          !data?.success
+        ) {
+          throw new Error(
+            data?.error ||
+            "Impossible de déconnecter Lovense."
+          );
+        }
+
+
+        /*
+        * Reset immédiat de l'UI.
+        *
+        * Le backend est déjà la source
+        * de vérité, mais on évite ici
+        * d'attendre un nouvel appel status
+        * pour mettre l'écran à jour.
+        */
+
+        setLovenseConnected(
+          false
+        );
+
+        setLovenseToyName(
+          ""
+        );
+
+        setLovenseQr(
+          ""
+        );
+
+        setLovenseCode(
+          ""
+        );
+
+
+        /*
+        * On oublie aussi l'instance SDK
+        * actuelle dans cette session.
+        *
+        * Important :
+        * on ne tente pas de déconnecter
+        * Lovense Remote elle-même.
+        * On supprime seulement l'association
+        * active côté PROTOCOL.
+        */
+
+        lovenseSdkRef.current =
+          null;
+
+
+        setLovenseDisconnectMessage(
+          "Le jouet a été déconnecté de PROTOCOL."
+        );
+
+
+      } catch (
+        err
+      ) {
+
+        console.error(
+          "LOVENSE DISCONNECT ERROR:",
+          err
+        );
+
+
+        setLovenseDisconnectMessage(
+          err?.message ||
+          "Impossible de déconnecter le jouet."
+        );
+
+
+      } finally {
+
+        setLovenseDisconnectLoading(
+          false
+        );
+
+      }
+    };
+  
   const status =
     permission === "granted" &&
     subscribed
@@ -4341,196 +4493,261 @@ function SettingsScreen({
             </span>
 
             <h2>
-              Connecter le Lush 4.
+              {lovenseConnected
+                ? "Lush 4 prêt."
+                : "Connecter le Lush 4."}
             </h2>
 
           </div>
 
 
-          <p className="settings-card-copy">
-            Connecte Lovense Remote à PROTOCOL
-            pour permettre au jeu de contrôler
-            le jouet.
-          </p>
+          {/* =======================================
+              STATUS
+              ======================================= */}
+
+          <div className="settings-status-row settings-lovense-status">
+
+            <span
+              className={
+                lovenseConnected
+                  ? "settings-status-dot is-active"
+                  : "settings-status-dot"
+              }
+            />
+
+            <span>
+              {lovenseStatusLoading
+                ? "VÉRIFICATION"
+                : lovenseConnected
+                  ? "CONNECTÉ"
+                  : "NON CONNECTÉ"}
+            </span>
+
+          </div>
 
 
-          {!lovenseQr && (
+          {/* =======================================
+              CONNECTÉ
+              ======================================= */}
 
-            <>
+          {!lovenseStatusLoading &&
+            lovenseConnected && (
 
-              <div className="settings-status-row settings-lovense-status">
+              <>
 
-                <span
-                  className={
-                    lovenseConnected
-                      ? "settings-status-dot is-active"
-                      : "settings-status-dot"
+                <p className="settings-connected-device">
+                  {lovenseToyName
+                    ? `${lovenseToyName} disponible`
+                    : "Jouet Lovense disponible"}
+                </p>
+
+
+                <p className="settings-card-copy">
+                  Lovense Remote doit rester active
+                  en arrière-plan pour permettre
+                  à PROTOCOL de contrôler le jouet.
+                </p>
+
+
+                <button
+                  type="button"
+                  className="settings-primary-action"
+                  onClick={testLovense}
+                  disabled={
+                    lovenseTestLoading
                   }
-                />
+                >
 
-                <span>
-                  {lovenseStatusLoading
-                    ? "VÉRIFICATION"
-                    : lovenseConnected
-                      ? "CONNECTÉ"
-                      : "NON CONNECTÉ"}
-                </span>
+                  <span>
+                    {lovenseTestLoading
+                      ? "Envoi…"
+                      : "Tester le Lush"}
+                  </span>
 
-              </div>
+                  {!lovenseTestLoading && (
+                    <span className="settings-action-arrow">
+                      →
+                    </span>
+                  )}
+
+                </button>
 
 
-              {!lovenseStatusLoading &&
-                lovenseConnected && (
-
-                  <p className="settings-connected-device">
-                    {lovenseToyName
-                      ? `${lovenseToyName} disponible`
-                      : "Jouet Lovense disponible"}
+                {lovenseTestMessage && (
+                  <p className="settings-feedback">
+                    {lovenseTestMessage}
                   </p>
+                )}
+
+
+                <button
+                  type="button"
+                  className="settings-text-action"
+                  onClick={disconnectLovense}
+                  disabled={
+                    lovenseDisconnectLoading
+                  }
+                >
+                  {lovenseDisconnectLoading
+                    ? "Déconnexion…"
+                    : "Déconnecter le jouet"}
+                </button>
+
+
+                {lovenseDisconnectMessage && (
+                  <p className="settings-feedback">
+                    {lovenseDisconnectMessage}
+                  </p>
+                )}
+
+              </>
+
+            )}
+
+
+          {/* =======================================
+              NON CONNECTÉ
+              ======================================= */}
+
+          {!lovenseStatusLoading &&
+            !lovenseConnected && (
+
+              <>
+
+                <p className="settings-card-copy">
+                  Connecte Lovense Remote à PROTOCOL
+                  pour permettre au jeu de contrôler
+                  le jouet.
+                </p>
+
+
+                {!lovenseQr && (
+
+                  <>
+
+                    <button
+                      type="button"
+                      className="settings-primary-action settings-lovense-open"
+                      onClick={openLovenseRemote}
+                      disabled={
+                        lovenseOpening
+                      }
+                    >
+
+                      <span>
+                        {lovenseOpening
+                          ? "Ouverture…"
+                          : "Ouvrir Lovense Remote"}
+                      </span>
+
+                      <span className="settings-action-arrow">
+                        →
+                      </span>
+
+                    </button>
+
+
+                    {lovenseSdkError && (
+                      <p className="settings-feedback">
+                        {lovenseSdkError}
+                      </p>
+                    )}
+
+
+                    <button
+                      type="button"
+                      className="settings-text-action"
+                      onClick={connectLovense}
+                      disabled={
+                        lovenseLoading ||
+                        lovenseOpening
+                      }
+                    >
+                      {lovenseLoading
+                        ? "Préparation du QR…"
+                        : "Utiliser le QR"}
+                    </button>
+
+                  </>
 
                 )}
 
 
-              <button
-                type="button"
-                className="settings-primary-action settings-lovense-open"
-                onClick={openLovenseRemote}
-                disabled={lovenseOpening}
-              >
-                <span>
-                  {lovenseOpening
-                    ? "Ouverture…"
-                    : "Ouvrir Lovense Remote"}
-                </span>
+                {lovenseQr && (
 
-                <span className="settings-action-arrow">
-                  →
-                </span>
-              </button>
+                  <div className="settings-lovense-qr">
+
+                    <div className="settings-status-row">
+
+                      <span className="settings-status-dot is-pending" />
+
+                      <span>
+                        EN ATTENTE D’ASSOCIATION
+                      </span>
+
+                    </div>
 
 
-              {lovenseSdkError && (
-                <p className="settings-feedback">
-                  {lovenseSdkError}
-                </p>
-              )}
+                    <div className="settings-qr-frame">
+
+                      <img
+                        src={lovenseQr}
+                        alt="QR de connexion Lovense"
+                      />
+
+                    </div>
 
 
-              <button
-                type="button"
-                className="settings-text-action"
-                onClick={connectLovense}
-                disabled={
-                  lovenseLoading ||
-                  lovenseOpening
-                }
-              >
-                {lovenseLoading
-                  ? "Préparation du QR…"
-                  : "L’app ne s’ouvre pas ? Utiliser le QR"}
-              </button>
-
-            </>
-
-          )}
+                    <strong className="settings-qr-copy">
+                      Scanne avec Lovense Remote
+                      <br />
+                      sur le téléphone connecté au jouet
+                    </strong>
 
 
-          {lovenseQr && (
-
-            <div className="settings-lovense-qr">
-
-              <div className="settings-status-row">
-
-                <span className="settings-status-dot is-pending" />
-
-                <span>
-                  EN ATTENTE D’ASSOCIATION
-                </span>
-
-              </div>
+                    {lovenseCode && (
+                      <small className="settings-qr-code">
+                        Code : {lovenseCode}
+                      </small>
+                    )}
 
 
-              <div className="settings-qr-frame">
+                    <button
+                      type="button"
+                      className="settings-secondary-action"
+                      onClick={() => {
+                        setLovenseQr("");
+                        setLovenseCode("");
+                        setLovenseMessage("");
+                      }}
+                    >
+                      Annuler
+                    </button>
 
-                <img
-                  src={lovenseQr}
-                  alt="QR de connexion Lovense"
-                />
+                  </div>
 
-              </div>
-
-
-              <strong className="settings-qr-copy">
-                Scanne avec Lovense Remote
-                <br />
-                sur le téléphone connecté au jouet
-              </strong>
-
-
-              {lovenseCode && (
-                <small className="settings-qr-code">
-                  Code : {lovenseCode}
-                </small>
-              )}
+                )}
 
 
-              <button
-                type="button"
-                className="settings-secondary-action"
-                onClick={() => {
-                  setLovenseQr("");
-                  setLovenseCode("");
-                  setLovenseMessage("");
-                }}
-              >
-                Régénérer le QR
-              </button>
+                {lovenseMessage &&
+                  !lovenseQr && (
 
-            </div>
+                    <p className="settings-feedback">
+                      {lovenseMessage}
+                    </p>
 
-          )}
+                  )}
 
 
-          {lovenseMessage && !lovenseQr && (
-            <p className="settings-feedback">
-              {lovenseMessage}
-            </p>
-          )}
+                {lovenseDisconnectMessage && (
+                  <p className="settings-feedback">
+                    {lovenseDisconnectMessage}
+                  </p>
+                )}
 
+              </>
 
-          <div className="settings-subsection settings-lovense-test">
-
-            <span className="settings-card-eyebrow">
-              TEST
-            </span>
-
-            <p>
-              Envoie une vibration légère
-              de 2 secondes au jouet connecté.
-            </p>
-
-            <button
-              type="button"
-              className="settings-secondary-action"
-              onClick={testLovense}
-              disabled={
-                lovenseTestLoading ||
-                !lovenseConnected
-              }
-            >
-              {lovenseTestLoading
-                ? "Envoi…"
-                : "Tester le Lush"}
-            </button>
-
-
-            {lovenseTestMessage && (
-              <p className="settings-feedback">
-                {lovenseTestMessage}
-              </p>
             )}
-
-          </div>
 
         </section>
 
