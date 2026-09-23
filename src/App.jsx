@@ -83,18 +83,28 @@ const PROTOCOL_SESSION_KEY =
 
 function saveGameSession(
   code,
-  playerNumber,
-  playerToken
+  playerNumber
 ) {
   const normalizedCode =
     String(code || "")
       .trim()
       .toUpperCase();
 
+  const normalizedPlayerNumber =
+    Number(playerNumber);
+
+  if (
+    !normalizedCode ||
+    ![1, 2].includes(normalizedPlayerNumber)
+  ) {
+    throw new Error(
+      "Session de partie invalide."
+    );
+  }
+
   const session = {
     code: normalizedCode,
-    playerNumber: Number(playerNumber),
-    playerToken,
+    playerNumber: normalizedPlayerNumber,
     savedAt: new Date().toISOString(),
   };
 
@@ -115,7 +125,6 @@ function getGameSession(code = null) {
       return {
         code: null,
         playerNumber: null,
-        playerToken: null,
         valid: false,
       };
     }
@@ -138,23 +147,19 @@ function getGameSession(code = null) {
     const playerNumber =
       Number(session?.playerNumber);
 
-    const playerToken =
-      session?.playerToken || null;
-
     const valid =
       Boolean(sessionCode) &&
       [1, 2].includes(playerNumber) &&
-      Boolean(playerToken) &&
       (
         !requestedCode ||
         requestedCode === sessionCode
       );
 
     return {
-      ...session,
       code: sessionCode,
       playerNumber,
-      playerToken,
+      savedAt:
+        session?.savedAt || null,
       valid,
     };
 
@@ -167,7 +172,6 @@ function getGameSession(code = null) {
     return {
       code: null,
       playerNumber: null,
-      playerToken: null,
       valid: false,
     };
   }
@@ -181,19 +185,10 @@ function clearGameSession() {
 
 async function saveProfileAsGameIdentity({
   code,
-  playerNumber,
-  playerToken,
-  profile,
 }) {
-  if (
-    !code ||
-    !playerNumber ||
-    !playerToken ||
-    !profile?.display_name ||
-    !profile?.sex
-  ) {
+  if (!code) {
     throw new Error(
-      "Profil ou session de partie incomplet."
+      "Session de partie incomplète."
     );
   }
 
@@ -202,10 +197,6 @@ async function saveProfileAsGameIdentity({
       "save_protocol_identity",
       {
         p_game_code: code,
-        p_player_no: playerNumber,
-        p_player_token: playerToken,
-        p_name: profile.display_name,
-        p_sex: profile.sex,
       }
     );
 
@@ -1903,10 +1894,6 @@ function HomeScreen({ navigate , profile, }) {
             "get_protocol_game",
             {
               p_game_code: session.code,
-              p_player_no:
-                session.playerNumber,
-              p_player_token:
-                session.playerToken,
             }
           );
 
@@ -1988,9 +1975,8 @@ function HomeScreen({ navigate , profile, }) {
           );
 
           /*
-          * Le token n'est plus valide,
-          * la partie n'existe plus,
-          * ou elle n'est plus accessible.
+          * La partie n'existe plus
+          * ou l'utilisateur n'y a plus accès.
           *
           * On oublie uniquement la session
           * locale. Supabase reste intact.
@@ -2090,11 +2076,6 @@ function HomeScreen({ navigate , profile, }) {
         try {
           await saveProfileAsGameIdentity({
             code,
-            playerNumber:
-              session.playerNumber,
-            playerToken:
-              session.playerToken,
-            profile,
           });
 
         } catch (err) {
@@ -2228,7 +2209,9 @@ function HomeScreen({ navigate , profile, }) {
 
       if (
         !joinedGame?.code ||
-        !joinedGame?.player_token
+        ![1, 2].includes(
+          Number(joinedGame?.player_no)
+        )
       ) {
         throw new Error(
           "Réponse de connexion invalide."
@@ -2237,15 +2220,11 @@ function HomeScreen({ navigate , profile, }) {
 
       saveGameSession(
         joinedGame.code,
-        joinedGame.player_no,
-        joinedGame.player_token
+        joinedGame.player_no
       );
 
       await saveProfileAsGameIdentity({
         code: joinedGame.code,
-        playerNumber: joinedGame.player_no,
-        playerToken: joinedGame.player_token,
-        profile,
       });
 
       setJoinOpen(false);
@@ -2293,7 +2272,9 @@ function HomeScreen({ navigate , profile, }) {
 
       if (
         !createdGame?.code ||
-        !createdGame?.player_token
+        ![1, 2].includes(
+          Number(createdGame?.player_no)
+        )
       ) {
         throw new Error(
           "Réponse de création invalide."
@@ -2302,15 +2283,11 @@ function HomeScreen({ navigate , profile, }) {
 
       saveGameSession(
         createdGame.code,
-        createdGame.player_no,
-        createdGame.player_token
+        createdGame.player_no
       );
 
       await saveProfileAsGameIdentity({
         code: createdGame.code,
-        playerNumber: createdGame.player_no,
-        playerToken: createdGame.player_token,
-        profile,
       });
 
       navigate(
@@ -4533,18 +4510,22 @@ function JoinScreen({ navigate, profile, }) {
 
     if (
       !joinedGame?.code ||
-      !joinedGame?.player_token
+      ![1, 2].includes(
+        Number(joinedGame?.player_no)
+      )
     ) {
       throw new Error(
         "Réponse de connexion invalide."
       );
     }
 
+    saveGameSession(
+      joinedGame.code,
+      joinedGame.player_no
+    );
+
     await saveProfileAsGameIdentity({
       code: joinedGame.code,
-      playerNumber: joinedGame.player_no,
-      playerToken: joinedGame.player_token,
-      profile,
     });
 
     navigate(
@@ -4677,7 +4658,6 @@ function LobbyScreen({
 
   const {
     playerNumber,
-    playerToken,
     valid: hasGameSession,
   } = getGameSession(code);
 
@@ -4718,10 +4698,6 @@ function LobbyScreen({
       "get_protocol_game",
       {
         p_game_code: code,
-        p_player_no:
-          playerNumber,
-        p_player_token:
-          playerToken,
       }
     );
 
@@ -4823,18 +4799,14 @@ function LobbyScreen({
       setReadyLoading(true);
       setError("");
 
-      const {
-        error: readyError,
-      } = await supabase.rpc(
-        "set_protocol_ready_secure",
-        {
-          p_game_code: code,
-          p_player_no:
-            playerNumber,
-          p_player_token:
-            playerToken,
-        }
-      );
+        const {
+          error: readyError,
+        } = await supabase.rpc(
+          "set_protocol_ready",
+          {
+            p_game_code: code,
+          }
+        );
 
       if (readyError) {
         throw readyError;
@@ -5050,7 +5022,6 @@ function CalibrationScreen({
 }) {
   const {
     playerNumber,
-    playerToken,
     valid: hasGameSession,
   } = getGameSession(code);
 
@@ -5107,8 +5078,6 @@ function CalibrationScreen({
           "get_protocol_game",
           {
             p_game_code: code,
-            p_player_no: playerNumber,
-            p_player_token: playerToken,
           }
         );
 
@@ -5167,8 +5136,6 @@ function CalibrationScreen({
   }, [
     submitted,
     code,
-    playerNumber,
-    playerToken,
     hasGameSession,
     navigate,
   ]);
@@ -5236,13 +5203,9 @@ function CalibrationScreen({
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "submit_calibration_secure",
+          "submit_calibration",
           {
             p_game_code: code,
-            p_player_no:
-              playerNumber,
-            p_player_token:
-              playerToken,
             p_intensity:
               intensity,
             p_answers:
@@ -5407,13 +5370,9 @@ function CalibrationScreen({
                       data,
                       error: startError,
                     } = await supabase.rpc(
-                      "start_protocol_secure",
+                      "start_protocol",
                       {
                         p_game_code: code,
-                        p_player_no:
-                          playerNumber,
-                        p_player_token:
-                          playerToken,
                       }
                     );
 
@@ -5866,7 +5825,6 @@ function PlayScreen({
 
   const {
     playerNumber,
-    playerToken,
     valid: hasGameSession,
   } = getGameSession(code);
 
@@ -6104,10 +6062,6 @@ function PlayScreen({
         "update_protocol_timer",
         {
           p_game_code: code,
-          p_player_no:
-            playerNumber,
-          p_player_token:
-            playerToken,
           p_card_id:
             card.id,
           p_started_at:
@@ -6177,10 +6131,6 @@ function PlayScreen({
         "update_protocol_timer",
         {
           p_game_code: code,
-          p_player_no:
-            playerNumber,
-          p_player_token:
-            playerToken,
           p_card_id:
             card.id,
           p_started_at:
@@ -6243,10 +6193,6 @@ function PlayScreen({
         "update_protocol_timer",
         {
           p_game_code: code,
-          p_player_no:
-            playerNumber,
-          p_player_token:
-            playerToken,
           p_card_id:
             card.id,
           p_started_at:
@@ -6522,13 +6468,9 @@ function PlayScreen({
         data,
         error,
       } = await supabase.rpc(
-        "get_scene_state_secure",
+        "get_scene_state",
         {
           p_game_code: code,
-          p_player_no:
-            playerNumber,
-          p_player_token:
-            playerToken,
         }
       );
 
@@ -6561,13 +6503,9 @@ async function loadActiveRules() {
     data,
     error,
   } = await supabase.rpc(
-    "get_active_rules_secure",
+    "get_active_rules",
     {
       p_game_code: code,
-      p_player_no:
-        playerNumber,
-      p_player_token:
-        playerToken,
     }
   );
 
@@ -6610,13 +6548,9 @@ async function handleSceneRead() {
       data,
       error,
     } = await supabase.rpc(
-      "mark_scene_step_read_secure",
+      "mark_scene_step_read",
       {
         p_game_code: code,
-        p_player_no:
-          playerNumber,
-        p_player_token:
-          playerToken,
       }
     );
 
@@ -6662,13 +6596,9 @@ async function handleSceneRead() {
       data,
       error,
     } = await supabase.rpc(
-      "advance_scene_step_secure",
+      "advance_scene_step",
       {
         p_game_code: code,
-        p_player_no:
-          playerNumber,
-        p_player_token:
-          playerToken,
       }
     );
 
@@ -6718,10 +6648,6 @@ async function handleSceneRead() {
       "get_protocol_game",
       {
         p_game_code: code,
-        p_player_no:
-          playerNumber,
-        p_player_token:
-          playerToken,
       }
     );
 
@@ -6911,13 +6837,9 @@ async function handleSceneRead() {
               data,
               error: statsError,
             } = await supabase.rpc(
-              "get_protocol_final_stats_secure",
+              "get_protocol_final_stats",
               {
                 p_game_code: code,
-                p_player_no:
-                  playerNumber,
-                p_player_token:
-                  playerToken,
               }
             );
 
@@ -6945,8 +6867,6 @@ async function handleSceneRead() {
       }, [
         game?.status,
         code,
-        playerNumber,
-        playerToken,
       ]);
 
 
@@ -6968,13 +6888,9 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "advance_protocol_secure",
+          "advance_protocol",
           {
             p_game_code: code,
-            p_player_no:
-              playerNumber,
-            p_player_token:
-              playerToken,
             p_action: action,
             p_duel_winner:
               duelWinner,
@@ -7023,13 +6939,9 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "buy_protocol_bonus_secure",
+          "buy_protocol_bonus",
           {
             p_game_code: code,
-            p_player_no:
-              playerNumber,
-            p_player_token:
-              playerToken,
             p_bonus: bonus,
           }
         );
@@ -7076,13 +6988,9 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "use_choose_type_secure",
+          "use_choose_type",
           {
             p_game_code: code,
-            p_player_no:
-              playerNumber,
-            p_player_token:
-              playerToken,
             p_card_type:
               cardType,
           }
@@ -7282,18 +7190,13 @@ async function handleSceneRead() {
             setRematchLoading(true);
             setRematchError("");
 
-
             const {
               data,
               error: rematchRpcError,
             } = await supabase.rpc(
-              "rematch_protocol_secure",
+              "rematch_protocol",
               {
                 p_game_code: code,
-                p_player_no:
-                  playerNumber,
-                p_player_token:
-                  playerToken,
               }
             );
 
@@ -8017,16 +7920,10 @@ async function handleSceneRead() {
               const {
                 error: bonusError,
               } = await supabase.rpc(
-                "use_take_control_secure",
+                "use_take_control",
                 {
                   p_game_code:
                     code,
-
-                  p_player_no:
-                    playerNumber,
-
-                  p_player_token:
-                    playerToken,
                 }
               );
 
