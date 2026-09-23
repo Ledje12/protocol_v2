@@ -384,6 +384,21 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+[functions.lovense-auth]
+verify_jwt = true
+
+[functions.lovense-connect]
+verify_jwt = true
+
+[functions.lovense-status]
+verify_jwt = true
+
+[functions.lovense-command]
+verify_jwt = true
+
+[functions.lovense-callback]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
