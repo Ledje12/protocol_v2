@@ -78,6 +78,59 @@ export default function MessagesScreen({
   const threadRef =
     useRef(null);
 
+  useEffect(() => {
+    const viewport =
+      window.visualViewport;
+
+    if (!viewport) {
+      return;
+    }
+
+    const updateViewport = () => {
+      document.documentElement.style.setProperty(
+        "--messages-viewport-height",
+        `${viewport.height}px`
+      );
+
+      document.documentElement.style.setProperty(
+        "--messages-viewport-top",
+        `${viewport.offsetTop}px`
+      );
+    };
+
+    updateViewport();
+
+    viewport.addEventListener(
+      "resize",
+      updateViewport
+    );
+
+    viewport.addEventListener(
+      "scroll",
+      updateViewport
+    );
+
+    return () => {
+      viewport.removeEventListener(
+        "resize",
+        updateViewport
+      );
+
+      viewport.removeEventListener(
+        "scroll",
+        updateViewport
+      );
+
+      document.documentElement.style.removeProperty(
+        "--messages-viewport-height"
+      );
+
+      document.documentElement.style.removeProperty(
+        "--messages-viewport-top"
+      );
+    };
+  }, []);
+
   /* =========================================================
      LOAD MESSAGES
      ========================================================= */
