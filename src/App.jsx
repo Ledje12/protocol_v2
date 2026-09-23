@@ -3682,28 +3682,35 @@ function SettingsScreen({
 
   return (
     <main className="app protocol-settings-page">
-      <div className="glow glow-center" />
 
-      <header className="header">
+      <header className="header protocol-settings-header">
         <button
-          className="back"
+          className="back protocol-settings-back"
           onClick={() => navigate("/")}
           aria-label="Retour"
         >
           ←
         </button>
 
-        <span className="logo">
+        <span className="logo protocol-settings-logo">
           PROTOCOL
         </span>
 
-        <span className="settings-header-dot">
-          •
-        </span>
+        <span
+          className="protocol-settings-header-spacer"
+          aria-hidden="true"
+        />
       </header>
 
+
       <section className="protocol-settings">
-        <div className="protocol-settings-intro">
+
+        {/* =========================================
+            INTRO
+            ========================================= */}
+
+        <section className="protocol-settings-intro">
+
           <p className="kicker">
             RÉGLAGES
           </p>
@@ -3719,30 +3726,34 @@ function SettingsScreen({
             <br />
             Jamais de bruit inutile.
           </p>
-        </div>
 
-        <div className="settings-section-card">
+        </section>
 
-          <div className="settings-section-heading">
-            <span className="settings-section-eyebrow">
+
+        {/* =========================================
+            PARTENAIRE
+            ========================================= */}
+
+        <section className="settings-card settings-card-partner">
+
+          <div className="settings-card-heading">
+
+            <span className="settings-card-eyebrow">
               PARTENAIRE
             </span>
 
             <h2>
               Votre duo.
             </h2>
+
           </div>
 
 
           {couple?.partner ? (
-            <>
-              <p
-                style={{
-                  margin: "0 0 14px",
-                  opacity: 0.72,
-                  lineHeight: 1.5,
-                }}
-              >
+
+            <div className="settings-partner-connected">
+
+              <p className="settings-card-copy">
                 Tu es associé à{" "}
                 <strong>
                   {couple.partner.display_name ||
@@ -3750,19 +3761,21 @@ function SettingsScreen({
                 </strong>.
               </p>
 
-              <span className="notification-status">
-                ASSOCIÉS
-              </span>
-            </>
+              <div className="settings-status-row">
+                <span className="settings-status-dot is-active" />
+
+                <span>
+                  ASSOCIÉS
+                </span>
+              </div>
+
+            </div>
+
           ) : (
+
             <>
-              <p
-                style={{
-                  margin: "0 0 18px",
-                  opacity: 0.72,
-                  lineHeight: 1.5,
-                }}
-              >
+
+              <p className="settings-card-copy">
                 Associe ton compte à celui de ton
                 partenaire pour partager invitations,
                 messages et expériences.
@@ -3771,7 +3784,7 @@ function SettingsScreen({
 
               <button
                 type="button"
-                className="notification-enable"
+                className="settings-primary-action"
                 onClick={createCoupleInvite}
                 disabled={coupleActionLoading}
               >
@@ -3781,65 +3794,41 @@ function SettingsScreen({
                     : "Créer un code partenaire"}
                 </span>
 
-                <span className="notification-arrow">
+                <span className="settings-action-arrow">
                   →
                 </span>
               </button>
 
 
               {coupleInviteCode && (
-                <div
-                  style={{
-                    marginTop: "16px",
-                    padding: "16px",
-                    borderRadius: "18px",
-                    background:
-                      "rgba(255,255,255,.07)",
-                    textAlign: "center",
-                  }}
-                >
-                  <span
-                    className="settings-section-eyebrow"
-                    style={{
-                      display: "block",
-                      marginBottom: "8px",
-                    }}
-                  >
+
+                <div className="settings-code-box">
+
+                  <span className="settings-card-eyebrow">
                     CODE PARTENAIRE
                   </span>
 
-                  <strong
-                    style={{
-                      display: "block",
-                      fontSize: "1.6rem",
-                      letterSpacing: ".16em",
-                    }}
-                  >
+                  <strong>
                     {coupleInviteCode}
                   </strong>
+
+                  <small>
+                    Valable pendant 24 heures
+                  </small>
+
                 </div>
+
               )}
 
 
-              <div
-                style={{
-                  marginTop: "22px",
-                  paddingTop: "20px",
-                  borderTop:
-                    "1px solid rgba(255,255,255,.09)",
-                }}
-              >
-                <span
-                  className="settings-section-eyebrow"
-                  style={{
-                    display: "block",
-                    marginBottom: "10px",
-                  }}
-                >
+              <div className="settings-subsection">
+
+                <span className="settings-card-eyebrow">
                   J’AI DÉJÀ UN CODE
                 </span>
 
                 <input
+                  className="settings-code-input"
                   type="text"
                   value={coupleJoinCode}
                   onChange={(event) =>
@@ -3856,114 +3845,130 @@ function SettingsScreen({
                   maxLength={10}
                   autoComplete="off"
                   placeholder="CODE PARTENAIRE"
-                  style={{
-                    width: "100%",
-                    boxSizing: "border-box",
-                    marginBottom: "10px",
-                  }}
                 />
 
                 <button
                   type="button"
-                  className="secondary"
+                  className="settings-secondary-action"
                   onClick={joinCouple}
                   disabled={
                     coupleActionLoading ||
                     coupleJoinCode.length !== 10
                   }
-                  style={{
-                    width: "100%",
-                  }}
                 >
                   Associer ce compte
                 </button>
+
               </div>
+
             </>
+
           )}
 
 
           {coupleMessage && (
-            <p className="notification-message">
+            <p className="settings-feedback">
               {coupleMessage}
             </p>
           )}
 
-        </div>
-        
-        <div
+        </section>
+
+
+        {/* =========================================
+            NOTIFICATIONS
+            ========================================= */}
+
+        <section
           className={
-            `notification-card ${status.className}`
+            `settings-card settings-card-notifications ${
+              permission === "granted" &&
+              subscribed
+                ? "is-active"
+                : ""
+            }`
           }
         >
-          <div className="notification-card-top">
-            <div className="notification-orb">
+
+          <div className="settings-card-topline">
+
+            <div className="settings-card-heading">
+
+              <span className="settings-card-eyebrow">
+                NOTIFICATIONS
+              </span>
+
+              <h2>
+                {checkingSubscription
+                  ? "On vérifie cet appareil."
+                  : status.title}
+              </h2>
+
+            </div>
+
+
+            <div
+              className={
+                permission === "granted" &&
+                subscribed
+                  ? "settings-state-mark is-active"
+                  : "settings-state-mark"
+              }
+            >
               <span />
             </div>
 
-            <span className="notification-status">
-              {checkingSubscription
-                ? "VÉRIFICATION"
-                : status.label}
-            </span>
           </div>
 
-          <div className="notification-card-copy">
-            <span className="notification-eyebrow">
-              NOTIFICATIONS
-            </span>
 
-            <h2>
-              {checkingSubscription
-                ? "On vérifie cet appareil."
-                : status.title}
-            </h2>
+          <p className="settings-card-copy">
+            {checkingSubscription
+              ? "PROTOCOL vérifie si cet iPhone possède déjà un abonnement Push."
+              : status.text}
+          </p>
 
-            <p>
-              {checkingSubscription
-                ? "PROTOCOL vérifie si cet iPhone possède déjà un abonnement Push."
-                : status.text}
-            </p>
-          </div>
 
           {!isStandalone &&
             permission !== "granted" && (
-              <p className="notification-hint">
+
+              <p className="settings-feedback">
                 Sur iPhone, ouvre PROTOCOL depuis
                 l’icône ajoutée à l’écran d’accueil.
               </p>
+
             )}
+
 
           {permission === "granted" &&
             !subscribed &&
             !checkingSubscription && (
+
               <button
                 type="button"
-                className="secondary"
+                className="settings-primary-action"
                 onClick={activatePushNotifications}
                 disabled={requesting}
-                style={{
-                  marginTop: "14px",
-                  width: "100%",
-                }}
               >
-                {requesting
-                  ? "Enregistrement…"
-                  : "Finaliser l’enregistrement"}
+                <span>
+                  {requesting
+                    ? "Enregistrement…"
+                    : "Finaliser l’enregistrement"}
+                </span>
+
+                <span className="settings-action-arrow">
+                  →
+                </span>
               </button>
+
             )}
 
-          {message && (
-            <p className="notification-message">
-              {message}
-            </p>
-          )}
 
           {permission === "granted" &&
             subscribed && (
 
-              <div className="notification-enabled">
+              <div className="settings-confirmation">
 
-                <span className="notification-check">
+                <span className="settings-confirmation-icon">
                   ✓
                 </span>
 
@@ -3982,27 +3987,37 @@ function SettingsScreen({
               </div>
 
             )}
-        </div>
 
-        <div className="settings-section-card">
 
-          <div className="settings-section-heading">
-            <span className="settings-section-eyebrow">
+          {message && (
+            <p className="settings-feedback">
+              {message}
+            </p>
+          )}
+
+        </section>
+
+
+        {/* =========================================
+            LOVENSE
+            ========================================= */}
+
+        <section className="settings-card settings-card-lovense">
+
+          <div className="settings-card-heading">
+
+            <span className="settings-card-eyebrow">
               LOVENSE
             </span>
 
             <h2>
               Connecter le Lush 4.
             </h2>
+
           </div>
 
-          <p
-            style={{
-              margin: "0 0 16px",
-              opacity: 0.72,
-              lineHeight: 1.5,
-            }}
-          >
+
+          <p className="settings-card-copy">
             Connecte Lovense Remote à PROTOCOL
             pour permettre au jeu de contrôler
             le jouet.
@@ -4010,15 +4025,20 @@ function SettingsScreen({
 
 
           {!lovenseQr && (
+
             <>
-                <div
-                style={{
-                  marginBottom: "14px",
-                }}
-              >
+
+              <div className="settings-status-row settings-lovense-status">
+
                 <span
-                  className="notification-status"
-                >
+                  className={
+                    lovenseConnected
+                      ? "settings-status-dot is-active"
+                      : "settings-status-dot"
+                  }
+                />
+
+                <span>
                   {lovenseStatusLoading
                     ? "VÉRIFICATION"
                     : lovenseConnected
@@ -4026,25 +4046,24 @@ function SettingsScreen({
                       : "NON CONNECTÉ"}
                 </span>
 
-                {!lovenseStatusLoading &&
-                  lovenseConnected && (
-                    <p
-                      style={{
-                        margin: "8px 0 0",
-                        opacity: 0.7,
-                        fontSize: "0.84rem",
-                      }}
-                    >
-                      {lovenseToyName
-                        ? `${lovenseToyName} disponible`
-                        : "Jouet Lovense disponible"}
-                    </p>
-                  )}
               </div>
+
+
+              {!lovenseStatusLoading &&
+                lovenseConnected && (
+
+                  <p className="settings-connected-device">
+                    {lovenseToyName
+                      ? `${lovenseToyName} disponible`
+                      : "Jouet Lovense disponible"}
+                  </p>
+
+                )}
+
 
               <button
                 type="button"
-                className="notification-enable"
+                className="settings-primary-action settings-lovense-open"
                 onClick={openLovenseRemote}
                 disabled={lovenseOpening}
               >
@@ -4054,208 +4073,147 @@ function SettingsScreen({
                     : "Ouvrir Lovense Remote"}
                 </span>
 
-                <span className="notification-arrow">
+                <span className="settings-action-arrow">
                   →
                 </span>
               </button>
 
+
               {lovenseSdkError && (
-                <p
-                  style={{
-                    margin: "12px 0 0",
-                    fontSize: "0.82rem",
-                    lineHeight: 1.45,
-                    opacity: 0.7,
-                  }}
-                >
+                <p className="settings-feedback">
                   {lovenseSdkError}
                 </p>
               )}
 
-              <div
-                style={{
-                  marginTop: "14px",
-                  textAlign: "center",
-                }}
+
+              <button
+                type="button"
+                className="settings-text-action"
+                onClick={connectLovense}
+                disabled={
+                  lovenseLoading ||
+                  lovenseOpening
+                }
               >
-                <button
-                  type="button"
-                  onClick={connectLovense}
-                  disabled={
-                    lovenseLoading ||
-                    lovenseOpening
-                  }
-                  style={{
-                    appearance: "none",
-                    border: "none",
-                    background: "transparent",
-                    padding: "6px 8px",
-                    color: "inherit",
-                    font: "inherit",
-                    fontSize: "0.82rem",
-                    opacity: 0.62,
-                    textDecoration: "underline",
-                    textUnderlineOffset: "3px",
-                    cursor: "pointer",
-                  }}
-                >
-                  {lovenseLoading
-                    ? "Préparation du QR…"
-                    : "L’app ne s’ouvre pas ? Utiliser le QR"}
-                </button>
-              </div>
+                {lovenseLoading
+                  ? "Préparation du QR…"
+                  : "L’app ne s’ouvre pas ? Utiliser le QR"}
+              </button>
+
             </>
+
           )}
 
 
           {lovenseQr && (
-            <div
-              style={{
-                display: "grid",
-                justifyItems: "center",
-                gap: "16px",
-                marginTop: "12px",
-              }}
-            >
 
-              <span
-                className="notification-status"
-                style={{
-                  justifySelf: "start",
-                }}
-              >
-                EN ATTENTE D’ASSOCIATION
-              </span>
+            <div className="settings-lovense-qr">
 
-              <div
-                style={{
-                  background: "#fff",
-                  padding: "12px",
-                  borderRadius: "20px",
-                }}
-              >
+              <div className="settings-status-row">
+
+                <span className="settings-status-dot is-pending" />
+
+                <span>
+                  EN ATTENTE D’ASSOCIATION
+                </span>
+
+              </div>
+
+
+              <div className="settings-qr-frame">
+
                 <img
                   src={lovenseQr}
                   alt="QR de connexion Lovense"
-                  style={{
-                    width: "220px",
-                    height: "220px",
-                    display: "block",
-                  }}
                 />
+
               </div>
 
-              <strong
-                style={{
-                  textAlign: "center",
-                  lineHeight: 1.35,
-                }}
-              >
+
+              <strong className="settings-qr-copy">
                 Scanne avec Lovense Remote
                 <br />
                 sur le téléphone connecté au jouet
               </strong>
 
+
               {lovenseCode && (
-                <span
-                  style={{
-                    opacity: 0.45,
-                    fontSize: "0.78rem",
-                  }}
-                >
+                <small className="settings-qr-code">
                   Code : {lovenseCode}
-                </span>
+                </small>
               )}
+
 
               <button
                 type="button"
-                className="secondary"
+                className="settings-secondary-action"
                 onClick={() => {
                   setLovenseQr("");
                   setLovenseCode("");
                   setLovenseMessage("");
-                }}
-                style={{
-                  width: "100%",
-                  marginTop: "4px",
                 }}
               >
                 Régénérer le QR
               </button>
 
             </div>
+
           )}
 
+
           {lovenseMessage && !lovenseQr && (
-            <p
-              className="notification-message"
-              style={{
-                marginTop: "14px",
-              }}
-            >
+            <p className="settings-feedback">
               {lovenseMessage}
             </p>
           )}
 
-          <div
-            style={{
-              marginTop: "18px",
-              paddingTop: "18px",
-              borderTop:
-                "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <span className="notification-eyebrow">
+
+          <div className="settings-subsection settings-lovense-test">
+
+            <span className="settings-card-eyebrow">
               TEST
             </span>
 
-            <p
-              style={{
-                margin: "8px 0 14px",
-                opacity: 0.7,
-                fontSize: "0.86rem",
-                lineHeight: 1.45,
-              }}
-            >
+            <p>
               Envoie une vibration légère
               de 2 secondes au jouet connecté.
             </p>
 
             <button
               type="button"
-              className="secondary"
+              className="settings-secondary-action"
               onClick={testLovense}
               disabled={
                 lovenseTestLoading ||
                 !lovenseConnected
               }
-              style={{
-                width: "100%",
-              }}
             >
               {lovenseTestLoading
                 ? "Envoi…"
                 : "Tester le Lush"}
             </button>
 
+
             {lovenseTestMessage && (
-              <p
-                style={{
-                  margin: "12px 0 0",
-                  fontSize: "0.82rem",
-                  opacity: 0.7,
-                }}
-              >
+              <p className="settings-feedback">
                 {lovenseTestMessage}
               </p>
             )}
-          </div>
 
           </div>
 
-          <div className="settings-section-card">
-          <div className="settings-section-heading">
-            <span className="settings-section-eyebrow">
+        </section>
+
+
+        {/* =========================================
+            CONFIDENTIALITÉ
+            ========================================= */}
+
+        <section className="settings-card settings-card-privacy">
+
+          <div className="settings-card-heading">
+
+            <span className="settings-card-eyebrow">
               CONFIDENTIALITÉ
             </span>
 
@@ -4263,15 +4221,20 @@ function SettingsScreen({
               Ce qui reste entre vous
               reste entre vous.
             </h2>
+
           </div>
 
+
           <div className="settings-privacy-list">
+
             <div className="settings-privacy-item">
+
               <span className="settings-privacy-icon">
                 ◇
               </span>
 
               <div>
+
                 <strong>
                   Notifications discrètes
                 </strong>
@@ -4281,15 +4244,20 @@ function SettingsScreen({
                   n’est jamais affiché dans les
                   notifications.
                 </span>
+
               </div>
+
             </div>
 
+
             <div className="settings-privacy-item">
+
               <span className="settings-privacy-icon">
                 ◇
               </span>
 
               <div>
+
                 <strong>
                   Session privée
                 </strong>
@@ -4298,15 +4266,20 @@ function SettingsScreen({
                   L’accès à une partie repose sur
                   un identifiant propre à cet appareil.
                 </span>
+
               </div>
+
             </div>
 
+
             <div className="settings-privacy-item">
+
               <span className="settings-privacy-icon">
                 ◇
               </span>
 
               <div>
+
                 <strong>
                   Contrôle local
                 </strong>
@@ -4315,51 +4288,73 @@ function SettingsScreen({
                   Tu peux oublier la partie mémorisée
                   sur cet appareil à tout moment.
                 </span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div className="settings-device-card">
-          <div>
-            <span className="settings-section-eyebrow">
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* =========================================
+            CET APPAREIL
+            ========================================= */}
+
+        <section className="settings-card settings-card-device">
+
+          <div className="settings-card-heading">
+
+            <span className="settings-card-eyebrow">
               CET APPAREIL
             </span>
 
-            <h3>
+            <h2>
               Session mémorisée
-            </h3>
+            </h2>
 
-            <p>
-              PROTOCOL conserve localement l’accès
-              nécessaire pour reprendre cette partie.
-            </p>
           </div>
 
+
+          <p className="settings-card-copy">
+            PROTOCOL conserve localement l’accès
+            nécessaire pour reprendre cette partie.
+          </p>
+
+
           {hasLocalGameSession ? (
+
             <button
               type="button"
-              className="settings-forget-button"
+              className="settings-secondary-action"
               onClick={forgetLocalGame}
             >
               <span>
                 Oublier cette partie
               </span>
 
-              <span>×</span>
+              <span>
+                ×
+              </span>
             </button>
+
           ) : (
+
             <div className="settings-device-empty">
               Aucune partie mémorisée sur cet appareil.
             </div>
+
           )}
+
+
+          <div className="settings-account-divider" />
+
+
           <button
             type="button"
-            className="settings-forget-button"
+            className="settings-logout-button"
             onClick={logout}
-            style={{
-              marginTop: "12px",
-            }}
           >
             <span>
               Se déconnecter
@@ -4369,10 +4364,14 @@ function SettingsScreen({
               →
             </span>
           </button>
-        </div>
+
+        </section>
+
       </section>
 
+
       <Footer />
+
     </main>
   );
 }
