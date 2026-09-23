@@ -2931,6 +2931,9 @@ function SettingsScreen({
 
   const [lovenseSdkError, setLovenseSdkError] =
     useState("");
+
+  const lovenseSdkRef =
+    useRef(null);
   
   const isStandalone =
     window.matchMedia?.(
@@ -3309,12 +3312,149 @@ function SettingsScreen({
 
     };
 
+    const syncLovenseSdkState =
+      async (
+        instance =
+          lovenseSdkRef.current
+      ) => {
+
+        if (!instance) {
+          return false;
+        }
+
+        try {
+
+          /*
+          * Le SDK Lovense peut retourner
+          * ces valeurs directement ou via
+          * une Promise selon sa version.
+          * await fonctionne dans les deux cas.
+          */
+
+          const appStatus =
+            await instance
+              .getAppStatus();
+
+          const onlineToysRaw =
+            await instance
+              .getOnlineToys();
+
+          const deviceInfoRaw =
+            await instance
+              .getDeviceInfo();
+
+
+          const onlineToys =
+            Array.isArray(
+              onlineToysRaw
+            )
+              ? onlineToysRaw
+              : [];
+
+
+          const deviceInfo =
+            deviceInfoRaw &&
+            typeof deviceInfoRaw ===
+              "object"
+              ? deviceInfoRaw
+              : {};
+
+
+          console.log(
+            "LOVENSE SDK STATE:",
+            {
+              appStatus,
+              toyCount:
+                onlineToys.length,
+
+              deviceInfo,
+            }
+          );
+
+
+          const {
+            data,
+            error,
+          } =
+            await supabase.functions.invoke(
+              "lovense-sync",
+              {
+                body: {
+                  connected:
+                    Boolean(
+                      appStatus
+                    ),
+
+                  toys:
+                    onlineToys,
+
+                  deviceInfo,
+                },
+              }
+            );
+
+
+          if (error) {
+            throw error;
+          }
+
+
+          if (!data?.success) {
+            throw new Error(
+              data?.error ||
+              "Impossible de synchroniser Lovense."
+            );
+          }
+
+
+          const connected =
+            Boolean(
+              data.connected
+            );
+
+
+          setLovenseConnected(
+            connected
+          );
+
+
+          setLovenseToyName(
+            onlineToys?.[0]?.name ||
+            onlineToys?.[0]?.nickname ||
+            ""
+          );
+
+
+          return connected;
+
+        } catch (err) {
+
+          console.error(
+            "LOVENSE SDK SYNC ERROR:",
+            err
+          );
+
+          return false;
+        }
+      };
+    
     const openLovenseRemote =
       async () => {
+
         try {
-          setLovenseOpening(true);
-          setLovenseSdkError("");
-          setLovenseMessage("");
+
+          setLovenseOpening(
+            true
+          );
+
+          setLovenseSdkError(
+            ""
+          );
+
+          setLovenseMessage(
+            ""
+          );
+
 
           if (
             !window.LovenseBasicSdk
@@ -3324,20 +3464,34 @@ function SettingsScreen({
             );
           }
 
+
+          /*
+          * AuthToken Basic SDK.
+          *
+          * Aucun owner_key,
+          * aucun prénom,
+          * aucune identité choisie
+          * par le navigateur.
+          */
+
           const {
             data,
             error,
           } =
-            await supabase.functions.invoke(
-              "lovense-auth",
-              {
-                body: {},
-              }
-            );
+            await supabase
+              .functions
+              .invoke(
+                "lovense-auth",
+                {
+                  body: {},
+                }
+              );
+
 
           if (error) {
             throw error;
           }
+
 
           if (
             !data?.success ||
@@ -3350,35 +3504,64 @@ function SettingsScreen({
             );
           }
 
+
           const sdk =
-            new window.LovenseBasicSdk({
-              platform:
-                "PROTOCOL",
+            new window
+              .LovenseBasicSdk({
+                platform:
+                  "PROTOCOL",
 
-              authToken:
-                data.authToken,
+                authToken:
+                  data.authToken,
 
-              uid:
-                data.uid,
+                uid:
+                  data.uid,
 
-              debug:
-                true,
-            });
+                /*
+                * Lovense Remote,
+                * pas Lovense Connect.
+                */
+                debug:
+                  true,
+              });
+
+
+          /*
+          * On conserve l'instance.
+          *
+          * Elle pourra être interrogée
+          * quand l'utilisateur revient
+          * de Lovense Remote.
+          */
+
+          lovenseSdkRef.current =
+            sdk;
+
+
+          /* =========================================
+            SDK ERROR
+            ========================================= */
 
           sdk.on(
             "sdkError",
-            (sdkError) => {
+            (
+              sdkError
+            ) => {
+
               console.error(
                 "LOVENSE SDK ERROR FULL:",
                 {
                   code:
                     sdkError?.code,
+
                   message:
                     sdkError?.message,
+
                   raw:
                     sdkError,
                 }
               );
+
 
               setLovenseSdkError(
                 sdkError?.code
@@ -3389,29 +3572,159 @@ function SettingsScreen({
             }
           );
 
+
+          /* =========================================
+            APP STATUS CHANGE
+            ========================================= */
+
+          sdk.on(
+            "appStatusChange",
+            async (
+              status
+            ) => {
+
+              console.log(
+                "LOVENSE APP STATUS:",
+                status
+              );
+
+              await syncLovenseSdkState(
+                sdk
+              );
+            }
+          );
+
+
+          /* =========================================
+            TOYS CHANGE
+            ========================================= */
+
+          sdk.on(
+            "toyInfoChange",
+            async (
+              toys
+            ) => {
+
+              console.log(
+                "LOVENSE TOY INFO:",
+                toys
+              );
+
+              await syncLovenseSdkState(
+                sdk
+              );
+            }
+          );
+
+
+          sdk.on(
+            "toyOnlineChange",
+            async (
+              status
+            ) => {
+
+              console.log(
+                "LOVENSE TOY ONLINE:",
+                status
+              );
+
+              await syncLovenseSdkState(
+                sdk
+              );
+            }
+          );
+
+
+          /* =========================================
+            DEVICE INFO CHANGE
+            ========================================= */
+
+          sdk.on(
+            "deviceInfoChange",
+            async (
+              deviceInfo
+            ) => {
+
+              console.log(
+                "LOVENSE DEVICE INFO:",
+                deviceInfo
+              );
+
+              await syncLovenseSdkState(
+                sdk
+              );
+            }
+          );
+
+
+          /* =========================================
+            READY
+            ========================================= */
+
           sdk.on(
             "ready",
-            async (instance) => {
+            async (
+              instance
+            ) => {
+
               try {
-                const qrTest =
-                  await instance.getQrcode();
 
-                console.log(
-                  "LOVENSE SDK QRCODE:",
-                  qrTest
-                );
+                lovenseSdkRef.current =
+                  instance;
 
-                instance.connectLovenseAPP();
+
+                /*
+                * Première vérification.
+                *
+                * Si Lovense est déjà connecté,
+                * inutile d'ouvrir l'app.
+                */
+
+                const alreadyConnected =
+                  await syncLovenseSdkState(
+                    instance
+                  );
+
+
+                if (
+                  alreadyConnected
+                ) {
+
+                  setLovenseMessage(
+                    "Lovense Remote est connecté."
+                  );
+
+                  await checkLovenseStatus();
+
+                  return;
+                }
+
+
+                /*
+                * Sinon on ouvre Lovense Remote.
+                *
+                * La documentation Lovense prévoit
+                * précisément connectLovenseAPP()
+                * pour le flux mobile sans scan QR.
+                */
+
+                instance
+                  .connectLovenseAPP();
+
 
                 setLovenseMessage(
-                  "Lovense Remote va s’ouvrir. Si iOS affiche la page Lovense à la place, utilise la connexion par QR."
+                  "Autorise PROTOCOL dans Lovense Remote, puis reviens dans PROTOCOL."
                 );
 
-              } catch (err) {
+              } catch (
+                err
+              ) {
+
                 console.error(
                   "LOVENSE OPEN APP ERROR:",
                   err
                 );
+
 
                 setLovenseSdkError(
                   err?.message ||
@@ -3419,23 +3732,35 @@ function SettingsScreen({
                 );
 
               } finally {
-                setLovenseOpening(false);
+
+                setLovenseOpening(
+                  false
+                );
+
               }
             }
           );
 
-        } catch (err) {
+
+        } catch (
+          err
+        ) {
+
           console.error(
             "LOVENSE CONNECTION ERROR:",
             err
           );
+
 
           setLovenseSdkError(
             err?.message ||
             "Impossible de connecter Lovense."
           );
 
-          setLovenseOpening(false);
+
+          setLovenseOpening(
+            false
+          );
         }
       };
 
@@ -3554,37 +3879,77 @@ function SettingsScreen({
   }, []);
 
   useEffect(() => {
+
     const handleLovenseReturn =
-      () => {
+      async () => {
+
         if (
-          document.visibilityState ===
+          document.visibilityState !==
           "visible"
         ) {
-          checkLovenseStatus();
+          return;
         }
+
+
+        /*
+        * On laisse quelques centaines
+        * de ms au SDK pour restaurer
+        * sa connexion après le retour
+        * depuis Lovense Remote.
+        */
+
+        await new Promise(
+          (
+            resolve
+          ) =>
+            window.setTimeout(
+              resolve,
+              450
+            )
+        );
+
+
+        if (
+          lovenseSdkRef.current
+        ) {
+
+          await syncLovenseSdkState(
+            lovenseSdkRef.current
+          );
+        }
+
+
+        await checkLovenseStatus();
       };
+
 
     document.addEventListener(
       "visibilitychange",
       handleLovenseReturn
     );
 
+
     window.addEventListener(
       "pageshow",
       handleLovenseReturn
     );
 
+
     return () => {
+
       document.removeEventListener(
         "visibilitychange",
         handleLovenseReturn
       );
 
+
       window.removeEventListener(
         "pageshow",
         handleLovenseReturn
       );
+
     };
+
   }, []);
 
   const testLovense =
