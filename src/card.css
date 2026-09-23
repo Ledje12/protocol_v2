@@ -291,3 +291,191 @@
 
   text-align: center;
 }
+
+/* =========================================================
+   CARD SCREEN — PREMIUM EDITORIAL POLISH
+   ========================================================= */
+
+.card-page {
+  background:
+    radial-gradient(
+      circle at 78% 8%,
+      rgba(121, 49, 82, 0.085),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at -12% 58%,
+      rgba(83, 34, 62, 0.045),
+      transparent 34%
+    ),
+    #050405;
+}
+
+
+/* Header légèrement plus PROTOCOL */
+.card-page .card-back {
+  border-color:
+    rgba(239, 119, 170, 0.14);
+
+  background:
+    rgba(255, 255, 255, 0.018);
+}
+
+
+/* Zone principale */
+.card-page .card-content {
+  position: relative;
+
+  padding-top:
+    42px;
+}
+
+
+/* Badge de type */
+.card-page .card-type {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 28px;
+
+  padding:
+    0
+    12px;
+
+  border:
+    1px solid
+    rgba(215, 93, 141, 0.34);
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(143, 45, 80, 0.055);
+
+  color:
+    rgba(239, 119, 170, 0.90);
+
+  font-size:
+    10px;
+
+  letter-spacing:
+    0.22em;
+}
+
+
+/* Numéro plus discret */
+.card-page .card-number {
+  color:
+    rgba(244, 239, 241, 0.22);
+}
+
+
+/* Titre */
+.card-page .card-title {
+  margin-top:
+    26px;
+
+  margin-bottom:
+    28px;
+
+  max-width:
+    410px;
+
+  font-size:
+    clamp(
+      42px,
+      12vw,
+      61px
+    );
+
+  color:
+    rgba(255, 247, 251, 0.98);
+
+  text-shadow:
+    0 14px 45px
+    rgba(0, 0, 0, 0.22);
+}
+
+
+/* Prompt : plus éditorial */
+.card-page .card-prompt {
+  position: relative;
+
+  max-width:
+    430px;
+
+  margin:
+    0;
+
+  padding-left:
+    18px;
+
+  font-size:
+    clamp(
+      19px,
+      5.1vw,
+      22px
+    );
+
+  line-height:
+    1.48;
+
+  color:
+    rgba(235, 224, 229, 0.86);
+}
+
+
+/* Petit trait signature à gauche du texte */
+.card-page .card-prompt::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+
+  width: 2px;
+
+  border-radius:
+    999px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(239, 119, 170, 0.64),
+      rgba(143, 45, 80, 0.12)
+    );
+}
+
+
+/* CTA moins rose vif */
+.card-page .card-propose {
+  min-height:
+    58px;
+
+  border-color:
+    rgba(216, 103, 147, 0.38);
+
+  border-radius:
+    20px;
+
+  background:
+    linear-gradient(
+      120deg,
+      rgba(151, 45, 86, 0.98),
+      rgba(104, 29, 63, 0.98)
+    );
+
+  box-shadow:
+    0 12px 34px
+      rgba(77, 18, 47, 0.22),
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.075);
+}
+
+
+/* Plus de présence autour du bouton sans le faire flotter */
+.card-page .card-propose::before {
+  content: none;
+}

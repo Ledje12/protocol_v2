@@ -1214,3 +1214,156 @@ span.is-active {
   }
 
 }
+
+/* =========================================================
+   LIBRARY — FINAL COLOR BALANCE
+   ========================================================= */
+
+
+/* Fond plus neutre */
+.library-page {
+  background:
+    radial-gradient(
+      circle at 50% -12%,
+      rgba(121, 49, 82, 0.075),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #0c080b 0%,
+      #070507 46%,
+      #050405 100%
+    );
+}
+
+
+/* Recherche presque neutre */
+.library-search {
+  border-color:
+    rgba(255, 255, 255, 0.085);
+
+  background:
+    rgba(255, 255, 255, 0.022);
+}
+
+.library-search-icon {
+  color:
+    rgba(244, 239, 241, 0.32);
+}
+
+.library-search:focus-within {
+  border-color:
+    rgba(239, 119, 170, 0.28);
+
+  background:
+    rgba(255, 255, 255, 0.028);
+}
+
+
+/* Filtres inactifs vraiment neutres */
+.library-filter {
+  border-color:
+    rgba(255, 255, 255, 0.085);
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  color:
+    rgba(244, 239, 241, 0.48);
+}
+
+
+/* Actif : wine sombre, pas pastille rose bonbon */
+.library-filter.active {
+  border-color:
+    rgba(197, 87, 125, 0.36);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(108, 32, 62, 0.64),
+      rgba(65, 23, 43, 0.70)
+    );
+
+  color:
+    rgba(255, 244, 249, 0.94);
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.055);
+}
+
+
+/* Cards redeviennent principalement neutres */
+.library-card {
+  border-color:
+    rgba(255, 255, 255, 0.085);
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(
+        var(--card-accent),
+        0.025
+      ),
+      transparent 36%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(20, 13, 18, 0.82),
+      rgba(11, 8, 10, 0.88)
+    );
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.025),
+    0 16px 34px
+      rgba(0, 0, 0, 0.12);
+}
+
+
+/* On retire la grosse signature rose supérieure */
+.library-card-accent {
+  opacity: 0;
+}
+
+
+/* Le TYPE devient la principale signature */
+.library-card-type {
+  color:
+    rgba(
+      var(--card-accent),
+      0.78
+    );
+}
+
+
+/* Jauge beaucoup plus sobre */
+.library-card-intensity span {
+  background:
+    rgba(255, 255, 255, 0.075);
+}
+
+.library-card-intensity span.is-active {
+  background:
+    rgba(
+      var(--card-accent),
+      0.48
+    );
+
+  box-shadow: none;
+}
+
+
+/* Flèche quasi neutre */
+.library-card-open {
+  color:
+    rgba(244, 239, 241, 0.25);
+}
+
+
+/* Même intensité 5 reste élégante */
+.library-card-intensity-5 {
+  border-color:
+    rgba(255, 255, 255, 0.10);
+}
