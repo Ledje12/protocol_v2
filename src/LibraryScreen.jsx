@@ -515,9 +515,7 @@ export default function LibraryScreen({
           </span>
 
           <span className="library-target">
-            Pour{" "}
-            {recipient?.name ||
-              "ton partenaire"}
+            Pour {partnerName}
           </span>
 
         </div>
@@ -527,7 +525,11 @@ export default function LibraryScreen({
 
       <section className="library-content">
 
-        <div className="library-intro">
+        {/* =========================================
+            INTRO
+            ========================================= */}
+
+        <section className="library-intro">
 
           <p className="kicker">
             BIBLIOTHÈQUE
@@ -540,35 +542,38 @@ export default function LibraryScreen({
           </h1>
 
           <p className="intro">
-            Les cartes affichées sont
-            préparées pour{" "}
+            Les cartes affichées sont préparées
+            pour{" "}
             <strong>
-              {recipient?.name ||
-                "ton partenaire"}
+              {partnerName}
             </strong>
             .
           </p>
 
-        </div>
+        </section>
 
 
-        <div className="library-controls">
+        {/* =========================================
+            CONTROLS
+            ========================================= */}
+
+        <section className="library-controls">
 
           <label className="library-search">
 
-            <span className="library-search-icon">
+            <span
+              className="library-search-icon"
+              aria-hidden="true"
+            >
               ⌕
             </span>
 
             <input
               type="search"
               value={search}
-              onChange={(
-                event
-              ) =>
+              onChange={(event) =>
                 setSearch(
-                  event.target
-                    .value
+                  event.target.value
                 )
               }
               placeholder="Chercher une carte..."
@@ -588,10 +593,9 @@ export default function LibraryScreen({
 
               {TYPE_FILTERS.map(
                 (filter) => (
+
                   <button
-                    key={
-                      filter.value
-                    }
+                    key={filter.value}
                     type="button"
                     className={
                       selectedType ===
@@ -605,10 +609,9 @@ export default function LibraryScreen({
                       )
                     }
                   >
-                    {
-                      filter.label
-                    }
+                    {filter.label}
                   </button>
+
                 )
               )}
 
@@ -627,10 +630,9 @@ export default function LibraryScreen({
 
               {INTENSITY_FILTERS.map(
                 (filter) => (
+
                   <button
-                    key={
-                      filter.value
-                    }
+                    key={filter.value}
                     type="button"
                     className={
                       selectedIntensity ===
@@ -644,10 +646,9 @@ export default function LibraryScreen({
                       )
                     }
                   >
-                    {
-                      filter.label
-                    }
+                    {filter.label}
                   </button>
+
                 )
               )}
 
@@ -655,19 +656,35 @@ export default function LibraryScreen({
 
           </div>
 
-        </div>
+        </section>
 
 
-        <div className="library-count">
+        {/* =========================================
+            RESULT SUMMARY
+            ========================================= */}
 
-          {loading
-            ? "Chargement…"
-            : `${visibleCards.length} carte${
-                visibleCards.length >
-                1
-                  ? "s"
-                  : ""
-              }`}
+        <div className="library-results-meta">
+
+          <span className="library-count">
+            {loading
+              ? "Chargement…"
+              : `${visibleCards.length} carte${
+                  visibleCards.length > 1
+                    ? "s"
+                    : ""
+                }`}
+          </span>
+
+          {!loading &&
+            !error &&
+            visibleCards.length > 0 && (
+
+              <span
+                className="library-results-line"
+                aria-hidden="true"
+              />
+
+            )}
 
         </div>
 
@@ -681,36 +698,53 @@ export default function LibraryScreen({
 
         {!loading &&
           !error &&
-          visibleCards.length ===
-            0 && (
+          visibleCards.length === 0 && (
+
             <div className="library-empty">
 
+              <span className="library-empty-symbol">
+                ◇
+              </span>
+
               <p>
-                Aucune carte ne
-                correspond à ces
-                filtres.
+                Aucune carte ne correspond
+                à ces filtres.
               </p>
 
             </div>
+
           )}
 
 
+        {/* =========================================
+            CARDS
+            ========================================= */}
+
         {!loading &&
           !error && (
+
             <div className="library-list">
 
               {visibleCards.map(
                 (card) => (
+
                   <button
                     key={card.id}
                     type="button"
-                    className="library-card"
+                    className={
+                      `library-card ` +
+                      `library-card-${card.type} ` +
+                      `library-card-intensity-${card.intensity}`
+                    }
                     onClick={() =>
                       onOpenCard?.(
                         card.id
                       )
                     }
                   >
+
+                    <div className="library-card-accent" />
+
 
                     <div className="library-card-header">
 
@@ -735,41 +769,70 @@ export default function LibraryScreen({
                     {card.lovense_mode &&
                       lovenseConnected && (
 
-                        <span
-                          style={{
-                            display: "inline-block",
-                            marginBottom: "10px",
-                            fontSize: "0.68rem",
-                            opacity: 0.55,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          LUSH
-                          {
-                            card.lovense_pattern
+                        <div className="library-card-lovense">
+
+                          <span className="library-card-lovense-dot" />
+
+                          <span>
+                            LUSH
+                            {card.lovense_pattern
                               ? ` · ${card.lovense_pattern.replaceAll(
                                   "_",
                                   " "
                                 )}`
-                              : ""
-                          }
-                        </span>
+                              : ""}
+                          </span>
+
+                        </div>
 
                       )}
 
 
                     <p className="library-card-prompt">
-                      {
-                        card.displayPrompt
-                      }
+                      {card.displayPrompt}
                     </p>
 
+
+                    <div className="library-card-footer">
+
+                      <div className="library-card-intensity">
+
+                        {Array.from({
+                          length: 5,
+                        }).map(
+                          (_, index) => (
+
+                            <span
+                              key={index}
+                              className={
+                                index <
+                                Number(
+                                  card.intensity ||
+                                  0
+                                )
+                                  ? "is-active"
+                                  : ""
+                              }
+                            />
+
+                          )
+                        )}
+
+                      </div>
+
+                      <span className="library-card-open">
+                        →
+                      </span>
+
+                    </div>
+
                   </button>
+
                 )
               )}
 
             </div>
+
           )}
 
       </section>
