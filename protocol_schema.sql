@@ -3062,81 +3062,6 @@ $$;
 ALTER FUNCTION "public"."mark_scene_step_read"("p_game_code" "text") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."next_protocol_card"("p_game_code" "text") RETURNS "jsonb"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-declare
-  v_game public.games%rowtype;
-  v_card public.protocol_cards%rowtype;
-  v_next_player integer;
-begin
-
-  select *
-  into v_game
-  from public.games
-  where code = upper(trim(p_game_code));
-
-  if v_game.id is null then
-    raise exception 'Game not found';
-  end if;
-
-  if v_game.status <> 'playing' then
-    raise exception 'Game is not playing';
-  end if;
-
-  select *
-  into v_card
-  from public.protocol_cards
-  where active = true
-
-    and id <> v_game.current_card_id
-
-    and intensity <=
-      (v_game.shared_profile ->> 'intensity')::integer
-
-    and tension <=
-      (v_game.shared_profile ->> 'tension')::integer
-
-    and sensations <=
-      (v_game.shared_profile ->> 'sensations')::integer
-
-    and unexpected <=
-      (v_game.shared_profile ->> 'unexpected')::integer
-
-  order by random()
-  limit 1;
-
-  if v_card.id is null then
-    raise exception 'No compatible card';
-  end if;
-
-  v_next_player :=
-    case
-      when v_game.active_player = 1 then 2
-      else 1
-    end;
-
-  update public.games
-  set
-    current_card_id = v_card.id,
-    turn_no = turn_no + 1,
-    active_player = v_next_player
-  where id = v_game.id;
-
-  return jsonb_build_object(
-    'card_id', v_card.id,
-    'turn_no', v_game.turn_no + 1,
-    'active_player', v_next_player
-  );
-
-end;
-$$;
-
-
-ALTER FUNCTION "public"."next_protocol_card"("p_game_code" "text") OWNER TO "postgres";
-
-
 CREATE OR REPLACE FUNCTION "public"."protocol_current_player_no"("p_game_code" "text") RETURNS integer
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO ''
@@ -3310,28 +3235,6 @@ $$;
 
 
 ALTER FUNCTION "public"."protocol_max_intensity"("p_profile_intensity" integer, "p_turn_no" integer) OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."protocol_normalize_text"("p_text" "text") RETURNS "text"
-    LANGUAGE "sql" IMMUTABLE
-    AS $$
-  select trim(
-    regexp_replace(
-      lower(
-        coalesce(
-          p_text,
-          ''
-        )
-      ),
-      '[^a-zà-ÿ0-9]+',
-      ' ',
-      'g'
-    )
-  );
-$$;
-
-
-ALTER FUNCTION "public"."protocol_normalize_text"("p_text" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."protocol_persistent_count"("p_game_id" "uuid") RETURNS integer
@@ -3793,137 +3696,6 @@ $$;
 
 
 ALTER FUNCTION "public"."protocol_scene_count"("p_game_id" "uuid") OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."protocol_truth_priority"("p_game_id" "uuid", "p_next_turn" integer, "p_target_turns" integer, "p_card_type" "text") RETURNS integer
-    LANGUAGE "plpgsql" STABLE SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-declare
-
-  v_truth_count integer;
-
-  v_truth_target integer := 5;
-
-  v_remaining_turns integer;
-
-  v_truth_needed integer;
-
-  v_expected_truths numeric;
-
-begin
-
-  v_truth_count :=
-    public.protocol_type_count(
-      p_game_id,
-      'truth'
-    );
-
-
-  /* =======================================================
-     PLUS AUCUNE VERITE APRES 6
-     Cette fonction renvoie seulement un score.
-     Le blocage réel est dans advance_protocol.
-     ======================================================= */
-
-  if v_truth_count >= 6 then
-
-    if p_card_type = 'truth' then
-      return 10000;
-    end if;
-
-    return 0;
-
-  end if;
-
-
-  v_remaining_turns :=
-    p_target_turns
-    - p_next_turn
-    + 1;
-
-
-  v_truth_needed :=
-    greatest(
-      v_truth_target - v_truth_count,
-      0
-    );
-
-
-  /* =======================================================
-     SITUATION CRITIQUE
-
-     Il reste exactement assez de tours pour atteindre 5.
-     Une vérité doit donc sortir.
-     ======================================================= */
-
-  if
-    v_truth_needed > 0
-    and
-    v_remaining_turns <= v_truth_needed
-  then
-
-    if p_card_type = 'truth' then
-      return -5000;
-    else
-      return 5000;
-    end if;
-
-  end if;
-
-
-  /* =======================================================
-     TRAJECTOIRE NORMALE
-
-     5 vérités / target_turns.
-     Pour 20 tours :
-       ~1 à T4
-       ~2 à T8
-       ~3 à T12
-       ~4 à T16
-       5 à T20
-     ======================================================= */
-
-  v_expected_truths :=
-    (
-      p_next_turn::numeric
-      * v_truth_target::numeric
-      / p_target_turns::numeric
-    );
-
-
-  if
-    v_truth_count <
-    floor(v_expected_truths)
-  then
-
-    if p_card_type = 'truth' then
-      return -220;
-    else
-      return 0;
-    end if;
-
-  end if;
-
-
-  /*
-   * Petite préférence générale.
-   * Suffisante pour compenser une bibliothèque
-   * où les vérités sont minoritaires.
-   */
-
-  if p_card_type = 'truth' then
-    return -35;
-  end if;
-
-
-  return 0;
-
-end;
-$$;
-
-
-ALTER FUNCTION "public"."protocol_truth_priority"("p_game_id" "uuid", "p_next_turn" integer, "p_target_turns" integer, "p_card_type" "text") OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."protocol_type_count"("p_game_id" "uuid", "p_type" "text") RETURNS integer
@@ -5325,6 +5097,35 @@ CREATE TABLE IF NOT EXISTS "public"."games" (
 ALTER TABLE "public"."games" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."protocol_card_rules" (
+    "id" bigint NOT NULL,
+    "card_id" bigint NOT NULL,
+    "rule_key" "text" NOT NULL,
+    "title" "text" NOT NULL,
+    "rule_text" "text" NOT NULL,
+    "target_mode" "text" DEFAULT 'active'::"text" NOT NULL,
+    "duration_turns" integer DEFAULT 3 NOT NULL,
+    "active" boolean DEFAULT true NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    CONSTRAINT "protocol_card_rules_duration_check" CHECK (("duration_turns" >= 1)),
+    CONSTRAINT "protocol_card_rules_target_mode_check" CHECK (("target_mode" = ANY (ARRAY['active'::"text", 'partner'::"text", 'both'::"text"])))
+);
+
+
+ALTER TABLE "public"."protocol_card_rules" OWNER TO "postgres";
+
+
+ALTER TABLE "public"."protocol_card_rules" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."protocol_card_rules_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."protocol_cards" (
     "id" bigint NOT NULL,
     "type" "text" NOT NULL,
@@ -5357,112 +5158,6 @@ CREATE TABLE IF NOT EXISTS "public"."protocol_cards" (
 
 
 ALTER TABLE "public"."protocol_cards" OWNER TO "postgres";
-
-
-CREATE OR REPLACE VIEW "public"."protocol_card_duplicate_audit" AS
- WITH "cards" AS (
-         SELECT "protocol_cards"."id",
-            "protocol_cards"."library_key",
-            "protocol_cards"."library_version",
-            "protocol_cards"."type",
-            "protocol_cards"."title",
-            "protocol_cards"."prompt",
-            "protocol_cards"."intensity",
-            "protocol_cards"."target_sex",
-            "protocol_cards"."tension",
-            "protocol_cards"."sensations",
-            "protocol_cards"."unexpected",
-            "public"."protocol_normalize_text"("protocol_cards"."title") AS "normalized_title",
-            "public"."protocol_normalize_text"("protocol_cards"."prompt") AS "normalized_prompt"
-           FROM "public"."protocol_cards"
-          WHERE ("protocol_cards"."active" = true)
-        ), "pairs" AS (
-         SELECT "a"."id" AS "card_1_id",
-            "a"."library_key" AS "card_1_key",
-            "a"."type" AS "card_1_type",
-            "a"."title" AS "card_1_title",
-            "a"."prompt" AS "card_1_prompt",
-            "a"."intensity" AS "card_1_intensity",
-            "a"."target_sex" AS "card_1_target_sex",
-            "b"."id" AS "card_2_id",
-            "b"."library_key" AS "card_2_key",
-            "b"."type" AS "card_2_type",
-            "b"."title" AS "card_2_title",
-            "b"."prompt" AS "card_2_prompt",
-            "b"."intensity" AS "card_2_intensity",
-            "b"."target_sex" AS "card_2_target_sex",
-            "public"."similarity"("a"."normalized_title", "b"."normalized_title") AS "title_similarity",
-            "public"."similarity"("a"."normalized_prompt", "b"."normalized_prompt") AS "prompt_similarity",
-                CASE
-                    WHEN ("a"."normalized_prompt" = "b"."normalized_prompt") THEN true
-                    ELSE false
-                END AS "exact_prompt_duplicate",
-                CASE
-                    WHEN (("a"."normalized_title" = "b"."normalized_title") AND ("a"."normalized_title" <> ''::"text")) THEN true
-                    ELSE false
-                END AS "exact_title_duplicate"
-           FROM ("cards" "a"
-             JOIN "cards" "b" ON (("b"."id" > "a"."id")))
-        )
- SELECT "card_1_id",
-    "card_1_key",
-    "card_1_type",
-    "card_1_title",
-    "card_1_prompt",
-    "card_1_intensity",
-    "card_1_target_sex",
-    "card_2_id",
-    "card_2_key",
-    "card_2_type",
-    "card_2_title",
-    "card_2_prompt",
-    "card_2_intensity",
-    "card_2_target_sex",
-    "title_similarity",
-    "prompt_similarity",
-    "exact_prompt_duplicate",
-    "exact_title_duplicate",
-        CASE
-            WHEN "exact_prompt_duplicate" THEN 'EXACT'::"text"
-            WHEN ("prompt_similarity" >= (0.90)::double precision) THEN 'VERY_HIGH'::"text"
-            WHEN ("prompt_similarity" >= (0.78)::double precision) THEN 'HIGH'::"text"
-            WHEN (("prompt_similarity" >= (0.65)::double precision) AND ("title_similarity" >= (0.50)::double precision)) THEN 'MEDIUM'::"text"
-            ELSE 'LOW'::"text"
-        END AS "suspicion_level"
-   FROM "pairs"
-  WHERE ("exact_prompt_duplicate" OR ("prompt_similarity" >= (0.65)::double precision) OR ("exact_title_duplicate" AND ("prompt_similarity" >= (0.45)::double precision)));
-
-
-ALTER VIEW "public"."protocol_card_duplicate_audit" OWNER TO "postgres";
-
-
-CREATE TABLE IF NOT EXISTS "public"."protocol_card_rules" (
-    "id" bigint NOT NULL,
-    "card_id" bigint NOT NULL,
-    "rule_key" "text" NOT NULL,
-    "title" "text" NOT NULL,
-    "rule_text" "text" NOT NULL,
-    "target_mode" "text" DEFAULT 'active'::"text" NOT NULL,
-    "duration_turns" integer DEFAULT 3 NOT NULL,
-    "active" boolean DEFAULT true NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "protocol_card_rules_duration_check" CHECK (("duration_turns" >= 1)),
-    CONSTRAINT "protocol_card_rules_target_mode_check" CHECK (("target_mode" = ANY (ARRAY['active'::"text", 'partner'::"text", 'both'::"text"])))
-);
-
-
-ALTER TABLE "public"."protocol_card_rules" OWNER TO "postgres";
-
-
-ALTER TABLE "public"."protocol_card_rules" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
-    SEQUENCE NAME "public"."protocol_card_rules_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
-
 
 
 ALTER TABLE "public"."protocol_cards" ALTER COLUMN "id" ADD GENERATED ALWAYS AS IDENTITY (
@@ -6221,12 +5916,6 @@ GRANT ALL ON FUNCTION "public"."mark_scene_step_read"("p_game_code" "text") TO "
 
 
 
-GRANT ALL ON FUNCTION "public"."next_protocol_card"("p_game_code" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."next_protocol_card"("p_game_code" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."next_protocol_card"("p_game_code" "text") TO "service_role";
-
-
-
 REVOKE ALL ON FUNCTION "public"."protocol_current_player_no"("p_game_code" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_current_player_no"("p_game_code" "text") TO "service_role";
 
@@ -6237,92 +5926,67 @@ GRANT ALL ON FUNCTION "public"."protocol_generate_game_code"() TO "service_role"
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_last_scene_turn"("p_game_id" "uuid") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_last_scene_turn"("p_game_id" "uuid") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_last_scene_turn"("p_game_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_last_scene_turn"("p_game_id" "uuid") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_last_type_turn"("p_game_id" "uuid", "p_type" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_last_type_turn"("p_game_id" "uuid", "p_type" "text") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_last_type_turn"("p_game_id" "uuid", "p_type" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_last_type_turn"("p_game_id" "uuid", "p_type" "text") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_max_intensity"("p_profile_intensity" integer, "p_turn_no" integer) TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_max_intensity"("p_profile_intensity" integer, "p_turn_no" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_max_intensity"("p_profile_intensity" integer, "p_turn_no" integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_max_intensity"("p_profile_intensity" integer, "p_turn_no" integer) TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_normalize_text"("p_text" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_normalize_text"("p_text" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."protocol_normalize_text"("p_text" "text") TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."protocol_persistent_count"("p_game_id" "uuid") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_persistent_count"("p_game_id" "uuid") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_persistent_count"("p_game_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_persistent_count"("p_game_id" "uuid") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_phase"("p_turn_no" integer, "p_target_turns" integer) TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_phase"("p_turn_no" integer, "p_target_turns" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_phase"("p_turn_no" integer, "p_target_turns" integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_phase"("p_turn_no" integer, "p_target_turns" integer) TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_player_has_active_rule"("p_game_id" "uuid", "p_player_no" integer) TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_player_has_active_rule"("p_game_id" "uuid", "p_player_no" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_player_has_active_rule"("p_game_id" "uuid", "p_player_no" integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_player_has_active_rule"("p_game_id" "uuid", "p_player_no" integer) TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_player_rule_count"("p_game_id" "uuid", "p_player_no" integer) TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_player_rule_count"("p_game_id" "uuid", "p_player_no" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_player_rule_count"("p_game_id" "uuid", "p_player_no" integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_player_rule_count"("p_game_id" "uuid", "p_player_no" integer) TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_rule_card_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_player" integer, "p_next_turn" integer) TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_rule_card_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_player" integer, "p_next_turn" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_rule_card_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_player" integer, "p_next_turn" integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_rule_card_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_player" integer, "p_next_turn" integer) TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_scene_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_turn" integer) TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_scene_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_turn" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_scene_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_turn" integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_scene_allowed"("p_game_id" "uuid", "p_card_id" bigint, "p_next_turn" integer) TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_scene_count"("p_game_id" "uuid") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_scene_count"("p_game_id" "uuid") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_scene_count"("p_game_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_scene_count"("p_game_id" "uuid") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_truth_priority"("p_game_id" "uuid", "p_next_turn" integer, "p_target_turns" integer, "p_card_type" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_truth_priority"("p_game_id" "uuid", "p_next_turn" integer, "p_target_turns" integer, "p_card_type" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."protocol_truth_priority"("p_game_id" "uuid", "p_next_turn" integer, "p_target_turns" integer, "p_card_type" "text") TO "service_role";
-
-
-
-GRANT ALL ON FUNCTION "public"."protocol_type_count"("p_game_id" "uuid", "p_type" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_type_count"("p_game_id" "uuid", "p_type" "text") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_type_count"("p_game_id" "uuid", "p_type" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_type_count"("p_game_id" "uuid", "p_type" "text") TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_type_count_window"("p_game_id" "uuid", "p_type" "text", "p_from_turn" integer, "p_to_turn" integer) TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_type_count_window"("p_game_id" "uuid", "p_type" "text", "p_from_turn" integer, "p_to_turn" integer) TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_type_count_window"("p_game_id" "uuid", "p_type" "text", "p_from_turn" integer, "p_to_turn" integer) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_type_count_window"("p_game_id" "uuid", "p_type" "text", "p_from_turn" integer, "p_to_turn" integer) TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."protocol_type_penalty"("p_game_id" "uuid", "p_candidate_type" "text", "p_current_type" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."protocol_type_penalty"("p_game_id" "uuid", "p_candidate_type" "text", "p_current_type" "text") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."protocol_type_penalty"("p_game_id" "uuid", "p_candidate_type" "text", "p_current_type" "text") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."protocol_type_penalty"("p_game_id" "uuid", "p_candidate_type" "text", "p_current_type" "text") TO "service_role";
 
 
@@ -6363,8 +6027,7 @@ GRANT ALL ON FUNCTION "public"."submit_calibration"("p_game_code" "text", "p_int
 
 
 
-GRANT ALL ON FUNCTION "public"."tick_game_rules"("p_game_id" "uuid") TO "anon";
-GRANT ALL ON FUNCTION "public"."tick_game_rules"("p_game_id" "uuid") TO "authenticated";
+REVOKE ALL ON FUNCTION "public"."tick_game_rules"("p_game_id" "uuid") FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."tick_game_rules"("p_game_id" "uuid") TO "service_role";
 
 
@@ -6426,16 +6089,6 @@ GRANT ALL ON TABLE "public"."games" TO "service_role";
 
 
 
-GRANT MAINTAIN ON TABLE "public"."protocol_cards" TO "anon";
-GRANT ALL ON TABLE "public"."protocol_cards" TO "authenticated";
-GRANT ALL ON TABLE "public"."protocol_cards" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."protocol_card_duplicate_audit" TO "service_role";
-
-
-
 GRANT ALL ON TABLE "public"."protocol_card_rules" TO "service_role";
 
 
@@ -6443,6 +6096,12 @@ GRANT ALL ON TABLE "public"."protocol_card_rules" TO "service_role";
 GRANT ALL ON SEQUENCE "public"."protocol_card_rules_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."protocol_card_rules_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."protocol_card_rules_id_seq" TO "service_role";
+
+
+
+GRANT MAINTAIN ON TABLE "public"."protocol_cards" TO "anon";
+GRANT ALL ON TABLE "public"."protocol_cards" TO "authenticated";
+GRANT ALL ON TABLE "public"."protocol_cards" TO "service_role";
 
 
 
