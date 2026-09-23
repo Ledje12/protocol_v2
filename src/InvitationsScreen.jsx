@@ -38,6 +38,28 @@ function formatDateTime(
   }
 }
 
+function getInvitationTypeLabel(
+  type
+) {
+  switch (type) {
+    case "action":
+      return "ACTION";
+
+    case "truth":
+      return "VÉRITÉ";
+
+    case "duel":
+      return "DUEL";
+
+    case "scene":
+      return "SCÈNE";
+
+    default:
+      return String(
+        type || "CARTE"
+      ).toUpperCase();
+  }
+}
 
 export default function InvitationsScreen({
   supabase,
@@ -367,24 +389,22 @@ export default function InvitationsScreen({
         <button
           type="button"
           className="invitations-back"
-          onClick={
-            onBack
-          }
+          onClick={onBack}
           aria-label="Retour"
         >
           ←
         </button>
 
 
-        <div>
+        <div className="invitations-heading">
 
-          <div className="invitations-logo">
+          <span className="invitations-logo">
             PROTOCOL
-          </div>
+          </span>
 
-          <div className="invitations-subtitle">
-            Invitations
-          </div>
+          <span className="invitations-subtitle">
+            À deux
+          </span>
 
         </div>
 
@@ -393,16 +413,31 @@ export default function InvitationsScreen({
 
       <section className="invitations-content">
 
-        <h1>
-          Invitations
-        </h1>
+        <header className="invitations-intro">
+
+          <p className="invitations-kicker">
+            INVITATIONS
+          </p>
+
+          <h1>
+            Entre
+            <br />
+            vous.
+          </h1>
+
+          <p>
+            Les cartes proposées,
+            reçues et déjà découvertes.
+          </p>
+
+        </header>
 
 
         {loading ? (
 
-          <p>
+          <div className="invitations-state">
             Chargement…
-          </p>
+          </div>
 
         ) : error ? (
 
@@ -410,12 +445,24 @@ export default function InvitationsScreen({
             {error}
           </p>
 
-        ) : invitations.length ===
-          0 ? (
+        ) : invitations.length === 0 ? (
 
-          <p className="invitations-empty">
-            Aucune invitation pour le moment.
-          </p>
+          <div className="invitations-empty">
+
+            <span>
+              ◇
+            </span>
+
+            <strong>
+              Rien pour le moment.
+            </strong>
+
+            <p>
+              Les cartes échangées avec ton partenaire
+              apparaîtront ici.
+            </p>
+
+          </div>
 
         ) : (
 
@@ -451,13 +498,11 @@ export default function InvitationsScreen({
                   isPending
                     ? "is-pending"
                     : "",
+
+                  `invitation-type-${invitation.card_type || "other"}`,
                 ]
-                  .filter(
-                    Boolean
-                  )
-                  .join(
-                    " "
-                  );
+                  .filter(Boolean)
+                  .join(" ");
 
 
                 return (
@@ -466,13 +511,10 @@ export default function InvitationsScreen({
                     key={
                       invitation.invitation_id
                     }
-
                     type="button"
-
                     className={
                       itemClassName
                     }
-
                     onClick={() => {
 
                       onOpenCard({
@@ -486,69 +528,87 @@ export default function InvitationsScreen({
                     }}
                   >
 
+                    <div className="invitation-accent" />
+
+
                     <div className="invitation-item-top">
 
-                      <span className="invitation-title">
-                        {
-                          invitation.card_title
-                        }
-                      </span>
-
                       <span className="invitation-type">
-                        {
-                          String(
-                            invitation.card_type ||
-                            ""
-                          ).toUpperCase()
-                        }
+                        {getInvitationTypeLabel(
+                          invitation.card_type
+                        )}
+                      </span>
+
+                      <span className="invitation-date">
+                        {formatDateTime(
+                          invitation.sent_at
+                        )}
                       </span>
 
                     </div>
 
 
-                    <div className="invitation-meta">
+                    <h2 className="invitation-title">
+                      {invitation.card_title}
+                    </h2>
 
-                      <span>
-                        {
+
+                    <div className="invitation-direction">
+
+                      <span
+                        className={
                           isSent
-                            ? `→ ${otherName}`
-                            : `← ${otherName}`
+                            ? "invitation-direction-icon is-sent"
+                            : "invitation-direction-icon is-received"
                         }
+                      >
+                        {isSent
+                          ? "→"
+                          : "←"}
                       </span>
 
                       <span>
-                        {
-                          formatDateTime(
-                            invitation.sent_at
-                          )
-                        }
+                        {isSent
+                          ? `Proposée à ${otherName}`
+                          : `Reçue de ${otherName}`}
                       </span>
 
                     </div>
 
 
-                    <div
-                      className={
-                        invitation.opened_at
-                          ? "invitation-status opened"
-                          : isSent
-                            ? "invitation-status pending"
-                            : "invitation-status received"
-                      }
-                    >
+                    <div className="invitation-footer">
 
-                      {
-                        isSent
-                          ? invitation.opened_at
-                            ? `✓ Vue ${formatDateTime(
-                                invitation.opened_at
-                              )}`
-                            : "○ En attente"
+                      <div
+                        className={
+                          invitation.opened_at
+                            ? "invitation-status opened"
+                            : isSent
+                              ? "invitation-status pending"
+                              : "invitation-status received"
+                        }
+                      >
 
-                          : invitation.opened_at
-                            ? "✓ Ouverte"
-                            : "Reçue"
-                      }
+                        <span className="invitation-status-dot" />
+
+                        <span>
+                          {isSent
+                            ? invitation.opened_at
+                              ? `Vue ${formatDateTime(
+                                  invitation.opened_at
+                                )}`
+                              : "En attente"
+
+                            : invitation.opened_at
+                              ? "Ouverte"
+                              : "À découvrir"}
+                        </span>
+
+                      </div>
+
+
+                      <span className="invitation-open-arrow">
+                        →
+                      </span>
 
                     </div>
 

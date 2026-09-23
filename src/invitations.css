@@ -1,178 +1,765 @@
+/* =========================================================
+   PROTOCOL V2
+   INVITATIONS — PREMIUM REFRESH
+   ========================================================= */
+
 .invitations-page {
+  --inv-pink: #ef77aa;
+  --inv-pink-soft: #ff9ac3;
+  --inv-wine: #8f2d50;
+
   min-height: 100dvh;
-  background: #050405;
-  color: #ffffff;
+
+  box-sizing: border-box;
+
+  padding-bottom:
+    calc(
+      24px +
+      env(safe-area-inset-bottom)
+    );
+
+  color:
+    #f4eff1;
+
+  background:
+    radial-gradient(
+      circle at 45% -12%,
+      rgba(121, 49, 82, 0.075),
+      transparent 31%
+    ),
+    linear-gradient(
+      180deg,
+      #0c080b 0%,
+      #070507 44%,
+      #050405 100%
+    );
 }
+
+
+/* =========================================================
+   TOP BAR
+   ========================================================= */
 
 .invitations-topbar {
   display: flex;
   align-items: center;
+
   gap: 14px;
 
   padding:
-    calc(env(safe-area-inset-top) + 18px)
+    calc(
+      env(safe-area-inset-top) +
+      18px
+    )
     18px
-    16px;
+    8px;
 }
+
 
 .invitations-back {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
 
-  border: 0;
-  border-radius: 14px;
+  flex: 0 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(239, 119, 170, 0.14);
+
+  border-radius:
+    50%;
 
   background:
-    rgba(255,255,255,.07);
+    rgba(255, 255, 255, 0.018);
 
-  color: #ffffff;
+  color:
+    rgba(244, 239, 241, 0.78);
 
-  font-size: 22px;
+  font: inherit;
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+  transition:
+    transform 120ms ease,
+    background 120ms ease;
 }
+
+
+.invitations-back:active {
+  transform:
+    scale(0.96);
+
+  background:
+    rgba(239, 119, 170, 0.05);
+}
+
+
+.invitations-heading {
+  min-width: 0;
+
+  display: flex;
+  align-items: baseline;
+
+  gap: 9px;
+}
+
 
 .invitations-logo {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
 
-  letter-spacing: .18em;
+  font-weight: 650;
 
-  opacity: .75;
+  letter-spacing: 0.04em;
+
+  color:
+    rgba(255, 248, 251, 0.96);
 }
+
 
 .invitations-subtitle {
-  margin-top: 2px;
-
   font-size: 14px;
 
-  opacity: .65;
+  color:
+    rgba(211, 190, 199, 0.48);
 }
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
 
 .invitations-content {
   padding:
-    8px
+    30px
     18px
-    calc(env(safe-area-inset-bottom) + 24px);
+    0;
 }
 
-.invitations-content h1 {
+
+/* =========================================================
+   INTRO
+   ========================================================= */
+
+.invitations-intro {
+  margin-bottom:
+    30px;
+}
+
+
+.invitations-kicker {
   margin:
     0
     0
-    18px;
+    13px;
 
-  font-size: 30px;
+  color:
+    var(--inv-pink);
+
+  font-size:
+    11px;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.2;
+
+  letter-spacing:
+    0.25em;
 }
+
+
+.invitations-intro h1 {
+  margin: 0;
+
+  max-width:
+    360px;
+
+  font-family:
+    Georgia,
+    "Times New Roman",
+    serif;
+
+  font-size:
+    clamp(
+      48px,
+      13vw,
+      62px
+    );
+
+  font-weight:
+    400;
+
+  line-height:
+    0.92;
+
+  letter-spacing:
+    -0.045em;
+
+  color:
+    rgba(255, 247, 251, 0.98);
+
+  text-shadow:
+    0
+    12px
+    44px
+    rgba(0, 0, 0, 0.20);
+}
+
+
+.invitations-intro > p:last-child {
+  max-width:
+    370px;
+
+  margin:
+    19px
+    0
+    0;
+
+  color:
+    rgba(211, 190, 199, 0.50);
+
+  font-size:
+    14px;
+
+  line-height:
+    1.55;
+}
+
+
+/* =========================================================
+   LIST
+   ========================================================= */
 
 .invitations-list {
   display: flex;
   flex-direction: column;
 
-  gap: 12px;
+  gap: 13px;
 }
 
+
+/* =========================================================
+   INVITATION CARD
+   ========================================================= */
+
 .invitation-item {
+  --inv-accent:
+    239, 119, 170;
+
+  position: relative;
+
   width: 100%;
+
+  overflow: hidden;
+
+  padding:
+    19px
+    18px
+    16px;
 
   text-align: left;
 
   border:
     1px solid
-    rgba(255,255,255,.08);
+    rgba(255, 255, 255, 0.085);
 
-  border-radius: 18px;
-
-  padding: 16px;
+  border-radius:
+    23px;
 
   background:
-    rgba(255,255,255,.045);
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(
+        var(--inv-accent),
+        0.025
+      ),
+      transparent 38%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(20, 13, 18, 0.82),
+      rgba(11, 8, 10, 0.88)
+    );
 
-  color: #ffffff;
+  color:
+    inherit;
+
+  font:
+    inherit;
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    inset
+    0
+    1px
+    0
+    rgba(255, 255, 255, 0.025),
+    0
+    16px
+    34px
+    rgba(0, 0, 0, 0.12);
+
+  -webkit-tap-highlight-color:
+    transparent;
 
   transition:
-    transform .15s ease,
-    background .15s ease,
-    border-color .15s ease;
+    transform 120ms ease,
+    border-color 120ms ease,
+    background 120ms ease;
 }
+
 
 .invitation-item:active {
   transform:
-    scale(.985);
+    scale(0.985);
+
+  border-color:
+    rgba(
+      var(--inv-accent),
+      0.24
+    );
 }
 
-.invitation-item.is-sent {
+
+/* Types */
+
+.invitation-type-action {
+  --inv-accent:
+    239, 119, 170;
+}
+
+.invitation-type-truth {
+  --inv-accent:
+    221, 160, 181;
+}
+
+.invitation-type-duel {
+  --inv-accent:
+    181, 103, 160;
+}
+
+.invitation-type-scene {
+  --inv-accent:
+    197, 87, 125;
+}
+
+
+/* =========================================================
+   VERY SUBTLE SIGNATURE
+   ========================================================= */
+
+.invitation-accent {
+  position: absolute;
+
+  left: 22px;
+  right: 22px;
+  top: 0;
+
+  height: 1px;
+
+  opacity: 0.48;
+
   background:
-    rgba(255,255,255,.055);
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(
+        var(--inv-accent),
+        0.55
+      ),
+      transparent
+    );
 }
 
-.invitation-item.is-received {
-  opacity: .82;
-}
 
+/* Pending = slightly more visible */
 .invitation-item.is-pending {
   border-color:
-    rgba(255,255,255,.18);
-
-  background:
-    rgba(255,255,255,.085);
+    rgba(
+      var(--inv-accent),
+      0.16
+    );
 }
+
+
+/* Received shouldn't look disabled */
+.invitation-item.is-received {
+  opacity: 1;
+}
+
+
+/* =========================================================
+   TOP META
+   ========================================================= */
 
 .invitation-item-top {
   display: flex;
 
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
 
   gap: 12px;
+
+  margin-bottom:
+    12px;
 }
 
-.invitation-title {
-  font-size: 16px;
-  font-weight: 700;
-}
 
 .invitation-type {
-  flex: 0 0 auto;
+  color:
+    rgba(
+      var(--inv-accent),
+      0.80
+    );
 
-  font-size: 10px;
+  font-size:
+    10px;
 
-  letter-spacing: .08em;
+  line-height:
+    1;
 
-  opacity: .55;
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.22em;
 }
 
-.invitation-meta {
-  display: flex;
 
+.invitation-date {
+  color:
+    rgba(213, 190, 199, 0.28);
+
+  font-size:
+    11px;
+}
+
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+.invitation-title {
+  margin:
+    0
+    0
+    13px;
+
+  color:
+    rgba(255, 247, 251, 0.95);
+
+  font-size:
+    21px;
+
+  line-height:
+    1.15;
+
+  font-weight:
+    650;
+
+  letter-spacing:
+    -0.025em;
+}
+
+
+/* =========================================================
+   DIRECTION
+   ========================================================= */
+
+.invitation-direction {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color:
+    rgba(218, 198, 206, 0.51);
+
+  font-size:
+    13px;
+}
+
+
+.invitation-direction-icon {
+  color:
+    rgba(
+      var(--inv-accent),
+      0.55
+    );
+
+  font-size:
+    16px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.invitation-footer {
+  margin-top:
+    17px;
+
+  padding-top:
+    13px;
+
+  display: flex;
+  align-items: center;
   justify-content: space-between;
 
-  gap: 12px;
-
-  margin-top: 9px;
-
-  font-size: 13px;
-
-  opacity: .65;
+  border-top:
+    1px solid
+    rgba(
+      var(--inv-accent),
+      0.075
+    );
 }
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
 
 .invitation-status {
-  margin-top: 10px;
+  display: flex;
+  align-items: center;
 
-  font-size: 13px;
-  font-weight: 600;
+  gap: 7px;
+
+  margin: 0;
+
+  font-size:
+    12px;
+
+  font-weight:
+    600;
+
+  color:
+    rgba(212, 191, 199, 0.44);
 }
+
+
+.invitation-status-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius:
+    50%;
+
+  background:
+    rgba(255, 255, 255, 0.18);
+}
+
 
 .invitation-status.opened {
-  opacity: .9;
+  color:
+    rgba(226, 208, 216, 0.58);
 }
+
+
+.invitation-status.opened
+.invitation-status-dot {
+  background:
+    rgba(
+      var(--inv-accent),
+      0.66
+    );
+}
+
 
 .invitation-status.pending {
-  opacity: 1;
+  color:
+    rgba(222, 197, 207, 0.47);
 }
+
+
+.invitation-status.pending
+.invitation-status-dot {
+  border:
+    1px solid
+    rgba(
+      var(--inv-accent),
+      0.44
+    );
+
+  background:
+    transparent;
+}
+
 
 .invitation-status.received {
-  opacity: .55;
+  color:
+    rgba(239, 119, 170, 0.72);
 }
 
+
+.invitation-status.received
+.invitation-status-dot {
+  background:
+    var(--inv-pink);
+
+  box-shadow:
+    0
+    0
+    7px
+    rgba(239, 119, 170, 0.32);
+}
+
+
+/* =========================================================
+   OPEN ARROW
+   ========================================================= */
+
+.invitation-open-arrow {
+  color:
+    rgba(244, 239, 241, 0.24);
+
+  font-size:
+    16px;
+}
+
+
+/* =========================================================
+   EMPTY / LOADING
+   ========================================================= */
+
+.invitations-state {
+  padding:
+    32px
+    0;
+
+  color:
+    rgba(211, 190, 199, 0.40);
+
+  font-size:
+    13px;
+}
+
+
 .invitations-empty {
-  opacity: .6;
+  padding:
+    48px
+    18px;
+
+  text-align:
+    center;
+
+  color:
+    rgba(211, 190, 199, 0.43);
+}
+
+
+.invitations-empty > span {
+  display: block;
+
+  margin-bottom:
+    12px;
+
+  color:
+    rgba(239, 119, 170, 0.55);
+
+  font-size:
+    23px;
+}
+
+
+.invitations-empty strong {
+  display: block;
+
+  color:
+    rgba(255, 243, 248, 0.80);
+
+  font-size:
+    15px;
+}
+
+
+.invitations-empty p {
+  max-width:
+    300px;
+
+  margin:
+    8px
+    auto
+    0;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.invitations-page .error {
+  margin:
+    18px
+    0;
+
+  color:
+    #e88aa9;
+
+  font-size:
+    14px;
+}
+
+
+/* =========================================================
+   SMALL IPHONES
+   ========================================================= */
+
+@media (
+  max-width: 390px
+) {
+
+  .invitations-content {
+    padding-left:
+      16px;
+
+    padding-right:
+      16px;
+  }
+
+
+  .invitations-topbar {
+    padding-left:
+      16px;
+
+    padding-right:
+      16px;
+  }
+
+
+  .invitations-intro h1 {
+    font-size:
+      47px;
+  }
+
+
+  .invitation-item {
+    padding:
+      18px
+      16px
+      15px;
+  }
+
 }
