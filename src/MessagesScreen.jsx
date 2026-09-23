@@ -75,7 +75,7 @@ export default function MessagesScreen({
     couple?.partner
       ?.display_name || "ton partenaire";
 
-  const threadEndRef =
+  const threadRef =
     useRef(null);
 
   /* =========================================================
@@ -178,14 +178,26 @@ export default function MessagesScreen({
      ========================================================= */
 
   useEffect(() => {
-    if (!threadEndRef.current) {
+    const thread =
+      threadRef.current;
+
+    if (!thread) {
       return;
     }
 
-    threadEndRef.current.scrollIntoView({
-      behavior: "smooth",
-      block: "end",
-    });
+    const frame =
+      window.requestAnimationFrame(
+        () => {
+          thread.scrollTop =
+            thread.scrollHeight;
+        }
+      );
+
+    return () => {
+      window.cancelAnimationFrame(
+        frame
+      );
+    };
   }, [messages.length]);
 
   /* =========================================================
@@ -367,7 +379,10 @@ export default function MessagesScreen({
         {!loading &&
           messages.length > 0 && (
             <div className="messages-thread-shell">
-              <div className="messages-thread">
+              <div
+                ref={threadRef}
+                className="messages-thread"
+              >
                 {messages.map(
                   (message) => {
                     const isMine =
@@ -407,11 +422,6 @@ export default function MessagesScreen({
                   }
                 )}
 
-                <div
-                  ref={
-                    threadEndRef
-                  }
-                />
               </div>
             </div>
           )}

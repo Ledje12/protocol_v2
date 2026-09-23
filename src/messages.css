@@ -404,3 +404,91 @@
     font-size: 22px;
   }
 }
+
+/* =========================================================
+   MESSAGES — IOS / THREAD LAYOUT FIX
+   ========================================================= */
+
+.messages-page {
+  height: 100dvh;
+  min-height: 100dvh;
+
+  overflow: hidden;
+}
+
+.messages-content {
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+
+/*
+ * Le thread occupe l'espace disponible,
+ * mais ses messages restent collés en haut.
+ */
+.messages-thread-shell {
+  flex: 1;
+
+  min-height: 0;
+
+  overflow: hidden;
+}
+
+.messages-thread {
+  height: 100%;
+
+  flex: none;
+
+  justify-content: flex-start;
+
+  overflow-y: auto;
+
+  overscroll-behavior: contain;
+}
+
+
+/*
+ * Bulles plus naturelles.
+ * Elles épousent leur contenu au lieu
+ * d'avoir l'impression de remplir l'écran.
+ */
+.message-row {
+  flex: 0 0 auto;
+}
+
+.message-bubble {
+  width: fit-content;
+
+  min-width: 0;
+
+  max-width:
+    min(
+      84%,
+      420px
+    );
+
+  padding:
+    14px
+    17px
+    11px;
+}
+
+
+/*
+ * Composer toujours dans son propre espace.
+ * Le clavier réduit la zone de conversation,
+ * pas toute la page.
+ */
+.messages-composer-wrap {
+  position: relative;
+
+  flex:
+    0
+    0
+    auto;
+
+  margin-top: 8px;
+
+  padding-top: 12px;
+}
