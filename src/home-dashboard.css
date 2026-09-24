@@ -2171,3 +2171,100 @@
   opacity: 0.5;
   cursor: default;
 }
+
+.protocol-auth-legal {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.protocol-auth-legal a {
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.protocol-auth-legal a:hover {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.settings-privacy-link {
+  width: 100%;
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 18px;
+  padding: 0;
+
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+
+  font: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.protocol-legal-page {
+  min-height: 100vh;
+}
+
+.protocol-legal-shell {
+  width: min(100% - 32px, 720px);
+  margin: 0 auto;
+  padding: 32px 0 48px;
+}
+
+.protocol-legal-header {
+  margin-bottom: 32px;
+}
+
+.protocol-legal-back {
+  margin-bottom: 28px;
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  color: rgba(255, 255, 255, 0.6);
+  font: inherit;
+
+  cursor: pointer;
+}
+
+.protocol-legal-header h1 {
+  margin: 8px 0 8px;
+}
+
+.protocol-legal-header p {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 12px;
+}
+
+.protocol-legal-section {
+  margin-bottom: 28px;
+}
+
+.protocol-legal-section h2 {
+  margin-bottom: 10px;
+
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.protocol-legal-section p,
+.protocol-legal-section li {
+  color: rgba(255, 255, 255, 0.66);
+
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.protocol-legal-section ul {
+  padding-left: 20px;
+}
