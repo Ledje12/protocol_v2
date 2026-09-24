@@ -2890,12 +2890,12 @@ function HomeScreen({ navigate , profile, }) {
 
             <p>
               PROTOCOL est édité par
-              [RESPONSABLE DU TRAITEMENT].
+              Jérôme LEJEUNE.
             </p>
 
             <p>
               Contact :
-              [ADRESSE EMAIL DE CONTACT].
+              protocol.auth@gmail.com.
             </p>
 
           </section>
@@ -3132,7 +3132,7 @@ function HomeScreen({ navigate , profile, }) {
 
             <p>
               Pour exercer vos autres droits :
-              [ADRESSE EMAIL DE CONTACT].
+              protocol.auth@gmail.com.
             </p>
 
           </section>
