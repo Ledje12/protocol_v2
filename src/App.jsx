@@ -2838,7 +2838,8 @@ function HomeScreen({ navigate , profile, }) {
 
     </main>
   );
-  
+} 
+
   function PrivacyScreen({
     navigate,
   }) {
@@ -3185,8 +3186,6 @@ function HomeScreen({ navigate , profile, }) {
       </main>
     );
   }
-
-}
 
 /* =========================================================
    SETTINGS
