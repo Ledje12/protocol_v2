@@ -508,12 +508,6 @@ function AuthScreen({ onAuthenticated }) {
   const [message, setMessage] =
     useState("");
 
-  const [deleteAccountLoading, setDeleteAccountLoading] =
-    useState(false);
-
-  const [deleteAccountMessage, setDeleteAccountMessage] =
-    useState("");
-
   const sendCode =
     async (event) => {
       event.preventDefault();
@@ -2855,6 +2849,12 @@ function SettingsScreen({
   const [message, setMessage] =
     useState("");
 
+  const [deleteAccountLoading, setDeleteAccountLoading] =
+    useState(false);
+
+  const [deleteAccountMessage, setDeleteAccountMessage] =
+    useState("");
+
   const [coupleInviteCode, setCoupleInviteCode] =
     useState("");
 
@@ -5088,6 +5088,48 @@ function SettingsScreen({
               →
             </span>
           </button>
+
+        <div className="settings-account-divider" />
+
+
+          <div className="settings-delete-account">
+
+            <span className="settings-card-eyebrow">
+              COMPTE
+            </span>
+
+            <p className="settings-card-copy">
+              Supprimer définitivement ton compte
+              PROTOCOL et les données qui lui sont
+              associées.
+            </p>
+
+
+            {deleteAccountMessage && (
+              <p className="settings-feedback">
+                {deleteAccountMessage}
+              </p>
+            )}
+
+
+            <button
+              type="button"
+              className="settings-delete-account-button"
+              onClick={deleteAccount}
+              disabled={deleteAccountLoading}
+            >
+              <span>
+                {deleteAccountLoading
+                  ? "Suppression…"
+                  : "Supprimer mon compte"}
+              </span>
+
+              <span>
+                ×
+              </span>
+            </button>
+
+          </div>
 
         </section>
 
