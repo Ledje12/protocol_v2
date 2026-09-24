@@ -508,6 +508,12 @@ function AuthScreen({ onAuthenticated }) {
   const [message, setMessage] =
     useState("");
 
+  const [deleteAccountLoading, setDeleteAccountLoading] =
+    useState(false);
+
+  const [deleteAccountMessage, setDeleteAccountMessage] =
+    useState("");
+
   const sendCode =
     async (event) => {
       event.preventDefault();
@@ -3090,6 +3096,177 @@ function SettingsScreen({
         "Impossible de se déconnecter."
       );
     }
+  };
+
+  const deleteAccount = async () => {
+
+    if (deleteAccountLoading) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        "Supprimer définitivement ton compte ?\n\n" +
+        "Ton profil sera supprimé.\n\n" +
+        "Si tu es lié à un partenaire, les données communes du couple, " +
+        "les parties et leur historique seront également supprimés.\n\n" +
+        "Le compte de ton partenaire restera actif.\n\n" +
+        "Cette action est irréversible."
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+
+    const confirmationText =
+      window.prompt(
+        'Pour confirmer la suppression, écris exactement : SUPPRIMER'
+      );
+
+    if (confirmationText !== "SUPPRIMER") {
+      return;
+    }
+
+
+    try {
+
+      setDeleteAccountLoading(true);
+      setDeleteAccountMessage("");
+
+
+      const {
+        data,
+        error,
+      } =
+        await supabase.functions.invoke(
+          "delete-account",
+          {
+            method: "POST",
+          }
+        );
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      if (!data?.ok) {
+        throw new Error(
+          data?.error ||
+          "La suppression du compte a échoué."
+        );
+      }
+
+
+      /*
+      * Le compte a maintenant été supprimé
+      * côté Supabase.
+      *
+      * On nettoie la session locale.
+      */
+
+      try {
+
+        await supabase.auth.signOut({
+          scope: "local",
+        });
+
+      } catch (signOutError) {
+
+        console.warn(
+          "LOCAL SIGNOUT AFTER DELETE:",
+          signOutError
+        );
+
+      }
+
+
+      /*
+      * Partie éventuellement mémorisée
+      * sur cet appareil.
+      */
+
+      clearGameSession();
+
+      localStorage.removeItem(
+        PROTOCOL_LAST_SEEN_CARD_KEY
+      );
+
+
+      /*
+      * Nettoyage du stockage Supabase.
+      *
+      * On cible uniquement PROTOCOL et
+      * la session Supabase de ce projet.
+      */
+
+      Object.keys(localStorage).forEach(
+        (key) => {
+
+          if (
+            key.startsWith("protocol-") ||
+            key.startsWith(
+              "sb-vwgbixhqprdlxqcuijdz"
+            )
+          ) {
+
+            localStorage.removeItem(
+              key
+            );
+
+          }
+
+        }
+      );
+
+
+      Object.keys(sessionStorage).forEach(
+        (key) => {
+
+          if (
+            key.startsWith("protocol-") ||
+            key.startsWith(
+              "sb-vwgbixhqprdlxqcuijdz"
+            )
+          ) {
+
+            sessionStorage.removeItem(
+              key
+            );
+
+          }
+
+        }
+      );
+
+
+      /*
+      * Hard reload :
+      * on détruit aussi tout l'état React
+      * encore présent en mémoire.
+      */
+
+      window.location.replace("/");
+
+
+    } catch (err) {
+
+      console.error(
+        "DELETE ACCOUNT ERROR:",
+        err
+      );
+
+      setDeleteAccountMessage(
+        err?.message ||
+        "Impossible de supprimer le compte."
+      );
+
+      setDeleteAccountLoading(false);
+
+    }
+
   };
 
   const createCoupleInvite =

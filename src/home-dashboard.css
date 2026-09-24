@@ -2132,3 +2132,42 @@
 
   color: #ff489a;
 }
+
+.settings-delete-account {
+  margin-top: 4px;
+}
+
+.settings-delete-account-button {
+  width: 100%;
+  min-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 14px;
+  padding: 0 16px;
+
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  border-radius: 14px;
+
+  background: rgba(255, 70, 70, 0.08);
+
+  color: #ff9b9b;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.settings-delete-account-button:hover:not(:disabled) {
+  background: rgba(255, 70, 70, 0.14);
+  border-color: rgba(255, 100, 100, 0.45);
+}
+
+.settings-delete-account-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
