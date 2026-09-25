@@ -7005,6 +7005,9 @@ function PlayScreen({
   const [error, setError] =
     useState("");
 
+  const [stopLoading, setStopLoading] =
+    useState(false);
+
   const [
     showTypePicker,
     setShowTypePicker,
@@ -7859,6 +7862,61 @@ async function handleSceneRead() {
     }
 
     /*
+    * PAUSE GLOBALE
+    *
+    * On conserve la carte actuellement
+    * affichée mais on met à jour game.
+    * Le polling transmet donc le STOP
+    * à l'autre téléphone.
+    */
+    if (
+      gameData.status ===
+      "paused"
+    ) {
+      setGame(gameData);
+
+      /*
+      * Normalement la carte est déjà
+      * chargée localement.
+      *
+      * Ce fallback permet aussi de restaurer
+      * correctement une partie si la PWA
+      * est rouverte pendant la pause.
+      */
+      if (
+        !card ||
+        Number(card.id) !==
+          Number(gameData.current_card_id)
+      ) {
+        const {
+          data: pausedCard,
+          error: pausedCardError,
+        } = await supabase
+          .from("protocol_cards")
+          .select("*")
+          .eq(
+            "id",
+            gameData.current_card_id
+          )
+          .single();
+
+        if (pausedCardError) {
+          throw pausedCardError;
+        }
+
+        setCard(pausedCard);
+
+        await Promise.all([
+          loadSceneState(pausedCard),
+          loadActiveRules(),
+        ]);
+      }
+
+      return;
+    }
+
+
+    /*
     * Route play mais partie pas encore
     * réellement en cours.
     */
@@ -8027,6 +8085,151 @@ async function handleSceneRead() {
         game?.status,
         code,
       ]);
+
+  /* =========================================
+      GLOBAL STOP
+      ========================================= */
+
+    const stopProtocol =
+      async () => {
+        if (
+          stopLoading ||
+          !hasGameSession ||
+          game?.status !== "playing"
+        ) {
+          return;
+        }
+
+        try {
+          setStopLoading(true);
+          setError("");
+
+          /*
+          * 1. On arrête d'abord le jouet.
+          *
+          * Le STOP Lovense ne doit pas attendre
+          * la mise à jour de la partie.
+          */
+          try {
+            const {
+              data: lovenseData,
+              error: lovenseError,
+            } =
+              await supabase.functions.invoke(
+                "lovense-command",
+                {
+                  body: {
+                    action: "stop",
+                  },
+                }
+              );
+
+            if (
+              lovenseError ||
+              !lovenseData?.success
+            ) {
+              console.warn(
+                "LOVENSE STOP WARNING:",
+                lovenseError ||
+                  lovenseData?.error
+              );
+            }
+
+          } catch (lovenseErr) {
+            /*
+            * Une absence de Lovense ne doit
+            * JAMAIS empêcher le STOP du jeu.
+            */
+            console.warn(
+              "LOVENSE STOP ERROR:",
+              lovenseErr
+            );
+          }
+
+
+          /*
+          * 2. Pause globale de la partie.
+          */
+          const {
+            error: stopError,
+          } = await supabase.rpc(
+            "stop_protocol_game",
+            {
+              p_game_code: code,
+            }
+          );
+
+          if (stopError) {
+            throw stopError;
+          }
+
+          /*
+          * Mise à jour immédiate de ce téléphone.
+          * L'autre suivra via le polling.
+          */
+          await loadState();
+
+        } catch (err) {
+          console.error(
+            "PROTOCOL STOP ERROR:",
+            err
+          );
+
+          setError(
+            err?.message ||
+              "Impossible de mettre la partie en pause."
+          );
+
+        } finally {
+          setStopLoading(false);
+        }
+      };
+
+
+    const resumeProtocol =
+      async () => {
+        if (
+          stopLoading ||
+          !hasGameSession ||
+          game?.status !== "paused"
+        ) {
+          return;
+        }
+
+        try {
+          setStopLoading(true);
+          setError("");
+
+          const {
+            error: resumeError,
+          } = await supabase.rpc(
+            "resume_protocol_game",
+            {
+              p_game_code: code,
+            }
+          );
+
+          if (resumeError) {
+            throw resumeError;
+          }
+
+          await loadState();
+
+        } catch (err) {
+          console.error(
+            "PROTOCOL RESUME ERROR:",
+            err
+          );
+
+          setError(
+            err?.message ||
+              "Impossible de reprendre la partie."
+          );
+
+        } finally {
+          setStopLoading(false);
+        }
+      };
 
 
 
@@ -8741,6 +8944,64 @@ async function handleSceneRead() {
     <main className="app play-page">
 
       <div className="glow glow-center" />
+
+
+      {/* =====================================
+          GLOBAL STOP
+          ===================================== */}
+
+      {game.status === "paused" ? (
+
+        <div className="protocol-stop-overlay">
+
+          <div className="protocol-stop-panel">
+
+            <span className="protocol-stop-label">
+              PROTOCOL EN PAUSE
+            </span>
+
+            <h1>
+              STOP
+            </h1>
+
+            <p>
+              La partie est arrêtée pour vous deux.
+            </p>
+
+            <p className="protocol-stop-copy">
+              Prenez le temps nécessaire.
+              Rien ne reprend automatiquement.
+            </p>
+
+            <button
+              type="button"
+              className="protocol-resume-button"
+              onClick={resumeProtocol}
+              disabled={stopLoading}
+            >
+              {stopLoading
+                ? "REPRISE..."
+                : "REPRENDRE ENSEMBLE"}
+            </button>
+
+          </div>
+
+        </div>
+
+      ) : (
+
+        <button
+          type="button"
+          className="protocol-stop-button"
+          onClick={stopProtocol}
+          disabled={stopLoading}
+          aria-label="Arrêter immédiatement le Protocol"
+        >
+          STOP
+        </button>
+
+      )}
+
 
       <PhaseTransition
         phase={game.phase}
