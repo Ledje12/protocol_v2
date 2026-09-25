@@ -555,6 +555,43 @@ function AuthScreen({ onAuthenticated }) {
       }
     };
 
+  const resendCode = async () => {
+    try {
+      setLoading(true);
+      setMessage("");
+
+      const normalizedEmail =
+        email.trim().toLowerCase();
+
+      const { error } =
+        await supabase.auth.signInWithOtp({
+          email: normalizedEmail,
+          options: {
+            shouldCreateUser: true,
+          },
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      setCode("");
+
+      setMessage(
+        "Nouveau code envoyé par email."
+      );
+
+    } catch (err) {
+      setMessage(
+        err?.message ||
+        "Impossible de renvoyer le code."
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const verifyCode =
     async (event) => {
       event.preventDefault();
@@ -709,7 +746,8 @@ function AuthScreen({ onAuthenticated }) {
                   <strong>
                     {" "}
                     {email.trim().toLowerCase()}
-                  </strong>
+                  </strong>.
+                  Il peut mettre quelques secondes à arriver.
                 </p>
 
               </div>
@@ -769,11 +807,21 @@ function AuthScreen({ onAuthenticated }) {
                 <button
                   type="button"
                   className="protocol-auth-back"
+                  onClick={resendCode}
+                  disabled={loading}
+                >
+                  Renvoyer le code
+                </button>
+
+                <button
+                  type="button"
+                  className="protocol-auth-back"
                   onClick={() => {
                     setCode("");
                     setMessage("");
                     setStep("email");
                   }}
+                  disabled={loading}
                 >
                   Utiliser une autre adresse
                 </button>
@@ -4847,9 +4895,9 @@ function SettingsScreen({
             <>
 
               <p className="settings-card-copy">
-                Associe ton compte à celui de ton
-                partenaire pour partager invitations,
-                messages et expériences.
+                Associe vos comptes une seule fois pour
+                partager invitations, messages et expériences,
+                même en dehors d’une partie.
               </p>
 
 
@@ -4884,7 +4932,7 @@ function SettingsScreen({
                   </strong>
 
                   <small>
-                    Valable pendant 24 heures
+                    Code partenaire · valable pendant 24 heures
                   </small>
 
                 </div>
