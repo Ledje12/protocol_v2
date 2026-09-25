@@ -1158,11 +1158,17 @@ function App() {
   const [profileLoading, setProfileLoading] =
     useState(true);
 
+  const [profileError, setProfileError] =
+    useState("");
+
   const [couple, setCouple] =
     useState(null);
 
   const [coupleLoading, setCoupleLoading] =
     useState(true);
+
+  const [coupleError, setCoupleError] =
+    useState("");
 
   const [
     coupleRefreshKey,
@@ -1229,6 +1235,7 @@ function App() {
 
         try {
           setProfileLoading(true);
+          setProfileError("");
 
           const {
             data,
@@ -1262,7 +1269,9 @@ function App() {
           );
 
           if (active) {
-            setProfile(null);
+            setProfileError(
+              "Impossible de charger ton profil."
+            );
           }
 
         } finally {
@@ -1297,6 +1306,7 @@ function App() {
 
         try {
           setCoupleLoading(true);
+          setCoupleError("");
 
           const {
             data,
@@ -1323,7 +1333,9 @@ function App() {
           );
 
           if (active) {
-            setCouple(null);
+            setCoupleError(
+              "Impossible de charger les données du couple."
+            );
           }
 
         } finally {
@@ -1588,6 +1600,66 @@ function App() {
     return <AppLoadingScreen />;
   }
 
+  if (profileError || coupleError) {
+    return (
+      <main className="protocol-auth-page">
+        <div className="protocol-auth-glow" />
+
+        <section className="protocol-auth-shell">
+
+          <header className="protocol-auth-brand">
+
+            <div className="protocol-auth-logo">
+              PROTOCOL
+            </div>
+
+            <div className="protocol-auth-version">
+              <span />
+              <small>V2</small>
+              <span />
+            </div>
+
+            <p>
+              Privé · Discret · À deux
+            </p>
+
+          </header>
+
+          <section className="protocol-auth-card">
+
+            <div className="protocol-auth-copy">
+
+              <span className="protocol-auth-eyebrow">
+                CONNEXION
+              </span>
+
+              <h1>
+                Petit problème.
+              </h1>
+
+              <p>
+                Impossible de charger ton espace.
+                Vérifie ta connexion puis réessaie.
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                window.location.reload()
+              }
+            >
+              Réessayer
+            </button>
+
+          </section>
+
+        </section>
+      </main>
+    );
+  }
+  
   if (
     !profile?.display_name ||
     !profile?.sex
