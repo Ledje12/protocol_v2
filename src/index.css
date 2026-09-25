@@ -2886,6 +2886,13 @@ h1 {
   font-weight: 600;
 }
 
+.final-result-copy {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.72;
+}
+
 
 /* =========================================================
    FINAL CLOSING

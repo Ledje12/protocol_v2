@@ -8736,37 +8736,15 @@ async function handleSceneRead() {
               </p>
 
 
-              {winnerName ? (
+              <p className="final-reveal-small">
+                CE SOIR
+              </p>
 
-                <>
-
-                  <p className="final-reveal-small">
-                    CE SOIR
-                  </p>
-
-                  <h1 className="final-winner-title">
-                    {winnerName}
-                    <br />
-                    l'emporte.
-                  </h1>
-
-                </>
-
-              ) : (
-
-                <>
-
-                  <p className="final-reveal-small">
-                    CE SOIR
-                  </p>
-
-                  <h1 className="final-winner-title">
-                    Égalité.
-                  </h1>
-
-                </>
-
-              )}
+              <h1 className="final-winner-title">
+                Vous êtes allés
+                <br />
+                jusqu'au bout.
+              </h1>
 
             </div>
 
@@ -8820,6 +8798,12 @@ async function handleSceneRead() {
               </div>
 
             </div>
+
+            <p className="final-result-copy">
+              {winnerName
+                ? `${winnerName} termine en tête.`
+                : "Vous terminez à égalité."}
+            </p>
 
 
             {/* =====================================
@@ -8915,7 +8899,7 @@ async function handleSceneRead() {
                 <span>
                   {rematchLoading
                     ? "PRÉPARATION…"
-                    : "REVANCHE"}
+                    : "REJOUER ENSEMBLE"}
                 </span>
 
                 <span>
