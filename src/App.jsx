@@ -9205,8 +9205,14 @@ async function handleSceneRead() {
               myScore < 3
             }
           >
-            <span>
-              Double enjeu
+            <span className="bonus-button-content">
+              <span className="bonus-button-title">
+                Double récompense
+              </span>
+
+              <small>
+                Double les points de ta prochaine carte réussie.
+              </small>
             </span>
 
             <strong>
@@ -9236,8 +9242,14 @@ async function handleSceneRead() {
               myScore < 3
             }
           >
-            <span>
-              Prendre la main
+            <span className="bonus-button-content">
+              <span className="bonus-button-title">
+                Prendre la main
+              </span>
+
+              <small>
+                Joue aussi le prochain tour à la place de l'autre.
+              </small>
             </span>
 
             <strong>
@@ -9286,8 +9298,14 @@ async function handleSceneRead() {
               )
             }
           >
-            <span>
-              Imposer le type
+            <span className="bonus-button-content">
+              <span className="bonus-button-title">
+                Imposer le type
+              </span>
+
+              <small>
+                Choisis le type de la prochaine carte.
+              </small>
             </span>
 
             <strong>
@@ -9406,7 +9424,7 @@ async function handleSceneRead() {
           TAKE CONTROL
           ===================================== */}
 
-      {myBonuses.take_control && (
+      {myBonuses.take_control && isMyTurn && (
         <button
           className="activate-bonus"
 

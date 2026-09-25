@@ -2196,15 +2196,17 @@ h1 {
 }
 
 .bonus-button {
-  min-height: 44px;
+  min-height: 62px;
 
   padding:
-    0
+    9px
     14px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  gap: 12px;
 
   border:
     1px solid
@@ -2242,6 +2244,25 @@ h1 {
   letter-spacing: 0.1em;
 
   color: #86586a;
+}
+
+.bonus-button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  text-align: left;
+}
+
+.bonus-button-title {
+  font-weight: 600;
+}
+
+.bonus-button-content small {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  opacity: 0.62;
+  font-weight: 400;
 }
 
 .bonus-owned {
@@ -4352,10 +4373,9 @@ h1 {
     0.08em;
 }
 
-
 /* ---------------------------------------------------------
    META
-   ACTION · AUDREY · 4/20
+   ACTION · 4/20
    --------------------------------------------------------- */
 
 .play-meta {
@@ -4962,8 +4982,6 @@ h1 {
   color: rgba(255, 255, 255, 0.42);
 }
 
-
-/* Jérôme / Audrey */
 
 .device-owner-selector {
   display: grid;
