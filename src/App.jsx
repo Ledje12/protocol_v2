@@ -5129,6 +5129,28 @@ function SettingsScreen({
 
             )}
 
+          {permission === "default" &&
+            isStandalone &&
+            !checkingSubscription && (
+
+              <button
+                type="button"
+                className="settings-primary-action"
+                onClick={activatePushNotifications}
+                disabled={requesting}
+              >
+                <span>
+                  {requesting
+                    ? "Activation…"
+                    : "Activer les notifications"}
+                </span>
+
+                <span className="settings-action-arrow">
+                  →
+                </span>
+              </button>
+
+            )}
 
           {permission === "granted" &&
             !subscribed &&
