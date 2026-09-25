@@ -6846,3 +6846,133 @@ h1 {
     0 0 0 2px rgba(255, 59, 48, 0.12),
     0 0 10px rgba(255, 59, 48, 0.35);
 }
+
+/* =========================================================
+   GLOBAL STOP
+   ========================================================= */
+
+.protocol-stop-button {
+  position: fixed;
+  right: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 900;
+
+  width: 62px;
+  height: 62px;
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+
+  background: rgba(18, 18, 20, 0.94);
+  color: #fff;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.38);
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  cursor: pointer;
+}
+
+.protocol-stop-button:active {
+  transform: scale(0.94);
+}
+
+.protocol-stop-button:disabled {
+  opacity: 0.55;
+}
+
+
+.protocol-stop-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    calc(24px + env(safe-area-inset-top))
+    24px
+    calc(24px + env(safe-area-inset-bottom));
+
+  background: rgba(8, 8, 10, 0.96);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+
+.protocol-stop-panel {
+  width: min(100%, 420px);
+  text-align: center;
+}
+
+
+.protocol-stop-label {
+  display: block;
+
+  margin-bottom: 18px;
+
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+
+  opacity: 0.58;
+}
+
+
+.protocol-stop-panel h1 {
+  margin: 0 0 22px;
+
+  font-size: clamp(3.8rem, 18vw, 6rem);
+  line-height: 0.9;
+
+  letter-spacing: -0.05em;
+}
+
+
+.protocol-stop-panel p {
+  margin: 0 auto 10px;
+
+  max-width: 320px;
+
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+
+.protocol-stop-copy {
+  opacity: 0.6;
+}
+
+
+.protocol-resume-button {
+  width: 100%;
+
+  margin-top: 32px;
+  padding: 17px 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+
+  background: #fff;
+  color: #111;
+
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+
+  cursor: pointer;
+}
+
+
+.protocol-resume-button:disabled {
+  opacity: 0.55;
+}
