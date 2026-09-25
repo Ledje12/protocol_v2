@@ -916,6 +916,8 @@ function ProfileSetupScreen({
             <p>
               Ces informations seront mémorisées
               pour les prochaines parties.
+              Le sexe permet à PROTOCOL
+              d’adapter certaines cartes à chacun.
             </p>
 
           </div>
@@ -1045,6 +1047,48 @@ function ProfileSetupScreen({
 
       </section>
 
+    </main>
+  );
+}
+
+function AppLoadingScreen() {
+  return (
+    <main className="protocol-auth-page">
+      <div className="protocol-auth-glow" />
+
+      <section className="protocol-auth-shell">
+        <header className="protocol-auth-brand">
+          <div className="protocol-auth-logo">
+            PROTOCOL
+          </div>
+
+          <div className="protocol-auth-version">
+            <span />
+            <small>V2</small>
+            <span />
+          </div>
+
+          <p>
+            Privé · Discret · À deux
+          </p>
+        </header>
+
+        <section className="protocol-auth-card">
+          <div className="protocol-auth-copy">
+            <span className="protocol-auth-eyebrow">
+              CHARGEMENT
+            </span>
+
+            <h1>
+              Un instant.
+            </h1>
+
+            <p>
+              PROTOCOL prépare votre espace.
+            </p>
+          </div>
+        </section>
+      </section>
     </main>
   );
 }
@@ -1467,7 +1511,7 @@ function App() {
   }, []);
 
   if (authLoading) {
-    return null;
+    return <AppLoadingScreen />;
   }
 
   if (route.screen === "privacy") {
@@ -1489,11 +1533,11 @@ function App() {
   }
 
   if (profileLoading) {
-    return null;
+    return <AppLoadingScreen />;
   }
 
   if (coupleLoading) {
-    return null;
+    return <AppLoadingScreen />;
   }
 
   if (
@@ -2640,7 +2684,7 @@ function HomeScreen({ navigate , profile, }) {
               </span>
 
               <strong>
-                Un secret ?
+                Entre nous
               </strong>
 
             </button>
@@ -6351,8 +6395,8 @@ function CalibrationScreen({
                   </strong>
 
                   <p>
-                    Votre terrain commun
-                    sera créé automatiquement.
+                      PROTOCOL combinera vos réponses
+                      dès que vous aurez terminé tous les deux.
                   </p>
                 </div>
               </div>
@@ -6537,8 +6581,10 @@ function CalibrationScreen({
                 </strong>
 
                 <p>
-                  Seul votre terrain commun
-                  sera utilisé par le jeu.
+                      PROTOCOL combine vos réponses
+                      sans les révéler à l’autre.
+                      Votre terrain commun guidera
+                      ensuite la partie.
                 </p>
               </div>
             </div>
