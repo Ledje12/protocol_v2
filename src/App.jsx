@@ -7949,7 +7949,7 @@ async function handleSceneRead() {
       setCard(null);
 
       navigate(
-        `/game/${code}/calibration`
+        `/game/${code}`
       );
 
       return;
@@ -8669,7 +8669,7 @@ async function handleSceneRead() {
 
 
             navigate(
-              `/game/${code}/calibration`
+              `/game/${code}`
             );
 
 
@@ -9272,7 +9272,8 @@ async function handleSceneRead() {
             onClick={() => {
 
               if (
-                myBonuses.choose_type
+                myBonuses.choose_type ||
+                myBonuses.choose_type_armed
               ) {
                 setShowBonuses(false);
 
@@ -9289,11 +9290,9 @@ async function handleSceneRead() {
             }}
             disabled={
               nextLoading ||
-              Boolean(
-                myBonuses.choose_type_armed
-              ) ||
               (
                 !myBonuses.choose_type &&
+                !myBonuses.choose_type_armed &&
                 myScore < 2
               )
             }
@@ -9360,6 +9359,21 @@ async function handleSceneRead() {
 
           </div>
 
+          {myBonuses.choose_type_armed && (
+
+            <button
+              onClick={() =>
+                chooseNextType(
+                  "auto"
+                )
+              }
+              disabled={nextLoading}
+            >
+              <span>↺</span>
+              Automatique
+            </button>
+
+          )}
 
           <div className="type-picker-grid">
 
