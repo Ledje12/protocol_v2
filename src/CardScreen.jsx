@@ -340,14 +340,30 @@ export default function CardScreen({
           }
 
 
+          if (!row) {
+            throw new Error(
+              "Invitation introuvable ou non autorisée."
+            );
+          }
+
+
+          if (
+            Number(row.card_id) !==
+            Number(cardId)
+          ) {
+            throw new Error(
+              "Cette invitation ne correspond pas à cette carte."
+            );
+          }
+
+
           setInvitation(
-            row ||
-            null
+            row
           );
 
 
           setOpenedAt(
-            row?.opened_at ||
+            row.opened_at ||
             null
           );
 
@@ -358,6 +374,24 @@ export default function CardScreen({
             "INVITATION LOAD ERROR:",
             err
           );
+
+
+          if (active) {
+
+            setInvitation(
+              null
+            );
+
+            setError(
+              err?.message ||
+                "Impossible de charger cette invitation."
+            );
+
+            setLoading(
+              false
+            );
+
+          }
 
         }
 
@@ -375,6 +409,7 @@ export default function CardScreen({
   }, [
     supabase,
     trackedInvitationId,
+    cardId,
   ]);
 
 
@@ -391,6 +426,13 @@ export default function CardScreen({
     const loadCard =
       async () => {
 
+        if (
+          trackedInvitationId &&
+          !invitation
+        ) {
+          return;
+        }
+        
         try {
 
           setLoading(
@@ -414,7 +456,9 @@ export default function CardScreen({
               .select("*")
               .eq(
                 "id",
-                cardId
+                trackedInvitationId
+                  ? invitation.card_id
+                  : cardId
               )
               .eq(
                 "library_version",
@@ -523,6 +567,8 @@ export default function CardScreen({
   }, [
     supabase,
     cardId,
+    trackedInvitationId,
+    invitation?.card_id,
     activePerson?.user_id,
     activePerson?.sex,
     activePerson?.display_name,
