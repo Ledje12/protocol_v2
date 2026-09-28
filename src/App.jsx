@@ -4035,7 +4035,13 @@ function SettingsScreen({
               onlineToysRaw
             )
               ? onlineToysRaw
-              : [];
+              : onlineToysRaw &&
+                  typeof onlineToysRaw ===
+                    "object"
+                ? Object.values(
+                    onlineToysRaw
+                  )
+                : [];
 
 
           const deviceInfo =
