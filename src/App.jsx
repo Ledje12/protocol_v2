@@ -9359,21 +9359,6 @@ async function handleSceneRead() {
 
           </div>
 
-          {myBonuses.choose_type_armed && (
-
-            <button
-              onClick={() =>
-                chooseNextType(
-                  "auto"
-                )
-              }
-              disabled={nextLoading}
-            >
-              <span>↺</span>
-              Automatique
-            </button>
-
-          )}
 
           <div className="type-picker-grid">
 
@@ -9427,6 +9412,23 @@ async function handleSceneRead() {
               <span>◇</span>
               Scène
             </button>
+
+            
+            {myBonuses.choose_type_armed && (
+
+              <button
+                onClick={() =>
+                  chooseNextType(
+                    "auto"
+                  )
+                }
+                disabled={nextLoading}
+              >
+                <span>↺</span>
+                Automatique
+              </button>
+
+            )}
 
           </div>
 
