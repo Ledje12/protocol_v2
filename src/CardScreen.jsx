@@ -1405,6 +1405,8 @@ export default function CardScreen({
         const newInvitationId =
           data.invitation_id;
 
+          sendRequestKeyRef.current =
+            null;
 
         if (
           newInvitationId
