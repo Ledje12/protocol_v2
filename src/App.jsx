@@ -7315,9 +7315,6 @@ function PlayScreen({
           ? currentRemaining
           : timerInitialSeconds;
 
-      const startedAt =
-        new Date().toISOString();
-
       const {
         error: timerError,
       } = await supabase.rpc(
@@ -7327,7 +7324,7 @@ function PlayScreen({
           p_card_id:
             card.id,
           p_started_at:
-            startedAt,
+            null,
           p_remaining_seconds:
             seconds,
           p_running:
