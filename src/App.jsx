@@ -8204,47 +8204,64 @@ async function handleSceneRead() {
           setStopLoading(true);
           setError("");
 
-          /*
-          * 1. On arrête d'abord le jouet.
-          *
-          * Le STOP Lovense ne doit pas attendre
-          * la mise à jour de la partie.
-          */
-          try {
-            const {
-              data: lovenseData,
-              error: lovenseError,
-            } =
-              await supabase.functions.invoke(
-                "lovense-command",
-                {
-                  body: {
-                    action: "stop",
-                  },
+        setGame(
+          (previous) =>
+            previous
+              ? {
+                  ...previous,
+                  status:
+                    "paused",
                 }
-              );
+              : previous
+        );
 
-            if (
-              lovenseError ||
-              !lovenseData?.success
-            ) {
-              console.warn(
-                "LOVENSE STOP WARNING:",
-                lovenseError ||
-                  lovenseData?.error
-              );
-            }
+          /*
+          * Le STOP Lovense part immédiatement,
+          * mais ne bloque jamais la pause
+          * de la partie.
+          */
+          supabase.functions
+            .invoke(
+              "lovense-command",
+              {
+                body: {
+                  action:
+                    "stop",
+                },
+              }
+            )
+            .then(
+              ({
+                data:
+                  lovenseData,
+                error:
+                  lovenseError,
+              }) => {
 
-          } catch (lovenseErr) {
-            /*
-            * Une absence de Lovense ne doit
-            * JAMAIS empêcher le STOP du jeu.
-            */
-            console.warn(
-              "LOVENSE STOP ERROR:",
-              lovenseErr
+                if (
+                  lovenseError ||
+                  !lovenseData
+                    ?.success
+                ) {
+                  console.warn(
+                    "LOVENSE STOP WARNING:",
+                    lovenseError ||
+                      lovenseData?.error
+                  );
+                }
+
+              }
+            )
+            .catch(
+              (lovenseErr) => {
+
+                console.warn(
+                  "LOVENSE STOP ERROR:",
+                  lovenseErr
+                );
+
+              }
             );
-          }
 
 
           /*
@@ -8270,10 +8287,16 @@ async function handleSceneRead() {
           await loadState();
 
         } catch (err) {
+
           console.error(
             "PROTOCOL STOP ERROR:",
             err
           );
+
+
+          await loadState()
+            .catch(() => {});
+
 
           setError(
             err?.message ||

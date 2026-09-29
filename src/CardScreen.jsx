@@ -861,17 +861,39 @@ export default function CardScreen({
         }
 
 
-        await supabase
-          .functions
-          .invoke(
-            "lovense-command",
-            {
-              body: {
-                action:
-                  "stop",
-              },
-            }
+        const {
+          data,
+          error:
+            functionError,
+        } =
+          await supabase
+            .functions
+            .invoke(
+              "lovense-command",
+              {
+                body: {
+                  action:
+                    "stop",
+                },
+              }
+            );
+
+
+        if (
+          functionError
+        ) {
+          throw functionError;
+        }
+
+
+        if (
+          !data?.success
+        ) {
+          throw new Error(
+            data?.error ||
+              "Impossible d’arrêter la vibration."
           );
+        }
 
 
         lovenseStartedRef.current =
