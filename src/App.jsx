@@ -7855,14 +7855,26 @@ async function handleSceneRead() {
       data,
       error,
     } = await supabase.rpc(
-      "advance_scene_step",
+      "advance_scene_step_guarded",
       {
-        p_game_code: code,
+        p_game_code:
+          code,
+
+        p_expected_card_id:
+          card?.id,
+
+        p_expected_scene_step_no:
+          game?.scene_step_no,
       }
     );
 
     if (error) {
       throw error;
+    }
+
+    if (data?.stale) {
+      await loadState();
+      return;
     }
 
     console.log(
@@ -8370,17 +8382,32 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "advance_protocol",
+          "advance_protocol_guarded",
           {
-            p_game_code: code,
-            p_action: action,
+            p_game_code:
+              code,
+
+            p_action:
+              action,
+
             p_duel_winner:
               duelWinner,
+
+            p_expected_turn_no:
+              game?.turn_no,
+
+            p_expected_card_id:
+              card?.id,
           }
         );
 
         if (rpcError) {
           throw rpcError;
+        }
+
+        if (data?.stale) {
+          await loadState();
+          return;
         }
 
         console.log(
