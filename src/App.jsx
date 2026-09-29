@@ -3399,6 +3399,24 @@ function SettingsScreen({
   const [coupleMessage, setCoupleMessage] =
     useState("");
 
+  const [directorMode, setDirectorMode] =
+    useState("classic");
+
+  const [directorProfile, setDirectorProfile] =
+    useState(null);
+
+  const [directorDuration, setDirectorDuration] =
+    useState("normal");
+
+  const [directorLoading, setDirectorLoading] =
+    useState(true);
+
+  const [directorSaving, setDirectorSaving] =
+    useState(false);
+
+  const [directorMessage, setDirectorMessage] =
+    useState("");
+
   const [hasLocalGameSession, setHasLocalGameSession] =
     useState(() => getGameSession().valid);
 
@@ -3800,6 +3818,165 @@ function SettingsScreen({
     }
 
   };
+
+    useEffect(() => {
+
+      let active = true;
+
+      const loadDirectorSettings =
+        async () => {
+
+          if (!couple?.couple_id) {
+            if (active) {
+              setDirectorLoading(false);
+            }
+
+            return;
+          }
+
+          try {
+
+            setDirectorLoading(true);
+            setDirectorMessage("");
+
+            const {
+              data,
+              error,
+            } =
+              await supabase.rpc(
+                "get_protocol_couple_settings"
+              );
+
+            if (error) {
+              throw error;
+            }
+
+            if (!active) {
+              return;
+            }
+
+            setDirectorMode(
+              data?.director_mode ||
+                "classic"
+            );
+
+            setDirectorProfile(
+              data?.director_profile ??
+                null
+            );
+
+            setDirectorDuration(
+              data?.director_duration ||
+                "normal"
+            );
+
+          } catch (err) {
+
+            console.error(
+              "DIRECTOR SETTINGS LOAD ERROR:",
+              err
+            );
+
+            if (active) {
+              setDirectorMessage(
+                "Impossible de charger le mode de soirée."
+              );
+            }
+
+          } finally {
+
+            if (active) {
+              setDirectorLoading(false);
+            }
+
+          }
+        };
+
+      loadDirectorSettings();
+
+      return () => {
+        active = false;
+      };
+
+    }, [couple?.couple_id]);
+
+
+    const saveDirectorSettings =
+      async ({
+        mode = directorMode,
+        profile = directorProfile,
+        duration = directorDuration,
+      } = {}) => {
+
+        try {
+
+          setDirectorSaving(true);
+          setDirectorMessage("");
+
+          const normalizedProfile =
+            mode === "classic"
+              ? null
+              : profile;
+
+          const {
+            data,
+            error,
+          } =
+            await supabase.rpc(
+              "set_protocol_couple_settings",
+              {
+                p_director_mode:
+                  mode,
+
+                p_director_profile:
+                  normalizedProfile,
+
+                p_director_duration:
+                  duration,
+              }
+            );
+
+          if (error) {
+            throw error;
+          }
+
+          setDirectorMode(
+            data?.director_mode ||
+              mode
+          );
+
+          setDirectorProfile(
+            data?.director_profile ??
+              normalizedProfile
+          );
+
+          setDirectorDuration(
+            data?.director_duration ||
+              duration
+          );
+
+          setDirectorMessage(
+            "Réglage enregistré."
+          );
+
+        } catch (err) {
+
+          console.error(
+            "DIRECTOR SETTINGS SAVE ERROR:",
+            err
+          );
+
+          setDirectorMessage(
+            err?.message ||
+              "Impossible d’enregistrer ce réglage."
+          );
+
+        } finally {
+
+          setDirectorSaving(false);
+
+        }
+      };
 
   const createCoupleInvite =
     async () => {
@@ -5070,6 +5247,269 @@ function SettingsScreen({
           )}
 
         </section>
+
+        {/* =========================================
+            MODE DE SOIRÉE
+            ========================================= */}
+
+        {couple?.partner && (
+
+          <section className="settings-card settings-card-director">
+
+            <div className="settings-card-heading">
+
+              <span className="settings-card-eyebrow">
+                MODE DE SOIRÉE
+              </span>
+
+              <h2>
+                Donnez le ton.
+              </h2>
+
+            </div>
+
+
+            <p className="settings-card-copy">
+              PROTOCOL peut rester spontané,
+              ou adapter la sélection des cartes
+              à l’ambiance choisie pour vos prochaines parties.
+            </p>
+
+
+            {directorLoading ? (
+
+              <p className="settings-feedback">
+                Chargement…
+              </p>
+
+            ) : (
+
+              <>
+
+                <div className="director-mode-switch">
+
+                  <button
+                    type="button"
+                    className={
+                      directorMode === "classic"
+                        ? "director-mode-option is-active"
+                        : "director-mode-option"
+                    }
+                    onClick={() => {
+                      setDirectorMode("classic");
+                      setDirectorProfile(null);
+
+                      saveDirectorSettings({
+                        mode: "classic",
+                        profile: null,
+                      });
+                    }}
+                    disabled={directorSaving}
+                  >
+                    <strong>
+                      Spontané
+                    </strong>
+
+                    <span>
+                      Le rythme PROTOCOL original.
+                    </span>
+                  </button>
+
+
+                  <button
+                    type="button"
+                    className={
+                      directorMode === "custom"
+                        ? "director-mode-option is-active"
+                        : "director-mode-option"
+                    }
+                    onClick={() => {
+
+                      const nextProfile =
+                        directorProfile ||
+                        "sensual";
+
+                      setDirectorMode("custom");
+                      setDirectorProfile(
+                        nextProfile
+                      );
+
+                      saveDirectorSettings({
+                        mode: "custom",
+                        profile:
+                          nextProfile,
+                      });
+                    }}
+                    disabled={directorSaving}
+                  >
+                    <strong>
+                      Sur mesure
+                    </strong>
+
+                    <span>
+                      Une ambiance plus affirmée.
+                    </span>
+                  </button>
+
+                </div>
+
+
+                {directorMode === "custom" && (
+
+                  <>
+
+                    <div className="settings-subsection">
+
+                      <span className="settings-card-eyebrow">
+                        AMBIANCE
+                      </span>
+
+                      <div className="director-profile-grid">
+
+                        {[
+                          {
+                            value: "complice",
+                            label: "Complice",
+                            description:
+                              "Échanges, vérités et proximité.",
+                          },
+                          {
+                            value: "sensual",
+                            label: "Sensuel",
+                            description:
+                              "Gestes, sensations et montée progressive.",
+                          },
+                          {
+                            value: "provocative",
+                            label: "Provocateur",
+                            description:
+                              "Défis, duels et imprévus.",
+                          },
+                          {
+                            value: "intense",
+                            label: "Intense",
+                            description:
+                              "Une montée plus directe vers les cartes fortes.",
+                          },
+                          {
+                            value: "unrestrained",
+                            label: "Débridé",
+                            description:
+                              "PROTOCOL exploite franchement tout ce que votre calibration autorise.",
+                          },
+                        ].map((option) => (
+
+                          <button
+                            key={option.value}
+                            type="button"
+                            className={
+                              directorProfile ===
+                              option.value
+                                ? "director-profile-option is-active"
+                                : "director-profile-option"
+                            }
+                            onClick={() => {
+
+                              setDirectorProfile(
+                                option.value
+                              );
+
+                              saveDirectorSettings({
+                                mode: "custom",
+                                profile:
+                                  option.value,
+                              });
+                            }}
+                            disabled={directorSaving}
+                          >
+
+                            <strong>
+                              {option.label}
+                            </strong>
+
+                            <span>
+                              {option.description}
+                            </span>
+
+                          </button>
+
+                        ))}
+
+                      </div>
+
+                    </div>
+
+
+                    <div className="settings-subsection">
+
+                      <span className="settings-card-eyebrow">
+                        DURÉE
+                      </span>
+
+                      <div className="director-duration-switch">
+
+                        {[
+                          ["short", "Courte"],
+                          ["normal", "Normale"],
+                          ["long", "Longue"],
+                        ].map(
+                          ([
+                            value,
+                            label,
+                          ]) => (
+
+                            <button
+                              key={value}
+                              type="button"
+                              className={
+                                directorDuration ===
+                                value
+                                  ? "director-duration-option is-active"
+                                  : "director-duration-option"
+                              }
+                              onClick={() => {
+
+                                setDirectorDuration(
+                                  value
+                                );
+
+                                saveDirectorSettings({
+                                  duration:
+                                    value,
+                                });
+                              }}
+                              disabled={directorSaving}
+                            >
+                              {label}
+                            </button>
+
+                          )
+                        )}
+
+                      </div>
+
+                    </div>
+
+                  </>
+
+                )}
+
+
+                {directorMessage && (
+
+                  <p className="settings-feedback">
+                    {directorMessage}
+                  </p>
+
+                )}
+
+              </>
+
+            )}
+
+          </section>
+
+        )}
 
 
         {/* =========================================
