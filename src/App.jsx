@@ -7711,6 +7711,20 @@ function PlayScreen({
           : timerDisplaySeconds
       : timerDisplaySeconds;
 
+  const loadStateInFlightRef =
+    useRef(false);
+
+  const loadStatePendingRef =
+    useRef(false);
+
+  const currentCardRef =
+    useRef(null);
+
+  useEffect(() => {
+    currentCardRef.current =
+      card;
+  }, [card]);
+
     async function loadSceneState(
     currentCard
     ) {
@@ -7918,159 +7932,222 @@ async function handleSceneRead() {
      ========================================= */
 
   const loadState = async () => {
-    if (!hasGameSession) {
-      throw new Error(
-        "Session de partie invalide."
-      );
+
+    /*
+    * A18
+    * Un seul chargement d'état à la fois.
+    */
+    if (
+      loadStateInFlightRef.current
+    ) {
+      loadStatePendingRef.current =
+        true;
+
+      return;
     }
 
-    const {
-      data,
-      error: gameError,
-    } = await supabase.rpc(
-      "get_protocol_game",
-      {
-        p_game_code: code,
+
+    loadStateInFlightRef.current =
+      true;
+
+
+    try {
+
+      if (!hasGameSession) {
+        throw new Error(
+          "Session de partie invalide."
+        );
       }
-    );
 
-    if (gameError) {
-      throw gameError;
-    }
 
-    const gameData =
-      Array.isArray(data)
-        ? data[0]
-        : data;
-
-    if (!gameData) {
-      throw new Error(
-        "Partie introuvable."
-      );
-    }
-
-    /*
-    * Partie terminée :
-    * on garde game mais plus de carte.
-    */
-    if (
-      gameData.status ===
-      "finished"
-    ) {
-      setGame(gameData);
-      setCard(null);
-      return;
-    }
-
-    /*
-    * REVANCHE :
-    * lorsqu'un des deux joueurs relance
-    * la partie, Supabase remet le statut
-    * à "ready".
-    */
-    if (
-      gameData.status ===
-      "ready"
-    ) {
-      setGame(gameData);
-      setCard(null);
-
-      navigate(
-        `/game/${code}`
+      const {
+        data,
+        error: gameError,
+      } = await supabase.rpc(
+        "get_protocol_game",
+        {
+          p_game_code: code,
+        }
       );
 
-      return;
-    }
 
-    /*
-    * PAUSE GLOBALE
-    *
-    * On conserve la carte actuellement
-    * affichée mais on met à jour game.
-    * Le polling transmet donc le STOP
-    * à l'autre téléphone.
-    */
-    if (
-      gameData.status ===
-      "paused"
-    ) {
-      setGame(gameData);
+      if (gameError) {
+        throw gameError;
+      }
+
+
+      const gameData =
+        Array.isArray(data)
+          ? data[0]
+          : data;
+
+
+      if (!gameData) {
+        throw new Error(
+          "Partie introuvable."
+        );
+      }
+
 
       /*
-      * Normalement la carte est déjà
-      * chargée localement.
-      *
-      * Ce fallback permet aussi de restaurer
-      * correctement une partie si la PWA
-      * est rouverte pendant la pause.
+      * Partie terminée.
       */
       if (
-        !card ||
-        Number(card.id) !==
-          Number(gameData.current_card_id)
+        gameData.status ===
+        "finished"
       ) {
-        const {
-          data: pausedCard,
-          error: pausedCardError,
-        } = await supabase
-          .from("protocol_cards")
-          .select("*")
-          .eq(
-            "id",
-            gameData.current_card_id
-          )
-          .single();
+        setGame(gameData);
+        setCard(null);
 
-        if (pausedCardError) {
-          throw pausedCardError;
-        }
+        currentCardRef.current =
+          null;
 
-        setCard(pausedCard);
-
-        await Promise.all([
-          loadSceneState(pausedCard),
-          loadActiveRules(),
-        ]);
+        return;
       }
 
-      return;
+
+      /*
+      * Revanche.
+      */
+      if (
+        gameData.status ===
+        "ready"
+      ) {
+        setGame(gameData);
+        setCard(null);
+
+        currentCardRef.current =
+          null;
+
+        navigate(
+          `/game/${code}`
+        );
+
+        return;
+      }
+
+
+      /*
+      * Pause globale.
+      */
+      if (
+        gameData.status ===
+        "paused"
+      ) {
+
+        setGame(gameData);
+
+
+        const currentCard =
+          currentCardRef.current;
+
+
+        if (
+          !currentCard ||
+          Number(currentCard.id) !==
+            Number(
+              gameData.current_card_id
+            )
+        ) {
+
+          const {
+            data: pausedCard,
+            error: pausedCardError,
+          } = await supabase
+            .from("protocol_cards")
+            .select("*")
+            .eq(
+              "id",
+              gameData.current_card_id
+            )
+            .single();
+
+
+          if (pausedCardError) {
+            throw pausedCardError;
+          }
+
+
+          setCard(pausedCard);
+
+          currentCardRef.current =
+            pausedCard;
+
+
+          await Promise.all([
+            loadSceneState(
+              pausedCard
+            ),
+            loadActiveRules(),
+          ]);
+        }
+
+
+        return;
+      }
+
+
+      /*
+      * Route play mais partie
+      * pas encore réellement en cours.
+      */
+      if (
+        gameData.status !==
+        "playing"
+      ) {
+        return;
+      }
+
+
+      const {
+        data: cardData,
+        error: cardError,
+      } = await supabase
+        .from("protocol_cards")
+        .select("*")
+        .eq(
+          "id",
+          gameData.current_card_id
+        )
+        .single();
+
+
+      if (cardError) {
+        throw cardError;
+      }
+
+
+      setGame(gameData);
+      setCard(cardData);
+
+      currentCardRef.current =
+        cardData;
+
+
+      await Promise.all([
+        loadSceneState(
+          cardData
+        ),
+        loadActiveRules(),
+      ]);
+
+
+    } finally {
+
+      loadStateInFlightRef.current =
+        false;
+
+
+      if (
+        loadStatePendingRef.current
+      ) {
+
+        loadStatePendingRef.current =
+          false;
+
+        void loadState();
+      }
     }
-
-
-    /*
-    * Route play mais partie pas encore
-    * réellement en cours.
-    */
-    if (
-      gameData.status !==
-      "playing"
-    ) {
-      return;
-    }
-
-    const {
-      data: cardData,
-      error: cardError,
-    } = await supabase
-      .from("protocol_cards")
-      .select("*")
-      .eq(
-        "id",
-        gameData.current_card_id
-      )
-      .single();
-
-    if (cardError) {
-      throw cardError;
-    }
-
-    setGame(gameData);
-    setCard(cardData);
-
-    await Promise.all([
-      loadSceneState(cardData),
-      loadActiveRules(),
-    ]);
   };
 
 
