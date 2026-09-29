@@ -196,6 +196,8 @@ export default function CardScreen({
   const lovenseEndsAtRef =
     useRef(0);
 
+  const sendRequestKeyRef =
+    useRef(null);
 
   const currentUserId =
     profile?.user_id ||
@@ -1351,6 +1353,12 @@ export default function CardScreen({
           null
         );
 
+        if (
+          !sendRequestKeyRef.current
+        ) {
+          sendRequestKeyRef.current =
+            crypto.randomUUID();
+        }
 
         const {
           data,
@@ -1369,6 +1377,9 @@ export default function CardScreen({
                   challenge_id:
                     challengeId ||
                     null,
+
+                  request_key:
+                    sendRequestKeyRef.current,
                 },
               }
             );
