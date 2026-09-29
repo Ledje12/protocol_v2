@@ -7807,14 +7807,26 @@ async function handleSceneRead() {
       data,
       error,
     } = await supabase.rpc(
-      "mark_scene_step_read",
+      "mark_scene_step_read_guarded",
       {
-        p_game_code: code,
+        p_game_code:
+          code,
+
+        p_expected_card_id:
+          card?.id,
+
+        p_expected_scene_step_no:
+          game?.scene_step_no,
       }
     );
 
     if (error) {
       throw error;
+    }
+
+    if (data?.stale) {
+      await loadState();
+      return;
     }
 
     console.log(
@@ -8448,15 +8460,29 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "buy_protocol_bonus",
+          "buy_protocol_bonus_guarded",
           {
-            p_game_code: code,
-            p_bonus: bonus,
+            p_game_code:
+              code,
+
+            p_bonus:
+              bonus,
+
+            p_expected_turn_no:
+              game?.turn_no,
+
+            p_expected_card_id:
+              card?.id,
           }
         );
 
         if (rpcError) {
           throw rpcError;
+        }
+
+        if (data?.stale) {
+          await loadState();
+          return;
         }
 
         console.log(
@@ -8497,13 +8523,26 @@ async function handleSceneRead() {
           data,
           error: rpcError,
         } = await supabase.rpc(
-          "use_choose_type",
+          "use_choose_type_guarded",
           {
-            p_game_code: code,
+            p_game_code:
+              code,
+
             p_card_type:
               cardType,
+
+            p_expected_turn_no:
+              game?.turn_no,
+
+            p_expected_card_id:
+              card?.id,
           }
         );
+
+        if (data?.stale) {
+          await loadState();
+          return;
+        }
 
         if (rpcError) {
           throw rpcError;
@@ -9503,17 +9542,29 @@ async function handleSceneRead() {
               setError("");
 
               const {
+                data,
                 error: bonusError,
               } = await supabase.rpc(
-                "use_take_control",
+                "use_take_control_guarded",
                 {
                   p_game_code:
                     code,
+
+                  p_expected_turn_no:
+                    game?.turn_no,
+
+                  p_expected_card_id:
+                    card?.id,
                 }
               );
 
               if (bonusError) {
                 throw bonusError;
+              }
+
+              if (data?.stale) {
+                await loadState();
+                return;
               }
 
               await loadState();
