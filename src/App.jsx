@@ -3861,8 +3861,9 @@ function SettingsScreen({
             );
 
             setDirectorProfile(
-              data?.director_profile ??
-                null
+              data?.director_profile === "intense"
+                ? "classic"
+                : data?.director_profile ?? null
             );
 
             setDirectorDuration(
@@ -5326,8 +5327,9 @@ function SettingsScreen({
                     onClick={() => {
 
                       const nextProfile =
-                        directorProfile ||
-                        "sensual";
+                        directorProfile === "intense"
+                          ? "classic"
+                          : directorProfile || "classic";
 
                       setDirectorMode("custom");
                       setDirectorProfile(
@@ -5368,34 +5370,34 @@ function SettingsScreen({
 
                         {[
                           {
+                            value: "classic",
+                            label: "Classique",
+                            description:
+                              "Équilibré, varié et progressif.",
+                          },
+                          {
                             value: "complice",
                             label: "Complice",
                             description:
-                              "Échanges, vérités et proximité.",
+                              "Plus de vérités, d'échanges et de proximité.",
                           },
                           {
                             value: "sensual",
                             label: "Sensuel",
                             description:
-                              "Gestes, sensations et montée progressive.",
+                              "Gestes, sensations et scènes plus présentes.",
                           },
                           {
                             value: "provocative",
                             label: "Provocateur",
                             description:
-                              "Défis, duels et imprévus.",
-                          },
-                          {
-                            value: "intense",
-                            label: "Intense",
-                            description:
-                              "Une montée plus directe vers les cartes fortes.",
+                              "Davantage de défis, de duels et d'imprévus.",
                           },
                           {
                             value: "unrestrained",
                             label: "Débridé",
                             description:
-                              "PROTOCOL exploite franchement tout ce que votre calibration autorise.",
+                              "Une progression plus intense dans les limites de votre calibration.",
                           },
                         ].map((option) => (
 
