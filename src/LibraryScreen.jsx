@@ -755,7 +755,7 @@ export default function LibraryScreen({
                       </span>
 
                       <span className="library-card-id">
-                        #{card.id}
+                        #{Number(card.library_key?.match(/\d+$/)?.[0])}
                       </span>
 
                     </div>
