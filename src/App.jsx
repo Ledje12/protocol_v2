@@ -3861,9 +3861,7 @@ function SettingsScreen({
             );
 
             setDirectorProfile(
-              data?.director_profile === "intense"
-                ? "classic"
-                : data?.director_profile ?? null
+              data?.director_profile ?? null
             );
 
             setDirectorDuration(
@@ -5327,9 +5325,7 @@ function SettingsScreen({
                     onClick={() => {
 
                       const nextProfile =
-                        directorProfile === "intense"
-                          ? "classic"
-                          : directorProfile || "classic";
+                        directorProfile || "classic";
 
                       setDirectorMode("custom");
                       setDirectorProfile(
