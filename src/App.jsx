@@ -3464,6 +3464,10 @@ function HomeScreen({ navigate , profile, }) {
               "couple_id",
               coupleId
             )
+            .is(
+              "deleted_at",
+              null
+            )
             .order(
               "created_at",
               {
@@ -3845,7 +3849,7 @@ function HomeScreen({ navigate , profile, }) {
 
           const confirmed =
             window.confirm(
-              `Supprimer définitivement « ${card.title} » ?`
+              `Supprimer « ${card.title} » ?`
             );
 
           if (!confirmed) {
@@ -3866,7 +3870,11 @@ function HomeScreen({ navigate , profile, }) {
                 .from(
                   "protocol_custom_cards"
                 )
-                .delete()
+                .update({
+                  active: false,
+                  deleted_at:
+                    new Date().toISOString(),
+                })
                 .eq(
                   "id",
                   card.id
@@ -8840,6 +8848,31 @@ function PlayScreen({
       ? Number(card.timer_seconds)
       : null;
 
+  const timerMatchesCurrentCard =
+    Boolean(
+      game &&
+      card &&
+      (
+        (
+          (game.timer_card_source || "official") ===
+            "official" &&
+          (card.card_source || "official") ===
+            "official" &&
+          Number(game.timer_card_id) ===
+            Number(card.id)
+        )
+        ||
+        (
+          game.timer_card_source ===
+            "custom" &&
+          card.card_source ===
+            "custom" &&
+          Number(game.timer_custom_card_id) ===
+            Number(card.id)
+        )
+      )
+    );
+
 
   /*
    * DUEL
@@ -8877,8 +8910,7 @@ function PlayScreen({
     if (
       !timerInitialSeconds ||
       !game ||
-      Number(game.timer_card_id) !==
-        Number(card?.id)
+      !timerMatchesCurrentCard
     ) {
       return timerInitialSeconds;
     }
@@ -8954,8 +8986,7 @@ function PlayScreen({
       Boolean(
         game?.timer_running &&
         game?.timer_started_at &&
-        Number(game?.timer_card_id) ===
-          Number(card?.id) &&
+        timerMatchesCurrentCard &&
         remaining > 0
       );
 
@@ -8996,8 +9027,7 @@ function PlayScreen({
       setTimerUpdating(true);
 
       const sameCard =
-        Number(game?.timer_card_id) ===
-        Number(card?.id);
+        timerMatchesCurrentCard;
 
       const currentRemaining =
         sameCard &&
@@ -9231,14 +9261,17 @@ function PlayScreen({
     syncTimer();
 
   }, [
-    card?.id,
-    card?.timer_seconds,
+      card?.id,
+      card?.card_source,
+      card?.timer_seconds,
 
-    game?.timer_card_id,
-    game?.timer_started_at,
-    game?.timer_remaining_seconds,
-    game?.timer_running,
-  ]);
+      game?.timer_card_source,
+      game?.timer_card_id,
+      game?.timer_custom_card_id,
+      game?.timer_started_at,
+      game?.timer_remaining_seconds,
+      game?.timer_running,
+    ]);
 
 
   /*
