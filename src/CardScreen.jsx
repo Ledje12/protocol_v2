@@ -88,6 +88,35 @@ function formatLovenseTime(
   )}`;
 }
 
+const LOVENSE_CONTROL_BUTTONS = {
+  tease: [
+    { id: "soft", label: "Doux" },
+    { id: "medium", label: "Moyen" },
+    { id: "pulse", label: "Pulse" },
+  ],
+
+  play: [
+    { id: "soft", label: "Doux" },
+    { id: "medium", label: "Moyen" },
+    { id: "strong", label: "Fort" },
+    { id: "wave", label: "Wave" },
+  ],
+
+  intense: [
+    { id: "medium", label: "Moyen" },
+    { id: "strong", label: "Fort" },
+    { id: "max", label: "Max" },
+    { id: "fireworks", label: "Fireworks" },
+  ],
+
+  control: [
+    { id: "level_3", label: "3" },
+    { id: "level_7", label: "7" },
+    { id: "level_12", label: "12" },
+    { id: "level_17", label: "17" },
+    { id: "level_20", label: "20" },
+  ],
+};
 
 export default function CardScreen({
   supabase,
@@ -734,7 +763,9 @@ export default function CardScreen({
      ========================================================= */
 
   const playLovense =
-    async () => {
+    async (
+      control = null
+    ) => {
 
       if (
         !card ||
@@ -776,6 +807,12 @@ export default function CardScreen({
 
                   card_id:
                     card.id,
+
+                  ...(control
+                    ? {
+                        control,
+                      }
+                    : {}),
                 },
               }
             );
@@ -1806,6 +1843,46 @@ export default function CardScreen({
 
               </div>
 
+              {card.lovense_controls_profile &&
+                LOVENSE_CONTROL_BUTTONS[
+                  card.lovense_controls_profile
+                ] && (
+
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(2, 1fr)",
+                      gap: "10px",
+                      marginBottom: "14px",
+                    }}
+                  >
+                    {LOVENSE_CONTROL_BUTTONS[
+                      card.lovense_controls_profile
+                    ].map(
+                      (control) => (
+
+                        <button
+                          key={control.id}
+                          type="button"
+                          className="secondary"
+                          onClick={() =>
+                            playLovense(
+                              control.id
+                            )
+                          }
+                          disabled={
+                            lovenseBusy
+                          }
+                        >
+                          {control.label}
+                        </button>
+
+                      )
+                    )}
+                  </div>
+
+              )}
 
               <div
                 style={{
