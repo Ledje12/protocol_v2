@@ -10187,6 +10187,10 @@ async function handleSceneRead() {
 
             p_expected_card_id:
               card?.id,
+
+            p_expected_card_source:
+              card?.card_source ||
+              "official",
           }
         );
 
@@ -10250,6 +10254,10 @@ async function handleSceneRead() {
 
             p_expected_card_id:
               card?.id,
+
+            p_expected_card_source:
+              card?.card_source ||
+              "official",
           }
         );
 
@@ -10313,6 +10321,10 @@ async function handleSceneRead() {
 
             p_expected_card_id:
               card?.id,
+
+            p_expected_card_source:
+              card?.card_source ||
+              "official",
           }
         );
 
@@ -11332,6 +11344,10 @@ async function handleSceneRead() {
 
                   p_expected_card_id:
                     card?.id,
+
+                  p_expected_card_source:
+                    card?.card_source ||
+                    "official",
                 }
               );
 
