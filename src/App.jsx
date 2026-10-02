@@ -3749,7 +3749,7 @@ function HomeScreen({ navigate , profile, }) {
       </span>
 
       <h2>
-        Ajoutez quelque chose à vous.
+        Créez votre carte.
       </h2>
 
     </div>
@@ -3916,7 +3916,7 @@ function HomeScreen({ navigate , profile, }) {
         </select>
       </label>
 
-    <div className="custom-card-form-metrics"></div>
+    <div className="custom-card-form-metrics">
       <label>
         Tension
 
