@@ -3395,6 +3395,27 @@ function HomeScreen({ navigate , profile, }) {
     const [error, setError] =
       useState("");
 
+    const [showForm, setShowForm] =
+      useState(false);
+
+    const [saving, setSaving] =
+      useState(false);
+
+    const [saveError, setSaveError] =
+      useState("");
+
+    const [form, setForm] =
+      useState({
+        type: "action",
+        title: "",
+        prompt: "",
+        intensity: 1,
+        tension: 1,
+        sensations: 1,
+        unexpected: 1,
+        target_sex: null,
+        timer_seconds: "",
+      });
 
     const loadCards = async () => {
 
@@ -3508,6 +3529,140 @@ function HomeScreen({ navigate , profile, }) {
       return "COMMUN";
     };
 
+    const resetForm = () => {
+      setForm({
+        type: "action",
+        title: "",
+        prompt: "",
+        intensity: 1,
+        tension: 1,
+        sensations: 1,
+        unexpected: 1,
+        target_sex: null,
+        timer_seconds: "",
+      });
+
+      setSaveError("");
+    };
+
+
+    const saveCard = async (event) => {
+
+      event.preventDefault();
+
+      if (!coupleId || !profile?.user_id) {
+        setSaveError(
+          "Couple ou utilisateur introuvable."
+        );
+        return;
+      }
+
+      const title =
+        form.title.trim();
+
+      const prompt =
+        form.prompt.trim();
+
+      if (!title || !prompt) {
+        setSaveError(
+          "Le titre et le texte sont obligatoires."
+        );
+        return;
+      }
+
+      try {
+
+        setSaving(true);
+        setSaveError("");
+
+        const payload = {
+          couple_id: coupleId,
+          created_by:
+            profile.user_id,
+
+          type:
+            form.type,
+
+          title,
+          prompt,
+
+          intensity:
+            form.type === "truth"
+              ? 1
+              : Number(
+                  form.intensity
+                ),
+
+          tension:
+            Number(
+              form.tension
+            ),
+
+          sensations:
+            Number(
+              form.sensations
+            ),
+
+          unexpected:
+            Number(
+              form.unexpected
+            ),
+
+          target_sex:
+            form.target_sex ||
+            null,
+
+          timer_seconds:
+            form.timer_seconds
+              ? Number(
+                  form.timer_seconds
+                )
+              : null,
+
+          active: true,
+        };
+
+
+        const {
+          error: insertError,
+        } =
+          await supabase
+            .from(
+              "protocol_custom_cards"
+            )
+            .insert(payload);
+
+
+        if (insertError) {
+          throw insertError;
+        }
+
+
+        resetForm();
+
+        setShowForm(false);
+
+        await loadCards();
+
+      } catch (err) {
+
+        console.error(
+          "CUSTOM CARD SAVE ERROR:",
+          err
+        );
+
+        setSaveError(
+          err?.message ||
+          "Impossible d’enregistrer la carte."
+        );
+
+      } finally {
+
+        setSaving(false);
+
+      }
+    };
+
 
     return (
       <main className="app protocol-settings-page">
@@ -3564,6 +3719,364 @@ function HomeScreen({ navigate , profile, }) {
 
           </section>
 
+          {coupleId && !showForm && (
+            <button
+              type="button"
+              className="settings-primary-action"
+              onClick={() => {
+                resetForm();
+                setShowForm(true);
+              }}
+            >
+              <span>
+                + Nouvelle carte
+              </span>
+
+              <span className="settings-action-arrow">
+                →
+              </span>
+            </button>
+          )}
+
+          {showForm && (
+
+  <section className="settings-card">
+
+    <div className="settings-card-heading">
+
+      <span className="settings-card-eyebrow">
+        NOUVELLE CARTE
+      </span>
+
+      <h2>
+        Ajoutez quelque chose à vous.
+      </h2>
+
+    </div>
+
+
+    <form
+      onSubmit={saveCard}
+      className="custom-card-form"
+    >
+
+      <label>
+        Type
+
+        <select
+          value={form.type}
+          onChange={(event) => {
+
+            const type =
+              event.target.value;
+
+            setForm(
+              (current) => ({
+                ...current,
+                type,
+                intensity:
+                  type === "truth"
+                    ? 1
+                    : current.intensity,
+              })
+            );
+
+          }}
+        >
+          <option value="action">
+            Action
+          </option>
+
+          <option value="truth">
+            Vérité
+          </option>
+
+          <option value="duel">
+            Duel
+          </option>
+        </select>
+      </label>
+
+
+      <label>
+        Titre
+
+        <input
+          type="text"
+          value={form.title}
+          maxLength={120}
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                title:
+                  event.target.value,
+              })
+            )
+          }
+          placeholder="Ex. La chambre d’hôtel"
+          required
+        />
+      </label>
+
+
+      <label>
+        Texte
+
+        <textarea
+          value={form.prompt}
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                prompt:
+                  event.target.value,
+              })
+            )
+          }
+          rows={6}
+          placeholder="Décris exactement la carte…"
+          required
+        />
+      </label>
+
+
+      <label>
+        Cible
+
+        <select
+          value={
+            form.target_sex ||
+            ""
+          }
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                target_sex:
+                  event.target.value ||
+                  null,
+              })
+            )
+          }
+        >
+          <option value="">
+            Commun
+          </option>
+
+          <option value="female">
+            Elle
+          </option>
+
+          <option value="male">
+            Lui
+          </option>
+        </select>
+      </label>
+
+
+      <label>
+        Intensité
+
+        <select
+          value={
+            form.type === "truth"
+              ? 1
+              : form.intensity
+          }
+          disabled={
+            form.type === "truth"
+          }
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                intensity:
+                  Number(
+                    event.target.value
+                  ),
+              })
+            )
+          }
+        >
+          {[1, 2, 3, 4, 5].map(
+            (value) => (
+              <option
+                key={value}
+                value={value}
+              >
+                {value}
+              </option>
+            )
+          )}
+        </select>
+      </label>
+
+
+      <label>
+        Tension
+
+        <select
+          value={form.tension}
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                tension:
+                  Number(
+                    event.target.value
+                  ),
+              })
+            )
+          }
+        >
+          {[1, 2, 3].map(
+            (value) => (
+              <option
+                key={value}
+                value={value}
+              >
+                {value}
+              </option>
+            )
+          )}
+        </select>
+      </label>
+
+
+      <label>
+        Sensations
+
+        <select
+          value={
+            form.sensations
+          }
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                sensations:
+                  Number(
+                    event.target.value
+                  ),
+              })
+            )
+          }
+        >
+          {[1, 2, 3].map(
+            (value) => (
+              <option
+                key={value}
+                value={value}
+              >
+                {value}
+              </option>
+            )
+          )}
+        </select>
+      </label>
+
+
+      <label>
+        Imprévu
+
+        <select
+          value={
+            form.unexpected
+          }
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                unexpected:
+                  Number(
+                    event.target.value
+                  ),
+              })
+            )
+          }
+        >
+          {[1, 2, 3].map(
+            (value) => (
+              <option
+                key={value}
+                value={value}
+              >
+                {value}
+              </option>
+            )
+          )}
+        </select>
+      </label>
+
+
+      <label>
+        Durée optionnelle
+
+        <input
+          type="number"
+          min="1"
+          max="3600"
+          value={
+            form.timer_seconds
+          }
+          onChange={(event) =>
+            setForm(
+              (current) => ({
+                ...current,
+                timer_seconds:
+                  event.target.value,
+              })
+            )
+          }
+          placeholder="Secondes"
+        />
+      </label>
+
+
+      {saveError && (
+        <p className="settings-card-copy">
+          {saveError}
+        </p>
+      )}
+
+
+      <button
+        type="submit"
+        className="settings-primary-action"
+        disabled={saving}
+      >
+        <span>
+          {saving
+            ? "Enregistrement…"
+            : "Créer la carte"}
+        </span>
+
+        <span className="settings-action-arrow">
+          ✓
+        </span>
+      </button>
+
+
+      <button
+        type="button"
+        className="settings-primary-action"
+        disabled={saving}
+        onClick={() => {
+          resetForm();
+          setShowForm(false);
+        }}
+      >
+        <span>
+          Annuler
+        </span>
+      </button>
+
+    </form>
+
+  </section>
+
+)}
 
           {!coupleId && (
 
