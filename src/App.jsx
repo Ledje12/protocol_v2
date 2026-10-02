@@ -9741,23 +9741,28 @@ async function handleSceneRead() {
 
         if (
           !currentCard ||
-          Number(currentCard.id) !==
+          currentCard.card_source !==
+            gameData.current_card_source ||
+          Number(
+            currentCard.source_id
+          ) !==
             Number(
-              gameData.current_card_id
+              gameData.current_card_source ===
+                "custom"
+                ? gameData.current_custom_card_id
+                : gameData.current_card_id
             )
         ) {
 
           const {
             data: pausedCard,
             error: pausedCardError,
-          } = await supabase
-            .from("protocol_cards")
-            .select("*")
-            .eq(
-              "id",
-              gameData.current_card_id
-            )
-            .single();
+          } = await supabase.rpc(
+            "get_protocol_current_card",
+            {
+              p_game_code: code,
+            }
+          );
 
 
           if (pausedCardError) {
@@ -9799,14 +9804,12 @@ async function handleSceneRead() {
       const {
         data: cardData,
         error: cardError,
-      } = await supabase
-        .from("protocol_cards")
-        .select("*")
-        .eq(
-          "id",
-          gameData.current_card_id
-        )
-        .single();
+      } = await supabase.rpc(
+        "get_protocol_current_card",
+        {
+          p_game_code: code,
+        }
+      );
 
 
       if (cardError) {
