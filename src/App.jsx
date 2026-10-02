@@ -3386,10 +3386,134 @@ function HomeScreen({ navigate , profile, }) {
       couple?.couple_id ||
       null;
 
+    const [cards, setCards] =
+      useState([]);
+
+    const [loading, setLoading] =
+      useState(true);
+
+    const [error, setError] =
+      useState("");
+
+
+    const loadCards = async () => {
+
+      if (!coupleId) {
+        setCards([]);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+
+        const {
+          data,
+          error: cardsError,
+        } =
+          await supabase
+            .from(
+              "protocol_custom_cards"
+            )
+            .select(`
+              id,
+              library_key,
+              type,
+              title,
+              prompt,
+              intensity,
+              tension,
+              sensations,
+              unexpected,
+              target_sex,
+              timer_seconds,
+              active,
+              created_by,
+              created_at,
+              updated_at
+            `)
+            .eq(
+              "couple_id",
+              coupleId
+            )
+            .order(
+              "created_at",
+              {
+                ascending: false,
+              }
+            );
+
+        if (cardsError) {
+          throw cardsError;
+        }
+
+        setCards(
+          Array.isArray(data)
+            ? data
+            : []
+        );
+
+      } catch (err) {
+
+        console.error(
+          "CUSTOM LIBRARY LOAD ERROR:",
+          err
+        );
+
+        setCards([]);
+
+        setError(
+          err?.message ||
+          "Impossible de charger vos cartes."
+        );
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
+    useEffect(() => {
+
+      loadCards();
+
+    }, [coupleId]);
+
+
+    const typeLabel = (type) => {
+
+      if (type === "truth") {
+        return "VÉRITÉ";
+      }
+
+      if (type === "duel") {
+        return "DUEL";
+      }
+
+      return "ACTION";
+    };
+
+
+    const targetLabel = (targetSex) => {
+
+      if (targetSex === "female") {
+        return "ELLE";
+      }
+
+      if (targetSex === "male") {
+        return "LUI";
+      }
+
+      return "COMMUN";
+    };
+
+
     return (
       <main className="app protocol-settings-page">
 
         <header className="header protocol-settings-header">
+
           <button
             className="back protocol-settings-back"
             onClick={onBack}
@@ -3406,6 +3530,7 @@ function HomeScreen({ navigate , profile, }) {
             className="protocol-settings-header-spacer"
             aria-hidden="true"
           />
+
         </header>
 
 
@@ -3424,43 +3549,184 @@ function HomeScreen({ navigate , profile, }) {
             </h1>
 
             <p className="intro">
-              Créez vos propres cartes.
-              <br />
-              Elles restent privées à votre duo.
+              {loading
+                ? "Chargement…"
+                : `${cards.length} carte${
+                    cards.length > 1
+                      ? "s"
+                      : ""
+                  } personnelle${
+                    cards.length > 1
+                      ? "s"
+                      : ""
+                  }`}
             </p>
 
           </section>
 
 
-          <section className="settings-card">
+          {!coupleId && (
 
-            <div className="settings-card-heading">
+            <section className="settings-card">
 
-              <span className="settings-card-eyebrow">
-                CARTES PERSONNELLES
-              </span>
+              <div className="settings-card-heading">
 
-              <h2>
-                Rien ici pour l’instant.
-              </h2>
+                <span className="settings-card-eyebrow">
+                  PARTENAIRE
+                </span>
 
-            </div>
+                <h2>
+                  Duo requis.
+                </h2>
 
-            <p className="settings-card-copy">
-              Les cartes que vous créerez ici
-              seront visibles uniquement par
-              votre couple et pourront rejoindre
-              les prochaines parties.
-            </p>
+              </div>
 
-            {!coupleId && (
               <p className="settings-card-copy">
                 Associez d’abord un partenaire
-                pour utiliser la bibliothèque perso.
+                pour créer une bibliothèque privée.
               </p>
+
+            </section>
+
+          )}
+
+
+          {error && (
+
+            <section className="settings-card">
+
+              <div className="settings-card-heading">
+
+                <span className="settings-card-eyebrow">
+                  ERREUR
+                </span>
+
+                <h2>
+                  Impossible de charger.
+                </h2>
+
+              </div>
+
+              <p className="settings-card-copy">
+                {error}
+              </p>
+
+              <button
+                type="button"
+                className="settings-primary-action"
+                onClick={loadCards}
+              >
+                <span>
+                  Réessayer
+                </span>
+
+                <span className="settings-action-arrow">
+                  ↻
+                </span>
+              </button>
+
+            </section>
+
+          )}
+
+
+          {!loading &&
+            !error &&
+            coupleId &&
+            cards.length === 0 && (
+
+              <section className="settings-card">
+
+                <div className="settings-card-heading">
+
+                  <span className="settings-card-eyebrow">
+                    CARTES PERSONNELLES
+                  </span>
+
+                  <h2>
+                    Rien ici pour l’instant.
+                  </h2>
+
+                </div>
+
+                <p className="settings-card-copy">
+                  Vos futures actions,
+                  vérités et duels apparaîtront ici.
+                </p>
+
+              </section>
+
             )}
 
-          </section>
+
+          {!loading &&
+            !error &&
+            cards.map(
+              (card) => (
+
+                <section
+                  className="settings-card"
+                  key={card.id}
+                >
+
+                  <div className="settings-card-heading">
+
+                    <span className="settings-card-eyebrow">
+                      {typeLabel(
+                        card.type
+                      )}
+                      {" · "}
+                      INTENSITÉ{" "}
+                      {card.intensity}
+                    </span>
+
+                    <h2>
+                      {card.title}
+                    </h2>
+
+                  </div>
+
+
+                  <p className="settings-card-copy">
+                    {card.prompt}
+                  </p>
+
+
+                  <div className="settings-status-row">
+
+                    <span
+                      className={
+                        card.active
+                          ? "settings-status-dot is-active"
+                          : "settings-status-dot"
+                      }
+                    />
+
+                    <span>
+                      {card.active
+                        ? "ACTIVE"
+                        : "INACTIVE"}
+                      {" · "}
+                      {targetLabel(
+                        card.target_sex
+                      )}
+                    </span>
+
+                  </div>
+
+
+                  <p className="settings-card-copy">
+                    Tension {card.tension}
+                    {" · "}
+                    Sensations {card.sensations}
+                    {" · "}
+                    Imprévu {card.unexpected}
+                  </p>
+
+                </section>
+
+              )
+            )}
 
         </section>
 
