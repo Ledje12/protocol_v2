@@ -3760,43 +3760,6 @@ function HomeScreen({ navigate , profile, }) {
       className="custom-card-form"
     >
 
-      <label>
-        Type
-
-        <select
-          value={form.type}
-          onChange={(event) => {
-
-            const type =
-              event.target.value;
-
-            setForm(
-              (current) => ({
-                ...current,
-                type,
-                intensity:
-                  type === "truth"
-                    ? 1
-                    : current.intensity,
-              })
-            );
-
-          }}
-        >
-          <option value="action">
-            Action
-          </option>
-
-          <option value="truth">
-            Vérité
-          </option>
-
-          <option value="duel">
-            Duel
-          </option>
-        </select>
-      </label>
-
 
       <label>
         Titre
@@ -3840,6 +3803,45 @@ function HomeScreen({ navigate , profile, }) {
         />
       </label>
 
+      <div className="custom-card-form-grid">
+
+      <label>
+        Type
+
+        <select
+          value={form.type}
+          onChange={(event) => {
+
+            const type =
+              event.target.value;
+
+            setForm(
+              (current) => ({
+                ...current,
+                type,
+                intensity:
+                  type === "truth"
+                    ? 1
+                    : current.intensity,
+              })
+            );
+
+          }}
+        >
+          <option value="action">
+            Action
+          </option>
+
+          <option value="truth">
+            Vérité
+          </option>
+
+          <option value="duel">
+            Duel
+          </option>
+        </select>
+      </label>
+
 
       <label>
         Cible
@@ -3873,6 +3875,8 @@ function HomeScreen({ navigate , profile, }) {
           </option>
         </select>
       </label>
+
+    </div>
 
 
       <label>
@@ -3912,7 +3916,7 @@ function HomeScreen({ navigate , profile, }) {
         </select>
       </label>
 
-
+    <div className="custom-card-form-metrics"></div>
       <label>
         Tension
 
@@ -4008,6 +4012,7 @@ function HomeScreen({ navigate , profile, }) {
           )}
         </select>
       </label>
+    </div>
 
 
       <label>
@@ -4041,6 +4046,8 @@ function HomeScreen({ navigate , profile, }) {
       )}
 
 
+      <div className="custom-card-form-actions">
+
       <button
         type="submit"
         className="settings-primary-action"
@@ -4060,18 +4067,17 @@ function HomeScreen({ navigate , profile, }) {
 
       <button
         type="button"
-        className="settings-primary-action"
+        className="custom-card-cancel"
         disabled={saving}
         onClick={() => {
           resetForm();
           setShowForm(false);
         }}
       >
-        <span>
-          Annuler
-        </span>
+        Annuler
       </button>
 
+</div>
     </form>
 
   </section>
