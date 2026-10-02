@@ -361,6 +361,13 @@ function getRoute() {
     };
   }
 
+  if (path === "/settings/custom-library") {
+    return {
+      screen: "custom-library",
+      code: null,
+    };
+  }
+
   if (path === "/privacy") {
     return {
       screen: "privacy",
@@ -1683,6 +1690,19 @@ function App() {
           setCoupleRefreshKey(
             (value) => value + 1
           )
+        }
+      />
+    );
+  }
+
+  if (route.screen === "custom-library") {
+    return (
+      <CustomLibraryScreen
+        supabase={supabase}
+        profile={profile}
+        couple={couple}
+        onBack={() =>
+          navigate("/settings")
         }
       />
     );
@@ -3344,6 +3364,103 @@ function HomeScreen({ navigate , profile, }) {
 
 
           <Footer />
+
+        </section>
+
+      </main>
+    );
+  }
+
+  /* =========================================================
+   CUSTOM LIBRARY
+   ========================================================= */
+
+  function CustomLibraryScreen({
+    supabase,
+    profile,
+    couple,
+    onBack,
+  }) {
+    const coupleId =
+      couple?.id ||
+      couple?.couple_id ||
+      null;
+
+    return (
+      <main className="app protocol-settings-page">
+
+        <header className="header protocol-settings-header">
+          <button
+            className="back protocol-settings-back"
+            onClick={onBack}
+            aria-label="Retour"
+          >
+            ←
+          </button>
+
+          <span className="logo protocol-settings-logo">
+            PROTOCOL
+          </span>
+
+          <span
+            className="protocol-settings-header-spacer"
+            aria-hidden="true"
+          />
+        </header>
+
+
+        <section className="protocol-settings">
+
+          <section className="protocol-settings-intro">
+
+            <p className="kicker">
+              BIBLIOTHÈQUE PERSO
+            </p>
+
+            <h1>
+              Vos cartes.
+              <br />
+              Vos règles.
+            </h1>
+
+            <p className="intro">
+              Créez vos propres cartes.
+              <br />
+              Elles restent privées à votre duo.
+            </p>
+
+          </section>
+
+
+          <section className="settings-card">
+
+            <div className="settings-card-heading">
+
+              <span className="settings-card-eyebrow">
+                CARTES PERSONNELLES
+              </span>
+
+              <h2>
+                Rien ici pour l’instant.
+              </h2>
+
+            </div>
+
+            <p className="settings-card-copy">
+              Les cartes que vous créerez ici
+              seront visibles uniquement par
+              votre couple et pourront rejoindre
+              les prochaines parties.
+            </p>
+
+            {!coupleId && (
+              <p className="settings-card-copy">
+                Associez d’abord un partenaire
+                pour utiliser la bibliothèque perso.
+              </p>
+            )}
+
+          </section>
 
         </section>
 
@@ -5507,6 +5624,50 @@ function SettingsScreen({
 
           </section>
 
+        )}
+
+        {/* =========================================
+            BIBLIOTHÈQUE PERSONNELLE
+            ========================================= */}
+
+        {couple?.partner && (
+          <section className="settings-card">
+
+            <div className="settings-card-heading">
+
+              <span className="settings-card-eyebrow">
+                BIBLIOTHÈQUE
+              </span>
+
+              <h2>
+                Vos cartes personnelles.
+              </h2>
+
+            </div>
+
+            <p className="settings-card-copy">
+              Ajoutez vos propres actions,
+              vérités et duels à PROTOCOL.
+              Elles restent privées à votre duo.
+            </p>
+
+            <button
+              type="button"
+              className="settings-primary-action"
+              onClick={() =>
+                navigate("/settings/custom-library")
+              }
+            >
+              <span>
+                Gérer mes cartes
+              </span>
+
+              <span className="settings-action-arrow">
+                →
+              </span>
+            </button>
+
+          </section>
         )}
 
 
