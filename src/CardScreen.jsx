@@ -1703,7 +1703,7 @@ export default function CardScreen({
           </span>
 
           <span className="card-number">
-            #{card.id}
+            #{Number(card.library_key?.match(/\d+$/)?.[0])}
           </span>
 
         </div>
