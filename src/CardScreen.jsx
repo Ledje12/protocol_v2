@@ -999,12 +999,12 @@ export default function CardScreen({
       !card.lovense_mode ||
       card.lovense_action !==
         "vibrate" ||
+      card.lovense_controls_profile ||
       lovenseStatusLoading ||
       !lovenseConnected
     ) {
       return;
     }
-
 
     const triggerKey =
       `${card.id}-${trackedInvitationId}-${activePerson?.user_id || "unknown"}`;
@@ -1028,6 +1028,7 @@ export default function CardScreen({
     card?.id,
     card?.lovense_mode,
     card?.lovense_action,
+    card?.lovense_controls_profile,
     trackedInvitationId,
     isRecipient,
     activePerson?.user_id,
