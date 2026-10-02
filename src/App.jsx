@@ -3404,6 +3404,12 @@ function HomeScreen({ navigate , profile, }) {
     const [saveError, setSaveError] =
       useState("");
 
+    const [editingCardId, setEditingCardId] =
+      useState(null);
+
+    const [cardActionLoading, setCardActionLoading] =
+      useState(null);
+
     const [form, setForm] =
       useState({
         type: "action",
@@ -3530,6 +3536,7 @@ function HomeScreen({ navigate , profile, }) {
     };
 
     const resetForm = () => {
+
       setForm({
         type: "action",
         title: "",
@@ -3542,6 +3549,7 @@ function HomeScreen({ navigate , profile, }) {
         timer_seconds: "",
       });
 
+      setEditingCardId(null);
       setSaveError("");
     };
 
@@ -3623,18 +3631,73 @@ function HomeScreen({ navigate , profile, }) {
         };
 
 
-        const {
-          error: insertError,
-        } =
-          await supabase
-            .from(
-              "protocol_custom_cards"
-            )
-            .insert(payload);
+        if (editingCardId) {
+
+          const {
+            error: updateError,
+          } =
+            await supabase
+              .from(
+                "protocol_custom_cards"
+              )
+              .update({
+                type:
+                  payload.type,
+
+                title:
+                  payload.title,
+
+                prompt:
+                  payload.prompt,
+
+                intensity:
+                  payload.intensity,
+
+                tension:
+                  payload.tension,
+
+                sensations:
+                  payload.sensations,
+
+                unexpected:
+                  payload.unexpected,
+
+                target_sex:
+                  payload.target_sex,
+
+                timer_seconds:
+                  payload.timer_seconds,
+              })
+              .eq(
+                "id",
+                editingCardId
+              )
+              .eq(
+                "couple_id",
+                coupleId
+              );
 
 
-        if (insertError) {
-          throw insertError;
+          if (updateError) {
+            throw updateError;
+          }
+
+        } else {
+
+          const {
+            error: insertError,
+          } =
+            await supabase
+              .from(
+                "protocol_custom_cards"
+              )
+              .insert(payload);
+
+
+          if (insertError) {
+            throw insertError;
+          }
+
         }
 
 
@@ -3662,6 +3725,198 @@ function HomeScreen({ navigate , profile, }) {
 
       }
     };
+
+    const editCard = (card) => {
+
+          setForm({
+            type:
+              card.type || "action",
+
+            title:
+              card.title || "",
+
+            prompt:
+              card.prompt || "",
+
+            intensity:
+              Number(
+                card.intensity || 1
+              ),
+
+            tension:
+              Number(
+                card.tension || 1
+              ),
+
+            sensations:
+              Number(
+                card.sensations || 1
+              ),
+
+            unexpected:
+              Number(
+                card.unexpected || 1
+              ),
+
+            target_sex:
+              card.target_sex || null,
+
+            timer_seconds:
+              card.timer_seconds
+                ? String(
+                    card.timer_seconds
+                  )
+                : "",
+          });
+
+          setEditingCardId(
+            card.id
+          );
+
+          setSaveError("");
+
+          setShowForm(true);
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        };
+
+        const toggleCardActive = async (card) => {
+
+          try {
+
+            setCardActionLoading(
+              card.id
+            );
+
+            const {
+              error: updateError,
+            } =
+              await supabase
+                .from(
+                  "protocol_custom_cards"
+                )
+                .update({
+                  active:
+                    !card.active,
+                })
+                .eq(
+                  "id",
+                  card.id
+                )
+                .eq(
+                  "couple_id",
+                  coupleId
+                );
+
+
+            if (updateError) {
+              throw updateError;
+            }
+
+
+            await loadCards();
+
+          } catch (err) {
+
+            console.error(
+              "CUSTOM CARD TOGGLE ERROR:",
+              err
+            );
+
+            setError(
+              err?.message ||
+              "Impossible de modifier le statut de la carte."
+            );
+
+          } finally {
+
+            setCardActionLoading(
+              null
+            );
+
+          }
+        };
+
+
+        const deleteCard = async (card) => {
+
+          const confirmed =
+            window.confirm(
+              `Supprimer définitivement « ${card.title} » ?`
+            );
+
+          if (!confirmed) {
+            return;
+          }
+
+
+          try {
+
+            setCardActionLoading(
+              card.id
+            );
+
+            const {
+              error: deleteError,
+            } =
+              await supabase
+                .from(
+                  "protocol_custom_cards"
+                )
+                .delete()
+                .eq(
+                  "id",
+                  card.id
+                )
+                .eq(
+                  "couple_id",
+                  coupleId
+                );
+
+
+            if (deleteError) {
+              throw deleteError;
+            }
+
+
+            if (
+              editingCardId === card.id
+            ) {
+
+              resetForm();
+
+              setShowForm(
+                false
+              );
+
+            }
+
+
+            await loadCards();
+
+          } catch (err) {
+
+            console.error(
+              "CUSTOM CARD DELETE ERROR:",
+              err
+            );
+
+            setError(
+              err?.message ||
+              "Impossible de supprimer la carte."
+            );
+
+          } finally {
+
+            setCardActionLoading(
+              null
+            );
+
+          }
+        };
 
 
     return (
@@ -3745,11 +4000,15 @@ function HomeScreen({ navigate , profile, }) {
     <div className="settings-card-heading">
 
       <span className="settings-card-eyebrow">
-        NOUVELLE CARTE
+        {editingCardId
+          ? "MODIFIER LA CARTE"
+          : "NOUVELLE CARTE"}
       </span>
 
       <h2>
-        Créez votre carte.
+        {editingCardId
+          ? "Ajustez votre carte."
+          : "Créez votre carte."}
       </h2>
 
     </div>
@@ -4056,7 +4315,9 @@ function HomeScreen({ navigate , profile, }) {
         <span>
           {saving
             ? "Enregistrement…"
-            : "Créer la carte"}
+            : editingCardId
+              ? "Enregistrer les modifications"
+              : "Créer la carte"}
         </span>
 
         <span className="settings-action-arrow">
@@ -4241,6 +4502,58 @@ function HomeScreen({ navigate , profile, }) {
                     {" · "}
                     Imprévu {card.unexpected}
                   </p>
+
+                  <div className="custom-card-actions">
+
+                    <button
+                      type="button"
+                      className="custom-card-action"
+                      disabled={
+                        cardActionLoading ===
+                        card.id
+                      }
+                      onClick={() =>
+                        editCard(card)
+                      }
+                    >
+                      Modifier
+                    </button>
+
+
+                    <button
+                      type="button"
+                      className="custom-card-action"
+                      disabled={
+                        cardActionLoading ===
+                        card.id
+                      }
+                      onClick={() =>
+                        toggleCardActive(
+                          card
+                        )
+                      }
+                    >
+                      {card.active
+                        ? "Désactiver"
+                        : "Activer"}
+                    </button>
+
+
+                    <button
+                      type="button"
+                      className="custom-card-action custom-card-action-danger"
+                      disabled={
+                        cardActionLoading ===
+                        card.id
+                      }
+                      onClick={() =>
+                        deleteCard(card)
+                      }
+                    >
+                      Supprimer
+                    </button>
+
+                  </div>
 
                 </section>
 
