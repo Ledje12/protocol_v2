@@ -121,6 +121,7 @@ const LOVENSE_CONTROL_BUTTONS = {
 export default function CardScreen({
   supabase,
   cardId,
+  cardSource = "official",
   profile,
   couple,
   invitationId,
@@ -481,14 +482,17 @@ export default function CardScreen({
           );
 
 
-          const cardSource =
+          const effectiveCardSource =
             trackedInvitationId
               ? (
                   invitation
                     ?.card_source ||
                   "official"
                 )
-              : "official";
+              : (
+                  cardSource ||
+                  "official"
+                );
 
 
           const effectiveCardId =
@@ -507,7 +511,7 @@ export default function CardScreen({
 
 
           if (
-            cardSource ===
+            effectiveCardSource ===
               "custom"
           ) {
 
@@ -703,6 +707,7 @@ export default function CardScreen({
   }, [
     supabase,
     cardId,
+    cardSource,
     trackedInvitationId,
     invitation?.card_source,
     invitation?.effective_card_id,

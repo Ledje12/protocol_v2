@@ -297,45 +297,131 @@ export default function LibraryScreen({
 
     const loadCards =
       async () => {
+
         try {
+
           setLoading(true);
           setError("");
 
-          const {
-            data,
-            error:
-              queryError,
-          } =
-            await supabase
-              .from(
-                "protocol_cards"
-              )
-              .select("*")
-              .eq(
-                "library_version",
-                "v1"
-              )
-              .eq(
-                "active",
-                true
-              )
-              .order(
-                "id",
-                {
-                  ascending: true,
-                }
-              );
 
-          if (queryError) {
-            throw queryError;
+          const [
+            officialResult,
+            customResult,
+          ] =
+            await Promise.all([
+
+              supabase
+                .from(
+                  "protocol_cards"
+                )
+                .select("*")
+                .eq(
+                  "library_version",
+                  "v1"
+                )
+                .eq(
+                  "active",
+                  true
+                )
+                .order(
+                  "id",
+                  {
+                    ascending: true,
+                  }
+                ),
+
+              supabase
+                .from(
+                  "protocol_custom_cards"
+                )
+                .select("*")
+                .eq(
+                  "couple_id",
+                  couple?.id ||
+                    couple?.couple_id
+                )
+                .eq(
+                  "active",
+                  true
+                )
+                .is(
+                  "deleted_at",
+                  null
+                )
+                .order(
+                  "id",
+                  {
+                    ascending: true,
+                  }
+                ),
+
+            ]);
+
+
+          if (
+            officialResult.error
+          ) {
+            throw officialResult.error;
           }
+
+
+          if (
+            customResult.error
+          ) {
+            throw customResult.error;
+          }
+
 
           if (!active) {
             return;
           }
 
+
+          const officialCards =
+            (
+              officialResult.data ||
+              []
+            ).map(
+              (card) => ({
+                ...card,
+
+                card_source:
+                  "official",
+              })
+            );
+
+
+          const customCards =
+            (
+              customResult.data ||
+              []
+            ).map(
+              (card) => ({
+                ...card,
+
+                card_source:
+                  "custom",
+
+                lovense_mode:
+                  null,
+
+                lovense_action:
+                  null,
+
+                lovense_controls_profile:
+                  null,
+              })
+            );
+
+
+          const allCards = [
+            ...officialCards,
+            ...customCards,
+          ];
+
+
           const personalised =
-            (data || [])
+            allCards
               .map(
                 (card) => {
 
@@ -349,7 +435,7 @@ export default function LibraryScreen({
                   const displayPrompt =
                     String(
                       card.prompt ||
-                      ""
+                        ""
                     )
                       .replaceAll(
                         "{{active}}",
@@ -376,31 +462,43 @@ export default function LibraryScreen({
                   card.compatible
               );
 
+
           setCards(
             personalised
           );
 
+
         } catch (err) {
+
           console.error(
             "LIBRARY LOAD ERROR:",
             err
           );
 
+
           if (active) {
+
             setError(
               err?.message ||
                 "Impossible de charger la bibliothèque."
             );
+
           }
 
+
         } finally {
+
           if (active) {
             setLoading(false);
           }
+
         }
+
       };
 
+
     loadCards();
+
 
     return () => {
       active = false;
@@ -411,6 +509,8 @@ export default function LibraryScreen({
     partnerName,
     myName,
     partnerSex,
+    couple?.id,
+    couple?.couple_id,
   ]);
 
 
@@ -737,9 +837,14 @@ export default function LibraryScreen({
                       `library-card-intensity-${card.intensity}`
                     }
                     onClick={() =>
-                      onOpenCard?.(
-                        card.id
-                      )
+                      onOpenCard?.({
+                        cardId:
+                          card.id,
+
+                        cardSource:
+                          card.card_source ||
+                          "official",
+                      })
                     }
                   >
 
@@ -748,14 +853,33 @@ export default function LibraryScreen({
 
                     <div className="library-card-header">
 
-                      <span className="library-card-type">
-                        {getTypeLabel(
-                          card.type
+                      <div className="library-card-type-group">
+
+                        <span className="library-card-type">
+                          {getTypeLabel(
+                            card.type
+                          )}
+                        </span>
+
+                        {card.card_source ===
+                          "custom" && (
+
+                          <span className="library-card-personal-badge">
+                            PERSO
+                          </span>
+
                         )}
-                      </span>
+
+                      </div>
+
 
                       <span className="library-card-id">
-                        #{Number(card.library_key?.match(/\d+$/)?.[0])}
+
+                        {card.card_source ===
+                          "custom"
+                          ? `#P${card.id}`
+                          : `#${card.id}`}
+
                       </span>
 
                     </div>

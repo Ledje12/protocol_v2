@@ -435,6 +435,12 @@ function getRoute() {
     const challengeId =
       params.get("challenge");
 
+    const cardSource =
+      params.get("source") ===
+        "custom"
+        ? "custom"
+        : "official";
+
     return {
       screen: "card",
 
@@ -447,6 +453,8 @@ function getRoute() {
       from,
 
       challengeId,
+
+      cardSource,
     };
   }
 
@@ -1790,15 +1798,44 @@ function App() {
           navigate("/")
         }
 
-        onOpenCard={(cardId) => {
+        onOpenCard={({
+          cardId,
+          cardSource,
+        }) => {
 
-          const challengeQuery =
+          const params =
+            new URLSearchParams();
+
+
+          if (
+            cardSource ===
+              "custom"
+          ) {
+            params.set(
+              "source",
+              "custom"
+            );
+          }
+
+
+          if (
             route.challengeId
-              ? `?challenge=${route.challengeId}`
+          ) {
+            params.set(
+              "challenge",
+              route.challengeId
+            );
+          }
+
+
+          const query =
+            params.toString()
+              ? `?${params.toString()}`
               : "";
 
+
           navigate(
-            `/card/${cardId}${challengeQuery}`
+            `/card/${cardId}${query}`
           );
 
         }}
@@ -1827,6 +1864,10 @@ function App() {
 
         couple={
           couple
+        }
+
+        cardSource={
+          route.cardSource
         }
 
         invitationId={
