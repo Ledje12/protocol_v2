@@ -200,67 +200,8 @@ export default function InvitationsScreen({
             return;
           }
 
-
-          /* =============================================
-             CARTES ASSOCIÉES
-             ============================================= */
-
-          const cardIds = [
-            ...new Set(
-              rows
-                .map(
-                  (row) =>
-                    row.card_id
-                )
-                .filter(
-                  Boolean
-                )
-            ),
-          ];
-
-
-          const {
-            data:
-              cards,
-
-            error:
-              cardsError,
-          } =
-            await supabase
-              .from(
-                "protocol_cards"
-              )
-              .select(
-                `
-                  id,
-                  title,
-                  type
-                `
-              )
-              .in(
-                "id",
-                cardIds
-              );
-
-
-          if (
-            cardsError
-          ) {
-            throw cardsError;
-          }
-
-
-          const cardMap =
-            new Map(
-              (
-                cards || []
-              ).map(
-                (card) => [
-                  card.id,
-                  card,
-                ]
-              )
-            );/* =============================================
+            
+            /* =============================================
                 CARTES ASSOCIÉES
                 ============================================= */
 
