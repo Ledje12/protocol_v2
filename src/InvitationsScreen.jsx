@@ -430,6 +430,14 @@ export default function InvitationsScreen({
                   }
                 );
 
+                if (
+                  active
+                ) {
+                  setInvitations(
+                    normalized
+                  );
+                }
+
 
         } catch (
           err
