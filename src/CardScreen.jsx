@@ -339,7 +339,7 @@ export default function CardScreen({
               rpcError,
           } =
             await supabase.rpc(
-              "get_card_invitation_secure",
+              "get_card_invitation_secure_v2",
               {
                 p_invitation_id:
                   String(
@@ -378,8 +378,13 @@ export default function CardScreen({
           }
 
 
+          const invitationCardId =
+            Number(
+              row.effective_card_id
+            );
+
           if (
-            Number(row.card_id) !==
+            invitationCardId !==
             Number(cardId)
           ) {
             throw new Error(
@@ -445,8 +450,8 @@ export default function CardScreen({
 
 
   /* =========================================================
-     LOAD CARD
-     ========================================================= */
+    LOAD CARD
+    ========================================================= */
 
   useEffect(() => {
 
@@ -463,7 +468,8 @@ export default function CardScreen({
         ) {
           return;
         }
-        
+
+
         try {
 
           setLoading(
@@ -475,37 +481,128 @@ export default function CardScreen({
           );
 
 
-          const {
-            data,
-            error:
-              queryError,
-          } =
-            await supabase
-              .from(
-                "protocol_cards"
-              )
-              .select("*")
-              .eq(
-                "id",
-                trackedInvitationId
-                  ? invitation.card_id
-                  : cardId
-              )
-              .eq(
-                "library_version",
-                "v1"
-              )
-              .eq(
-                "active",
-                true
-              )
-              .single();
+          const cardSource =
+            trackedInvitationId
+              ? (
+                  invitation
+                    ?.card_source ||
+                  "official"
+                )
+              : "official";
+
+
+          const effectiveCardId =
+            trackedInvitationId
+              ? Number(
+                  invitation
+                    ?.effective_card_id
+                )
+              : Number(
+                  cardId
+                );
+
+
+          let data =
+            null;
 
 
           if (
-            queryError
+            cardSource ===
+              "custom"
           ) {
-            throw queryError;
+
+            const {
+              data:
+                customCard,
+
+              error:
+                queryError,
+
+            } =
+              await supabase
+                .from(
+                  "protocol_custom_cards"
+                )
+                .select("*")
+                .eq(
+                  "id",
+                  effectiveCardId
+                )
+                .eq(
+                  "couple_id",
+                  couple?.id ||
+                    couple?.couple_id
+                )
+                .single();
+
+
+            if (
+              queryError
+            ) {
+              throw queryError;
+            }
+
+
+            data = {
+              ...customCard,
+
+              card_source:
+                "custom",
+
+              lovense_mode:
+                null,
+
+              lovense_action:
+                null,
+
+              lovense_controls_profile:
+                null,
+            };
+
+          } else {
+
+            const {
+              data:
+                officialCard,
+
+              error:
+                queryError,
+
+            } =
+              await supabase
+                .from(
+                  "protocol_cards"
+                )
+                .select("*")
+                .eq(
+                  "id",
+                  effectiveCardId
+                )
+                .eq(
+                  "library_version",
+                  "v1"
+                )
+                .eq(
+                  "active",
+                  true
+                )
+                .single();
+
+
+            if (
+              queryError
+            ) {
+              throw queryError;
+            }
+
+
+            data = {
+              ...officialCard,
+
+              card_source:
+                "official",
+            };
+
           }
 
 
@@ -522,16 +619,18 @@ export default function CardScreen({
             data.target_sex !==
               activePerson.sex
           ) {
+
             throw new Error(
               "Cette carte n'est pas compatible avec ce destinataire."
             );
+
           }
 
 
           const displayPrompt =
             String(
               data.prompt ||
-              ""
+                ""
             )
               .replaceAll(
                 "{{active}}",
@@ -565,10 +664,12 @@ export default function CardScreen({
           if (
             mounted
           ) {
+
             setError(
               err?.message ||
                 "Impossible de charger cette carte."
             );
+
           }
 
 
@@ -577,9 +678,11 @@ export default function CardScreen({
           if (
             mounted
           ) {
+
             setLoading(
               false
             );
+
           }
 
         }
@@ -591,19 +694,24 @@ export default function CardScreen({
 
 
     return () => {
+
       mounted =
         false;
+
     };
 
   }, [
     supabase,
     cardId,
     trackedInvitationId,
-    invitation?.card_id,
+    invitation?.card_source,
+    invitation?.effective_card_id,
     activePerson?.user_id,
     activePerson?.sex,
     activePerson?.display_name,
     senderPerson?.display_name,
+    couple?.id,
+    couple?.couple_id,
   ]);
 
 
@@ -1404,23 +1512,28 @@ export default function CardScreen({
             functionError,
         } =
           await supabase
-            .functions
-            .invoke(
-              "send-invitation",
-              {
-                body: {
-                  card_id:
-                    card.id,
+          .functions
+          .invoke(
+            "send-invitation",
+            {
+              body: {
 
-                  challenge_id:
-                    challengeId ||
-                    null,
+                card_source:
+                  card.card_source ||
+                  "official",
 
-                  request_key:
-                    sendRequestKeyRef.current,
-                },
-              }
-            );
+                card_id:
+                  card.id,
+
+                challenge_id:
+                  challengeId ||
+                  null,
+
+                request_key:
+                  sendRequestKeyRef.current,
+              },
+            }
+          );
 
 
         if (
@@ -1465,9 +1578,6 @@ export default function CardScreen({
             id:
               normalizedInvitationId,
 
-            card_id:
-              card.id,
-
             sender_user_id:
               currentUserId,
 
@@ -1482,6 +1592,25 @@ export default function CardScreen({
 
             opened_at:
               null,
+            
+            card_source:
+              card.card_source ||
+              "official",
+
+            card_id:
+              card.card_source ===
+                "custom"
+                ? null
+                : card.id,
+
+            custom_card_id:
+              card.card_source ===
+                "custom"
+                ? card.id
+                : null,
+
+            effective_card_id:
+              card.id,
           });
 
 

@@ -149,7 +149,9 @@ export default function InvitationsScreen({
               )
               .select(`
                 id,
+                card_source,
                 card_id,
+                custom_card_id,
                 sender_user_id,
                 recipient_user_id,
                 couple_id,
@@ -258,76 +260,234 @@ export default function InvitationsScreen({
                   card,
                 ]
               )
-            );
+            );/* =============================================
+                CARTES ASSOCIÉES
+                ============================================= */
+
+              const officialCardIds = [
+                ...new Set(
+                  rows
+                    .filter(
+                      (row) =>
+                        (
+                          row.card_source ||
+                          "official"
+                        ) ===
+                          "official"
+                    )
+                    .map(
+                      (row) =>
+                        row.card_id
+                    )
+                    .filter(Boolean)
+                ),
+              ];
 
 
-          const normalized =
-            rows.map(
-              (invitation) => {
-
-                const card =
-                  cardMap.get(
-                    invitation.card_id
-                  );
-
-
-                const isSent =
-                  invitation.sender_user_id ===
-                  currentUserId;
-
-
-                const otherName =
-                  couple?.partner?.display_name ||
-                  "Partenaire";
+              const customCardIds = [
+                ...new Set(
+                  rows
+                    .filter(
+                      (row) =>
+                        row.card_source ===
+                          "custom"
+                    )
+                    .map(
+                      (row) =>
+                        row.custom_card_id
+                    )
+                    .filter(Boolean)
+                ),
+              ];
 
 
-                return {
-                  invitation_id:
-                    invitation.id,
+              let officialCards = [];
+              let customCards = [];
 
-                  card_id:
-                    invitation.card_id,
 
-                  card_title:
-                    card?.title ||
-                    "Carte",
+              if (
+                officialCardIds.length >
+                  0
+              ) {
 
-                  card_type:
-                    card?.type ||
-                    "",
+                const {
+                  data,
+                  error:
+                    cardsError,
+                } =
+                  await supabase
+                    .from(
+                      "protocol_cards"
+                    )
+                    .select(`
+                      id,
+                      title,
+                      type
+                    `)
+                    .in(
+                      "id",
+                      officialCardIds
+                    );
 
-                  sender_user_id:
-                    invitation.sender_user_id,
 
-                  recipient_user_id:
-                    invitation.recipient_user_id,
+                if (
+                  cardsError
+                ) {
+                  throw cardsError;
+                }
 
-                  couple_id:
-                    invitation.couple_id,
 
-                  direction:
-                    isSent
-                      ? "sent"
-                      : "received",
-
-                  sent_at:
-                    invitation.sent_at,
-
-                  opened_at:
-                    invitation.opened_at,
-                };
+                officialCards =
+                  data || [];
 
               }
-            );
 
 
-          if (
-            active
-          ) {
-            setInvitations(
-              normalized
-            );
-          }
+              if (
+                customCardIds.length >
+                  0
+              ) {
+
+                const {
+                  data,
+                  error:
+                    cardsError,
+                } =
+                  await supabase
+                    .from(
+                      "protocol_custom_cards"
+                    )
+                    .select(`
+                      id,
+                      title,
+                      type
+                    `)
+                    .eq(
+                      "couple_id",
+                      coupleId
+                    )
+                    .in(
+                      "id",
+                      customCardIds
+                    );
+
+
+                if (
+                  cardsError
+                ) {
+                  throw cardsError;
+                }
+
+
+                customCards =
+                  data || [];
+
+              }
+
+
+              const officialCardMap =
+                new Map(
+                  officialCards.map(
+                    (card) => [
+                      card.id,
+                      card,
+                    ]
+                  )
+                );
+
+
+              const customCardMap =
+                new Map(
+                  customCards.map(
+                    (card) => [
+                      card.id,
+                      card,
+                    ]
+                  )
+                );
+
+
+              const normalized =
+                rows.map(
+                  (invitation) => {
+
+                    const cardSource =
+                      invitation.card_source ||
+                      "official";
+
+
+                    const effectiveCardId =
+                      cardSource ===
+                        "custom"
+                        ? invitation.custom_card_id
+                        : invitation.card_id;
+
+
+                    const card =
+                      cardSource ===
+                        "custom"
+                        ? customCardMap.get(
+                            effectiveCardId
+                          )
+                        : officialCardMap.get(
+                            effectiveCardId
+                          );
+
+
+                    const isSent =
+                      invitation.sender_user_id ===
+                      currentUserId;
+
+
+                    return {
+
+                      invitation_id:
+                        invitation.id,
+
+                      card_source:
+                        cardSource,
+
+                      card_id:
+                        effectiveCardId,
+
+                      official_card_id:
+                        invitation.card_id,
+
+                      custom_card_id:
+                        invitation.custom_card_id,
+
+                      card_title:
+                        card?.title ||
+                        "Carte",
+
+                      card_type:
+                        card?.type ||
+                        "",
+
+                      sender_user_id:
+                        invitation.sender_user_id,
+
+                      recipient_user_id:
+                        invitation.recipient_user_id,
+
+                      couple_id:
+                        invitation.couple_id,
+
+                      direction:
+                        isSent
+                          ? "sent"
+                          : "received",
+
+                      sent_at:
+                        invitation.sent_at,
+
+                      opened_at:
+                        invitation.opened_at,
+
+                    };
+
+                  }
+                );
 
 
         } catch (
