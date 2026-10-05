@@ -3451,12 +3451,6 @@ function HomeScreen({ navigate , profile, }) {
     const [cardActionLoading, setCardActionLoading] =
       useState(null);
 
-    const [sendingCardId, setSendingCardId] =
-      useState(null);
-
-    const [sendCardMessage, setSendCardMessage] =
-      useState("");
-
     const [form, setForm] =
       useState({
         type: "action",
@@ -3832,116 +3826,6 @@ function HomeScreen({ navigate , profile, }) {
             top: 0,
             behavior: "smooth",
           });
-        };
-
-        const sendCustomCard = async (card) => {
-
-          if (
-            !card?.id ||
-            sendingCardId
-          ) {
-            return;
-          }
-
-
-          try {
-
-            setSendingCardId(
-              card.id
-            );
-
-            setSendCardMessage(
-              ""
-            );
-
-            setError(
-              ""
-            );
-
-
-            const requestKey =
-              crypto.randomUUID();
-
-
-            const {
-              data,
-              error:
-                functionError,
-            } =
-              await supabase
-                .functions
-                .invoke(
-                  "send-invitation",
-                  {
-                    body: {
-
-                      card_source:
-                        "custom",
-
-                      card_id:
-                        card.id,
-
-                      challenge_id:
-                        null,
-
-                      request_key:
-                        requestKey,
-
-                    },
-                  }
-                );
-
-
-            if (
-              functionError
-            ) {
-              throw functionError;
-            }
-
-
-            if (
-              !data?.success
-            ) {
-              throw new Error(
-                data?.error ||
-                  "Impossible d’envoyer cette carte."
-              );
-            }
-
-
-            const partnerName =
-              couple?.partner
-                ?.display_name ||
-              "ton partenaire";
-
-
-            setSendCardMessage(
-              `« ${card.title} » envoyée à ${partnerName}.`
-            );
-
-
-          } catch (err) {
-
-            console.error(
-              "CUSTOM CARD SEND ERROR:",
-              err
-            );
-
-
-            setError(
-              err?.message ||
-                "Impossible d’envoyer cette carte."
-            );
-
-
-          } finally {
-
-            setSendingCardId(
-              null
-            );
-
-          }
-
         };
 
         const toggleCardActive = async (card) => {
@@ -4574,14 +4458,6 @@ function HomeScreen({ navigate , profile, }) {
 
           )}
 
-          {sendCardMessage && (
-
-            <p className="settings-card-copy">
-              {sendCardMessage}
-            </p>
-
-          )}
-
 
           {!loading &&
             !error &&
@@ -4618,13 +4494,17 @@ function HomeScreen({ navigate , profile, }) {
               (card) => (
 
                 <section
-                  className="settings-card"
+                  className={
+                    card.active
+                      ? "custom-manage-card"
+                      : "custom-manage-card is-inactive"
+                  }
                   key={card.id}
                 >
 
-                  <div className="settings-card-heading">
+                  <div className="custom-manage-card-top">
 
-                    <span className="settings-card-eyebrow">
+                    <span className="custom-manage-type">
                       {typeLabel(
                         card.type
                       )}
@@ -4633,54 +4513,63 @@ function HomeScreen({ navigate , profile, }) {
                       {card.intensity}
                     </span>
 
-                    <h2>
-                      {card.title}
-                    </h2>
-
-                  </div>
-
-
-                  <p className="settings-card-copy">
-                    {card.prompt}
-                  </p>
-
-
-                  <div className="settings-status-row">
-
                     <span
                       className={
                         card.active
-                          ? "settings-status-dot is-active"
-                          : "settings-status-dot"
+                          ? "custom-manage-status is-active"
+                          : "custom-manage-status"
                       }
-                    />
-
-                    <span>
+                    >
+                      <span />
                       {card.active
                         ? "ACTIVE"
                         : "INACTIVE"}
-                      {" · "}
-                      {targetLabel(
-                        card.target_sex
-                      )}
                     </span>
 
                   </div>
 
 
-                  <p className="settings-card-copy">
-                    Tension {card.tension}
-                    {" · "}
-                    Sensations {card.sensations}
-                    {" · "}
-                    Imprévu {card.unexpected}
+                  <h2 className="custom-manage-title">
+                    {card.title}
+                  </h2>
+
+
+                  <p className="custom-manage-prompt">
+                    {card.prompt}
                   </p>
 
-                  <div className="custom-card-actions">
+
+                  <div className="custom-manage-meta">
+
+                    <span>
+                      {targetLabel(
+                        card.target_sex
+                      )}
+                    </span>
+
+                    <span>
+                      Tension {card.tension}
+                    </span>
+
+                    <span>
+                      Sensations {card.sensations}
+                    </span>
+
+                    <span>
+                      Imprévu {card.unexpected}
+                    </span>
+
+                  </div>
+
+
+                  <div className="custom-manage-divider" />
+
+
+                  <div className="custom-manage-actions">
 
                     <button
                       type="button"
-                      className="custom-card-action"
+                      className="custom-manage-action"
                       disabled={
                         cardActionLoading ===
                         card.id
@@ -4692,30 +4581,10 @@ function HomeScreen({ navigate , profile, }) {
                       Modifier
                     </button>
 
-                    <button
-                      type="button"
-                      className="custom-card-action"
-                      disabled={
-                        sendingCardId ===
-                          card.id ||
-                        cardActionLoading ===
-                          card.id
-                      }
-                      onClick={() =>
-                        sendCustomCard(
-                          card
-                        )
-                      }
-                    >
-                      {sendingCardId ===
-                        card.id
-                          ? "Envoi…"
-                          : "Envoyer"}
-                    </button>
 
                     <button
                       type="button"
-                      className="custom-card-action"
+                      className="custom-manage-action"
                       disabled={
                         cardActionLoading ===
                         card.id
@@ -4734,7 +4603,7 @@ function HomeScreen({ navigate , profile, }) {
 
                     <button
                       type="button"
-                      className="custom-card-action custom-card-action-danger"
+                      className="custom-manage-delete"
                       disabled={
                         cardActionLoading ===
                         card.id
