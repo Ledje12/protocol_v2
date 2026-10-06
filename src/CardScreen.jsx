@@ -663,33 +663,30 @@ export default function CardScreen({
 
           let loadedSceneSteps = [];
 
+            if (
+              effectiveCardSource === "official" &&
+              data?.type === "scene"
+            ) {
+              const {
+                data: sceneData,
+                error: sceneError,
+              } = await supabase.rpc(
+                "get_protocol_scene_preview",
+                {
+                  p_card_id:
+                    effectiveCardId,
+                }
+              );
 
-          if (
-            effectiveCardSource === "official" &&
-            officialCard?.type === "scene"
-          ) {
-            const {
-              data: sceneData,
-              error: sceneError,
-            } = await supabase.rpc(
-              "get_protocol_scene_preview",
-              {
-                p_card_id:
-                  effectiveCardId,
+              if (sceneError) {
+                throw sceneError;
               }
-            );
 
-
-            if (sceneError) {
-              throw sceneError;
+              loadedSceneSteps =
+                Array.isArray(sceneData)
+                  ? sceneData
+                  : [];
             }
-
-
-            loadedSceneSteps =
-              Array.isArray(sceneData)
-                ? sceneData
-                : [];
-          }
 
 
           if (mounted) {
