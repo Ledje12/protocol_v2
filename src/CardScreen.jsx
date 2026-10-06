@@ -637,11 +637,6 @@ export default function CardScreen({
           }
 
 
-          const displayPrompt =
-            personaliseText(
-              data.prompt
-            );
-
           const personaliseText = (
             value
           ) =>
@@ -659,66 +654,80 @@ export default function CardScreen({
                   "toi"
               );
 
+
+          const displayPrompt =
+            personaliseText(
+              data.prompt
+            );
+
+
           let loadedSceneSteps = [];
 
-            if (
-              effectiveCardSource === "official" &&
-              officialCard?.type === "scene" &&
-              !trackedInvitationId
-            ) {
-              const {
-                data: sceneData,
-                error: sceneError,
-              } = await supabase.rpc(
-                "get_protocol_scene_preview",
-                {
-                  p_card_id:
-                    effectiveCardId,
-                }
-              );
 
-              if (sceneError) {
-                throw sceneError;
+          if (
+            effectiveCardSource ===
+              "official" &&
+            data.type === "scene" &&
+            !trackedInvitationId
+          ) {
+            const {
+              data: sceneData,
+              error: sceneError,
+            } = await supabase.rpc(
+              "get_protocol_scene_preview",
+              {
+                p_card_id:
+                  effectiveCardId,
               }
+            );
 
-              loadedSceneSteps =
-                Array.isArray(sceneData)
-                  ? sceneData
-                  : [];
+
+            if (sceneError) {
+              throw sceneError;
             }
-          
-          setSceneSteps(
-            loadedSceneSteps.map(
-              (step) => ({
-                ...step,
 
-                displayPrompt:
-                  personaliseText(
-                    step.prompt
-                  ),
 
-                displayPromptActive:
-                  personaliseText(
-                    step.prompt_active
-                  ),
+            loadedSceneSteps =
+              Array.isArray(sceneData)
+                ? sceneData
+                : [];
+          }
 
-                displayPromptPartner:
-                  personaliseText(
-                    step.prompt_partner
-                  ),
 
-                displayPromptPlayer1:
-                  personaliseText(
-                    step.prompt_player_1
-                  ),
+          if (mounted) {
+            setSceneSteps(
+              loadedSceneSteps.map(
+                (step) => ({
+                  ...step,
 
-                displayPromptPlayer2:
-                  personaliseText(
-                    step.prompt_player_2
-                  ),
-              })
-            )
-          );
+                  displayPrompt:
+                    personaliseText(
+                      step.prompt
+                    ),
+
+                  displayPromptActive:
+                    personaliseText(
+                      step.prompt_active
+                    ),
+
+                  displayPromptPartner:
+                    personaliseText(
+                      step.prompt_partner
+                    ),
+
+                  displayPromptPlayer1:
+                    personaliseText(
+                      step.prompt_player_1
+                    ),
+
+                  displayPromptPlayer2:
+                    personaliseText(
+                      step.prompt_player_2
+                    ),
+                })
+              )
+            );
+          }
 
           setCard({
             ...data,
