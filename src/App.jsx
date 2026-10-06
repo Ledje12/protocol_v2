@@ -7833,9 +7833,7 @@ function CalibrationScreen({
 
   const [stage, setStage] =
     useState("intro");
-
-  setIntensity(level.value);
-
+    
   const [submitted, setSubmitted] =
     useState(false);
 
