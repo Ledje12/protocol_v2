@@ -136,6 +136,12 @@ export default function CardScreen({
     useState(null);
 
   const [
+    sceneSteps,
+    setSceneSteps,
+  ] =
+    useState([]);
+
+  const [
     loading,
     setLoading,
   ] =
@@ -632,10 +638,14 @@ export default function CardScreen({
 
 
           const displayPrompt =
-            String(
-              data.prompt ||
-                ""
-            )
+            personaliseText(
+              data.prompt
+            );
+
+          const personaliseText = (
+            value
+          ) =>
+            String(value || "")
               .replaceAll(
                 "{{active}}",
                 activePerson
@@ -646,9 +656,69 @@ export default function CardScreen({
                 "{{partner}}",
                 senderPerson
                   ?.display_name ||
-                  "ton partenaire"
+                  "toi"
               );
 
+          let loadedSceneSteps = [];
+
+            if (
+              effectiveCardSource === "official" &&
+              officialCard?.type === "scene" &&
+              !trackedInvitationId
+            ) {
+              const {
+                data: sceneData,
+                error: sceneError,
+              } = await supabase.rpc(
+                "get_protocol_scene_preview",
+                {
+                  p_card_id:
+                    effectiveCardId,
+                }
+              );
+
+              if (sceneError) {
+                throw sceneError;
+              }
+
+              loadedSceneSteps =
+                Array.isArray(sceneData)
+                  ? sceneData
+                  : [];
+            }
+          
+          setSceneSteps(
+            loadedSceneSteps.map(
+              (step) => ({
+                ...step,
+
+                displayPrompt:
+                  personaliseText(
+                    step.prompt
+                  ),
+
+                displayPromptActive:
+                  personaliseText(
+                    step.prompt_active
+                  ),
+
+                displayPromptPartner:
+                  personaliseText(
+                    step.prompt_partner
+                  ),
+
+                displayPromptPlayer1:
+                  personaliseText(
+                    step.prompt_player_1
+                  ),
+
+                displayPromptPlayer2:
+                  personaliseText(
+                    step.prompt_player_2
+                  ),
+              })
+            )
+          );
 
           setCard({
             ...data,
@@ -1853,6 +1923,135 @@ export default function CardScreen({
             card.displayPrompt
           }
         </p>
+
+        {card.type === "scene" &&
+          !trackedInvitationId &&
+          sceneSteps.length > 0 && (
+
+            <section className="scene-preview">
+
+              <div className="scene-preview-heading">
+                <span>
+                  DÉROULÉ
+                </span>
+
+                <strong>
+                  {sceneSteps.length} étapes
+                </strong>
+              </div>
+
+              <div className="scene-preview-timeline">
+
+                {sceneSteps.map(
+                  (step) => (
+
+                    <article
+                      key={step.step_no}
+                      className="scene-preview-step"
+                    >
+
+                      <div className="scene-preview-marker">
+                        {String(
+                          step.step_no
+                        ).padStart(
+                          2,
+                          "0"
+                        )}
+                      </div>
+
+                      <div className="scene-preview-step-content">
+
+                        {step.title && (
+                          <h2>
+                            {step.title}
+                          </h2>
+                        )}
+
+                        <p>
+                          {
+                            step.displayPrompt
+                          }
+                        </p>
+
+
+                        {(step.prompt_active ||
+                          step.title_active) && (
+
+                          <div className="scene-private-role">
+
+                            <span>
+                              POUR{" "}
+                              {(
+                                activePerson
+                                  ?.display_name ||
+                                "JOUEUR ACTIF"
+                              ).toUpperCase()}
+                            </span>
+
+                            {step.title_active && (
+                              <strong>
+                                {
+                                  step.title_active
+                                }
+                              </strong>
+                            )}
+
+                            {step.displayPromptActive && (
+                              <p>
+                                {
+                                  step.displayPromptActive
+                                }
+                              </p>
+                            )}
+
+                          </div>
+                        )}
+
+
+                        {(step.prompt_partner ||
+                          step.title_partner) && (
+
+                          <div className="scene-private-role">
+
+                            <span>
+                              POUR{" "}
+                              {(
+                                senderPerson
+                                  ?.display_name ||
+                                "PARTENAIRE"
+                              ).toUpperCase()}
+                            </span>
+
+                            {step.title_partner && (
+                              <strong>
+                                {
+                                  step.title_partner
+                                }
+                              </strong>
+                            )}
+
+                            {step.displayPromptPartner && (
+                              <p>
+                                {
+                                  step.displayPromptPartner
+                                }
+                              </p>
+                            )}
+
+                          </div>
+                        )}
+
+                      </div>
+
+                    </article>
+
+                  )
+                )}
+
+              </div>
+
+            </section>
+          )}
 
 
         {

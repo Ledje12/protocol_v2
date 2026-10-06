@@ -292,57 +292,6 @@ const INTENSITY_LEVELS = [
   },
 ];
 
-const CONTROL_OPTIONS = [
-  {
-    value: "guide",
-    title: "Guider",
-    text: "J'aime prendre les commandes.",
-  },
-  {
-    value: "both",
-    title: "Les deux",
-    text: "Ça dépend du moment et de l'envie.",
-  },
-  {
-    value: "follow",
-    title: "Me laisser guider",
-    text: "J'aime quand l'autre mène le jeu.",
-  },
-];
-
-const CALIBRATION_DIMENSIONS = [
-  {
-    key: "tension",
-    title: "Tension",
-    text: "Provocation, défis et montée progressive du jeu.",
-  },
-  {
-    key: "sensations",
-    title: "Sensations",
-    text: "Toucher, attente, contraintes et jeux sensoriels.",
-  },
-  {
-    key: "unexpected",
-    title: "Imprévu",
-    text: "Surprise, improvisation et perte de contrôle sur la suite.",
-  },
-];
-
-const PREFERENCE_LEVELS = [
-  {
-    value: 1,
-    label: "Un peu",
-  },
-  {
-    value: 2,
-    label: "Oui",
-  },
-  {
-    value: 3,
-    label: "Beaucoup",
-  },
-];
-
 function getRoute() {
   const path =
     window.location.pathname;
@@ -3457,9 +3406,6 @@ function HomeScreen({ navigate , profile, }) {
         title: "",
         prompt: "",
         intensity: 1,
-        tension: 1,
-        sensations: 1,
-        unexpected: 1,
         target_sex: null,
         timer_seconds: "",
       });
@@ -3491,9 +3437,6 @@ function HomeScreen({ navigate , profile, }) {
               title,
               prompt,
               intensity,
-              tension,
-              sensations,
-              unexpected,
               target_sex,
               timer_seconds,
               active,
@@ -3587,9 +3530,6 @@ function HomeScreen({ navigate , profile, }) {
         title: "",
         prompt: "",
         intensity: 1,
-        tension: 1,
-        sensations: 1,
-        unexpected: 1,
         target_sex: null,
         timer_seconds: "",
       });
@@ -3646,21 +3586,6 @@ function HomeScreen({ navigate , profile, }) {
                   form.intensity
                 ),
 
-          tension:
-            Number(
-              form.tension
-            ),
-
-          sensations:
-            Number(
-              form.sensations
-            ),
-
-          unexpected:
-            Number(
-              form.unexpected
-            ),
-
           target_sex:
             form.target_sex ||
             null,
@@ -3697,15 +3622,6 @@ function HomeScreen({ navigate , profile, }) {
 
                 intensity:
                   payload.intensity,
-
-                tension:
-                  payload.tension,
-
-                sensations:
-                  payload.sensations,
-
-                unexpected:
-                  payload.unexpected,
 
                 target_sex:
                   payload.target_sex,
@@ -3786,21 +3702,6 @@ function HomeScreen({ navigate , profile, }) {
             intensity:
               Number(
                 card.intensity || 1
-              ),
-
-            tension:
-              Number(
-                card.tension || 1
-              ),
-
-            sensations:
-              Number(
-                card.sensations || 1
-              ),
-
-            unexpected:
-              Number(
-                card.unexpected || 1
               ),
 
             target_sex:
@@ -4224,105 +4125,6 @@ function HomeScreen({ navigate , profile, }) {
         </select>
       </label>
 
-    <div className="custom-card-form-metrics">
-      <label>
-        Tension
-
-        <select
-          value={form.tension}
-          onChange={(event) =>
-            setForm(
-              (current) => ({
-                ...current,
-                tension:
-                  Number(
-                    event.target.value
-                  ),
-              })
-            )
-          }
-        >
-          {[1, 2, 3].map(
-            (value) => (
-              <option
-                key={value}
-                value={value}
-              >
-                {value}
-              </option>
-            )
-          )}
-        </select>
-      </label>
-
-
-      <label>
-        Sensations
-
-        <select
-          value={
-            form.sensations
-          }
-          onChange={(event) =>
-            setForm(
-              (current) => ({
-                ...current,
-                sensations:
-                  Number(
-                    event.target.value
-                  ),
-              })
-            )
-          }
-        >
-          {[1, 2, 3].map(
-            (value) => (
-              <option
-                key={value}
-                value={value}
-              >
-                {value}
-              </option>
-            )
-          )}
-        </select>
-      </label>
-
-
-      <label>
-        Imprévu
-
-        <select
-          value={
-            form.unexpected
-          }
-          onChange={(event) =>
-            setForm(
-              (current) => ({
-                ...current,
-                unexpected:
-                  Number(
-                    event.target.value
-                  ),
-              })
-            )
-          }
-        >
-          {[1, 2, 3].map(
-            (value) => (
-              <option
-                key={value}
-                value={value}
-              >
-                {value}
-              </option>
-            )
-          )}
-        </select>
-      </label>
-    </div>
-
-
       <label>
         Durée optionnelle
 
@@ -4545,18 +4347,6 @@ function HomeScreen({ navigate , profile, }) {
                       {targetLabel(
                         card.target_sex
                       )}
-                    </span>
-
-                    <span>
-                      Tension {card.tension}
-                    </span>
-
-                    <span>
-                      Sensations {card.sensations}
-                    </span>
-
-                    <span>
-                      Imprévu {card.unexpected}
                     </span>
 
                   </div>
@@ -8044,14 +7834,7 @@ function CalibrationScreen({
   const [stage, setStage] =
     useState("intro");
 
-  const [intensity, setIntensity] =
-    useState(null);
-
-  const [answers, setAnswers] =
-    useState({});
-
-  const [dimensionIndex, setDimensionIndex] =
-    useState(0);
+  setIntensity(level.value);
 
   const [submitted, setSubmitted] =
     useState(false);
@@ -8065,10 +7848,6 @@ function CalibrationScreen({
   const [error, setError] =
     useState("");
 
-  const currentDimension =
-    CALIBRATION_DIMENSIONS[
-      dimensionIndex
-    ];
 
   /* =========================================
      ATTENTE PARTENAIRE
@@ -8157,60 +7936,11 @@ function CalibrationScreen({
   ]);
 
   /* =========================================
-     CHOIX CONTROLE
-     ========================================= */
-
-  const selectControl = (
-    value
-  ) => {
-    setAnswers({
-      ...answers,
-      control: value,
-    });
-
-    setStage("preferences");
-  };
-
-  /* =========================================
-     CHOIX TENSION / SENSATIONS / IMPREVU
-     ========================================= */
-
-  const selectPreference = (
-    value
-  ) => {
-    const updatedAnswers = {
-      ...answers,
-      [currentDimension.key]:
-        value,
-    };
-
-    setAnswers(
-      updatedAnswers
-    );
-
-    if (
-      dimensionIndex <
-      CALIBRATION_DIMENSIONS.length -
-        1
-    ) {
-      setDimensionIndex(
-        dimensionIndex + 1
-      );
-
-      return;
-    }
-
-    submitCalibration(
-      updatedAnswers
-    );
-  };
-
-  /* =========================================
      SUBMIT
      ========================================= */
 
   const submitCalibration =
-    async (finalAnswers) => {
+    async (selectedIntensity) => {
       try {
         setSaving(true);
         setError("");
@@ -8223,9 +7953,8 @@ function CalibrationScreen({
           {
             p_game_code: code,
             p_intensity:
-              intensity,
-            p_answers:
-              finalAnswers,
+              selectedIntensity,
+            p_answers: {},
           }
         );
 
@@ -8472,7 +8201,7 @@ function CalibrationScreen({
             </h1>
 
             <p className="intro">
-              Quelques choix rapides.
+              Un choix rapide.
               Réponds pour toi, pas pour
               deviner ce que l'autre veut.
             </p>
@@ -8484,7 +8213,7 @@ function CalibrationScreen({
 
               <div>
                 <strong>
-                  Tes réponses restent privées.
+                  Ton choix reste privé.
                 </strong>
 
                 <p>
@@ -8529,7 +8258,7 @@ function CalibrationScreen({
           </span>
 
           <span className="progress-label">
-            01 / 05
+            01 / 01
           </span>
         </header>
 
@@ -8558,13 +8287,10 @@ function CalibrationScreen({
                 <button
                   key={level.value}
                   className="calibration-option"
+                  disabled={saving}
                   onClick={() => {
-                    setIntensity(
+                    submitCalibration(
                       level.value
-                    );
-
-                    setStage(
-                      "control"
                     );
                   }}
                 >
@@ -8593,166 +8319,6 @@ function CalibrationScreen({
       </main>
     );
   }
-
-  /* =========================================
-     2 / 5 - CONTROLE
-     ========================================= */
-
-  if (stage === "control") {
-    return (
-      <main className="app">
-        <div className="glow glow-bottom" />
-
-        <header className="header">
-          <span className="logo">
-            PROTOCOL
-          </span>
-
-          <span className="progress-label">
-            02 / 05
-          </span>
-        </header>
-
-        <section className="question-screen dimension-screen">
-          <div>
-            <p className="kicker">
-              CONTRÔLE
-            </p>
-
-            <h1>
-              Dans quel
-              <br />
-              rôle ?
-            </h1>
-
-            <p className="intro">
-              Ce qui t'attire le plus
-              ce soir.
-            </p>
-          </div>
-
-          <div className="control-options">
-            {CONTROL_OPTIONS.map(
-              (option) => (
-                <button
-                  key={
-                    option.value
-                  }
-                  className="control-button"
-                  onClick={() =>
-                    selectControl(
-                      option.value
-                    )
-                  }
-                >
-                  <div>
-                    <strong>
-                      {option.title}
-                    </strong>
-
-                    <p>
-                      {option.text}
-                    </p>
-                  </div>
-
-                  <span>→</span>
-                </button>
-              )
-            )}
-          </div>
-
-          <div className="question-progress">
-            <div
-              style={{
-                width: "40%",
-              }}
-            />
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  /* =========================================
-     3-5 / 5
-     ========================================= */
-
-  const progress =
-    dimensionIndex + 3;
-
-  return (
-    <main className="app">
-      <div className="glow glow-bottom" />
-
-      <header className="header">
-        <span className="logo">
-          PROTOCOL
-        </span>
-
-        <span className="progress-label">
-          0{progress} / 05
-        </span>
-      </header>
-
-      <section className="question-screen dimension-screen">
-        <div>
-          <p className="kicker">
-            TON TERRAIN
-          </p>
-
-          <h1>
-            {currentDimension.title}
-          </h1>
-
-          <p className="intro">
-            {currentDimension.text}
-          </p>
-        </div>
-
-        <div className="preference-options">
-          {PREFERENCE_LEVELS.map(
-            (option) => (
-              <button
-                key={
-                  option.value
-                }
-                className="preference-button"
-                onClick={() =>
-                  selectPreference(
-                    option.value
-                  )
-                }
-                disabled={saving}
-              >
-                <span className="preference-orb" />
-
-                <span>
-                  {option.label}
-                </span>
-              </button>
-            )
-          )}
-        </div>
-
-        {error && (
-          <p className="error">
-            {error}
-          </p>
-        )}
-
-        <div className="question-progress">
-          <div
-            style={{
-              width: `${
-                (progress / 5) *
-                100
-              }%`,
-            }}
-          />
-        </div>
-      </section>
-    </main>
-  );
 }
 
 /* =========================================================
