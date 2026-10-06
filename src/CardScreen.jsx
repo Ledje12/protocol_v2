@@ -665,10 +665,8 @@ export default function CardScreen({
 
 
           if (
-            effectiveCardSource ===
-              "official" &&
-            data.type === "scene" &&
-            !trackedInvitationId
+            effectiveCardSource === "official" &&
+            officialCard?.type === "scene"
           ) {
             const {
               data: sceneData,
@@ -1934,7 +1932,6 @@ export default function CardScreen({
         </p>
 
         {card.type === "scene" &&
-          !trackedInvitationId &&
           sceneSteps.length > 0 && (
 
             <section className="scene-preview">
