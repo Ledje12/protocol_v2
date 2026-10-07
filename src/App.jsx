@@ -616,18 +616,12 @@ function AuthScreen({ onAuthenticated }) {
 
         <header className="protocol-auth-brand">
 
-          <div className="protocol-auth-logo">
-            PROTOCOL
-          </div>
-
-          <div className="protocol-auth-version">
-            <span />
-            <small>V2</small>
-            <span />
-          </div>
+          <BrandMark size="lg" />
 
           <p>
+
             Privé · Discret · À deux
+
           </p>
 
         </header>
@@ -908,15 +902,7 @@ function ProfileSetupScreen({
 
         <header className="protocol-auth-brand">
 
-          <div className="protocol-auth-logo">
-            PROTOCOL
-          </div>
-
-          <div className="protocol-auth-version">
-            <span />
-            <small>V2</small>
-            <span />
-          </div>
+          <BrandMark size="lg" />
 
         </header>
 
@@ -1071,43 +1057,41 @@ function ProfileSetupScreen({
   );
 }
 
+/*
+ * Logo PROTOCOL : une seule version dans toute l'app
+ * (Bodoni espacée + filet néon). Voir .protocol-brand.
+ */
+function BrandMark({ size = "md" }) {
+  return (
+    <div
+      className={`protocol-brand protocol-brand-${size}`}
+    >
+      <span className="protocol-brand-name">
+        PROTOCOL
+      </span>
+    </div>
+  );
+}
+
 function AppLoadingScreen() {
   return (
-    <main className="protocol-auth-page">
+    <main
+      className="protocol-auth-page protocol-loading-page"
+      aria-busy="true"
+    >
       <div className="protocol-auth-glow" />
 
-      <section className="protocol-auth-shell">
-        <header className="protocol-auth-brand">
-          <div className="protocol-auth-logo">
-            PROTOCOL
-          </div>
+      <section className="protocol-loading">
+        <BrandMark size="lg" />
 
-          <div className="protocol-auth-version">
-            <span />
-            <small>V2</small>
-            <span />
-          </div>
+        <span
+          className="protocol-diamond protocol-loading-diamond"
+          aria-hidden="true"
+        />
 
-          <p>
-            Privé · Discret · À deux
-          </p>
-        </header>
-
-        <section className="protocol-auth-card">
-          <div className="protocol-auth-copy">
-            <span className="protocol-auth-eyebrow">
-              CHARGEMENT
-            </span>
-
-            <h1>
-              Un instant.
-            </h1>
-
-            <p>
-              PROTOCOL prépare votre espace.
-            </p>
-          </div>
-        </section>
+        <p>
+          Un instant.
+        </p>
       </section>
     </main>
   );
@@ -1412,17 +1396,11 @@ function App() {
     privacyScreen.innerHTML = `
       <div class="protocol-privacy-content">
 
-        <div class="protocol-privacy-logo">
-          PROTOCOL
+        <div class="protocol-brand protocol-brand-lg">
+          <span class="protocol-brand-name">PROTOCOL</span>
         </div>
 
-        <div class="protocol-privacy-version">
-          <span></span>
-          <small>V2</small>
-          <span></span>
-        </div>
-
-        <div class="protocol-privacy-symbol">
+        <div class="protocol-privacy-symbol" aria-hidden="true">
           ◇
         </div>
 
@@ -1581,18 +1559,12 @@ function App() {
 
           <header className="protocol-auth-brand">
 
-            <div className="protocol-auth-logo">
-              PROTOCOL
-            </div>
-
-            <div className="protocol-auth-version">
-              <span />
-              <small>V2</small>
-              <span />
-            </div>
+            <BrandMark size="lg" />
 
             <p>
+
               Privé · Discret · À deux
+
             </p>
 
           </header>
@@ -1618,6 +1590,7 @@ function App() {
 
             <button
               type="button"
+              className="protocol-auth-retry"
               onClick={() =>
                 window.location.reload()
               }
@@ -2492,12 +2465,6 @@ function HomeScreen({ navigate , profile, }) {
           <span className="protocol-home-brand-name">
             PROTOCOL
           </span>
-
-          <div className="protocol-home-brand-sub">
-            <span />
-            <small>V2</small>
-            <span />
-          </div>
 
         </div>
 
@@ -10278,9 +10245,6 @@ async function handleSceneRead() {
               </p>
 
 
-              <p className="final-reveal-small">
-                CE SOIR
-              </p>
 
               <h1 className="final-winner-title">
                 Vous êtes allés
@@ -10440,8 +10404,8 @@ async function handleSceneRead() {
 
                 <span>
                   {rematchLoading
-                    ? "PRÉPARATION…"
-                    : "REJOUER ENSEMBLE"}
+                    ? "Préparation…"
+                    : "Rejouer ensemble"}
                 </span>
 
                 <span>
@@ -10466,7 +10430,7 @@ async function handleSceneRead() {
                 onClick={closeProtocol}
                 disabled={rematchLoading}
               >
-                TERMINER LE PROTOCOL
+                Terminer le Protocol
               </button>
 
             </div>
@@ -10608,19 +10572,7 @@ async function handleSceneRead() {
 
         </div>
 
-      ) : (
-
-        <button
-          type="button"
-          className="protocol-stop-button"
-          onClick={stopProtocol}
-          disabled={stopLoading}
-          aria-label="Arrêter immédiatement le Protocol"
-        >
-          STOP
-        </button>
-
-      )}
+      ) : null}
 
 
       <PhaseTransition
@@ -10684,6 +10636,19 @@ async function handleSceneRead() {
           </div>
 
         </div>
+
+
+        {game.status !== "paused" && (
+          <button
+            type="button"
+            className="protocol-stop-button"
+            onClick={stopProtocol}
+            disabled={stopLoading}
+            aria-label="Arrêter immédiatement le Protocol"
+          >
+            STOP
+          </button>
+        )}
 
       </header>
 
@@ -11147,21 +11112,26 @@ async function handleSceneRead() {
           </span>
 
 
-          <span>
+          <span className="play-meta-turn">
             {isMyTurn
-              ? `${myName.toUpperCase()} · À TOI`
-              : activePlayerName.toUpperCase()}
+              ? `À toi, ${myName}`
+              : `Au tour de ${activePlayerName}`}
           </span>
 
 
-          <span>
-            {phaseLabels[
-              game.phase
-            ]}
-            {" · "}
-            {game.turn_no}
-            /
-            {game.target_turns}
+          <span className="play-meta-progress">
+            {phaseLabels[game.phase] && (
+              <small>
+                {phaseLabels[game.phase]
+                  .toLowerCase()
+                  .replace(/^./, (c) => c.toUpperCase())}
+              </small>
+            )}
+            <strong>
+              {game.turn_no}
+              <span>/</span>
+              {game.target_turns}
+            </strong>
           </span>
 
         </div>

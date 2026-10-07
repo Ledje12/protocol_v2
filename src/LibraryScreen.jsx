@@ -444,6 +444,17 @@ export default function LibraryScreen({
                       .replaceAll(
                         "{{partner}}",
                         myName
+                      )
+                      /* la carte s'adresse à la personne
+                         qui la jouera : {{me}} = elle,
+                         {{other}} = celui qui propose */
+                      .replaceAll(
+                        "{{me}}",
+                        partnerName
+                      )
+                      .replaceAll(
+                        "{{other}}",
+                        myName
                       );
 
 

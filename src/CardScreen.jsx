@@ -652,6 +652,21 @@ export default function CardScreen({
                 senderPerson
                   ?.display_name ||
                   "toi"
+              )
+              /* la carte s'adresse à la personne qui
+                 la jouera : {{me}} = elle, {{other}} =
+                 celui qui la propose */
+              .replaceAll(
+                "{{me}}",
+                activePerson
+                  ?.display_name ||
+                  "ton partenaire"
+              )
+              .replaceAll(
+                "{{other}}",
+                senderPerson
+                  ?.display_name ||
+                  "toi"
               );
 
 

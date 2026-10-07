@@ -1366,107 +1366,25 @@
 }
 
 
-/* ---------- LOGO ---------- */
-
-.protocol-privacy-logo {
-  font-size: 1rem;
-
-  font-weight: 500;
-
-  letter-spacing: 0.43em;
-
-  color:
-    rgba(255, 255, 255, 0.90);
-}
-
-
-/* ---------- VERSION ---------- */
-
-.protocol-privacy-version {
-  margin-top: 8px;
-
-  display: grid;
-
-  grid-template-columns:
-    36px
-    auto
-    36px;
-
-  align-items: center;
-
-  gap: 10px;
-}
-
-.protocol-privacy-version span {
-  height: 1px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(var(--c-accent-rgb), 0.52)
-    );
-}
-
-.protocol-privacy-version span:last-child {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(var(--c-accent-rgb), 0.52),
-      transparent
-    );
-}
-
-.protocol-privacy-version small {
-  font-size: 0.48rem;
-
-  font-weight: 600;
-
-  letter-spacing: 0.3em;
-
-  color:
-    rgba(255, 255, 255, 0.39);
-}
-
-
 /* ---------- SYMBOL ---------- */
 
 .protocol-privacy-symbol {
-  margin-top: 52px;
-
+  margin-top: 48px;
   font-size: 1.65rem;
-
   font-weight: 300;
-
-  color:
-    rgba(var(--c-accent-rgb), 0.72);
-
-  text-shadow:
-    0
-    0
-    18px
-    rgba(var(--c-accent-rgb), 0.20);
+  color: rgba(var(--c-accent-rgb), 0.72);
 }
 
 
 /* ---------- SIGNATURE ---------- */
 
 .protocol-privacy-content p {
-  margin:
-    21px
-    0
-    0;
-
-  font-size: 0.52rem;
-
-  font-weight: 500;
-
-  letter-spacing: 0.24em;
-
+  margin: 24px 0 0;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-
-  color:
-    rgba(255, 255, 255, 0.31);
+  color: var(--c-label);
 }
 
 /* =========================================================
@@ -1731,9 +1649,10 @@
   box-sizing: border-box;
 
   padding:
-    calc(env(safe-area-inset-top, 0px) + 42px)
-    22px
-    calc(env(safe-area-inset-bottom, 0px) + 30px);
+    var(--top-clear)
+    max(var(--gutter), env(safe-area-inset-right))
+    calc(env(safe-area-inset-bottom, 0px) + 30px)
+    max(var(--gutter), env(safe-area-inset-left));
 
   position: relative;
   overflow: hidden;
@@ -1743,332 +1662,199 @@
 
   background:
     radial-gradient(
-      circle at 50% -10%,
-      rgba(30, 128, 255, 0.16),
-      transparent 42%
+      circle at 50% -8%,
+      rgba(var(--c-accent-deep-rgb), 0.30),
+      transparent 46%
     ),
-    #050609;
+    var(--c-bg);
 
-  color: #ffffff;
+  color: var(--c-text);
 }
-
 
 .protocol-auth-glow {
   position: absolute;
-
   width: 360px;
   height: 360px;
-
   top: -230px;
   left: 50%;
-
   transform: translateX(-50%);
-
   border-radius: 50%;
-
   background:
-    rgba(var(--c-accent-rgb), 0.18);
-
+    rgba(var(--c-accent-rgb), 0.14);
   filter: blur(90px);
-
   pointer-events: none;
 }
 
-
 .protocol-auth-shell {
   width: min(100%, 430px);
-
   display: flex;
   flex-direction: column;
-
   position: relative;
   z-index: 1;
 }
 
-
 .protocol-auth-brand {
-  text-align: center;
-
-  margin: 6px 0 58px;
-}
-
-
-.protocol-auth-logo {
-  font-size: clamp(2.2rem, 12vw, 3.7rem);
-  line-height: 0.95;
-
-  font-weight: 800;
-  letter-spacing: -0.07em;
-
-  color: rgba(255, 255, 255, 0.96);
-
-  text-shadow:
-    0 0 34px rgba(35, 133, 255, 0.18);
-}
-
-
-.protocol-auth-version {
-  margin-top: 13px;
-
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-
-  gap: 9px;
+  margin: 18px 0 64px;
+  text-align: center;
 }
-
-
-.protocol-auth-version span {
-  width: 28px;
-  height: 1px;
-
-  background:
-    rgba(255, 255, 255, 0.22);
-}
-
-
-.protocol-auth-version small {
-  font-size: 0.62rem;
-  font-weight: 800;
-
-  letter-spacing: 0.22em;
-
-  color: var(--c-accent);
-}
-
 
 .protocol-auth-brand > p {
-  margin: 14px 0 0;
-
-  font-size: 0.73rem;
-  letter-spacing: 0.08em;
-
-  color:
-    rgba(255, 255, 255, 0.42);
+  margin: 16px 0 0;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-label);
 }
-
 
 .protocol-auth-card {
   width: 100%;
 }
 
-
 .protocol-auth-copy {
   margin-bottom: 30px;
 }
 
-
+/* sur-titre : discret, comme sur tous les écrans */
 .protocol-auth-eyebrow {
   display: block;
-
   margin-bottom: 12px;
-
-  font-size: 0.67rem;
-  font-weight: 800;
-
-  letter-spacing: 0.21em;
-
-  color: var(--c-accent);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--c-muted);
 }
-
 
 .protocol-auth-copy h1 {
   margin: 0;
-
-  font-size: clamp(2rem, 9vw, 2.8rem);
-  line-height: 1;
-
-  letter-spacing: -0.055em;
-
-  color: #ffffff;
+  font-family: var(--font-serif);
+  font-size: var(--fs-title);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--c-text);
 }
-
 
 .protocol-auth-copy p {
-  margin: 17px 0 0;
-
+  margin: 16px 0 0;
   max-width: 360px;
-
-  font-size: 0.96rem;
+  font-size: var(--fs-body);
   line-height: 1.55;
-
-  color:
-    rgba(255, 255, 255, 0.56);
+  color: var(--c-muted);
 }
-
 
 .protocol-auth-copy strong {
-  font-weight: 650;
-
-  color:
-    rgba(255, 255, 255, 0.82);
+  font-weight: 600;
+  color: var(--c-text);
 }
-
 
 .protocol-auth-form {
   display: flex;
   flex-direction: column;
-
   gap: 11px;
 }
 
-
 .protocol-auth-form label {
   margin-left: 2px;
-
-  font-size: 0.72rem;
+  font-size: var(--fs-label);
   font-weight: 700;
-
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-
-  color:
-    rgba(255, 255, 255, 0.52);
+  color: var(--c-label);
 }
 
-
+/* champ « satin » : le même partout */
 .protocol-auth-form input {
   width: 100%;
   height: 58px;
-
   box-sizing: border-box;
-
-  border:
-    1px solid rgba(255, 255, 255, 0.11);
-
-  border-radius: 17px;
-
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-control);
   padding: 0 18px;
-
   outline: none;
-
-  background:
-    rgba(255, 255, 255, 0.055);
-
-  color: #ffffff;
-
+  background: var(--c-surface-2);
+  color: var(--c-text);
   font: inherit;
-  font-size: 1rem;
-
+  font-size: 16px;
   transition:
-    border-color 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease;
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
-
 
 .protocol-auth-form input::placeholder {
-  color:
-    rgba(255, 255, 255, 0.25);
+  color: rgba(var(--c-muted-rgb), 0.55);
 }
-
 
 .protocol-auth-form input:focus {
-  border-color:
-    rgba(var(--c-accent-rgb), 0.68);
-
-  background:
-    rgba(255, 255, 255, 0.075);
-
-  box-shadow:
-    0 0 0 4px
-    rgba(var(--c-accent-rgb), 0.10);
+  border-color: rgba(var(--c-accent-rgb), 0.6);
+  box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb), 0.10);
 }
 
-
 .protocol-auth-form input.protocol-auth-code {
-  font-size: 1.55rem;
-  font-weight: 700;
-
-  letter-spacing: 0.22em;
-
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-align: center;
 }
 
-
-.protocol-auth-form > button[type="submit"] {
+.protocol-auth-form > button[type="submit"],
+.protocol-auth-retry {
   width: 100%;
   min-height: 58px;
-
   margin-top: 7px;
-
-  border: 0;
-  border-radius: 17px;
-
+  border: 1px solid transparent;
+  border-radius: var(--r-control);
   padding: 0 20px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   font: inherit;
-  font-size: 0.96rem;
-  font-weight: 750;
-
-  color: #ffffff;
-
-  background:
-    linear-gradient(
-      135deg,
-      var(--c-accent),
-      var(--c-accent)
-    );
-
-  box-shadow:
-    0 14px 38px
-    rgba(var(--c-accent-rgb), 0.24);
-
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--c-on-accent);
+  background: var(--c-accent);
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28);
   cursor: pointer;
-
   transition:
-    transform 150ms ease,
-    opacity 150ms ease;
+    transform var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
 }
 
+.protocol-auth-retry {
+  justify-content: center;
+}
 
-.protocol-auth-form > button[type="submit"]:active {
+.protocol-auth-form > button[type="submit"]:active,
+.protocol-auth-retry:active {
   transform: scale(0.985);
 }
-
-
-.protocol-auth-form > button[type="submit"]:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
 
 .protocol-auth-arrow {
   font-size: 1.35rem;
   line-height: 1;
 }
 
-
 .protocol-auth-back {
   margin-top: 5px;
-
+  min-height: 44px;
   border: 0;
-  padding: 12px;
-
+  padding: 0 12px;
   background: transparent;
-
-  color:
-    rgba(255, 255, 255, 0.46);
-
+  color: var(--c-muted);
   font: inherit;
-  font-size: 0.82rem;
-
+  font-size: 14px;
   cursor: pointer;
 }
 
-
 .protocol-auth-message {
   margin: 19px 2px 0;
-
-  font-size: 0.84rem;
+  font-size: var(--fs-small);
   line-height: 1.45;
-
-  color:
-    rgba(255, 255, 255, 0.58);
+  color: var(--c-muted);
 }
 
 .protocol-profile-sex-grid {
@@ -2079,57 +1865,42 @@
 
 .protocol-profile-sex-option {
   min-height: 112px;
-
-  border:
-    1px solid rgba(255, 255, 255, 0.10);
-
-  border-radius: 18px;
-
-  background:
-    rgba(255, 255, 255, 0.045);
-
-  color: #ffffff;
-
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-control);
+  background: var(--c-surface);
+  color: var(--c-text);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
   gap: 10px;
-
   font: inherit;
-  font-size: 0.92rem;
-  font-weight: 700;
-
+  font-size: var(--fs-body);
+  font-weight: 600;
   cursor: pointer;
-
   transition:
-    border-color 160ms ease,
-    background 160ms ease,
-    transform 160ms ease,
-    box-shadow 160ms ease;
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
 }
 
 .protocol-profile-sex-option:active {
   transform: scale(0.985);
 }
 
+/* sélection : néon (c'est ce qui se joue) */
 .protocol-profile-sex-option.is-selected {
-  border-color:
-    rgba(var(--c-accent-rgb), 0.82);
-
-  background:
-    rgba(var(--c-accent-rgb), 0.12);
-
-  box-shadow:
-    0 0 0 4px
-    rgba(var(--c-accent-rgb), 0.07);
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.10);
 }
 
 .protocol-profile-sex-symbol {
   font-size: 2rem;
   line-height: 1;
+  color: var(--c-muted);
+}
 
+.protocol-profile-sex-option.is-selected .protocol-profile-sex-symbol {
   color: var(--c-accent);
 }
 
@@ -2137,34 +1908,27 @@
   margin-top: 4px;
 }
 
+/* destructif : corail, jamais le néon */
 .settings-delete-account-button {
   width: 100%;
   min-height: 48px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   margin-top: 14px;
   padding: 0 16px;
-
-  border: 1px solid rgba(255, 100, 100, 0.3);
-  border-radius: 14px;
-
-  background: rgba(255, 70, 70, 0.08);
-
-  color: #ff9b9b;
-
+  border: 1px solid rgba(var(--c-danger-rgb), 0.32);
+  border-radius: var(--r-control);
+  background: rgba(var(--c-danger-rgb), 0.06);
+  color: var(--c-danger);
   font: inherit;
   font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
 .settings-delete-account-button:hover:not(:disabled) {
-  background: rgba(255, 70, 70, 0.14);
-  border-color: rgba(255, 100, 100, 0.45);
+  background: rgba(var(--c-danger-rgb), 0.12);
 }
 
 .settings-delete-account-button:disabled {
@@ -2178,13 +1942,12 @@
 }
 
 .protocol-auth-legal a {
-  color: rgba(255, 255, 255, 0.52);
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
   text-decoration: none;
-}
-
-.protocol-auth-legal a:hover {
-  color: rgba(255, 255, 255, 0.82);
 }
 
 .settings-privacy-link {

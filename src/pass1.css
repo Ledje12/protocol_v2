@@ -21,8 +21,6 @@
   padding-left: max(var(--p1-gutter), env(safe-area-inset-left)) !important;
   padding-right: max(var(--p1-gutter), env(safe-area-inset-right)) !important;
 
-  /* réserve la place du bouton STOP flottant */
-  padding-bottom: calc(max(18px, env(safe-area-inset-bottom)) + 70px) !important;
 }
 
 /* ces blocs simulaient la marge avec leur propre padding */
@@ -33,10 +31,6 @@
   padding-right: 0 !important;
 }
 
-/* le texte du pied de page ne passe plus sous STOP */
-.play-page .footer {
-  padding-right: 84px !important;
-}
 
 
 /* ---------------------------------------------------------

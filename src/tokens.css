@@ -71,6 +71,12 @@
   --c-scene-rgb: 180, 140, 255;
   --c-scene-soft: #d2bbff;
 
+  /* ---------- Destructif ----------
+     Corail désaturé : distinct du néon (qui reste l'action).
+     Une seule couleur pour supprimer, quitter, effacer. */
+  --c-danger: #ff8f80;
+  --c-danger-rgb: 255, 143, 128;
+
   /* ---------- Échelle typographique (7 tailles) ---------- */
   --fs-display: 56px;
   --fs-title: 34px;
@@ -79,4 +85,36 @@
   --fs-body: 15px;
   --fs-small: 13px;
   --fs-label: 11px;
+
+  /* ---------- Rayons (4 valeurs) ---------- */
+  --r-pill: 999px;      /* pilules, filtres, ronds */
+  --r-card: 22px;       /* cartes et panneaux */
+  --r-control: 18px;    /* boutons et champs */
+  --r-chip: 12px;       /* petites étiquettes, encarts */
+
+  /* ---------- Mise en page ---------- */
+  --gutter: 18px;
+  /* iOS floute la zone de la caméra : le premier élément
+     commence juste en dessous, sur tous les écrans */
+  --top-clear: calc(env(safe-area-inset-top) + 46px);
+  --bottom-clear: max(18px, env(safe-area-inset-bottom));
+
+  /* ---------- Mouvement ---------- */
+  --dur-fast: 160ms;    /* appui, survol, focus */
+  --dur-base: 280ms;    /* apparition d'un élément */
+  --dur-slow: 560ms;    /* annonces, transitions d'écran */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* animations réduites : partout, pas seulement à l'accueil */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
 }

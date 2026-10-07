@@ -48,9 +48,32 @@ button.primary::after {
   display: none !important;
 }
 
+/* DÉSACTIVÉ : une seule règle dans toute l'app.
+   Le néon à demi-opacité donnait un aplat prune illisible.
+   Désactivé = contour discret, texte atténué mais lisible,
+   aucune ombre. Le bouton garde sa forme et sa place. */
 .protocol-home-primary:disabled,
-button.primary:disabled {
-  opacity: 0.5;
+button.primary:disabled,
+.protocol-auth-form > button[type="submit"]:disabled,
+.card-page .card-propose:disabled,
+.protocol-join-submit:disabled,
+.settings-primary-action:disabled,
+.settings-secondary-action:disabled {
+  opacity: 1 !important;
+  border: 1px solid var(--c-line-strong) !important;
+  background: transparent !important;
+  color: rgba(var(--c-muted-rgb), 0.85) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  cursor: default;
+}
+
+/* bouton rond d'envoi : même logique, sans contour plein */
+.messages-send:disabled {
+  opacity: 1 !important;
+  border: 1px solid var(--c-line-strong) !important;
+  background: transparent !important;
+  color: var(--c-muted) !important;
   box-shadow: none !important;
 }
 
@@ -82,6 +105,42 @@ button.primary:disabled {
 .protocol-home-brand-name {
   font-size: 19px !important;
   letter-spacing: 0.34em !important;
+}
+
+/* logo autonome (connexion, profil, chargement, erreur,
+   écran de confidentialité) : même dessin que l'accueil */
+.protocol-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.protocol-brand-name {
+  padding-left: 0.34em;   /* compense l'espacement après le L */
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.34em;
+  color: var(--c-text);
+}
+
+.protocol-brand-lg .protocol-brand-name {
+  font-size: 24px;
+}
+
+.protocol-brand::after {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 1px;
+  margin-top: 12px;
+  background: var(--c-accent);
+}
+
+.protocol-brand-lg::after {
+  width: 32px;
+  margin-top: 14px;
 }
 
 /* ---------------------------------------------------------
@@ -521,10 +580,7 @@ button.primary:disabled {
   box-shadow: 0 8px 24px rgba(var(--c-accent-rgb), 0.3) !important;
 }
 
-.messages-send:disabled {
-  opacity: 0.4 !important;
-  box-shadow: none !important;
-}
+
 
 /* mes messages : néon éteint, texte clair (contraste 8:1) */
 .message-bubble.is-mine {
@@ -748,4 +804,316 @@ button.primary:disabled {
 .protocol-home-signal-grid button svg {
   width: 24px !important;
   height: 24px !important;
+}
+
+
+/* ---------------------------------------------------------
+   14. LOSANGE ◇ : motif de marque
+   Dessiné en CSS (trait identique partout, quelle que soit
+   la police). Utilisé : chargement, états vides, listes.
+   --------------------------------------------------------- */
+
+.protocol-diamond {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(var(--c-accent-rgb), 0.72);
+  transform: rotate(45deg);
+  flex: none;
+}
+
+@keyframes protocolBreathe {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+
+/* ---------------------------------------------------------
+   15. CHARGEMENT : un moment de marque, pas un formulaire
+   --------------------------------------------------------- */
+
+.protocol-loading-page {
+  align-items: center;
+}
+
+.protocol-loading {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(-4vh);
+}
+
+.protocol-loading-diamond {
+  margin-top: 48px;
+  animation: protocolBreathe 2.4s var(--ease-in-out) infinite;
+}
+
+.protocol-loading p {
+  margin: 22px 0 0;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--c-muted);
+}
+
+
+/* ---------------------------------------------------------
+   16. JEU : en-tête collant avec STOP intégré
+   STOP flottait par-dessus le contenu qui défile et couvrait
+   « Passer » ou le pied de page. Il vit maintenant dans
+   l'en-tête, qui reste visible au défilement : toujours
+   à portée de pouce, jamais sur un autre bouton.
+   --------------------------------------------------------- */
+
+/* overflow: clip (et non hidden) pour que sticky fonctionne */
+.app.play-page {
+  overflow: clip !important;
+  padding-bottom: calc(var(--bottom-clear) + 12px) !important;
+}
+
+.play-page .play-header {
+  position: sticky !important;
+  /* au défilement, l'en-tête remonte jusqu'à 8 px sous
+     la zone de la caméra, puis reste en place */
+  top: calc(env(safe-area-inset-top) + 8px - var(--top-clear));
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin:
+    calc(-1 * var(--top-clear))
+    calc(-1 * max(var(--gutter), env(safe-area-inset-right)))
+    16px
+    calc(-1 * max(var(--gutter), env(safe-area-inset-left))) !important;
+  padding:
+    var(--top-clear)
+    max(var(--gutter), env(safe-area-inset-right))
+    12px
+    max(var(--gutter), env(safe-area-inset-left)) !important;
+
+  /* verre fumé : ce qui passe dessous devient un simple flou */
+  background: rgba(var(--c-bg-rgb), 0.86);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
+}
+
+/* fondu sous l'en-tête : le contenu s'efface en passant dessous */
+.play-page .play-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 18px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(var(--c-bg-rgb), 0.86), rgba(var(--c-bg-rgb), 0));
+}
+
+.play-page .play-header .logo {
+  flex: none;
+}
+
+.play-page .score-board {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.play-page .score-board > div {
+  min-width: 0;
+}
+
+/* prénom long : coupé proprement, le chiffre reste visible */
+.play-page .score-board > div > span {
+  max-width: 9ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.play-page .score-board strong {
+  flex: none;
+}
+
+/* STOP : neutre, lisible, toujours là. Pas de néon
+   (ce n'est pas une action de jeu), pas de rouge alarmant. */
+.play-page .protocol-stop-button {
+  position: static !important;
+  flex: none;
+
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid var(--c-line-strong) !important;
+  border-radius: var(--r-pill) !important;
+  background: var(--c-surface-2) !important;
+  color: var(--c-text) !important;
+
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* le pied de page n'a plus à éviter un bouton flottant */
+.play-page .footer {
+  padding-right: 0 !important;
+}
+
+
+/* ---------------------------------------------------------
+   17. JEU : ligne d'état sur une seule ligne
+   [ type ]  À toi, Jérôme ……… Mise en tension 3/12
+   Même disposition pour les quatre types de carte.
+   --------------------------------------------------------- */
+
+.play-page .play-meta {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px !important;
+
+  margin: 0 0 14px !important;
+
+  font-size: var(--fs-small) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--c-muted) !important;
+}
+
+.play-page .play-meta .card-type {
+  padding: 5px 11px !important;
+}
+
+.play-meta-turn {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--c-text-soft);
+}
+
+.play-meta-progress {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.play-meta-progress small {
+  font-size: 12px;
+  color: var(--c-label);
+}
+
+.play-meta-progress strong {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--c-text);
+  font-variant-numeric: lining-nums;
+}
+
+.play-meta-progress strong span {
+  margin: 0 2px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--c-muted);
+}
+
+@media (max-width: 389px) {
+  /* petit iPhone : la phase reste dans l'annonce */
+  .play-meta-progress small {
+    display: none;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   18. FIN DE PARTIE
+   Le moment « trophée » retrouve sa sérif.
+   --------------------------------------------------------- */
+
+.final-wow-score {
+  border: 1px solid var(--c-line) !important;
+  border-radius: var(--r-card) !important;
+  background: var(--c-surface) !important;
+  backdrop-filter: none !important;
+  padding: 26px 18px 24px !important;
+}
+
+.final-wow-player {
+  opacity: 1 !important;
+  gap: 8px !important;
+}
+
+.final-wow-player span {
+  font-size: var(--fs-label) !important;
+  font-weight: 700;
+  letter-spacing: 0.16em !important;
+  color: var(--c-muted);
+}
+
+.final-wow-player strong {
+  font-family: var(--font-serif) !important;
+  font-size: 64px !important;
+  font-weight: 400 !important;
+  line-height: 0.95 !important;
+  color: var(--c-text);
+  font-variant-numeric: lining-nums;
+}
+
+/* s'il y a un gagnant, l'autre score s'efface un peu */
+.final-wow-score:has(.final-wow-winner) .final-wow-player:not(.final-wow-winner) strong {
+  color: var(--c-muted);
+}
+
+.final-wow-score:has(.final-wow-winner) .final-wow-player:not(.final-wow-winner) span {
+  color: var(--c-label);
+}
+
+.final-wow-separator {
+  opacity: 1 !important;
+  color: var(--c-label);
+}
+
+.final-rematch-hint {
+  font-size: 12px !important;
+  letter-spacing: 0 !important;
+  color: var(--c-label) !important;
+}
+
+/* « Terminer » : action tertiaire, lisible */
+.final-close-button {
+  min-height: 44px;
+  margin: 18px auto 0 !important;
+  padding: 0 16px !important;
+  border: 0 !important;
+  background: transparent !important;
+  opacity: 1 !important;
+
+  font: inherit;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--c-muted) !important;
+}
+
+.final-close-button:hover,
+.final-close-button:focus-visible {
+  color: var(--c-text) !important;
 }
