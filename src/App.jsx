@@ -8998,8 +8998,8 @@ function PlayScreen({
    * (remplace l'ancien bandeau séparé, qui recouvrait
    * l'en-tête). Calculé une fois par annonce.
    */
-  const revealPhaseRef =
-    useRef({
+  const [revealPhase, setRevealPhase] =
+    useState({
       key: null,
       phase: null,
       isNew: false,
@@ -10492,6 +10492,23 @@ async function handleSceneRead() {
      RENDER
      ========================================= */
 
+  /*
+   * Nouvelle annonce de carte : on retient si la phase
+   * a changé depuis l'annonce précédente (modèle React
+   * « information du rendu précédent », sans ref).
+   */
+  const revealKey =
+    `${card.id}-${sceneState?.step_no || 0}`;
+
+  if (revealPhase.key !== revealKey) {
+    setRevealPhase({
+      key: revealKey,
+      phase: game.phase,
+      isNew:
+        revealPhase.phase !== game.phase,
+    });
+  }
+
   return (
     <main className="app play-page">
 
@@ -10991,33 +11008,13 @@ async function handleSceneRead() {
             CARD REVEAL
             ===================================== */}
 
-        {(() => {
-          const revealKey =
-            `${card.id}-${sceneState?.step_no || 0}`;
-
-          if (
-            revealPhaseRef.current.key !==
-            revealKey
-          ) {
-            revealPhaseRef.current = {
-              key: revealKey,
-              phase: game.phase,
-              isNew:
-                revealPhaseRef.current.phase !==
-                game.phase,
-            };
-          }
-
-          return null;
-        })()}
-
         <div
           key={
             `reveal-${card.id}-${sceneState?.step_no || 0}`
           }
           className={
             `card-reveal card-reveal-${card.type}${
-              revealPhaseRef.current.isNew &&
+              revealPhase.isNew &&
               phaseLabels[game.phase]
                 ? " card-reveal-new-phase"
                 : ""
@@ -11070,7 +11067,7 @@ async function handleSceneRead() {
                 {typeLabels[card.type]}
               </strong>
 
-              {revealPhaseRef.current.isNew &&
+              {revealPhase.isNew &&
               phaseLabels[game.phase] ? (
                 <span className="card-reveal-phase">
                   <i aria-hidden="true" />
