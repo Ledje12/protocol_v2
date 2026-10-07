@@ -5,16 +5,16 @@
 
 .messages-page {
   --messages-pink:
-    #ef77aa;
+    var(--c-accent);
 
   --messages-pink-soft:
-    #ff9ac3;
+    var(--c-accent-soft);
 
   --messages-wine:
-    #8f2d50;
+    var(--c-accent-deep);
 
   --messages-wine-dark:
-    #5c1734;
+    var(--c-accent-deep);
 
   position: fixed;
 
@@ -45,24 +45,24 @@
   box-sizing: border-box;
 
   color:
-    #f8eef2;
+    var(--c-text);
 
   background:
     radial-gradient(
       circle at 85% 4%,
-      rgba(145, 28, 73, 0.17),
+      rgba(var(--c-accent-deep-rgb), 0.17),
       transparent 25%
     ),
     radial-gradient(
       circle at 8% 26%,
-      rgba(86, 15, 45, 0.10),
+      rgba(var(--c-accent-deep-rgb), 0.10),
       transparent 29%
     ),
     linear-gradient(
       180deg,
-      #090507 0%,
-      #050305 47%,
-      #030203 100%
+      var(--c-bg) 0%,
+      var(--c-bg) 47%,
+      var(--c-bg) 100%
     );
 
   overscroll-behavior:
@@ -108,7 +108,7 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.13);
+    rgba(var(--c-accent-rgb), 0.13);
 
   border-radius:
     16px;
@@ -117,7 +117,7 @@
     rgba(255, 255, 255, 0.025);
 
   color:
-    rgba(248, 238, 242, 0.90);
+    rgba(var(--c-text-rgb), 0.90);
 
   font:
     inherit;
@@ -164,7 +164,7 @@
 
 .messages-logo {
   color:
-    rgba(255, 248, 251, 0.93);
+    rgba(var(--c-text-rgb), 0.93);
 
   font-size:
     12px;
@@ -179,7 +179,7 @@
 
 .messages-subtitle {
   color:
-    rgba(221, 199, 207, 0.54);
+    rgba(var(--c-text-soft-rgb), 0.54);
 
   font-size:
     14px;
@@ -234,7 +234,7 @@
     10px;
 
   color:
-    rgba(239, 119, 170, 0.90);
+    rgba(var(--c-accent-rgb), 0.90);
 
   font-size:
     11px;
@@ -256,10 +256,7 @@
 .messages-intro h1 {
   margin: 0;
 
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
+  font-family: var(--font-serif);
 
   font-size:
     clamp(
@@ -278,7 +275,7 @@
     -0.04em;
 
   color:
-    rgba(255, 247, 251, 0.98);
+    rgba(var(--c-text-rgb), 0.98);
 }
 
 
@@ -289,7 +286,7 @@
     0;
 
   color:
-    rgba(219, 198, 207, 0.54);
+    rgba(var(--c-text-soft-rgb), 0.54);
 
   font-size:
     16px;
@@ -330,7 +327,7 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.15);
+    rgba(var(--c-accent-rgb), 0.15);
 
   border-radius:
     999px;
@@ -343,7 +340,7 @@
     );
 
   color:
-    rgba(235, 217, 225, 0.72);
+    rgba(var(--c-accent-soft-rgb), 0.72);
 
   font-size:
     13px;
@@ -378,7 +375,7 @@
     0
     0
     12px
-    rgba(239, 119, 170, 0.64);
+    rgba(var(--c-accent-rgb), 0.64);
 }
 
 
@@ -405,13 +402,13 @@
 
 .messages-status {
   color:
-    rgba(222, 201, 210, 0.48);
+    rgba(var(--c-text-soft-rgb), 0.48);
 }
 
 
 .messages-error {
   color:
-    #ff9fbc;
+    var(--c-accent-soft);
 }
 
 
@@ -445,7 +442,7 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.11);
+    rgba(var(--c-accent-rgb), 0.11);
 
   border-radius:
     24px;
@@ -465,7 +462,7 @@
     10px;
 
   color:
-    rgba(239, 119, 170, 0.62);
+    rgba(var(--c-accent-rgb), 0.62);
 
   font-size:
     18px;
@@ -476,7 +473,7 @@
   display: block;
 
   color:
-    rgba(255, 244, 249, 0.82);
+    rgba(var(--c-text-rgb), 0.82);
 
   font-size:
     16px;
@@ -490,7 +487,7 @@
     0;
 
   color:
-    rgba(218, 196, 205, 0.46);
+    rgba(var(--c-text-soft-rgb), 0.46);
 
   font-size:
     13px;
@@ -634,7 +631,7 @@
 .message-bubble.is-mine {
   border:
     1px solid
-    rgba(255, 151, 192, 0.24);
+    rgba(var(--c-accent-soft-rgb), 0.24);
 
   border-bottom-right-radius:
     9px;
@@ -642,12 +639,12 @@
   background:
     linear-gradient(
       145deg,
-      rgba(164, 45, 91, 0.86),
-      rgba(105, 24, 59, 0.92)
+      rgba(var(--c-accent-deep-rgb), 0.86),
+      rgba(var(--c-accent-deep-rgb), 0.92)
     );
 
   color:
-    rgba(255, 246, 250, 0.97);
+    rgba(var(--c-text-rgb), 0.97);
 }
 
 
@@ -671,7 +668,7 @@
     );
 
   color:
-    rgba(248, 238, 242, 0.94);
+    rgba(var(--c-text-rgb), 0.94);
 }
 
 
@@ -717,7 +714,7 @@
   gap: 8px;
 
   color:
-    rgba(247, 230, 238, 0.55);
+    rgba(var(--c-text-rgb), 0.55);
 
   font-size:
     10px;
@@ -755,9 +752,9 @@
   background:
     linear-gradient(
       180deg,
-      rgba(5, 3, 5, 0),
-      rgba(5, 3, 5, 0.88) 28%,
-      rgba(5, 3, 5, 0.98) 58%
+      rgba(var(--c-bg-rgb), 0),
+      rgba(var(--c-bg-rgb), 0.88) 28%,
+      rgba(var(--c-bg-rgb), 0.98) 58%
     );
 }
 
@@ -822,7 +819,7 @@
     );
 
   color:
-    rgba(248, 238, 242, 0.96);
+    rgba(var(--c-text-rgb), 0.96);
 
   font:
     inherit;
@@ -854,13 +851,13 @@
 
 .messages-composer textarea::placeholder {
   color:
-    rgba(247, 238, 242, 0.29);
+    rgba(var(--c-text-rgb), 0.29);
 }
 
 
 .messages-composer textarea:focus {
   border-color:
-    rgba(239, 119, 170, 0.27);
+    rgba(var(--c-accent-rgb), 0.27);
 
   background:
     rgba(255, 255, 255, 0.045);
@@ -870,11 +867,11 @@
     0
     0
     1px
-    rgba(239, 119, 170, 0.045),
+    rgba(var(--c-accent-rgb), 0.045),
     0
     14px
     28px
-    rgba(52, 7, 24, 0.18);
+    rgba(var(--c-surface-rgb), 0.18);
 }
 
 
@@ -900,7 +897,7 @@
 
   border:
     1px solid
-    rgba(255, 145, 190, 0.16);
+    rgba(var(--c-accent-soft-rgb), 0.16);
 
   border-radius:
     50%;
@@ -908,12 +905,12 @@
   background:
     linear-gradient(
       145deg,
-      rgba(139, 38, 79, 0.95),
-      rgba(85, 19, 49, 0.97)
+      rgba(var(--c-accent-deep-rgb), 0.95),
+      rgba(var(--c-accent-deep-rgb), 0.97)
     );
 
   color:
-    rgba(255, 248, 251, 0.96);
+    rgba(var(--c-text-rgb), 0.96);
 
   font:
     inherit;
@@ -930,7 +927,7 @@
     0
     12px
     28px
-    rgba(91, 12, 43, 0.28),
+    rgba(var(--c-accent-deep-rgb), 0.28),
     inset
     0
     1px

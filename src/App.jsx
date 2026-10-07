@@ -11230,7 +11230,8 @@ async function handleSceneRead() {
 
           {card.title && (
             <p className="kicker">
-              {card.title.toUpperCase()}
+              {/* passe 2 : titre en sérif, casse d'origine */}
+              {card.title}
             </p>
           )}
 

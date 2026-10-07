@@ -1,0 +1,82 @@
+/* =========================================================
+   PROTOCOL — IDENTITÉ « NÉON NOCTURNE » (passe 2)
+   Source unique des couleurs et des polices.
+   Toutes les feuilles pointent ici : changer une valeur
+   ici la change partout.
+   ========================================================= */
+
+:root {
+
+  /* ---------- Polices ----------
+     Sérif : Bodoni Moda, hébergée dans l'app (@fontsource-variable).
+     Axe optique (opsz) : les déliés s'épaississent seuls en petit.
+     Repli iPhone : Bodoni 72 / Didot, installées sur iOS.
+     Règle : sérif à 20 px et plus (titres, logo, chronos),
+     SF Pro (police système) pour tout le reste. */
+  --font-serif:
+    "Bodoni Moda Variable",
+    "Bodoni Moda",
+    "Bodoni 72",
+    Didot,
+    Georgia,
+    serif;
+
+  --font-sans:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Text",
+    system-ui,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+
+  /* ---------- Fonds ---------- */
+  --c-bg: #08050a;            /* nuit : fond OLED */
+  --c-bg-rgb: 8, 5, 10;
+  --c-surface: #130c12;       /* velours : cartes, panneaux */
+  --c-surface-rgb: 19, 12, 18;
+  --c-surface-2: #1e131b;     /* satin : relief, champs */
+
+  /* ---------- Textes ---------- */
+  --c-text: #f7eef2;          /* peau */
+  --c-text-rgb: 247, 238, 242;
+  --c-text-soft: #d9c9d0;     /* textes longs (prompts) */
+  --c-text-soft-rgb: 217, 201, 208;
+  --c-muted: #a8939c;         /* secondaire, ≥ 7:1 sur le fond */
+  --c-muted-rgb: 168, 147, 156;
+  --c-label: #8e7a84;         /* micro-libellés, ≥ 5:1 sur le fond */
+
+  /* ---------- Lignes ---------- */
+  --c-line: rgba(255, 255, 255, 0.08);
+  --c-line-strong: rgba(255, 255, 255, 0.16);
+
+  /* ---------- Accent : réservé à l'action ---------- */
+  --c-accent: #ff4d97;        /* néon */
+  --c-accent-rgb: 255, 77, 151;
+  --c-accent-soft: #ff8cbc;   /* néon clair : liens, survols */
+  --c-accent-soft-rgb: 255, 140, 188;
+  --c-accent-deep: #8a1748;   /* néon éteint : remplace l'ancien bordeaux */
+  --c-accent-deep-rgb: 138, 23, 72;
+  --c-on-accent: #1a0610;     /* texte posé sur le néon (le blanc n'y fait que 3:1) */
+
+  /* ---------- Types de cartes ---------- */
+  --c-truth: #f2a7c3;         /* rose poudré */
+  --c-truth-rgb: 242, 167, 195;
+  --c-action: var(--c-accent);
+  --c-action-rgb: var(--c-accent-rgb);
+  --c-duel: #e3c08f;          /* champagne */
+  --c-duel-rgb: 227, 192, 143;
+  --c-duel-soft: #efd6b0;
+  --c-scene: #b48cff;         /* lilas */
+  --c-scene-rgb: 180, 140, 255;
+  --c-scene-soft: #d2bbff;
+
+  /* ---------- Échelle typographique (7 tailles) ---------- */
+  --fs-display: 56px;
+  --fs-title: 34px;
+  --fs-heading: 24px;
+  --fs-lead: 18px;
+  --fs-body: 15px;
+  --fs-small: 13px;
+  --fs-label: 11px;
+}

@@ -82,7 +82,7 @@
   letter-spacing: 0 !important;
   text-transform: none !important;
 
-  color: #f6e9ee !important;
+  color: var(--c-text) !important;
 }
 
 .play-page .bonus-panel .bonus-button small {
@@ -92,7 +92,7 @@
   line-height: 1.35 !important;
   white-space: normal !important;
 
-  color: #b9a3ad !important;
+  color: var(--c-muted) !important;
 }
 
 .play-page .bonus-panel .bonus-button strong {
@@ -100,13 +100,13 @@
   flex: none !important;
 
   padding: 5px 10px !important;
-  border: 1px solid rgba(239, 119, 170, 0.35) !important;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.35) !important;
   border-radius: 999px !important;
 
   font-size: 12px !important;
   white-space: nowrap !important;
 
-  color: #ef77aa !important;
+  color: var(--c-accent) !important;
 }
 
 .play-page .bonus-panel .bonus-button:disabled {
@@ -115,7 +115,7 @@
 
 /* type imposé : rappel visible dans la barre repliée */
 .bonus-toggle-armed {
-  color: #ef77aa !important;
+  color: var(--c-accent) !important;
 }
 
 
@@ -169,7 +169,7 @@
   border-radius: 50% !important;
 
   background: rgba(255, 255, 255, 0.035) !important;
-  color: #f4eff1 !important;
+  color: var(--c-text) !important;
 
   font-size: 18px !important;
   line-height: 1 !important;
@@ -202,7 +202,7 @@
   line-height: 1.2 !important;
   text-transform: uppercase !important;
 
-  color: #f4eff1 !important;
+  color: var(--c-text) !important;
 }
 
 .library-target,
@@ -218,7 +218,7 @@
   line-height: 1.3 !important;
   text-transform: none !important;
 
-  color: #a8939c !important;
+  color: var(--c-muted) !important;
 }
 
 .protocol-settings-header-spacer {
@@ -236,7 +236,7 @@
 .play-page .play-meta,
 .play-page .footer {
   font-size: 11px !important;
-  color: #a08b94 !important;
+  color: var(--c-muted) !important;
 }
 
 
@@ -264,7 +264,7 @@
 
   padding: 12px 0 max(14px, env(safe-area-inset-bottom)) !important;
 
-  background: linear-gradient(180deg, rgba(5, 4, 5, 0), #050405 40%) !important;
+  background: linear-gradient(180deg, rgba(var(--c-bg-rgb), 0), var(--c-bg) 40%) !important;
 }
 
 

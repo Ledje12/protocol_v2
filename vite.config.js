@@ -26,8 +26,8 @@ export default defineConfig({
         short_name: 'Protocol',
         description: 'Protocol',
 
-        theme_color: '#050405',
-        background_color: '#050405',
+        theme_color: '#08050a',
+        background_color: '#08050a',
 
         display: 'standalone',
         orientation: 'portrait',

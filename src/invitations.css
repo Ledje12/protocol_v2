@@ -4,9 +4,9 @@
    ========================================================= */
 
 .invitations-page {
-  --inv-pink: #ef77aa;
-  --inv-pink-soft: #ff9ac3;
-  --inv-wine: #8f2d50;
+  --inv-pink: var(--c-accent);
+  --inv-pink-soft: var(--c-accent-soft);
+  --inv-wine: var(--c-accent-deep);
 
   min-height: 100dvh;
 
@@ -19,19 +19,19 @@
     );
 
   color:
-    #f4eff1;
+    var(--c-text);
 
   background:
     radial-gradient(
       circle at 45% -12%,
-      rgba(121, 49, 82, 0.075),
+      rgba(var(--c-accent-deep-rgb), 0.075),
       transparent 31%
     ),
     linear-gradient(
       180deg,
-      #0c080b 0%,
-      #070507 44%,
-      #050405 100%
+      var(--c-bg) 0%,
+      var(--c-bg) 44%,
+      var(--c-bg) 100%
     );
 }
 
@@ -70,7 +70,7 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.14);
+    rgba(var(--c-accent-rgb), 0.14);
 
   border-radius:
     50%;
@@ -79,7 +79,7 @@
     rgba(255, 255, 255, 0.018);
 
   color:
-    rgba(244, 239, 241, 0.78);
+    rgba(var(--c-text-rgb), 0.78);
 
   font: inherit;
   font-size: 25px;
@@ -101,7 +101,7 @@
     scale(0.96);
 
   background:
-    rgba(239, 119, 170, 0.05);
+    rgba(var(--c-accent-rgb), 0.05);
 }
 
 
@@ -124,7 +124,7 @@
   letter-spacing: 0.04em;
 
   color:
-    rgba(255, 248, 251, 0.96);
+    rgba(var(--c-text-rgb), 0.96);
 }
 
 
@@ -132,7 +132,7 @@
   font-size: 14px;
 
   color:
-    rgba(211, 190, 199, 0.48);
+    rgba(var(--c-text-soft-rgb), 0.48);
 }
 
 
@@ -187,10 +187,7 @@
   max-width:
     360px;
 
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
+  font-family: var(--font-serif);
 
   font-size:
     clamp(
@@ -209,7 +206,7 @@
     -0.045em;
 
   color:
-    rgba(255, 247, 251, 0.98);
+    rgba(var(--c-text-rgb), 0.98);
 
   text-shadow:
     0
@@ -229,7 +226,7 @@
     0;
 
   color:
-    rgba(211, 190, 199, 0.50);
+    rgba(var(--c-text-soft-rgb), 0.50);
 
   font-size:
     14px;
@@ -257,7 +254,7 @@
 
 .invitation-item {
   --inv-accent:
-    239, 119, 170;
+    var(--c-accent-rgb);
 
   position: relative;
 
@@ -290,8 +287,8 @@
     ),
     linear-gradient(
       150deg,
-      rgba(20, 13, 18, 0.82),
-      rgba(11, 8, 10, 0.88)
+      rgba(var(--c-surface-rgb), 0.82),
+      rgba(var(--c-bg-rgb), 0.88)
     );
 
   color:
@@ -340,22 +337,22 @@
 
 .invitation-type-action {
   --inv-accent:
-    239, 119, 170;
+    var(--c-action-rgb);
 }
 
 .invitation-type-truth {
   --inv-accent:
-    221, 160, 181;
+    var(--c-truth-rgb);
 }
 
 .invitation-type-duel {
   --inv-accent:
-    181, 103, 160;
+    var(--c-duel-rgb);
 }
 
 .invitation-type-scene {
   --inv-accent:
-    197, 87, 125;
+    var(--c-scene-rgb);
 }
 
 
@@ -443,7 +440,7 @@
 
 .invitation-date {
   color:
-    rgba(213, 190, 199, 0.28);
+    rgba(var(--c-text-soft-rgb), 0.28);
 
   font-size:
     11px;
@@ -461,7 +458,7 @@
     13px;
 
   color:
-    rgba(255, 247, 251, 0.95);
+    rgba(var(--c-text-rgb), 0.95);
 
   font-size:
     21px;
@@ -488,7 +485,7 @@
   gap: 8px;
 
   color:
-    rgba(218, 198, 206, 0.51);
+    rgba(var(--c-text-soft-rgb), 0.51);
 
   font-size:
     13px;
@@ -550,7 +547,7 @@
     600;
 
   color:
-    rgba(212, 191, 199, 0.44);
+    rgba(var(--c-text-soft-rgb), 0.44);
 }
 
 
@@ -568,7 +565,7 @@
 
 .invitation-status.opened {
   color:
-    rgba(226, 208, 216, 0.58);
+    rgba(var(--c-text-soft-rgb), 0.58);
 }
 
 
@@ -584,7 +581,7 @@
 
 .invitation-status.pending {
   color:
-    rgba(222, 197, 207, 0.47);
+    rgba(var(--c-text-soft-rgb), 0.47);
 }
 
 
@@ -604,7 +601,7 @@
 
 .invitation-status.received {
   color:
-    rgba(239, 119, 170, 0.72);
+    rgba(var(--c-accent-rgb), 0.72);
 }
 
 
@@ -617,7 +614,7 @@
     0
     0
     7px
-    rgba(239, 119, 170, 0.32);
+    rgba(var(--c-accent-rgb), 0.32);
 }
 
 
@@ -627,7 +624,7 @@
 
 .invitation-open-arrow {
   color:
-    rgba(244, 239, 241, 0.24);
+    rgba(var(--c-text-rgb), 0.24);
 
   font-size:
     16px;
@@ -644,7 +641,7 @@
     0;
 
   color:
-    rgba(211, 190, 199, 0.40);
+    rgba(var(--c-text-soft-rgb), 0.40);
 
   font-size:
     13px;
@@ -660,7 +657,7 @@
     center;
 
   color:
-    rgba(211, 190, 199, 0.43);
+    rgba(var(--c-text-soft-rgb), 0.43);
 }
 
 
@@ -671,7 +668,7 @@
     12px;
 
   color:
-    rgba(239, 119, 170, 0.55);
+    rgba(var(--c-accent-rgb), 0.55);
 
   font-size:
     23px;
@@ -682,7 +679,7 @@
   display: block;
 
   color:
-    rgba(255, 243, 248, 0.80);
+    rgba(var(--c-text-rgb), 0.80);
 
   font-size:
     15px;
@@ -716,7 +713,7 @@
     0;
 
   color:
-    #e88aa9;
+    var(--c-accent-soft);
 
   font-size:
     14px;

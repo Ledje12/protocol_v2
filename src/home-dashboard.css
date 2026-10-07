@@ -4,9 +4,9 @@
    ========================================================= */
 
 .protocol-home-page {
-  --p-bg: #070508;
-  --p-pink: #ef77aa;
-  --p-pink-light: #ff9ac3;
+  --p-bg: var(--c-bg);
+  --p-pink: var(--c-accent);
+  --p-pink-light: var(--c-accent-soft);
 
   width: 100%;
   height: 100dvh;
@@ -21,12 +21,12 @@
   background:
     radial-gradient(
       circle at 50% -7%,
-      rgba(139, 36, 85, 0.24),
+      rgba(var(--c-accent-deep-rgb), 0.24),
       transparent 33%
     ),
     radial-gradient(
       circle at 100% 58%,
-      rgba(89, 28, 76, 0.12),
+      rgba(var(--c-accent-deep-rgb), 0.12),
       transparent 37%
     ),
     var(--p-bg);
@@ -101,7 +101,7 @@
     linear-gradient(
       90deg,
       transparent,
-      rgba(239, 119, 170, 0.44)
+      rgba(var(--c-accent-rgb), 0.44)
     );
 }
 
@@ -109,7 +109,7 @@
   background:
     linear-gradient(
       90deg,
-      rgba(239, 119, 170, 0.44),
+      rgba(var(--c-accent-rgb), 0.44),
       transparent
     );
 }
@@ -182,14 +182,14 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.24);
+    rgba(var(--c-accent-rgb), 0.24);
 
   background:
-    #120a10;
+    var(--c-surface);
 
   box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.50),
-    0 8px 28px rgba(90, 20, 60, 0.08),
+    0 8px 28px rgba(var(--c-accent-deep-rgb), 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
@@ -203,9 +203,9 @@
   background-image:
     linear-gradient(
       90deg,
-      rgba(9, 5, 8, 0.44) 0%,
-      rgba(9, 5, 8, 0.12) 49%,
-      rgba(9, 5, 8, 0.03) 100%
+      rgba(var(--c-bg-rgb), 0.44) 0%,
+      rgba(var(--c-bg-rgb), 0.12) 49%,
+      rgba(var(--c-bg-rgb), 0.03) 100%
     ),
     url("/protocol-home-hero.png");
 
@@ -239,7 +239,7 @@
   background:
     radial-gradient(
       ellipse at 72% 26%,
-      rgba(245, 105, 164, 0.13),
+      rgba(var(--c-accent-rgb), 0.13),
       transparent 34%
     );
 
@@ -258,11 +258,11 @@
   background:
     linear-gradient(
       180deg,
-      rgba(6, 3, 6, 0.05) 0%,
-      rgba(6, 3, 6, 0.07) 24%,
-      rgba(6, 3, 6, 0.16) 47%,
-      rgba(7, 4, 7, 0.63) 74%,
-      rgba(7, 4, 7, 0.97) 100%
+      rgba(var(--c-bg-rgb), 0.05) 0%,
+      rgba(var(--c-bg-rgb), 0.07) 24%,
+      rgba(var(--c-bg-rgb), 0.16) 47%,
+      rgba(var(--c-bg-rgb), 0.63) 74%,
+      rgba(var(--c-bg-rgb), 0.97) 100%
     );
 
   pointer-events: none;
@@ -335,7 +335,7 @@
   letter-spacing: -0.055em;
 
   color:
-    rgba(255, 248, 251, 0.99);
+    rgba(var(--c-text-rgb), 0.99);
 
   text-shadow:
     0 3px 32px
@@ -371,11 +371,11 @@
 
   box-shadow:
     0 0 10px
-    rgba(255, 130, 182, 0.95),
+    rgba(var(--c-accent-soft-rgb), 0.95),
     0
     0
     22px
-    rgba(239, 119, 170, 0.44);
+    rgba(var(--c-accent-rgb), 0.44);
 }
 
 .protocol-home-status strong {
@@ -443,15 +443,15 @@
 
   border:
     1px solid
-    rgba(255, 137, 187, 0.28);
+    rgba(var(--c-accent-soft-rgb), 0.28);
 
   border-radius: 22px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(40, 18, 31, 0.54),
-      rgba(10, 7, 10, 0.40)
+      rgba(var(--c-surface-rgb), 0.54),
+      rgba(var(--c-bg-rgb), 0.40)
     );
 
   backdrop-filter:
@@ -485,7 +485,7 @@
     0
     0
     10px
-    rgba(255, 145, 189, 0.78);
+    rgba(var(--c-accent-soft-rgb), 0.78);
 }
 
 .protocol-home-level strong {
@@ -541,7 +541,7 @@
 
   border:
     1px solid
-    rgba(255, 175, 211, 0.72);
+    rgba(var(--c-accent-soft-rgb), 0.72);
 
   border-radius: 22px;
 
@@ -556,9 +556,9 @@
   background:
     linear-gradient(
       112deg,
-      rgba(240, 101, 150, 0.98) 0%,
-      rgba(195, 65, 139, 0.97) 48%,
-      rgba(119, 37, 119, 0.95) 100%
+      rgba(var(--c-accent-rgb), 0.98) 0%,
+      rgba(var(--c-accent-rgb), 0.97) 48%,
+      rgba(var(--c-accent-deep-rgb), 0.95) 100%
     );
 
   color: white;
@@ -567,7 +567,7 @@
     0
     12px
     32px
-    rgba(188, 51, 118, 0.31),
+    rgba(var(--c-accent-deep-rgb), 0.31),
     inset
     0
     1px
@@ -605,15 +605,15 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.37);
+    rgba(var(--c-accent-rgb), 0.37);
 
   border-radius: 18px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(39, 18, 31, 0.68),
-      rgba(12, 8, 12, 0.76)
+      rgba(var(--c-surface-rgb), 0.68),
+      rgba(var(--c-bg-rgb), 0.76)
     );
 
   color:
@@ -676,7 +676,7 @@
 
 .protocol-home-resume-link svg {
   color:
-    rgba(239, 119, 170, 0.72);
+    rgba(var(--c-accent-rgb), 0.72);
 }
 
 .protocol-home-resume-link small {
@@ -708,7 +708,7 @@
     0
     0
     9px
-    rgba(255, 145, 189, 0.8);
+    rgba(var(--c-accent-soft-rgb), 0.8);
 }
 
 
@@ -750,15 +750,15 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.20);
+    rgba(var(--c-accent-rgb), 0.20);
 
   border-radius: 22px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(44, 22, 36, 0.72),
-      rgba(17, 11, 16, 0.75)
+      rgba(var(--c-surface-rgb), 0.72),
+      rgba(var(--c-surface-rgb), 0.75)
     );
 
   color:
@@ -772,7 +772,7 @@
 .protocol-home-nav button > svg,
 .protocol-home-nav-icon {
   color:
-    rgba(248, 137, 185, 0.94);
+    rgba(var(--c-accent-soft-rgb), 0.94);
 }
 
 .protocol-home-nav strong {
@@ -848,8 +848,8 @@
   background:
     linear-gradient(
       90deg,
-      rgba(239, 119, 170, 0.85),
-      rgba(239, 119, 170, 0.25)
+      rgba(var(--c-accent-rgb), 0.85),
+      rgba(var(--c-accent-rgb), 0.25)
     );
 }
 
@@ -909,15 +909,15 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.12);
+    rgba(var(--c-accent-rgb), 0.12);
 
   border-radius: 20px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(28, 15, 23, 0.46),
-      rgba(10, 8, 10, 0.56)
+      rgba(var(--c-surface-rgb), 0.46),
+      rgba(var(--c-bg-rgb), 0.56)
     );
 
   color:
@@ -932,7 +932,7 @@
   display: flex;
 
   color:
-    rgba(246, 128, 180, 0.90);
+    rgba(var(--c-accent-soft-rgb), 0.90);
 
   transform:
     scale(0.88);
@@ -1062,18 +1062,18 @@
 
   border-top:
     1px solid
-    rgba(239, 119, 170, 0.28);
+    rgba(var(--c-accent-rgb), 0.28);
 
   background:
     radial-gradient(
       circle at 50% 0%,
-      rgba(124, 34, 81, 0.16),
+      rgba(var(--c-accent-deep-rgb), 0.16),
       transparent 38%
     ),
     linear-gradient(
       180deg,
-      #1b1017,
-      #080609
+      var(--c-surface),
+      var(--c-bg)
     );
 }
 
@@ -1144,7 +1144,7 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.28);
+    rgba(var(--c-accent-rgb), 0.28);
 
   border-radius: 18px;
 
@@ -1170,7 +1170,7 @@
 
 .protocol-join-sheet input:focus {
   border-color:
-    rgba(255, 137, 186, 0.72);
+    rgba(var(--c-accent-soft-rgb), 0.72);
 }
 
 .protocol-join-submit {
@@ -1191,8 +1191,8 @@
   background:
     linear-gradient(
       110deg,
-      #e16496,
-      #822c7e
+      var(--c-accent),
+      var(--c-accent-deep)
     );
 
   color: white;
@@ -1321,15 +1321,15 @@
   background:
     radial-gradient(
       circle at 50% 35%,
-      rgba(112, 30, 74, 0.18),
+      rgba(var(--c-accent-deep-rgb), 0.18),
       transparent 32%
     ),
     radial-gradient(
       circle at 80% 75%,
-      rgba(68, 21, 65, 0.10),
+      rgba(var(--c-accent-deep-rgb), 0.10),
       transparent 38%
     ),
-    #070508;
+    var(--c-bg);
 
   opacity: 0;
 
@@ -1404,7 +1404,7 @@
     linear-gradient(
       90deg,
       transparent,
-      rgba(239, 119, 170, 0.52)
+      rgba(var(--c-accent-rgb), 0.52)
     );
 }
 
@@ -1412,7 +1412,7 @@
   background:
     linear-gradient(
       90deg,
-      rgba(239, 119, 170, 0.52),
+      rgba(var(--c-accent-rgb), 0.52),
       transparent
     );
 }
@@ -1439,13 +1439,13 @@
   font-weight: 300;
 
   color:
-    rgba(239, 119, 170, 0.72);
+    rgba(var(--c-accent-rgb), 0.72);
 
   text-shadow:
     0
     0
     18px
-    rgba(239, 119, 170, 0.20);
+    rgba(var(--c-accent-rgb), 0.20);
 }
 
 
@@ -1767,7 +1767,7 @@
   border-radius: 50%;
 
   background:
-    rgba(255, 72, 154, 0.18);
+    rgba(var(--c-accent-rgb), 0.18);
 
   filter: blur(90px);
 
@@ -1833,7 +1833,7 @@
 
   letter-spacing: 0.22em;
 
-  color: #ff489a;
+  color: var(--c-accent);
 }
 
 
@@ -1868,7 +1868,7 @@
 
   letter-spacing: 0.21em;
 
-  color: #ff489a;
+  color: var(--c-accent);
 }
 
 
@@ -1965,14 +1965,14 @@
 
 .protocol-auth-form input:focus {
   border-color:
-    rgba(255, 72, 154, 0.68);
+    rgba(var(--c-accent-rgb), 0.68);
 
   background:
     rgba(255, 255, 255, 0.075);
 
   box-shadow:
     0 0 0 4px
-    rgba(255, 72, 154, 0.10);
+    rgba(var(--c-accent-rgb), 0.10);
 }
 
 
@@ -2010,13 +2010,13 @@
   background:
     linear-gradient(
       135deg,
-      #ff5ca8,
-      #ff3f91
+      var(--c-accent),
+      var(--c-accent)
     );
 
   box-shadow:
     0 14px 38px
-    rgba(255, 63, 145, 0.24);
+    rgba(var(--c-accent-rgb), 0.24);
 
   cursor: pointer;
 
@@ -2116,21 +2116,21 @@
 
 .protocol-profile-sex-option.is-selected {
   border-color:
-    rgba(255, 72, 154, 0.82);
+    rgba(var(--c-accent-rgb), 0.82);
 
   background:
-    rgba(255, 72, 154, 0.12);
+    rgba(var(--c-accent-rgb), 0.12);
 
   box-shadow:
     0 0 0 4px
-    rgba(255, 72, 154, 0.07);
+    rgba(var(--c-accent-rgb), 0.07);
 }
 
 .protocol-profile-sex-symbol {
   font-size: 2rem;
   line-height: 1;
 
-  color: #ff489a;
+  color: var(--c-accent);
 }
 
 .settings-delete-account {

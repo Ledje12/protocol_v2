@@ -1835,7 +1835,7 @@ export default function CardScreen({
 
 
   return (
-    <main className="card-page">
+    <main className={`card-page card-page-${card.type}`}>
 
       <header className="card-topbar">
 

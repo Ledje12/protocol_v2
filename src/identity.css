@@ -1,0 +1,617 @@
+/* =========================================================
+   PROTOCOL — PASSE 2 : IDENTITÉ « NÉON NOCTURNE »
+   Chargée en dernier (main.jsx). Couleurs et polices :
+   uniquement via les tokens de tokens.css.
+   Règles :
+   1. Le néon est réservé à ce qui se joue (bouton principal,
+      tour actif, sélection). Jamais en décor.
+   2. Sérif (Bodoni Moda) à 20 px et plus. SF Pro en dessous.
+   3. Chaque type de carte a sa couleur : vérité rose poudré,
+      action néon, duel champagne, scène lilas.
+   À fusionner dans les feuilles d'origine lors de la passe 3.
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   0. BASE
+   --------------------------------------------------------- */
+
+body {
+  background: var(--c-bg);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: rgba(var(--c-accent-rgb), 0.35);
+}
+
+
+/* ---------------------------------------------------------
+   1. BOUTON PRINCIPAL : un seul style dans toute l'app
+   Néon plein, texte encre (le blanc sur ce rose fait 3:1).
+   --------------------------------------------------------- */
+
+.protocol-home-primary,
+button.primary {
+  border: 0 !important;
+  background: var(--c-accent) !important;
+  color: var(--c-on-accent) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28) !important;
+  text-shadow: none !important;
+}
+
+.protocol-home-primary::before,
+.protocol-home-primary::after,
+button.primary::before,
+button.primary::after {
+  display: none !important;
+}
+
+.protocol-home-primary:disabled,
+button.primary:disabled {
+  opacity: 0.5;
+  box-shadow: none !important;
+}
+
+/* bouton secondaire : contour discret */
+.protocol-home-join-main {
+  border: 1px solid var(--c-line-strong) !important;
+  background: transparent !important;
+  color: var(--c-text) !important;
+  font-weight: 600 !important;
+}
+
+
+/* ---------------------------------------------------------
+   2. LOGO « PROTOCOL » : en sérif, partout pareil
+   --------------------------------------------------------- */
+
+.protocol-home-brand-name,
+.library-logo,
+.card-logo,
+.invitations-logo,
+.messages-logo,
+.protocol-settings-logo {
+  font-family: var(--font-serif) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3em !important;
+  color: var(--c-text) !important;
+}
+
+.protocol-home-brand-name {
+  font-size: 19px !important;
+  letter-spacing: 0.34em !important;
+}
+
+/* « V2 » : étiquette technique, remplacée par un filet néon */
+.protocol-home-brand-sub small {
+  display: none !important;
+}
+
+.protocol-home-brand-sub span {
+  width: 14px !important;
+  height: 1px !important;
+  background: var(--c-accent) !important;
+  opacity: 1 !important;
+}
+
+
+/* ---------------------------------------------------------
+   3. ACCUEIL
+   --------------------------------------------------------- */
+
+.protocol-home-title-line h1 {
+  font-style: italic !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.protocol-home-eyebrow {
+  font-size: 11px !important;
+  letter-spacing: 0.16em !important;
+  color: var(--c-text-soft) !important;
+}
+
+.protocol-home-section-title h2 {
+  font-family: var(--font-serif) !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  font-size: 26px !important;
+  letter-spacing: 0 !important;
+  color: var(--c-text) !important;
+}
+
+.protocol-home-nav strong,
+.protocol-home-signal-grid strong {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: var(--c-text) !important;
+}
+
+
+/* ---------------------------------------------------------
+   4. PAGE DE JEU
+   --------------------------------------------------------- */
+
+/* chaque carte porte la couleur de son type :
+   --type sert au liseré, au titre, au chrono */
+.game-card-truth  { --type: var(--c-truth);  --type-rgb: var(--c-truth-rgb); }
+.game-card-action { --type: var(--c-action); --type-rgb: var(--c-action-rgb); }
+.game-card-duel   { --type: var(--c-duel);   --type-rgb: var(--c-duel-rgb); }
+.game-card-scene  { --type: var(--c-scene);  --type-rgb: var(--c-scene-rgb); }
+
+.game-card {
+  --rose: var(--type, var(--c-accent));      /* anneau du chrono */
+  --rose-soft: var(--type, var(--c-accent));
+  border: 1px solid var(--c-line) !important;
+  border-top: 2px solid var(--type, var(--c-accent)) !important;
+  background: var(--c-surface) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35) !important;
+}
+
+.game-card::before {
+  background: var(--type, var(--c-accent)) !important;
+  opacity: 0.1 !important;
+}
+
+/* le titre de la carte devient le titre, en sérif */
+.game-card > .kicker,
+.game-card .kicker {
+  margin: 0 0 14px !important;
+  font-family: var(--font-serif) !important;
+  font-size: 32px !important;
+  font-weight: 500 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.005em !important;
+  text-transform: none !important;
+  color: var(--c-text) !important;
+}
+
+.game-card-truth .kicker {
+  font-style: italic !important;
+  font-weight: 400 !important;
+}
+
+/* le texte de la carte : SF Pro, lisible même long */
+.game-card .card-prompt {
+  font-family: var(--font-sans) !important;
+  font-size: 19px !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0 !important;
+  color: var(--c-text-soft) !important;
+}
+
+.game-card .card-prompt-short {
+  font-size: 21px !important;
+}
+
+.game-card .card-prompt-long {
+  font-size: 17.5px !important;
+}
+
+/* badge de type : couleur du type, lisible */
+.card-type {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.16em !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.card-type-truth  { color: var(--c-truth) !important;  border-color: rgba(var(--c-truth-rgb), 0.5) !important; }
+.card-type-action { color: var(--c-accent) !important; border-color: rgba(var(--c-accent-rgb), 0.5) !important; }
+.card-type-duel   { color: var(--c-duel) !important;   border-color: rgba(var(--c-duel-rgb), 0.5) !important; }
+.card-type-scene  { color: var(--c-scene) !important;  border-color: rgba(var(--c-scene-rgb), 0.5) !important; }
+
+/* en-tête de jeu : logo, scores */
+.play-page .logo {
+  font-family: var(--font-serif) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3em !important;
+}
+
+.play-page .score-board span {
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+}
+
+.play-page .score-board strong {
+  font-family: var(--font-serif) !important;
+  font-size: 24px !important;
+  font-weight: 500 !important;
+}
+
+/* barre Avantages repliée */
+.bonus-toggle-label,
+.bonus-toggle-meta,
+.bonus-toggle-dot {
+  font-size: 12px !important;
+}
+
+.bonus-toggle-label {
+  color: var(--c-text) !important;
+  letter-spacing: 0.12em !important;
+}
+
+.bonus-toggle-meta {
+  color: var(--c-muted) !important;
+}
+
+/* chrono */
+.protocol-timer-label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+}
+
+.protocol-timer-inner strong {
+  font-family: var(--font-serif) !important;
+  font-size: 26px !important;
+  font-weight: 400 !important;
+}
+
+.protocol-timer-main {
+  min-height: 44px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  color: var(--type, var(--c-accent)) !important;
+  border-color: rgba(var(--type-rgb, var(--c-accent-rgb)), 0.45) !important;
+  background: transparent !important;
+}
+
+.protocol-timer-reset {
+  min-height: 44px !important;
+  font-size: 12px !important;
+  color: var(--c-muted) !important;
+}
+
+/* duel : qui gagne */
+.duel-question {
+  font-family: var(--font-serif) !important;
+  font-style: italic !important;
+  font-size: 22px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--c-text) !important;
+}
+
+.duel-winner {
+  border: 1px solid rgba(var(--c-duel-rgb), 0.55) !important;
+  background: transparent !important;
+}
+
+.duel-winner span {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--c-text) !important;
+}
+
+.duel-winner strong {
+  font-family: var(--font-serif) !important;
+  font-size: 24px !important;
+  color: var(--c-duel) !important;
+}
+
+/* actions secondaires : texte simple, zone tactile 44 px */
+.text-action {
+  min-height: 44px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--c-muted) !important;
+}
+
+/* écran d'annonce entre deux cartes */
+.card-reveal-kicker,
+.card-reveal-whisper,
+.card-reveal-vs {
+  font-size: 12px !important;
+  letter-spacing: 0.18em !important;
+  color: var(--c-muted) !important;
+}
+
+.card-reveal-player,
+.card-reveal-type {
+  font-family: var(--font-serif) !important;
+  font-weight: 500 !important;
+  font-size: 44px !important;
+}
+
+.card-reveal-truth .card-reveal-type { color: var(--c-truth) !important; font-style: italic; font-weight: 400 !important; }
+.card-reveal-action .card-reveal-type { color: var(--c-accent) !important; }
+.card-reveal-duel .card-reveal-kicker { color: var(--c-duel) !important; }
+.card-reveal-scene .card-reveal-type { color: var(--c-scene) !important; }
+
+/* STOP : reste neutre et lisible */
+.protocol-stop-button {
+  font-size: 12px !important;
+}
+
+
+/* ---------------------------------------------------------
+   5. ÉCRANS SECONDAIRES : règles communes
+   --------------------------------------------------------- */
+
+/* sur-titre (« BIBLIOTHÈQUE », « INVITATIONS »…) : discret, pas néon */
+.library-page .kicker,
+.invitations-page .kicker,
+.messages-page .kicker,
+.protocol-settings .kicker,
+.card-page .kicker {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.16em !important;
+  color: var(--c-muted) !important;
+}
+
+.library-page .intro,
+.invitations-page .intro,
+.messages-page .intro {
+  color: var(--c-muted) !important;
+}
+
+/* filtres et onglets : la sélection est en néon */
+.library-filter-label {
+  font-size: 11px !important;
+  color: var(--c-label) !important;
+}
+
+.library-filter {
+  min-height: 40px !important;
+  border-color: var(--c-line) !important;
+  background: transparent !important;
+  color: var(--c-muted) !important;
+}
+
+.library-filter.active {
+  border-color: var(--c-accent) !important;
+  background: rgba(var(--c-accent-rgb), 0.12) !important;
+  color: var(--c-accent) !important;
+  box-shadow: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   6. BIBLIOTHÈQUE
+   --------------------------------------------------------- */
+
+.library-count {
+  font-size: 12px !important;
+  color: var(--c-label) !important;
+}
+
+.library-card {
+  border: 1px solid var(--c-line) !important;
+  border-top: 2px solid rgb(var(--card-accent)) !important;
+  background: var(--c-surface) !important;
+}
+
+.library-card-type {
+  font-size: 11px !important;
+  color: rgb(var(--card-accent)) !important;
+}
+
+.library-card-title {
+  font-family: var(--font-serif) !important;
+  font-size: 25px !important;
+  font-weight: 500 !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0 !important;
+}
+
+.library-card-truth .library-card-title {
+  font-style: italic !important;
+  font-weight: 400 !important;
+}
+
+.library-card-prompt {
+  color: var(--c-muted) !important;
+}
+
+.library-card-intensity .is-active {
+  background: rgb(var(--card-accent)) !important;
+  box-shadow: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   7. FICHE CARTE (depuis la bibliothèque)
+   --------------------------------------------------------- */
+
+.card-page-truth  { --type: var(--c-truth);  --type-rgb: var(--c-truth-rgb); }
+.card-page-action { --type: var(--c-action); --type-rgb: var(--c-action-rgb); }
+.card-page-duel   { --type: var(--c-duel);   --type-rgb: var(--c-duel-rgb); }
+.card-page-scene  { --type: var(--c-scene);  --type-rgb: var(--c-scene-rgb); }
+
+.card-page .card-type {
+  font-size: 11px !important;
+  color: var(--type, var(--c-accent)) !important;
+  border-color: rgba(var(--type-rgb, var(--c-accent-rgb)), 0.5) !important;
+  background: transparent !important;
+}
+
+.card-page-truth .card-title {
+  font-style: italic !important;
+  font-weight: 400 !important;
+}
+
+.card-page .card-prompt {
+  font-family: var(--font-sans) !important;
+  font-size: 19px !important;
+  line-height: 1.55 !important;
+  color: var(--c-text-soft) !important;
+}
+
+.card-page .card-prompt::before {
+  background: var(--type, var(--c-accent)) !important;
+}
+
+/* « Proposer à … » : bouton principal */
+.card-propose {
+  border: 0 !important;
+  background: var(--c-accent) !important;
+  color: var(--c-on-accent) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28) !important;
+}
+
+
+/* ---------------------------------------------------------
+   8. INVITATIONS
+   --------------------------------------------------------- */
+
+.invitations-kicker {
+  font-size: 11px !important;
+  letter-spacing: 0.16em !important;
+  color: var(--c-muted) !important;
+}
+
+.invitations-intro p {
+  color: var(--c-muted) !important;
+}
+
+.invitation-item {
+  border: 1px solid var(--c-line) !important;
+  border-top: 2px solid rgb(var(--inv-accent)) !important;
+  background: var(--c-surface) !important;
+}
+
+.invitation-type {
+  font-size: 11px !important;
+  color: rgb(var(--inv-accent)) !important;
+}
+
+.invitation-date {
+  font-size: 12px !important;
+  color: var(--c-label) !important;
+}
+
+.invitation-title {
+  font-family: var(--font-serif) !important;
+  font-size: 24px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+.invitation-direction,
+.invitation-direction span,
+.invitation-direction-icon {
+  color: var(--c-muted) !important;
+}
+
+
+/* ---------------------------------------------------------
+   9. MESSAGES
+   --------------------------------------------------------- */
+
+.messages-kicker {
+  font-size: 11px !important;
+  letter-spacing: 0.16em !important;
+  color: var(--c-muted) !important;
+}
+
+.messages-intro-text {
+  color: var(--c-muted) !important;
+}
+
+.messages-empty strong {
+  font-family: var(--font-serif) !important;
+  font-style: italic !important;
+  font-size: 24px !important;
+  font-weight: 400 !important;
+}
+
+/* envoyer = l'action de l'écran : néon */
+.messages-send {
+  border: 0 !important;
+  background: var(--c-accent) !important;
+  color: var(--c-on-accent) !important;
+  box-shadow: 0 8px 24px rgba(var(--c-accent-rgb), 0.3) !important;
+}
+
+.messages-send:disabled {
+  opacity: 0.4 !important;
+  box-shadow: none !important;
+}
+
+/* mes messages : néon éteint, texte clair (contraste 8:1) */
+.message-bubble.is-mine {
+  background: var(--c-accent-deep) !important;
+}
+
+
+/* ---------------------------------------------------------
+   10. RÉGLAGES
+   --------------------------------------------------------- */
+
+.settings-card {
+  border: 1px solid var(--c-line) !important;
+  background: var(--c-surface) !important;
+}
+
+.settings-card-eyebrow {
+  font-size: 11px !important;
+  letter-spacing: 0.16em !important;
+  color: var(--c-muted) !important;
+}
+
+.settings-card-heading h2 {
+  font-size: 30px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+.settings-card-copy,
+.protocol-settings .intro {
+  color: var(--c-muted) !important;
+}
+
+.settings-status-row span {
+  font-size: 11px !important;
+}
+
+.settings-feedback {
+  font-size: 12.5px !important;
+  color: var(--c-muted) !important;
+}
+
+.settings-text-action,
+.settings-privacy-link,
+.settings-secondary-action {
+  min-height: 44px !important;
+  font-size: 14px !important;
+  color: var(--c-muted) !important;
+}
+
+/* choix du mode : la sélection est en néon */
+.director-mode-option {
+  border: 1px solid var(--c-line) !important;
+  background: transparent !important;
+}
+
+.director-mode-option.is-active {
+  border-color: var(--c-accent) !important;
+  background: rgba(var(--c-accent-rgb), 0.1) !important;
+  box-shadow: none !important;
+}
+
+.director-mode-option span {
+  font-size: 12.5px !important;
+  color: var(--c-muted) !important;
+}
+
+/* actions de carte : contour, pas de néon (une seule action principale par écran) */
+.settings-primary-action {
+  border: 1px solid var(--c-line-strong) !important;
+  background: transparent !important;
+  color: var(--c-text) !important;
+}
+
+.settings-privacy-icon {
+  color: var(--c-muted) !important;
+}

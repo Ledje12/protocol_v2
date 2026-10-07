@@ -4,19 +4,19 @@
    ========================================================= */
 
 .library-page {
-  --library-pink: #ef77aa;
-  --library-pink-light: #ff9ac3;
-  --library-wine: #8f2d50;
-  --library-wine-dark: #681d38;
+  --library-pink: var(--c-accent);
+  --library-pink-light: var(--c-accent-soft);
+  --library-wine: var(--c-accent-deep);
+  --library-wine-dark: var(--c-accent-deep);
 
   --library-surface:
-    rgba(23, 13, 19, 0.76);
+    rgba(var(--c-surface-rgb), 0.76);
 
   --library-surface-soft:
-    rgba(14, 9, 13, 0.82);
+    rgba(var(--c-surface-rgb), 0.82);
 
   --library-line:
-    rgba(239, 119, 170, 0.16);
+    rgba(var(--c-accent-rgb), 0.16);
 
   --library-line-soft:
     rgba(255, 255, 255, 0.07);
@@ -34,24 +34,24 @@
     );
 
   color:
-    #f4eff1;
+    var(--c-text);
 
   background:
     radial-gradient(
       circle at 50% -10%,
-      rgba(139, 36, 85, 0.16),
+      rgba(var(--c-accent-deep-rgb), 0.16),
       transparent 31%
     ),
     radial-gradient(
       circle at 108% 48%,
-      rgba(89, 28, 76, 0.055),
+      rgba(var(--c-accent-deep-rgb), 0.055),
       transparent 34%
     ),
     linear-gradient(
       180deg,
-      #100a0e 0%,
-      #080608 45%,
-      #050405 100%
+      var(--c-surface) 0%,
+      var(--c-bg) 45%,
+      var(--c-bg) 100%
     );
 }
 
@@ -91,7 +91,7 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.16);
+    rgba(var(--c-accent-rgb), 0.16);
 
   border-radius:
     50%;
@@ -100,7 +100,7 @@
     rgba(255, 255, 255, 0.018);
 
   color:
-    rgba(244, 239, 241, 0.78);
+    rgba(var(--c-text-rgb), 0.78);
 
   font: inherit;
   font-size: 25px;
@@ -123,10 +123,10 @@
     scale(0.96);
 
   background:
-    rgba(239, 119, 170, 0.055);
+    rgba(var(--c-accent-rgb), 0.055);
 
   border-color:
-    rgba(239, 119, 170, 0.28);
+    rgba(var(--c-accent-rgb), 0.28);
 }
 
 
@@ -153,7 +153,7 @@
   letter-spacing: 0.04em;
 
   color:
-    rgba(255, 248, 251, 0.96);
+    rgba(var(--c-text-rgb), 0.96);
 }
 
 
@@ -169,7 +169,7 @@
   line-height: 1;
 
   color:
-    rgba(214, 193, 201, 0.50);
+    rgba(var(--c-text-soft-rgb), 0.50);
 }
 
 
@@ -230,10 +230,7 @@
   margin:
     0;
 
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
+  font-family: var(--font-serif);
 
   font-size:
     clamp(
@@ -252,7 +249,7 @@
     -0.047em;
 
   color:
-    rgba(255, 247, 251, 0.98);
+    rgba(var(--c-text-rgb), 0.98);
 
   text-shadow:
     0
@@ -278,13 +275,13 @@
     1.55;
 
   color:
-    rgba(211, 190, 199, 0.54);
+    rgba(var(--c-text-soft-rgb), 0.54);
 }
 
 
 .library-intro .intro strong {
   color:
-    rgba(255, 235, 244, 0.90);
+    rgba(var(--c-text-rgb), 0.90);
 
   font-weight:
     600;
@@ -333,7 +330,7 @@
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.16);
+    rgba(var(--c-accent-rgb), 0.16);
 
   border-radius:
     19px;
@@ -361,17 +358,17 @@
 
 .library-search:focus-within {
   border-color:
-    rgba(239, 119, 170, 0.40);
+    rgba(var(--c-accent-rgb), 0.40);
 
   background:
-    rgba(143, 45, 80, 0.055);
+    rgba(var(--c-accent-deep-rgb), 0.055);
 
   box-shadow:
     0
     0
     0
     3px
-    rgba(239, 119, 170, 0.035);
+    rgba(var(--c-accent-rgb), 0.035);
 }
 
 
@@ -382,7 +379,7 @@
     auto;
 
   color:
-    rgba(239, 119, 170, 0.52);
+    rgba(var(--c-accent-rgb), 0.52);
 
   font-size:
     21px;
@@ -404,7 +401,7 @@
     transparent;
 
   color:
-    rgba(255, 246, 250, 0.92);
+    rgba(var(--c-text-rgb), 0.92);
 
   font-family:
     inherit;
@@ -422,7 +419,7 @@
 
 .library-search input::placeholder {
   color:
-    rgba(212, 188, 198, 0.33);
+    rgba(var(--c-text-soft-rgb), 0.33);
 }
 
 
@@ -450,7 +447,7 @@ input::-webkit-search-cancel-button {
 
 .library-filter-label {
   color:
-    rgba(221, 199, 208, 0.47);
+    rgba(var(--c-text-soft-rgb), 0.47);
 
   font-size:
     10px;
@@ -512,7 +509,7 @@ input::-webkit-search-cancel-button {
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.13);
+    rgba(var(--c-accent-rgb), 0.13);
 
   border-radius:
     999px;
@@ -521,7 +518,7 @@ input::-webkit-search-cancel-button {
     rgba(255, 255, 255, 0.018);
 
   color:
-    rgba(219, 198, 206, 0.50);
+    rgba(var(--c-text-soft-rgb), 0.50);
 
   font-family:
     inherit;
@@ -558,17 +555,17 @@ input::-webkit-search-cancel-button {
 
 .library-filter.active {
   border-color:
-    rgba(255, 156, 198, 0.43);
+    rgba(var(--c-accent-soft-rgb), 0.43);
 
   background:
     linear-gradient(
       135deg,
-      rgba(153, 47, 88, 0.72),
-      rgba(101, 29, 62, 0.72)
+      rgba(var(--c-accent-deep-rgb), 0.72),
+      rgba(var(--c-accent-deep-rgb), 0.72)
     );
 
   color:
-    rgba(255, 246, 250, 0.96);
+    rgba(var(--c-text-rgb), 0.96);
 
   box-shadow:
     inset
@@ -579,7 +576,7 @@ input::-webkit-search-cancel-button {
     0
     7px
     20px
-    rgba(95, 24, 58, 0.13);
+    rgba(var(--c-accent-deep-rgb), 0.13);
 }
 
 
@@ -609,7 +606,7 @@ input::-webkit-search-cancel-button {
   margin: 0;
 
   color:
-    rgba(215, 193, 202, 0.37);
+    rgba(var(--c-text-soft-rgb), 0.37);
 
   font-size:
     12px;
@@ -628,7 +625,7 @@ input::-webkit-search-cancel-button {
   background:
     linear-gradient(
       90deg,
-      rgba(239, 119, 170, 0.17),
+      rgba(var(--c-accent-rgb), 0.17),
       transparent
     );
 }
@@ -656,7 +653,7 @@ input::-webkit-search-cancel-button {
 
 .library-card {
   --card-accent:
-    239, 119, 170;
+    var(--c-accent-rgb);
 
   position:
     relative;
@@ -740,28 +737,28 @@ input::-webkit-search-cancel-button {
 /* ACTION */
 .library-card-action {
   --card-accent:
-    239, 119, 170;
+    var(--c-action-rgb);
 }
 
 
 /* TRUTH */
 .library-card-truth {
   --card-accent:
-    221, 160, 181;
+    var(--c-truth-rgb);
 }
 
 
 /* DUEL */
 .library-card-duel {
   --card-accent:
-    181, 103, 160;
+    var(--c-duel-rgb);
 }
 
 
 /* SCENE */
 .library-card-scene {
   --card-accent:
-    197, 87, 125;
+    var(--c-scene-rgb);
 }
 
 
@@ -869,7 +866,7 @@ input::-webkit-search-cancel-button {
 
 .library-card-id {
   color:
-    rgba(213, 190, 199, 0.22);
+    rgba(var(--c-text-soft-rgb), 0.22);
 
   font-size:
     11px;
@@ -887,7 +884,7 @@ input::-webkit-search-cancel-button {
     12px;
 
   color:
-    rgba(255, 247, 251, 0.96);
+    rgba(var(--c-text-rgb), 0.96);
 
   font-size:
     21px;
@@ -931,16 +928,16 @@ input::-webkit-search-cancel-button {
 
   border:
     1px solid
-    rgba(239, 119, 170, 0.13);
+    rgba(var(--c-accent-rgb), 0.13);
 
   border-radius:
     999px;
 
   background:
-    rgba(143, 45, 80, 0.055);
+    rgba(var(--c-accent-deep-rgb), 0.055);
 
   color:
-    rgba(230, 202, 214, 0.49);
+    rgba(var(--c-accent-soft-rgb), 0.49);
 
   font-size:
     0.60rem;
@@ -976,7 +973,7 @@ input::-webkit-search-cancel-button {
     0
     0
     7px
-    rgba(255, 145, 189, 0.58);
+    rgba(var(--c-accent-soft-rgb), 0.58);
 }
 
 
@@ -989,7 +986,7 @@ input::-webkit-search-cancel-button {
     0;
 
   color:
-    rgba(220, 203, 210, 0.61);
+    rgba(var(--c-text-soft-rgb), 0.61);
 
   font-size:
     15px;
@@ -1124,7 +1121,7 @@ span.is-active {
     center;
 
   color:
-    rgba(215, 193, 201, 0.42);
+    rgba(var(--c-text-soft-rgb), 0.42);
 
   font-size:
     14px;
@@ -1139,7 +1136,7 @@ span.is-active {
     10px;
 
   color:
-    rgba(239, 119, 170, 0.54);
+    rgba(var(--c-accent-rgb), 0.54);
 
   font-size:
     22px;
@@ -1158,7 +1155,7 @@ span.is-active {
     0;
 
   color:
-    #e88aa9;
+    var(--c-accent-soft);
 
   font-size:
     14px;
@@ -1225,14 +1222,14 @@ span.is-active {
   background:
     radial-gradient(
       circle at 50% -12%,
-      rgba(121, 49, 82, 0.075),
+      rgba(var(--c-accent-deep-rgb), 0.075),
       transparent 30%
     ),
     linear-gradient(
       180deg,
-      #0c080b 0%,
-      #070507 46%,
-      #050405 100%
+      var(--c-bg) 0%,
+      var(--c-bg) 46%,
+      var(--c-bg) 100%
     );
 }
 
@@ -1248,12 +1245,12 @@ span.is-active {
 
 .library-search-icon {
   color:
-    rgba(244, 239, 241, 0.32);
+    rgba(var(--c-text-rgb), 0.32);
 }
 
 .library-search:focus-within {
   border-color:
-    rgba(239, 119, 170, 0.28);
+    rgba(var(--c-accent-rgb), 0.28);
 
   background:
     rgba(255, 255, 255, 0.028);
@@ -1269,24 +1266,24 @@ span.is-active {
     rgba(255, 255, 255, 0.018);
 
   color:
-    rgba(244, 239, 241, 0.48);
+    rgba(var(--c-text-rgb), 0.48);
 }
 
 
 /* Actif : wine sombre, pas pastille rose bonbon */
 .library-filter.active {
   border-color:
-    rgba(197, 87, 125, 0.36);
+    rgba(var(--c-accent-rgb), 0.36);
 
   background:
     linear-gradient(
       145deg,
-      rgba(108, 32, 62, 0.64),
-      rgba(65, 23, 43, 0.70)
+      rgba(var(--c-accent-deep-rgb), 0.64),
+      rgba(var(--c-accent-deep-rgb), 0.70)
     );
 
   color:
-    rgba(255, 244, 249, 0.94);
+    rgba(var(--c-text-rgb), 0.94);
 
   box-shadow:
     inset 0 1px 0
@@ -1310,8 +1307,8 @@ span.is-active {
     ),
     linear-gradient(
       150deg,
-      rgba(20, 13, 18, 0.82),
-      rgba(11, 8, 10, 0.88)
+      rgba(var(--c-surface-rgb), 0.82),
+      rgba(var(--c-bg-rgb), 0.88)
     );
 
   box-shadow:
@@ -1358,7 +1355,7 @@ span.is-active {
 /* Flèche quasi neutre */
 .library-card-open {
   color:
-    rgba(244, 239, 241, 0.25);
+    rgba(var(--c-text-rgb), 0.25);
 }
 
 

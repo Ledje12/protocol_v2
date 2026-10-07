@@ -19,12 +19,12 @@
   background:
     radial-gradient(
       circle at 50% -10%,
-      rgba(121, 49, 82, 0.14),
+      rgba(var(--c-accent-deep-rgb), 0.14),
       transparent 40%
     ),
-    #050405;
+    var(--c-bg);
 
-  color: #f4eff1;
+  color: var(--c-text);
 }
 
 
@@ -59,7 +59,7 @@
   border-radius: 50%;
 
   background: rgba(255, 255, 255, 0.035);
-  color: #f4eff1;
+  color: var(--c-text);
 
   font: inherit;
   font-size: 25px;
@@ -99,7 +99,7 @@
 .card-page .card-recipient {
   font-size: 14px;
 
-  color: rgba(244, 239, 241, 0.55);
+  color: rgba(var(--c-text-rgb), 0.55);
 }
 
 
@@ -129,7 +129,7 @@
 
 
 .card-page .card-type {
-  color: #d75d8d;
+  color: var(--c-accent);
 
   font-size: 11px;
   font-weight: 700;
@@ -138,7 +138,7 @@
 
 
 .card-page .card-number {
-  color: rgba(244, 239, 241, 0.25);
+  color: rgba(var(--c-text-rgb), 0.25);
 
   font-size: 12px;
 }
@@ -153,17 +153,14 @@
 
   margin: 0 0 24px;
 
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
+  font-family: var(--font-serif);
 
   font-size: clamp(38px, 11vw, 58px);
   font-weight: 400;
   line-height: 0.98;
   letter-spacing: -0.04em;
 
-  color: #f4eff1;
+  color: var(--c-text);
 }
 
 
@@ -176,17 +173,14 @@
 .card-page .card-prompt {
   margin: 0 0 40px;
 
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
+  font-family: var(--font-serif);
 
   font-size: clamp(19px, 5.1vw, 22px);
   font-weight: 400;
   line-height: 1.38;
   letter-spacing: -0.01em;
 
-  color: rgba(244, 239, 241, 0.90);
+  color: rgba(var(--c-text-rgb), 0.90);
 }
 
 
@@ -213,7 +207,7 @@
   font-size: 13px;
   font-weight: 500;
 
-  color: rgba(244, 239, 241, 0.62);
+  color: rgba(var(--c-text-rgb), 0.62);
 }
 
 
@@ -229,14 +223,14 @@
 
   margin-top: auto;
 
-  border: 1px solid rgba(215, 93, 141, 0.42);
+  border: 1px solid rgba(var(--c-accent-rgb), 0.42);
   border-radius: 18px;
 
   background:
     linear-gradient(
       135deg,
-      rgba(181, 62, 109, 0.88),
-      rgba(151, 46, 88, 0.92)
+      rgba(var(--c-accent-deep-rgb), 0.88),
+      rgba(var(--c-accent-deep-rgb), 0.92)
     );
 
   color: #ffffff;
@@ -247,7 +241,7 @@
   letter-spacing: 0.01em;
 
   box-shadow:
-    0 6px 20px rgba(151, 46, 88, 0.14);
+    0 6px 20px rgba(var(--c-accent-deep-rgb), 0.14);
 
   cursor: pointer;
 
@@ -265,7 +259,7 @@
   filter: brightness(1.08);
 
   box-shadow:
-    0 4px 14px rgba(151, 46, 88, 0.18);
+    0 4px 14px rgba(var(--c-accent-deep-rgb), 0.18);
 }
 
 
@@ -300,22 +294,22 @@
   background:
     radial-gradient(
       circle at 78% 8%,
-      rgba(121, 49, 82, 0.085),
+      rgba(var(--c-accent-deep-rgb), 0.085),
       transparent 28%
     ),
     radial-gradient(
       circle at -12% 58%,
-      rgba(83, 34, 62, 0.045),
+      rgba(var(--c-accent-deep-rgb), 0.045),
       transparent 34%
     ),
-    #050405;
+    var(--c-bg);
 }
 
 
 /* Header légèrement plus PROTOCOL */
 .card-page .card-back {
   border-color:
-    rgba(239, 119, 170, 0.14);
+    rgba(var(--c-accent-rgb), 0.14);
 
   background:
     rgba(255, 255, 255, 0.018);
@@ -344,16 +338,16 @@
 
   border:
     1px solid
-    rgba(215, 93, 141, 0.34);
+    rgba(var(--c-accent-rgb), 0.34);
 
   border-radius:
     999px;
 
   background:
-    rgba(143, 45, 80, 0.055);
+    rgba(var(--c-accent-deep-rgb), 0.055);
 
   color:
-    rgba(239, 119, 170, 0.90);
+    rgba(var(--c-accent-rgb), 0.90);
 
   font-size:
     10px;
@@ -366,7 +360,7 @@
 /* Numéro plus discret */
 .card-page .card-number {
   color:
-    rgba(244, 239, 241, 0.22);
+    rgba(var(--c-text-rgb), 0.22);
 }
 
 
@@ -389,7 +383,7 @@
     );
 
   color:
-    rgba(255, 247, 251, 0.98);
+    rgba(var(--c-text-rgb), 0.98);
 
   text-shadow:
     0 14px 45px
@@ -421,7 +415,7 @@
     1.48;
 
   color:
-    rgba(235, 224, 229, 0.86);
+    rgba(var(--c-text-rgb), 0.86);
 }
 
 
@@ -443,8 +437,8 @@
   background:
     linear-gradient(
       180deg,
-      rgba(239, 119, 170, 0.64),
-      rgba(143, 45, 80, 0.12)
+      rgba(var(--c-accent-rgb), 0.64),
+      rgba(var(--c-accent-deep-rgb), 0.12)
     );
 }
 
@@ -455,7 +449,7 @@
     58px;
 
   border-color:
-    rgba(216, 103, 147, 0.38);
+    rgba(var(--c-accent-rgb), 0.38);
 
   border-radius:
     20px;
@@ -463,13 +457,13 @@
   background:
     linear-gradient(
       120deg,
-      rgba(151, 45, 86, 0.98),
-      rgba(104, 29, 63, 0.98)
+      rgba(var(--c-accent-deep-rgb), 0.98),
+      rgba(var(--c-accent-deep-rgb), 0.98)
     );
 
   box-shadow:
     0 12px 34px
-      rgba(77, 18, 47, 0.22),
+      rgba(var(--c-accent-deep-rgb), 0.22),
     inset 0 1px 0
       rgba(255, 255, 255, 0.075);
 }
@@ -495,7 +489,7 @@
 
   margin-bottom: 22px;
 
-  color: rgba(244, 239, 241, 0.42);
+  color: rgba(var(--c-text-rgb), 0.42);
 
   font-size: 10px;
   font-weight: 700;
@@ -504,7 +498,7 @@
 }
 
 .card-page .scene-preview-heading strong {
-  color: rgba(244, 239, 241, 0.62);
+  color: rgba(var(--c-text-rgb), 0.62);
   font-size: 11px;
   font-weight: 600;
 }
@@ -536,8 +530,8 @@
   background:
     linear-gradient(
       to bottom,
-      rgba(215, 93, 141, 0.34),
-      rgba(215, 93, 141, 0.06)
+      rgba(var(--c-accent-rgb), 0.34),
+      rgba(var(--c-accent-rgb), 0.06)
     );
 }
 
@@ -553,14 +547,14 @@
 
   border:
     1px solid
-    rgba(215, 93, 141, 0.28);
+    rgba(var(--c-accent-rgb), 0.28);
 
   border-radius: 50%;
 
   background:
-    rgba(121, 49, 82, 0.12);
+    rgba(var(--c-accent-deep-rgb), 0.12);
 
-  color: #d75d8d;
+  color: var(--c-accent);
 
   font-size: 11px;
   font-weight: 700;
@@ -578,15 +572,12 @@
   margin:
     0 0 8px;
 
-  font-family:
-    Georgia,
-    "Times New Roman",
-    serif;
+  font-family: var(--font-serif);
 
   font-size: 21px;
   font-weight: 400;
 
-  color: #f4eff1;
+  color: var(--c-text);
 }
 
 .card-page .scene-preview-step-content > p {
@@ -596,12 +587,7 @@
   line-height: 1.55;
 
   color:
-    rgba(
-      244,
-      239,
-      241,
-      0.72
-    );
+    rgba(var(--c-text-rgb), 0.72);
 }
 
 .card-page .scene-private-role {
@@ -612,22 +598,12 @@
 
   border:
     1px solid
-    rgba(
-      215,
-      93,
-      141,
-      0.14
-    );
+    rgba(var(--c-accent-rgb), 0.14);
 
   border-radius: 14px;
 
   background:
-    rgba(
-      215,
-      93,
-      141,
-      0.045
-    );
+    rgba(var(--c-accent-rgb), 0.045);
 }
 
 .card-page .scene-private-role > span {
@@ -635,7 +611,7 @@
 
   margin-bottom: 6px;
 
-  color: #d75d8d;
+  color: var(--c-accent);
 
   font-size: 9px;
   font-weight: 700;
@@ -658,10 +634,5 @@
   line-height: 1.45;
 
   color:
-    rgba(
-      244,
-      239,
-      241,
-      0.68
-    );
+    rgba(var(--c-text-rgb), 0.68);
 }
