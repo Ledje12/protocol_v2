@@ -1,0 +1,290 @@
+/* =========================================================
+   PROTOCOL — PASSE 1 (corrections ciblées)
+   Chargé en dernier (main.jsx). Ne change ni les couleurs
+   ni les polices : uniquement mise en page et lisibilité.
+   À fusionner dans les feuilles d'origine lors de la passe 3.
+   ========================================================= */
+
+:root {
+  --p1-gutter: 18px;
+  --p1-top: max(22px, calc(env(safe-area-inset-top) + 10px));
+}
+
+
+/* ---------------------------------------------------------
+   1. PAGE DE JEU : marges latérales
+   La passe « SAFE AREAS iOS » ramenait le padding latéral
+   de .app à 0 : la carte et les boutons touchaient les bords.
+   --------------------------------------------------------- */
+
+.play-page {
+  padding-left: max(var(--p1-gutter), env(safe-area-inset-left)) !important;
+  padding-right: max(var(--p1-gutter), env(safe-area-inset-right)) !important;
+
+  /* réserve la place du bouton STOP flottant */
+  padding-bottom: calc(max(18px, env(safe-area-inset-bottom)) + 70px) !important;
+}
+
+/* ces blocs simulaient la marge avec leur propre padding */
+.play-page .play-header,
+.play-page .play-meta,
+.play-page .bonus-panel {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* le texte du pied de page ne passe plus sous STOP */
+.play-page .footer {
+  padding-right: 84px !important;
+}
+
+
+/* ---------------------------------------------------------
+   2. PANNEAU AVANTAGES : une ligne par avantage
+   --------------------------------------------------------- */
+
+.play-page .bonus-panel .bonus-bar {
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+.play-page .bonus-panel .bonus-button {
+  height: auto !important;
+  min-height: 58px !important;
+
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+
+  padding: 12px 14px !important;
+  text-align: left !important;
+}
+
+.play-page .bonus-panel .bonus-button-content {
+  position: static !important;
+  min-width: 0;
+
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.play-page .bonus-panel .bonus-button-title {
+  position: static !important;
+  transform: none !important;
+  margin: 0 !important;
+
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+
+  color: #f6e9ee !important;
+}
+
+.play-page .bonus-panel .bonus-button small {
+  position: static !important;
+
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+
+  color: #b9a3ad !important;
+}
+
+.play-page .bonus-panel .bonus-button strong {
+  position: static !important;
+  flex: none !important;
+
+  padding: 5px 10px !important;
+  border: 1px solid rgba(239, 119, 170, 0.35) !important;
+  border-radius: 999px !important;
+
+  font-size: 12px !important;
+  white-space: nowrap !important;
+
+  color: #ef77aa !important;
+}
+
+.play-page .bonus-panel .bonus-button:disabled {
+  opacity: 0.45;
+}
+
+/* type imposé : rappel visible dans la barre repliée */
+.bonus-toggle-armed {
+  color: #ef77aa !important;
+}
+
+
+/* ---------------------------------------------------------
+   3. EN-TÊTE UNIQUE des écrans secondaires
+   Bibliothèque, fiche carte, invitations, messages, réglages
+   --------------------------------------------------------- */
+
+/* même gouttière partout : 18 px (l'accueil était à 14, les réglages à 12) */
+.protocol-home-dashboard,
+.protocol-settings {
+  padding-left: max(var(--p1-gutter), env(safe-area-inset-left)) !important;
+  padding-right: max(var(--p1-gutter), env(safe-area-inset-right)) !important;
+}
+
+.library-topbar,
+.card-topbar,
+.invitations-topbar,
+.messages-topbar,
+.protocol-settings-header {
+  position: relative !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+
+  min-height: 44px !important;
+  margin: 0 0 22px !important;
+  padding: var(--p1-top) var(--p1-gutter) 0 !important;
+}
+
+.library-back,
+.card-back,
+.invitations-back,
+.messages-back,
+.protocol-settings-back {
+  position: static !important;
+  flex: none !important;
+
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 50% !important;
+
+  background: rgba(255, 255, 255, 0.035) !important;
+  color: #f4eff1 !important;
+
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+.library-heading,
+.card-topbar-text,
+.invitations-heading,
+.messages-heading,
+.protocol-settings-heading {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+  margin: 0 !important;
+}
+
+.library-logo,
+.card-logo,
+.invitations-logo,
+.messages-logo,
+.protocol-settings-logo {
+  position: static !important;
+  transform: none !important;
+
+  font-family: inherit !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.24em !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase !important;
+
+  color: #f4eff1 !important;
+}
+
+.library-target,
+.card-recipient,
+.invitations-subtitle,
+.messages-subtitle,
+.protocol-settings-subtitle {
+  margin: 0 !important;
+
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.3 !important;
+  text-transform: none !important;
+
+  color: #a8939c !important;
+}
+
+.protocol-settings-header-spacer {
+  display: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   4. MICRO-LIBELLÉS lisibles (11 px minimum, contraste ≥ 4,5:1)
+   --------------------------------------------------------- */
+
+.protocol-home-nav small,
+.protocol-home-section-title small,
+.protocol-home-footer,
+.play-page .play-meta,
+.play-page .footer {
+  font-size: 11px !important;
+  color: #a08b94 !important;
+}
+
+
+/* ---------------------------------------------------------
+   5. MESSAGES : zone de saisie collée en bas de l'écran
+   --------------------------------------------------------- */
+
+.messages-page {
+  min-height: 100dvh;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.messages-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.messages-composer-wrap {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 2;
+  margin-top: auto !important;
+
+  padding: 12px 0 max(14px, env(safe-area-inset-bottom)) !important;
+
+  background: linear-gradient(180deg, rgba(5, 4, 5, 0), #050405 40%) !important;
+}
+
+
+/* ---------------------------------------------------------
+   6. DIVERS
+   --------------------------------------------------------- */
+
+/* l'en-tête des réglages ne s'ajoute plus au padding de .app */
+.protocol-settings-page {
+  padding-top: 0 !important;
+}
+
+/* micro-libellés de l'accueil : moins espacés une fois agrandis */
+.protocol-home-nav small,
+.protocol-home-section-title small {
+  letter-spacing: 0.12em !important;
+}
+
+/* numéros internes de cartes : sans intérêt pour les joueurs */
+.library-card-id,
+.card-number {
+  display: none !important;
+}

@@ -264,6 +264,14 @@ function saveLastSeenCard(
   );
 }
 
+// libellés affichés pour un type de carte imposé (bonus « Imposer le type »)
+const TYPE_LABELS = {
+  truth: "Vérité",
+  action: "Action",
+  duel: "Duel",
+  scene: "Scène",
+};
+
 const INTENSITY_LEVELS = [
   {
     value: 1,
@@ -2317,9 +2325,9 @@ function HomeScreen({ navigate , profile, }) {
         err
       );
 
+      // message lisible : l'erreur technique reste dans la console
       setInviteMessage(
-        err?.message ||
-          "Impossible d’envoyer le signal."
+        "Le signal n’a pas pu partir. Réessaie dans un instant."
       );
 
     } finally {
@@ -3882,14 +3890,15 @@ function HomeScreen({ navigate , profile, }) {
             ←
           </button>
 
-          <span className="logo protocol-settings-logo">
-            PROTOCOL
-          </span>
+          <div className="protocol-settings-heading">
+            <span className="logo protocol-settings-logo">
+              PROTOCOL
+            </span>
 
-          <span
-            className="protocol-settings-header-spacer"
-            aria-hidden="true"
-          />
+            <span className="protocol-settings-subtitle">
+              Cartes perso
+            </span>
+          </div>
 
         </header>
 
@@ -6132,14 +6141,15 @@ function SettingsScreen({
           ←
         </button>
 
-        <span className="logo protocol-settings-logo">
-          PROTOCOL
-        </span>
+        <div className="protocol-settings-heading">
+          <span className="logo protocol-settings-logo">
+            PROTOCOL
+          </span>
 
-        <span
-          className="protocol-settings-header-spacer"
-          aria-hidden="true"
-        />
+          <span className="protocol-settings-subtitle">
+            Réglages
+          </span>
+        </div>
       </header>
 
 
@@ -10704,7 +10714,13 @@ async function handleSceneRead() {
         </span>
 
         <span className="bonus-toggle-meta">
-          {myScore} pts
+          {myBonuses.choose_type_armed ? (
+            <span className="bonus-toggle-armed">
+              Prochaine : {TYPE_LABELS[myBonuses.choose_type_armed] || myBonuses.choose_type_armed}
+            </span>
+          ) : (
+            <>{myScore} pts</>
+          )}
           <span className="bonus-toggle-dot">
             ·
           </span>
@@ -10841,8 +10857,7 @@ async function handleSceneRead() {
 
             <strong>
               {myBonuses.choose_type_armed
-                ? myBonuses
-                    .choose_type_armed
+                ? (TYPE_LABELS[myBonuses.choose_type_armed] || myBonuses.choose_type_armed)
                     .toUpperCase()
                 : myBonuses.choose_type
                   ? "UTILISER"

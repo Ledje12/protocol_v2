@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
+import "./pass1.css"; // passe 1 : corrections de mise en page, chargée en dernier
 
 
 let refreshing = false;
