@@ -4134,7 +4134,7 @@ function HomeScreen({ navigate , profile, }) {
 
       <button
         type="submit"
-        className="settings-primary-action"
+        className="settings-primary-action custom-card-submit"
         disabled={saving}
       >
         <span>

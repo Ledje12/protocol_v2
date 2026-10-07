@@ -5779,43 +5779,36 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 9px;
-
-  font-size: 12px;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--c-label);
 }
 
+/* champs « satin » : les mêmes qu'à la connexion */
 .custom-card-form input,
 .custom-card-form textarea,
 .custom-card-form select {
   width: 100%;
   box-sizing: border-box;
-
-  border: 1px solid rgba(var(--c-accent-rgb), 0.22);
-  border-radius: 16px;
-
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-control);
   padding: 15px 16px;
-
-  background:
-    rgba(255, 255, 255, 0.035);
-
-  color: #fff;
-
+  background-color: var(--c-surface-2);
+  color: var(--c-text);
   font: inherit;
   font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   line-height: 1.4;
-
   outline: none;
-
   appearance: none;
   -webkit-appearance: none;
-
   transition:
-    border-color 160ms ease,
-    background 160ms ease;
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 }
 
 .custom-card-form textarea {
@@ -5825,17 +5818,14 @@ h1 {
 
 .custom-card-form input::placeholder,
 .custom-card-form textarea::placeholder {
-  color: rgba(255, 255, 255, 0.28);
+  color: rgba(var(--c-muted-rgb), 0.55);
 }
 
 .custom-card-form input:focus,
 .custom-card-form textarea:focus,
 .custom-card-form select:focus {
-  border-color:
-    rgba(var(--c-accent-rgb), 0.65);
-
-  background:
-    rgba(255, 255, 255, 0.055);
+  border-color: rgba(var(--c-accent-rgb), 0.6);
+  box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb), 0.10);
 }
 
 .custom-card-form select {
@@ -5888,24 +5878,17 @@ h1 {
   margin-top: 4px;
 }
 
+/* annuler : action tertiaire (texte) */
 .custom-card-cancel {
   width: 100%;
-
-  border: 1px solid
-    rgba(255, 255, 255, 0.10);
-
-  border-radius: var(--r-control);
-
-  padding: 17px 20px;
-
-  background:
-    rgba(255, 255, 255, 0.025);
-
-  color:
-    rgba(255, 255, 255, 0.55);
-
+  min-height: 44px;
+  border: 0;
+  padding: 0 20px;
+  background: transparent;
+  color: var(--c-muted);
   font: inherit;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 

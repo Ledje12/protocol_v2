@@ -1930,3 +1930,21 @@ button.primary:disabled,
 .protocol-stop-overlay {
   z-index: 1100;
 }
+
+
+/* ---------------------------------------------------------
+   33. FORMULAIRE DE CARTE PERSO : « Créer la carte » est
+   l'action de l'écran, donc le bouton principal (néon)
+   --------------------------------------------------------- */
+
+.settings-primary-action.custom-card-submit:not(:disabled) {
+  border: 1px solid transparent !important;
+  background: var(--c-accent) !important;
+  color: var(--c-on-accent) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28) !important;
+}
+
+.custom-card-submit:not(:disabled) .settings-action-arrow {
+  color: var(--c-on-accent) !important;
+}

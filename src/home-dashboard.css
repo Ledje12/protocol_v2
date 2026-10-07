@@ -1042,30 +1042,19 @@
 }
 
 .protocol-join-sheet h2 {
-  margin:
-    7px
-    0
-    7px;
-
-  font-size: 1.9rem;
-
-  font-weight: 400;
+  margin: 7px 0 9px;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.05;
 }
 
 .protocol-join-copy {
   max-width: 310px;
-
-  margin:
-    0
-    0
-    18px;
-
-  font-size: 0.82rem;
-
-  line-height: 1.45;
-
-  color:
-    rgba(255, 255, 255, 0.45);
+  margin: 0 0 18px;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--c-muted);
 }
 
 .protocol-join-sheet form {
@@ -1074,37 +1063,21 @@
   gap: 12px;
 }
 
+/* même champ que l'écran Rejoindre : code en Bodoni */
 .protocol-join-sheet input {
   width: 100%;
   height: 70px;
-
-  padding:
-    0
-    15px;
-
-  border:
-    1px solid
-    rgba(var(--c-accent-rgb), 0.28);
-
+  padding: 0 15px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.28);
   border-radius: var(--r-control);
-
   outline: none;
-
-  background:
-    rgba(255, 255, 255, 0.035);
-
-  color: white;
-
+  background: var(--c-surface-2);
+  color: var(--c-text);
   text-align: center;
-
-  font: inherit;
-
-  font-size: 1.62rem;
-
-  font-weight: 600;
-
-  letter-spacing: 0.35em;
-
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 
@@ -1113,33 +1086,21 @@
     rgba(var(--c-accent-soft-rgb), 0.72);
 }
 
+/* bouton principal : le même partout (néon plein, texte encre) */
 .protocol-join-submit {
   height: 58px;
-
-  padding:
-    0
-    18px;
-
+  padding: 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  border: 0;
-
+  border: 1px solid transparent;
   border-radius: var(--r-control);
-
-  background:
-    linear-gradient(
-      110deg,
-      var(--c-accent),
-      var(--c-accent-deep)
-    );
-
-  color: white;
-
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28);
   font: inherit;
-
-  font-weight: 500;
+  font-size: var(--fs-body);
+  font-weight: 700;
 }
 
 .protocol-join-submit:disabled {
