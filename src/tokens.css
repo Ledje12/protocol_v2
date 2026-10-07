@@ -60,8 +60,8 @@
   --c-on-accent: #1a0610;     /* texte posé sur le néon (le blanc n'y fait que 3:1) */
 
   /* ---------- Types de cartes ---------- */
-  --c-truth: #f2a7c3;         /* rose poudré */
-  --c-truth-rgb: 242, 167, 195;
+  --c-truth: #f4c3d3;         /* rose poudré, plus pâle que le néon */
+  --c-truth-rgb: 244, 195, 211;
   --c-action: var(--c-accent);
   --c-action-rgb: var(--c-accent-rgb);
   --c-duel: #e3c08f;          /* champagne */

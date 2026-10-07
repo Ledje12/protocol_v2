@@ -95,7 +95,8 @@ button.primary:disabled,
 .card-logo,
 .invitations-logo,
 .messages-logo,
-.protocol-settings-logo {
+.protocol-settings-logo,
+.screen-logo {
   font-family: var(--font-serif) !important;
   font-weight: 600 !important;
   letter-spacing: 0.3em !important;
@@ -680,13 +681,13 @@ button.primary:disabled,
 }
 
 /* écrans de jeu (attente, calibration, partie, fin…) */
-.app:not(.protocol-home-page):not(.protocol-settings-page) {
+.app:not(.protocol-home-page):not(.protocol-settings-page):not(.join-page):not(.protocol-legal-page) {
   padding-top: var(--top-clear) !important;
 }
 
 /* ces écrans touchaient les bords (couche « SAFE AREAS ») :
    même gouttière de 18 px que le reste, textes alignés sur les cadres */
-.app:not(.protocol-home-page):not(.protocol-settings-page):not(.play-page) {
+.app:not(.protocol-home-page):not(.protocol-settings-page):not(.play-page):not(.protocol-legal-page) {
   --protocol-text-gutter: 0px;
   padding-left: max(18px, env(safe-area-inset-left)) !important;
   padding-right: max(18px, env(safe-area-inset-right)) !important;
@@ -1116,4 +1117,362 @@ button.primary:disabled,
 .final-close-button:hover,
 .final-close-button:focus-visible {
   color: var(--c-text) !important;
+}
+
+
+/* ---------------------------------------------------------
+   19. EN-TÊTE COMMUN dans un conteneur .app (Rejoindre)
+   .app porte déjà la gouttière et le dégagement du haut
+   --------------------------------------------------------- */
+
+/* le dégagement du haut est porté par l'en-tête commun */
+.app.join-page {
+  padding-top: 0 !important;
+}
+
+.join-page .screen-topbar {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.screen-back svg {
+  display: block;
+}
+
+
+/* ---------------------------------------------------------
+   20. CONFIDENTIALITÉ : même famille que les autres écrans
+   --------------------------------------------------------- */
+
+.protocol-legal-page.app {
+  padding: 0 0 calc(var(--bottom-clear) + 24px) !important;
+}
+
+.protocol-legal-shell {
+  width: 100% !important;
+  max-width: 720px;
+  padding: 0 !important;
+}
+
+.protocol-legal-header,
+.protocol-legal-section {
+  padding: 0 max(var(--gutter), env(safe-area-inset-left));
+}
+
+.protocol-legal-header h1 {
+  font-size: var(--fs-title) !important;
+  line-height: 1.05 !important;
+  margin: 10px 0 10px !important;
+}
+
+.protocol-legal-header .settings-card-eyebrow {
+  display: block;
+}
+
+.protocol-legal-header p {
+  font-size: var(--fs-small) !important;
+  color: var(--c-label) !important;
+}
+
+.protocol-legal-section h2 {
+  margin: 0 0 10px !important;
+  font-family: var(--font-serif);
+  font-size: 22px !important;
+  font-weight: 500 !important;
+  line-height: 1.2;
+  color: var(--c-text);
+}
+
+.protocol-legal-section p,
+.protocol-legal-section li {
+  font-size: var(--fs-body) !important;
+  line-height: 1.6 !important;
+  color: var(--c-muted) !important;
+}
+
+
+/* ---------------------------------------------------------
+   21. TYPE DE CARTE : variables partagées
+   data-type="truth|action|duel|scene" sur n'importe quel
+   composant donne --type / --type-rgb.
+   --------------------------------------------------------- */
+
+[data-type="truth"]  { --type: var(--c-truth);  --type-rgb: var(--c-truth-rgb); }
+[data-type="action"] { --type: var(--c-action); --type-rgb: var(--c-action-rgb); }
+[data-type="duel"]   { --type: var(--c-duel);   --type-rgb: var(--c-duel-rgb); }
+[data-type="scene"]  { --type: var(--c-scene);  --type-rgb: var(--c-scene-rgb); }
+
+/* filet de type : trait fin en haut de la carte, qui
+   s'efface vers les bords (remplace border-top sur rayon,
+   qui dessinait un « sourire » coupé dans les coins) */
+.type-filet::before,
+.custom-manage-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22px;
+  right: 22px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(var(--type-rgb, var(--c-accent-rgb)), 0),
+      var(--type, var(--c-accent)) 18%,
+      var(--type, var(--c-accent)) 82%,
+      rgba(var(--type-rgb, var(--c-accent-rgb)), 0)
+    );
+  pointer-events: none;
+}
+
+/* barres d'intensité, dans la couleur du type */
+.type-intensity {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.type-intensity i {
+  width: 16px;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.type-intensity i.is-active {
+  background: var(--type, var(--c-accent));
+}
+
+
+/* ---------------------------------------------------------
+   22. RÉGLAGES : trois groupes, cartes plus compactes
+   Le titre de groupe reprend le motif de l'accueil
+   (« — Un signe ? ») : filet néon + sérif italique.
+   --------------------------------------------------------- */
+
+.settings-group-title {
+  display: grid;
+  grid-template-columns: 20px auto;
+  align-items: center;
+  gap: 14px;
+  margin: 30px 0 12px;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--c-text);
+}
+
+.settings-group-title span {
+  height: 1px;
+  background: var(--c-accent);
+}
+
+.protocol-settings-intro + .settings-group-title {
+  margin-top: 8px;
+}
+
+.settings-card + .settings-card,
+.settings-card + section.settings-card {
+  margin-top: 10px;
+}
+
+.settings-card-heading h2 {
+  font-size: 26px !important;
+  line-height: 1.08 !important;
+}
+
+/* état (« Associés », « Non connecté ») : une étiquette,
+   pas une fausse zone de saisie */
+.settings-status-row {
+  display: inline-flex !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 2px 0 6px;
+  border: 0 !important;
+  background: transparent !important;
+  font-size: var(--fs-label) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.16em !important;
+  color: var(--c-muted) !important;
+}
+
+.settings-status-dot.is-active {
+  background: var(--c-accent) !important;
+  box-shadow: none !important;
+}
+
+/* champ de code : le même champ « satin » qu'à la connexion */
+.settings-code-input {
+  height: 54px !important;
+  border: 1px solid var(--c-line) !important;
+  border-radius: var(--r-control) !important;
+  background: var(--c-surface-2) !important;
+  font-size: 16px !important;
+}
+
+.settings-code-input:focus {
+  border-color: rgba(var(--c-accent-rgb), 0.6) !important;
+  box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb), 0.10) !important;
+}
+
+/* se déconnecter : action tertiaire (texte), pas un bouton plein */
+.settings-logout-button {
+  min-height: 48px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--c-text-soft) !important;
+  font-size: var(--fs-body) !important;
+  font-weight: 500 !important;
+}
+
+
+/* ---------------------------------------------------------
+   23. ANNONCE : nouvelle phase
+   Quand la phase change, elle s'inscrit dans l'annonce,
+   encadrée de deux filets (l'ancien bandeau séparé
+   recouvrait l'en-tête et doublait l'information).
+   --------------------------------------------------------- */
+
+.card-reveal-phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--c-text);
+  opacity: 0;
+  animation: protocolRevealWhisper 0.45s ease 0.82s forwards;
+}
+
+.card-reveal-phase i {
+  width: 22px;
+  height: 1px;
+  background: var(--type, var(--c-accent));
+}
+
+.card-reveal-truth  { --type: var(--c-truth); }
+.card-reveal-action { --type: var(--c-accent); }
+.card-reveal-scene  { --type: var(--c-scene); }
+
+
+/* ---------------------------------------------------------
+   24. JEU : attente du tour de l'autre
+   Un moment, pas une boîte grise : nom en sérif italique,
+   losange qui respire.
+   --------------------------------------------------------- */
+
+.waiting-turn:has(.waiting-presence) {
+  justify-content: center;
+  padding: 30px 18px 26px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.waiting-presence {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.waiting-presence .protocol-diamond {
+  animation: protocolBreathe 2.8s var(--ease-in-out) infinite;
+}
+
+.waiting-presence .waiting-text {
+  margin: 18px 0 0 !important;
+  font-family: var(--font-serif);
+  font-size: 26px !important;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--c-text) !important;
+}
+
+.waiting-presence .waiting-text em {
+  font-style: italic;
+  color: var(--type, var(--c-text));
+}
+
+.waiting-presence small {
+  margin-top: 8px;
+  font-size: var(--fs-small);
+  color: var(--c-label);
+}
+
+.play-type-truth  { --type: var(--c-truth); }
+.play-type-action { --type: var(--c-accent); }
+.play-type-duel   { --type: var(--c-duel); }
+.play-type-scene  { --type: var(--c-scene); }
+
+
+/* ---------------------------------------------------------
+   25. JEU : Avantages en tiroir
+   Ouvert, le panneau se pose par-dessus la carte au lieu
+   de la pousser sous la ligne de flottaison.
+   --------------------------------------------------------- */
+
+.play-page .bonus-panel {
+  position: relative;
+  z-index: 40;
+}
+
+.play-page .bonus-panel .bonus-bar {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+
+  margin-top: 0 !important;
+  padding: 10px !important;
+
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-card);
+  background: var(--c-surface);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+
+  animation: protocolDrawerIn var(--dur-base) var(--ease-out);
+}
+
+.play-page .bonus-panel .bonus-button {
+  border: 1px solid var(--c-line) !important;
+  border-radius: var(--r-control) !important;
+  background: var(--c-surface-2) !important;
+}
+
+@keyframes protocolDrawerIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* l'annonce (z 999) doit couvrir le tiroir Avantages :
+   .play ne crée plus de contexte d'empilement. L'en-tête
+   (et donc STOP) reste au-dessus de tout, même de l'annonce. */
+.play-page .play {
+  z-index: auto !important;
+}
+
+.play-page .play-header {
+  z-index: 1001 !important;
+}
+
+/* voile sous le tiroir ouvert (n'intercepte pas les touches) */
+.play-page .bonus-panel-open::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(var(--c-bg-rgb), 0.66);
+  pointer-events: none;
+  animation: protocolFadeIn var(--dur-base) var(--ease-out);
+}
+
+@keyframes protocolFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }

@@ -129,7 +129,8 @@
 .card-topbar,
 .invitations-topbar,
 .messages-topbar,
-.protocol-settings-header {
+.protocol-settings-header,
+.screen-topbar {
   position: relative !important;
 
   display: flex !important;
@@ -146,7 +147,8 @@
 .card-back,
 .invitations-back,
 .messages-back,
-.protocol-settings-back {
+.protocol-settings-back,
+.screen-back {
   position: static !important;
   flex: none !important;
 
@@ -173,7 +175,8 @@
 .card-topbar-text,
 .invitations-heading,
 .messages-heading,
-.protocol-settings-heading {
+.protocol-settings-heading,
+.screen-heading {
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
@@ -185,7 +188,8 @@
 .card-logo,
 .invitations-logo,
 .messages-logo,
-.protocol-settings-logo {
+.protocol-settings-logo,
+.screen-logo {
   position: static !important;
   transform: none !important;
 
@@ -203,7 +207,8 @@
 .card-recipient,
 .invitations-subtitle,
 .messages-subtitle,
-.protocol-settings-subtitle {
+.protocol-settings-subtitle,
+.screen-subtitle {
   margin: 0 !important;
 
   font-size: 13px !important;

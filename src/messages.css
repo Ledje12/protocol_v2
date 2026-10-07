@@ -629,22 +629,10 @@
    ========================================================= */
 
 .message-bubble.is-mine {
-  border:
-    1px solid
-    rgba(var(--c-accent-soft-rgb), 0.24);
-
-  border-bottom-right-radius:
-    9px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(var(--c-accent-deep-rgb), 0.86),
-      rgba(var(--c-accent-deep-rgb), 0.92)
-    );
-
-  color:
-    rgba(var(--c-text-rgb), 0.97);
+  border: 1px solid transparent;
+  border-bottom-right-radius: 9px;
+  background: var(--c-accent-deep);
+  color: var(--c-text);
 }
 
 
@@ -652,23 +640,12 @@
    THEIRS
    ========================================================= */
 
+/* reçu : surface « satin » prune, pas un gris froid */
 .message-bubble.is-theirs {
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.075);
-
-  border-bottom-left-radius:
-    9px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.052),
-      rgba(255, 255, 255, 0.025)
-    );
-
-  color:
-    rgba(var(--c-text-rgb), 0.94);
+  border: 1px solid var(--c-line);
+  border-bottom-left-radius: 9px;
+  background: var(--c-surface-2);
+  color: var(--c-text);
 }
 
 

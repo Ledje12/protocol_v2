@@ -93,6 +93,11 @@ export default function InvitationsScreen({
     null;
 
 
+  const partnerName =
+    couple?.partner
+      ?.display_name || null;
+
+
   const coupleId =
     couple?.id ||
     couple?.couple_id ||
@@ -512,7 +517,9 @@ export default function InvitationsScreen({
           </span>
 
           <span className="invitations-subtitle">
-            À deux
+            {partnerName
+              ? `Avec ${partnerName}`
+              : "Invitations"}
           </span>
 
         </div>
@@ -529,9 +536,9 @@ export default function InvitationsScreen({
           </p>
 
           <h1>
-            Entre
+            Vos
             <br />
-            vous.
+            propositions.
           </h1>
 
           <p>

@@ -370,7 +370,7 @@ export default function MessagesScreen({
           </span>
 
           <span className="messages-subtitle">
-            Entre nous
+            Avec {partnerName}
           </span>
         </div>
       </header>
@@ -378,7 +378,7 @@ export default function MessagesScreen({
       <section className="messages-content">
         <div className="messages-intro">
           <p className="messages-kicker">
-            PRIVÉ
+            MESSAGES
           </p>
 
           <h1>
@@ -389,11 +389,6 @@ export default function MessagesScreen({
             Ce qui se dit ici
             reste ici.
           </p>
-
-          <div className="messages-private-badge">
-            <span className="messages-private-dot" />
-            Canal privé · {partnerName}
-          </div>
         </div>
 
         {loading && (

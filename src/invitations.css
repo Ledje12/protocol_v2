@@ -208,11 +208,6 @@
   color:
     rgba(var(--c-text-rgb), 0.98);
 
-  text-shadow:
-    0
-    12px
-    44px
-    rgba(0, 0, 0, 0.20);
 }
 
 

@@ -10,6 +10,7 @@ import LibraryScreen from "./LibraryScreen.jsx";
 import CardScreen from "./CardScreen.jsx";
 import InvitationsScreen from "./InvitationsScreen.jsx";
 import MessagesScreen from "./MessagesScreen.jsx";
+import ScreenHeader from "./ScreenHeader.jsx";
 import {
   getCurrentPushSubscription,
   registerPushNotifications,
@@ -2540,7 +2541,7 @@ function HomeScreen({ navigate , profile, }) {
                 <div>
 
                   <strong>
-                    Ce soir, laissez le jeu prendre les commandes.
+                    Laissez le jeu prendre les commandes.
                   </strong>
 
                   <p>
@@ -2997,23 +2998,20 @@ function HomeScreen({ navigate , profile, }) {
 
         <section className="protocol-legal-shell">
 
-          <header className="protocol-legal-header">
+          <ScreenHeader
+            onBack={() => {
+              if (
+                window.history.length > 1
+              ) {
+                window.history.back();
+              } else {
+                navigate("/");
+              }
+            }}
+            subtitle="Informations légales"
+          />
 
-            <button
-              type="button"
-              className="protocol-legal-back"
-              onClick={() => {
-                if (
-                  window.history.length > 1
-                ) {
-                  window.history.back();
-                } else {
-                  navigate("/");
-                }
-              }}
-            >
-              ← Retour
-            </button>
+          <header className="protocol-legal-header">
 
             <span className="settings-card-eyebrow">
               CONFIDENTIALITÉ
@@ -3863,7 +3861,7 @@ function HomeScreen({ navigate , profile, }) {
             </span>
 
             <span className="protocol-settings-subtitle">
-              Cartes perso
+              Pour vous deux
             </span>
           </div>
 
@@ -4277,6 +4275,7 @@ function HomeScreen({ navigate , profile, }) {
                       ? "custom-manage-card"
                       : "custom-manage-card is-inactive"
                   }
+                  data-type={card.type}
                   key={card.id}
                 >
 
@@ -4286,9 +4285,6 @@ function HomeScreen({ navigate , profile, }) {
                       {typeLabel(
                         card.type
                       )}
-                      {" · "}
-                      INTENSITÉ{" "}
-                      {card.intensity}
                     </span>
 
                     <span
@@ -4318,13 +4314,30 @@ function HomeScreen({ navigate , profile, }) {
 
 
                   <div className="custom-manage-meta">
+                    <span
+                      className="type-intensity"
+                      aria-label={`Intensité ${card.intensity}`}
+                    >
+                      {Array.from({
+                        length: 5,
+                      }).map((_, index) => (
+                        <i
+                          key={index}
+                          className={
+                            index <
+                            Number(card.intensity || 0)
+                              ? "is-active"
+                              : ""
+                          }
+                        />
+                      ))}
+                    </span>
 
-                    <span>
+                    <span className="custom-manage-target">
                       {targetLabel(
                         card.target_sex
                       )}
                     </span>
-
                   </div>
 
 
@@ -6114,7 +6127,9 @@ function SettingsScreen({
           </span>
 
           <span className="protocol-settings-subtitle">
-            Réglages
+            {couple?.partner?.display_name
+              ? `Avec ${couple.partner.display_name}`
+              : "Ton espace"}
           </span>
         </div>
       </header>
@@ -6133,15 +6148,15 @@ function SettingsScreen({
           </p>
 
           <h1>
-            Restez
+            Votre
             <br />
-            connectés.
+            espace.
           </h1>
 
           <p className="intro">
-            Quelques signaux seulement.
+            Ce qui se règle à deux,
             <br />
-            Jamais de bruit inutile.
+            et ce qui reste sur ce téléphone.
           </p>
 
         </section>
@@ -6150,6 +6165,11 @@ function SettingsScreen({
         {/* =========================================
             PARTENAIRE
             ========================================= */}
+
+        <h2 className="settings-group-title">
+          <span aria-hidden="true" />
+          Le duo
+        </h2>
 
         <section className="settings-card settings-card-partner">
 
@@ -6294,6 +6314,13 @@ function SettingsScreen({
         {/* =========================================
             MODE DE SOIRÉE
             ========================================= */}
+
+        {couple?.partner && (
+          <h2 className="settings-group-title">
+            <span aria-hidden="true" />
+            Le jeu
+          </h2>
+        )}
 
         {couple?.partner && (
 
@@ -6601,6 +6628,11 @@ function SettingsScreen({
         {/* =========================================
             NOTIFICATIONS
             ========================================= */}
+
+        <h2 className="settings-group-title">
+          <span aria-hidden="true" />
+          Ce téléphone
+        </h2>
 
         <section
           className={
@@ -7332,21 +7364,13 @@ function JoinScreen({ navigate, profile, }) {
 };
 
   return (
-    <main className="app">
+    <main className="app join-page">
       <div className="glow glow-top" />
 
-      <header className="header">
-        <button
-          className="back"
-          onClick={() => navigate("/")}
-        >
-          ←
-        </button>
-
-        <span className="logo">
-          PROTOCOL
-        </span>
-      </header>
+      <ScreenHeader
+        onBack={() => navigate("/")}
+        subtitle="Nouvelle partie"
+      />
 
       <section className="join">
         <div>
@@ -8300,75 +8324,6 @@ function CalibrationScreen({
    PLAY
    ========================================================= */
 
-function PhaseTransition({
-  phase,
-  label,
-}) {
-  const previousPhaseRef =
-    useRef(null);
-
-  const [visible, setVisible] =
-    useState(false);
-
-  useEffect(() => {
-    if (!phase) {
-      return;
-    }
-
-    /*
-     * Premier affichage :
-     * on montre aussi WARMUP.
-     */
-    const phaseChanged =
-      previousPhaseRef.current !== phase;
-
-    if (!phaseChanged) {
-      return;
-    }
-
-    previousPhaseRef.current =
-      phase;
-
-    setVisible(true);
-
-    const timer =
-      window.setTimeout(() => {
-        setVisible(false);
-      }, 1450);
-
-    return () => {
-      window.clearTimeout(timer);
-    };
-  }, [phase]);
-
-  if (!visible) {
-    return null;
-  }
-
-  return (
-    <div
-      className={
-        `phase-transition phase-transition-${phase}`
-      }
-      aria-hidden="true"
-    >
-      <div className="phase-transition-line" />
-
-      <span className="phase-transition-small">
-        PROTOCOL
-      </span>
-
-      <strong>
-        {label}
-      </strong>
-
-      <span className="phase-transition-mark">
-        ◇
-      </span>
-    </div>
-  );
-}
-  
 function PlayScreen({
   code,
   navigate,
@@ -9036,6 +8991,19 @@ function PlayScreen({
           : timerDisplaySeconds
       : timerDisplaySeconds;
 
+
+  /*
+   * Phase affichée par l'annonce de carte : quand la
+   * phase vient de changer, l'annonce la met en avant
+   * (remplace l'ancien bandeau séparé, qui recouvrait
+   * l'en-tête). Calculé une fois par annonce.
+   */
+  const revealPhaseRef =
+    useRef({
+      key: null,
+      phase: null,
+      isNew: false,
+    });
   const loadStateInFlightRef =
     useRef(false);
 
@@ -10564,8 +10532,8 @@ async function handleSceneRead() {
               disabled={stopLoading}
             >
               {stopLoading
-                ? "REPRISE..."
-                : "REPRENDRE ENSEMBLE"}
+                ? "Reprise…"
+                : "Reprendre ensemble"}
             </button>
 
           </div>
@@ -10573,15 +10541,6 @@ async function handleSceneRead() {
         </div>
 
       ) : null}
-
-
-      <PhaseTransition
-        phase={game.phase}
-        label={
-          phaseLabels[game.phase] ||
-          game.phase?.toUpperCase()
-        }
-      />
 
 
       {/* =====================================
@@ -11032,12 +10991,37 @@ async function handleSceneRead() {
             CARD REVEAL
             ===================================== */}
 
+        {(() => {
+          const revealKey =
+            `${card.id}-${sceneState?.step_no || 0}`;
+
+          if (
+            revealPhaseRef.current.key !==
+            revealKey
+          ) {
+            revealPhaseRef.current = {
+              key: revealKey,
+              phase: game.phase,
+              isNew:
+                revealPhaseRef.current.phase !==
+                game.phase,
+            };
+          }
+
+          return null;
+        })()}
+
         <div
           key={
             `reveal-${card.id}-${sceneState?.step_no || 0}`
           }
           className={
-            `card-reveal card-reveal-${card.type}`
+            `card-reveal card-reveal-${card.type}${
+              revealPhaseRef.current.isNew &&
+              phaseLabels[game.phase]
+                ? " card-reveal-new-phase"
+                : ""
+            }`
           }
           aria-hidden="true"
         >
@@ -11086,11 +11070,20 @@ async function handleSceneRead() {
                 {typeLabels[card.type]}
               </strong>
 
-              <span className="card-reveal-whisper">
-                {card.intensity >= 5
-                  ? "INTENSITÉ MAX"
-                  : phaseLabels[game.phase]}
-              </span>
+              {revealPhaseRef.current.isNew &&
+              phaseLabels[game.phase] ? (
+                <span className="card-reveal-phase">
+                  <i aria-hidden="true" />
+                  {phaseLabels[game.phase]}
+                  <i aria-hidden="true" />
+                </span>
+              ) : (
+                <span className="card-reveal-whisper">
+                  {card.intensity >= 5
+                    ? "INTENSITÉ MAX"
+                    : phaseLabels[game.phase]}
+                </span>
+              )}
 
             </div>
 
@@ -11208,22 +11201,39 @@ async function handleSceneRead() {
         {sceneState?.is_multistep && (
           <div className="scene-progress">
 
-            <span>
-              {sceneState.is_private
-                ? "◉ PRIVÉ"
-                : "SCÈNE"}
+            {/* étapes : barres dans la couleur de la scène */}
+            <span
+              className="scene-progress-steps"
+              aria-hidden="true"
+            >
+              {Array.from({
+                length: sceneState.step_count || 0,
+              }).map((_, index) => (
+                <i
+                  key={index}
+                  className={
+                    index < sceneState.step_no
+                      ? "is-done"
+                      : ""
+                  }
+                />
+              ))}
             </span>
 
             <span>
-              ÉTAPE {sceneState.step_no}
-              /
+              Étape {sceneState.step_no}
+              {" / "}
               {sceneState.step_count}
+              {sceneState.is_private && " · Privé"}
             </span>
 
           </div>
         )}
 
-        {sceneState?.title && (
+        {/* le titre d'étape n'apparaît que s'il
+            diffère du titre de la carte */}
+        {sceneState?.title &&
+          sceneState.title !== card.title && (
           <p className="scene-step-title">
             {sceneState.title}
           </p>
@@ -11689,9 +11699,20 @@ async function handleSceneRead() {
 
               ) : (
 
-                <p className="waiting-text">
-                  À {activePlayerName} de jouer.
-                </p>
+                <div className="waiting-presence">
+                  <span
+                    className="protocol-diamond"
+                    aria-hidden="true"
+                  />
+
+                  <p className="waiting-text">
+                    À <em>{activePlayerName}</em> de jouer.
+                  </p>
+
+                  <small>
+                    Laisse-toi porter.
+                  </small>
+                </div>
 
               )}
 
