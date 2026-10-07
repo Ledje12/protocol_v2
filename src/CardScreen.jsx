@@ -5,6 +5,7 @@ import {
 } from "react";
 
 import "./card.css";
+import { BackIcon } from "./ScreenHeader.jsx";
 
 
 function getTypeLabel(
@@ -117,6 +118,30 @@ const LOVENSE_CONTROL_BUTTONS = {
     { id: "level_20", label: "20" },
   ],
 };
+
+/* 45 → « 45 s », 90 → « 1 min 30 », 300 → « 5 min » */
+function formatDuration(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const rest = seconds % 60;
+
+  if (!minutes) {
+    return `${rest} s`;
+  }
+
+  return rest
+    ? `${minutes} min ${String(rest).padStart(2, "0")}`
+    : `${minutes} min`;
+}
+
+const INTENSITY_NAMES = [
+  null,
+  "Doux",
+  "Curieux",
+  "Joueur",
+  "Intense",
+  "Sans filtre",
+];
+
 
 export default function CardScreen({
   supabase,
@@ -1889,7 +1914,7 @@ export default function CardScreen({
           }}
           aria-label="Retour"
         >
-          ←
+          <BackIcon />
         </button>
 
 
@@ -1942,6 +1967,54 @@ export default function CardScreen({
             card.displayPrompt
           }
         </p>
+
+        {/* repères : intensité et durée, dans la couleur du type */}
+        <div
+          className="card-facts"
+          data-type={card.type}
+        >
+          <span
+            className="type-intensity"
+            aria-hidden="true"
+          >
+            {Array.from({
+              length: 5,
+            }).map((_, index) => (
+              <i
+                key={index}
+                className={
+                  index <
+                  Number(card.intensity || 0)
+                    ? "is-active"
+                    : ""
+                }
+              />
+            ))}
+          </span>
+
+          <span>
+            {INTENSITY_NAMES[
+              Number(card.intensity || 0)
+            ] || "Intensité"}
+          </span>
+
+          {Number(card.timer_seconds) > 0 && (
+            <>
+              <span
+                className="card-facts-dot"
+                aria-hidden="true"
+              >
+                ·
+              </span>
+
+              <span>
+                {formatDuration(
+                  Number(card.timer_seconds)
+                )}
+              </span>
+            </>
+          )}
+        </div>
 
         {card.type === "scene" &&
           sceneSteps.length > 0 && (

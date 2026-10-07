@@ -748,21 +748,14 @@
 
   gap: 5px;
 
-  border:
-    1px solid
-    rgba(var(--c-accent-rgb), 0.20);
+  /* navigation : surface neutre (pas de néon en décor) */
+  border: 1px solid var(--c-line);
 
   border-radius: 22px;
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--c-surface-rgb), 0.72),
-      rgba(var(--c-surface-rgb), 0.75)
-    );
+  background: var(--c-surface);
 
-  color:
-    rgba(255, 255, 255, 0.82);
+  color: var(--c-text);
 
   font: inherit;
 
@@ -771,8 +764,7 @@
 
 .protocol-home-nav button > svg,
 .protocol-home-nav-icon {
-  color:
-    rgba(var(--c-accent-soft-rgb), 0.94);
+  color: var(--c-text-soft);
 }
 
 .protocol-home-nav strong {
@@ -907,18 +899,13 @@
 
   gap: 6px;
 
-  border:
-    1px solid
-    rgba(var(--c-accent-rgb), 0.12);
+  /* signes : ce sont des actions (on envoie quelque chose
+     à l'autre) : contour néon discret, fond transparent */
+  border: 1px solid rgba(var(--c-accent-rgb), 0.26);
 
   border-radius: 20px;
 
-  background:
-    linear-gradient(
-      180deg,
-      rgba(var(--c-surface-rgb), 0.46),
-      rgba(var(--c-bg-rgb), 0.56)
-    );
+  background: transparent;
 
   color:
     rgba(255, 255, 255, 0.77);
@@ -931,8 +918,7 @@
 .protocol-home-icon-pink {
   display: flex;
 
-  color:
-    rgba(var(--c-accent-soft-rgb), 0.90);
+  color: var(--c-accent);
 
   transform:
     scale(0.88);

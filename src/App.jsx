@@ -10,7 +10,7 @@ import LibraryScreen from "./LibraryScreen.jsx";
 import CardScreen from "./CardScreen.jsx";
 import InvitationsScreen from "./InvitationsScreen.jsx";
 import MessagesScreen from "./MessagesScreen.jsx";
-import ScreenHeader from "./ScreenHeader.jsx";
+import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
 import {
   getCurrentPushSubscription,
   registerPushNotifications,
@@ -1402,7 +1402,7 @@ function App() {
         </div>
 
         <div class="protocol-privacy-symbol" aria-hidden="true">
-          ◇
+          <span class="protocol-diamond"></span>
         </div>
 
         <p>
@@ -2940,7 +2940,7 @@ function HomeScreen({ navigate , profile, }) {
                   setJoinError("");
 
                 }}
-                placeholder="XXXXXX"
+                placeholder="······"
                 maxLength={6}
                 autoFocus
                 autoComplete="off"
@@ -3852,8 +3852,8 @@ function HomeScreen({ navigate , profile, }) {
             onClick={onBack}
             aria-label="Retour"
           >
-            ←
-          </button>
+          <BackIcon />
+        </button>
 
           <div className="protocol-settings-heading">
             <span className="logo protocol-settings-logo">
@@ -6118,7 +6118,7 @@ function SettingsScreen({
           onClick={() => navigate("/")}
           aria-label="Retour"
         >
-          ←
+          <BackIcon />
         </button>
 
         <div className="protocol-settings-heading">
@@ -7072,7 +7072,7 @@ function SettingsScreen({
             <div className="settings-privacy-item">
 
               <span className="settings-privacy-icon">
-                ◇
+                <span className="protocol-diamond" aria-hidden="true" />
               </span>
 
               <div>
@@ -7095,7 +7095,7 @@ function SettingsScreen({
             <div className="settings-privacy-item">
 
               <span className="settings-privacy-icon">
-                ◇
+                <span className="protocol-diamond" aria-hidden="true" />
               </span>
 
               <div>
@@ -7117,7 +7117,7 @@ function SettingsScreen({
             <div className="settings-privacy-item">
 
               <span className="settings-privacy-icon">
-                ◇
+                <span className="protocol-diamond" aria-hidden="true" />
               </span>
 
               <div>
@@ -7410,7 +7410,7 @@ function JoinScreen({ navigate, profile, }) {
 
               setError("");
             }}
-            placeholder="XXXXXX"
+            placeholder="······"
             autoFocus
           />
 
@@ -10193,7 +10193,7 @@ async function handleSceneRead() {
             </span>
 
             <span className="pill final-pill">
-              TERMINÉ
+              Terminé
             </span>
 
           </header>
@@ -10321,7 +10321,7 @@ async function handleSceneRead() {
             <div className="final-wow-closing final-afterglow">
 
               <span className="final-symbol">
-                ◇
+                <span className="protocol-diamond" aria-hidden="true" />
               </span>
 
               <div className="final-afterglow-copy">

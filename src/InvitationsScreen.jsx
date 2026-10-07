@@ -4,39 +4,10 @@ import {
 } from "react";
 
 import "./invitations.css";
+import { formatRelativeTime } from "./formatTime.js";
+import { BackIcon } from "./ScreenHeader.jsx";
 
 
-function formatDateTime(
-  value
-) {
-  if (!value) {
-    return "";
-  }
-
-  try {
-    return new Intl.DateTimeFormat(
-      "fr-BE",
-      {
-        day:
-          "2-digit",
-
-        month:
-          "2-digit",
-
-        hour:
-          "2-digit",
-
-        minute:
-          "2-digit",
-      }
-    ).format(
-      new Date(value)
-    );
-
-  } catch {
-    return "";
-  }
-}
 
 function getInvitationTypeLabel(
   type
@@ -506,7 +477,7 @@ export default function InvitationsScreen({
           onClick={onBack}
           aria-label="Retour"
         >
-          ←
+          <BackIcon />
         </button>
 
 
@@ -566,7 +537,7 @@ export default function InvitationsScreen({
           <div className="invitations-empty">
 
             <span>
-              ◇
+              <span className="protocol-diamond" aria-hidden="true" />
             </span>
 
             <strong>
@@ -656,7 +627,7 @@ export default function InvitationsScreen({
                       </span>
 
                       <span className="invitation-date">
-                        {formatDateTime(
+                        {formatRelativeTime(
                           invitation.sent_at
                         )}
                       </span>
@@ -709,8 +680,9 @@ export default function InvitationsScreen({
                         <span>
                           {isSent
                             ? invitation.opened_at
-                              ? `Vue ${formatDateTime(
-                                  invitation.opened_at
+                              ? `Vue ${formatRelativeTime(
+                                  invitation.opened_at,
+                                  { lower: true }
                                 )}`
                               : "En attente"
 

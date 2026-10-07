@@ -5,6 +5,7 @@ import {
 } from "react";
 
 import "./library.css";
+import { BackIcon } from "./ScreenHeader.jsx";
 
 
 /* =========================================================
@@ -616,7 +617,7 @@ export default function LibraryScreen({
           onClick={onBack}
           aria-label="Retour"
         >
-          ←
+          <BackIcon />
         </button>
 
         <div className="library-heading">
@@ -676,7 +677,18 @@ export default function LibraryScreen({
               className="library-search-icon"
               aria-hidden="true"
             >
-              ⌕
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              >
+                <circle cx="11" cy="11" r="6.5" />
+                <path d="m16 16 4 4" />
+              </svg>
             </span>
 
             <input
@@ -814,7 +826,7 @@ export default function LibraryScreen({
             <div className="library-empty">
 
               <span className="library-empty-symbol">
-                ◇
+                <span className="protocol-diamond" aria-hidden="true" />
               </span>
 
               <p>

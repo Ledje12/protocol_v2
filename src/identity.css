@@ -192,7 +192,6 @@ button.primary:disabled,
   --rose: var(--type, var(--c-accent));      /* anneau du chrono */
   --rose-soft: var(--type, var(--c-accent));
   border: 1px solid var(--c-line) !important;
-  border-top: 2px solid var(--type, var(--c-accent)) !important;
   background: var(--c-surface) !important;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35) !important;
 }
@@ -434,7 +433,8 @@ button.primary:disabled,
 
 .library-card {
   border: 1px solid var(--c-line) !important;
-  border-top: 2px solid rgb(var(--card-accent)) !important;
+  --type: rgb(var(--card-accent));
+  --type-rgb: var(--card-accent);
   background: var(--c-surface) !important;
 }
 
@@ -524,7 +524,10 @@ button.primary:disabled,
 
 .invitation-item {
   border: 1px solid var(--c-line) !important;
-  border-top: 2px solid rgb(var(--inv-accent)) !important;
+  --type: rgb(var(--inv-accent));
+  --type-rgb: var(--inv-accent);
+  position: relative;
+  overflow: hidden;
   background: var(--c-surface) !important;
 }
 
@@ -1206,7 +1209,10 @@ button.primary:disabled,
    s'efface vers les bords (remplace border-top sur rayon,
    qui dessinait un « sourire » coupé dans les coins) */
 .type-filet::before,
-.custom-manage-card::before {
+.custom-manage-card::before,
+.library-card::before,
+.invitation-item::before,
+.game-card::after {
   content: "";
   position: absolute;
   top: 0;
@@ -1475,4 +1481,170 @@ button.primary:disabled,
 @keyframes protocolFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+
+/* ---------------------------------------------------------
+   26. GRAND ÉCRAN : même colonne de 430 px partout
+   (accueil, réglages et jeu l'avaient déjà)
+   --------------------------------------------------------- */
+
+.library-page,
+.card-page,
+.invitations-page,
+.messages-page {
+  width: 100%;
+  max-width: 430px;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+
+/* ---------------------------------------------------------
+   27. FILTRES QUI DÉFILENT : la ligne va jusqu'au bord de
+   l'écran et s'y efface (on comprend qu'elle continue)
+   --------------------------------------------------------- */
+
+.library-filter-row {
+  margin-right: calc(-1 * var(--gutter)) !important;
+  padding-right: var(--gutter) !important;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--gutter)), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - var(--gutter)), transparent);
+}
+
+
+/* ---------------------------------------------------------
+   28. FICHE CARTE : repères sous la citation
+   --------------------------------------------------------- */
+
+.card-facts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 26px 0 0 22px;
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+}
+
+.card-facts-dot {
+  color: var(--c-label);
+}
+
+/* flèches retour : SVG, centrées dans le rond */
+.library-back svg,
+.card-back svg,
+.invitations-back svg,
+.messages-back svg,
+.protocol-settings-back svg {
+  display: block;
+}
+
+.library-search-icon svg {
+  display: block;
+}
+
+/* losange de marque dans les états vides et la fin */
+.messages-empty .protocol-diamond,
+.library-empty .protocol-diamond,
+.invitations-empty .protocol-diamond,
+.final-symbol .protocol-diamond {
+  width: 14px;
+  height: 14px;
+}
+
+#protocol-privacy-screen .protocol-diamond {
+  width: 16px;
+  height: 16px;
+}
+
+
+/* ---------------------------------------------------------
+   29. PIED DE PAGE UNIQUE
+   Le même que l'accueil : centré, une ligne, micro-libellé.
+   --------------------------------------------------------- */
+
+.app .footer {
+  justify-content: center !important;
+  gap: 10px !important;
+  font-size: var(--fs-label) !important;
+  letter-spacing: 0.12em !important;
+  color: var(--c-label) !important;
+}
+
+.app .footer span + span::before {
+  content: "·";
+  margin-right: 10px;
+}
+
+.protocol-home-footer {
+  color: var(--c-label) !important;
+}
+
+/* état vide des messages : aligné sur la gouttière */
+.messages-empty {
+  width: 100% !important;
+}
+
+
+/* ---------------------------------------------------------
+   30. CHRONO : le libellé ne touche plus l'anneau
+   (anneau un peu plus grand sur les grands iPhone)
+   --------------------------------------------------------- */
+
+.protocol-timer-label {
+  font-size: 10px !important;
+  letter-spacing: 0.06em !important;
+  line-height: 1.2 !important;
+}
+
+@media (min-width: 390px) {
+  .protocol-timer-ring {
+    width: 92px !important;
+    height: 92px !important;
+    flex: 0 0 92px !important;
+  }
+
+  .protocol-timer-inner strong {
+    font-size: 29px !important;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   31. PILULE D'ÉTAT des en-têtes de jeu (salon, calibration,
+   fin) : une seule forme, celle d'une étiquette
+   --------------------------------------------------------- */
+
+.header .pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px !important;
+  border: 1px solid var(--c-line-strong) !important;
+  border-radius: var(--r-pill) !important;
+  background: transparent !important;
+  font-size: var(--fs-label) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase;
+  color: var(--c-muted) !important;
+}
+
+
+/* ---------------------------------------------------------
+   32. GOUTTIÈRE UNIQUE : 18 px partout (le contenu
+   s'aligne sur le rond « retour » de l'en-tête)
+   --------------------------------------------------------- */
+
+.library-content,
+.invitations-content,
+.messages-content,
+.card-content {
+  padding-left: max(var(--gutter), env(safe-area-inset-left)) !important;
+  padding-right: max(var(--gutter), env(safe-area-inset-right)) !important;
+}
+
+/* la pause couvre tout, en-tête de jeu compris */
+.protocol-stop-overlay {
+  z-index: 1100 !important;
 }

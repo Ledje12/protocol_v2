@@ -5,32 +5,11 @@ import {
 } from "react";
 
 import "./messages.css";
+import { formatRelativeTime } from "./formatTime.js";
+import { BackIcon } from "./ScreenHeader.jsx";
 
 // PROTOCOL private messaging
 
-function formatMessageTime(
-  value
-) {
-  if (!value) {
-    return "";
-  }
-
-  try {
-    return new Intl.DateTimeFormat(
-      "fr-BE",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    ).format(
-      new Date(value)
-    );
-  } catch {
-    return "";
-  }
-}
 
 export default function MessagesScreen({
   supabase,
@@ -361,7 +340,7 @@ export default function MessagesScreen({
           onClick={onBack}
           aria-label="Retour"
         >
-          ←
+          <BackIcon />
         </button>
 
         <div className="messages-heading">
@@ -408,7 +387,7 @@ export default function MessagesScreen({
           messages.length === 0 && (
             <div className="messages-empty">
               <span className="messages-empty-mark">
-                ◇
+                <span className="protocol-diamond" aria-hidden="true" />
               </span>
 
               <strong>
@@ -459,8 +438,9 @@ export default function MessagesScreen({
 
                           <div className="message-meta">
                             <span>
-                              {formatMessageTime(
-                                message.created_at
+                              {formatRelativeTime(
+                                message.created_at,
+                                { style: "clock" }
                               )}
                             </span>
                           </div>
