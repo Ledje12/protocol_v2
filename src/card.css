@@ -131,7 +131,7 @@
 .card-page .card-type {
   color: var(--c-accent);
 
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.22em;
 }
@@ -204,7 +204,7 @@
 
   text-align: center;
 
-  font-size: 13px;
+  font-size: var(--fs-small);
   font-weight: 500;
 
   color: rgba(var(--c-text-rgb), 0.62);
@@ -224,7 +224,7 @@
   margin-top: auto;
 
   border: 1px solid rgba(var(--c-accent-rgb), 0.42);
-  border-radius: 18px;
+  border-radius: var(--r-control);
 
   background:
     linear-gradient(
@@ -341,7 +341,7 @@
     rgba(var(--c-accent-rgb), 0.34);
 
   border-radius:
-    999px;
+    var(--r-pill);
 
   background:
     rgba(var(--c-accent-deep-rgb), 0.055);
@@ -429,7 +429,7 @@
   width: 2px;
 
   border-radius:
-    999px;
+    var(--r-pill);
 
   background:
     linear-gradient(
@@ -496,7 +496,7 @@
 
 .card-page .scene-preview-heading strong {
   color: rgba(var(--c-text-rgb), 0.62);
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 600;
 }
 
@@ -553,7 +553,7 @@
 
   color: var(--c-accent);
 
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.06em;
 }
@@ -580,7 +580,7 @@
 .card-page .scene-preview-step-content > p {
   margin: 0;
 
-  font-size: 15px;
+  font-size: var(--fs-body);
   line-height: 1.55;
 
   color:

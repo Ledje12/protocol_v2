@@ -1,14 +1,310 @@
 /* =========================================================
-   PROTOCOL — PASSE 2 : IDENTITÉ « NÉON NOCTURNE »
-   Chargée en dernier (main.jsx). Couleurs et polices :
+   PROTOCOL — COUCHE D'IDENTITÉ « NÉON NOCTURNE »
+   Chargée en dernier (main.jsx), après les feuilles d'écran
+   et index.css. Couleurs, polices, rayons, mouvement :
    uniquement via les tokens de tokens.css.
+
    Règles :
    1. Le néon est réservé à ce qui se joue (bouton principal,
-      tour actif, sélection). Jamais en décor.
+      tour actif, sélection, signes envoyés). Jamais en décor.
    2. Sérif (Bodoni Moda) à 20 px et plus. SF Pro en dessous.
+      Italique : vérités et moments intimes.
    3. Chaque type de carte a sa couleur : vérité rose poudré,
-      action néon, duel champagne, scène lilas.
-   À fusionner dans les feuilles d'origine lors de la passe 3.
+      action néon, duel champagne, scène lilas
+      (data-type="…" ou .game-card-… donnent --type).
+   4. Destructif : --c-danger (corail), jamais le néon.
+   5. Une seule gouttière (--gutter), quatre rayons (--r-*).
+
+   Ancienne « passe 1 » (mise en page) intégrée en tête :
+   même ordre de cascade qu'avant la fusion.
+   ========================================================= */
+
+
+/* =========================================================
+   A. MISE EN PAGE (ex-passe 1)
+   ========================================================= */
+
+:root {
+  --p1-gutter: 18px;
+  --p1-top: max(22px, calc(env(safe-area-inset-top) + 10px));
+}
+
+
+/* ---------------------------------------------------------
+   1. PAGE DE JEU : marges latérales
+   La passe « SAFE AREAS iOS » ramenait le padding latéral
+   de .app à 0 : la carte et les boutons touchaient les bords.
+   --------------------------------------------------------- */
+
+.play-page {
+  padding-left: max(var(--p1-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--p1-gutter), env(safe-area-inset-right));
+
+}
+
+/* ces blocs simulaient la marge avec leur propre padding */
+.play-page .play-header,
+.play-page .play-meta,
+.play-page .bonus-panel {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+
+/* ---------------------------------------------------------
+   2. PANNEAU AVANTAGES : une ligne par avantage
+   --------------------------------------------------------- */
+
+.play-page .bonus-panel .bonus-bar {
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+.play-page .bonus-panel .bonus-button {
+  height: auto !important;
+  min-height: 58px !important;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding: 12px 14px !important;
+  text-align: left;
+}
+
+.play-page .bonus-panel .bonus-button-content {
+  position: static;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.play-page .bonus-panel .bonus-button-title {
+  position: static;
+  transform: none;
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+
+  color: var(--c-text);
+}
+
+.play-page .bonus-panel .bonus-button small {
+  position: static;
+
+  font-size: 12.5px;
+  line-height: 1.35;
+  white-space: normal;
+
+  color: var(--c-muted);
+}
+
+.play-page .bonus-panel .bonus-button strong {
+  position: static;
+  flex: none;
+
+  padding: 5px 10px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.35);
+  border-radius: var(--r-pill);
+
+  font-size: 12px;
+  white-space: nowrap;
+
+  color: var(--c-accent);
+}
+
+.play-page .bonus-panel .bonus-button:disabled {
+  opacity: 0.45;
+}
+
+/* type imposé : rappel visible dans la barre repliée */
+.bonus-toggle-armed {
+  color: var(--c-accent) !important;
+}
+
+
+/* ---------------------------------------------------------
+   3. EN-TÊTE UNIQUE des écrans secondaires
+   Bibliothèque, fiche carte, invitations, messages, réglages
+   --------------------------------------------------------- */
+
+/* même gouttière partout : 18 px (l'accueil était à 14, les réglages à 12) */
+.protocol-home-dashboard,
+.protocol-settings {
+  padding-left: max(var(--p1-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--p1-gutter), env(safe-area-inset-right));
+}
+
+.library-topbar,
+.card-topbar,
+.invitations-topbar,
+.messages-topbar,
+.protocol-settings-header,
+.screen-topbar {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+
+  min-height: 44px;
+  margin: 0 0 22px;
+  padding: var(--p1-top) var(--p1-gutter) 0 !important;
+}
+
+.library-back,
+.card-back,
+.invitations-back,
+.messages-back,
+.protocol-settings-back,
+.screen-back {
+  position: static;
+  flex: none;
+
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  margin: 0;
+  padding: 0;
+
+  display: grid !important;
+  place-items: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.035) !important;
+  color: var(--c-text);
+
+  font-size: var(--fs-lead) !important;
+  line-height: 1 !important;
+}
+
+.library-heading,
+.card-topbar-text,
+.invitations-heading,
+.messages-heading,
+.protocol-settings-heading,
+.screen-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start !important;
+  gap: 2px !important;
+  margin: 0;
+}
+
+.library-logo,
+.card-logo,
+.invitations-logo,
+.messages-logo,
+.protocol-settings-logo,
+.screen-logo {
+  position: static;
+  transform: none;
+
+  font-family: inherit;
+  font-size: 12px !important;
+  font-weight: 800;
+  letter-spacing: 0.24em !important;
+  line-height: 1.2 !important;
+  text-transform: uppercase;
+
+  color: var(--c-text);
+}
+
+.library-target,
+.card-recipient,
+.invitations-subtitle,
+.messages-subtitle,
+.protocol-settings-subtitle,
+.screen-subtitle {
+  margin: 0;
+
+  font-size: var(--fs-small) !important;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.3 !important;
+  text-transform: none;
+
+  color: var(--c-muted) !important;
+}
+
+
+/* ---------------------------------------------------------
+   4. MICRO-LIBELLÉS lisibles (11 px minimum, contraste ≥ 4,5:1)
+   --------------------------------------------------------- */
+
+.protocol-home-nav small,
+.protocol-home-section-title small,
+.protocol-home-footer,
+.play-page .play-meta,
+.play-page .footer {
+  font-size: var(--fs-label);
+  color: var(--c-muted);
+}
+
+
+/* ---------------------------------------------------------
+   5. MESSAGES : zone de saisie collée en bas de l'écran
+   --------------------------------------------------------- */
+
+.messages-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-composer-wrap {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-top: auto;
+
+  padding: 12px 0 max(14px, env(safe-area-inset-bottom));
+
+  background: linear-gradient(180deg, rgba(var(--c-bg-rgb), 0), var(--c-bg) 40%);
+}
+
+
+/* ---------------------------------------------------------
+   6. DIVERS
+   --------------------------------------------------------- */
+
+/* l'en-tête des réglages ne s'ajoute plus au padding de .app */
+.protocol-settings-page {
+  padding-top: 0;
+}
+
+/* micro-libellés de l'accueil : moins espacés une fois agrandis */
+.protocol-home-nav small,
+.protocol-home-section-title small {
+  letter-spacing: 0.12em;
+}
+
+/* numéros internes de cartes : sans intérêt pour les joueurs */
+.library-card-id,
+.card-number {
+  display: none;
+}
+
+
+/* =========================================================
+   B. IDENTITÉ
    ========================================================= */
 
 
@@ -33,19 +329,19 @@ body {
 
 .protocol-home-primary,
 button.primary {
-  border: 0 !important;
-  background: var(--c-accent) !important;
-  color: var(--c-on-accent) !important;
-  font-weight: 700 !important;
-  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28) !important;
-  text-shadow: none !important;
+  border: 0;
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28);
+  text-shadow: none;
 }
 
 .protocol-home-primary::before,
 .protocol-home-primary::after,
 button.primary::before,
 button.primary::after {
-  display: none !important;
+  display: none;
 }
 
 /* DÉSACTIVÉ : une seule règle dans toute l'app.
@@ -59,30 +355,30 @@ button.primary:disabled,
 .protocol-join-submit:disabled,
 .settings-primary-action:disabled,
 .settings-secondary-action:disabled {
-  opacity: 1 !important;
-  border: 1px solid var(--c-line-strong) !important;
-  background: transparent !important;
-  color: rgba(var(--c-muted-rgb), 0.85) !important;
-  box-shadow: none !important;
-  filter: none !important;
+  opacity: 1;
+  border: 1px solid var(--c-line-strong);
+  background: transparent;
+  color: rgba(var(--c-muted-rgb), 0.85);
+  box-shadow: none;
+  filter: none;
   cursor: default;
 }
 
 /* bouton rond d'envoi : même logique, sans contour plein */
 .messages-send:disabled {
-  opacity: 1 !important;
-  border: 1px solid var(--c-line-strong) !important;
-  background: transparent !important;
-  color: var(--c-muted) !important;
-  box-shadow: none !important;
+  opacity: 1;
+  border: 1px solid var(--c-line-strong);
+  background: transparent;
+  color: var(--c-muted);
+  box-shadow: none;
 }
 
 /* bouton secondaire : contour discret */
 .protocol-home-join-main {
-  border: 1px solid var(--c-line-strong) !important;
-  background: transparent !important;
-  color: var(--c-text) !important;
-  font-weight: 600 !important;
+  border: 1px solid var(--c-line-strong);
+  background: transparent;
+  color: var(--c-text);
+  font-weight: 600;
 }
 
 
@@ -97,14 +393,14 @@ button.primary:disabled,
 .messages-logo,
 .protocol-settings-logo,
 .screen-logo {
-  font-family: var(--font-serif) !important;
-  font-weight: 600 !important;
+  font-family: var(--font-serif);
+  font-weight: 600;
   letter-spacing: 0.3em !important;
-  color: var(--c-text) !important;
+  color: var(--c-text);
 }
 
 .protocol-home-brand-name {
-  font-size: 19px !important;
+  font-size: 19px;
   letter-spacing: 0.34em !important;
 }
 
@@ -127,7 +423,7 @@ button.primary:disabled,
 }
 
 .protocol-brand-lg .protocol-brand-name {
-  font-size: 24px;
+  font-size: var(--fs-heading);
 }
 
 .protocol-brand::after {
@@ -149,31 +445,31 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .protocol-home-title-line h1 {
-  font-style: italic !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.01em !important;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .protocol-home-eyebrow {
-  font-size: 11px !important;
-  letter-spacing: 0.16em !important;
-  color: var(--c-text-soft) !important;
+  font-size: var(--fs-label);
+  letter-spacing: 0.16em;
+  color: var(--c-text-soft);
 }
 
 .protocol-home-section-title h2 {
-  font-family: var(--font-serif) !important;
-  font-style: italic !important;
-  font-weight: 400 !important;
-  font-size: 26px !important;
-  letter-spacing: 0 !important;
-  color: var(--c-text) !important;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: 0;
+  color: var(--c-text);
 }
 
 .protocol-home-nav strong,
 .protocol-home-signal-grid strong {
-  font-size: 13.5px !important;
-  font-weight: 600 !important;
-  color: var(--c-text) !important;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--c-text);
 }
 
 
@@ -191,42 +487,42 @@ button.primary:disabled,
 .game-card {
   --rose: var(--type, var(--c-accent));      /* anneau du chrono */
   --rose-soft: var(--type, var(--c-accent));
-  border: 1px solid var(--c-line) !important;
-  background: var(--c-surface) !important;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35) !important;
+  border: 1px solid var(--c-line);
+  background: var(--c-surface);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
 }
 
 .game-card::before {
-  background: var(--type, var(--c-accent)) !important;
-  opacity: 0.1 !important;
+  background: var(--type, var(--c-accent));
+  opacity: 0.1;
 }
 
 /* le titre de la carte devient le titre, en sérif */
 .game-card > .kicker,
 .game-card .kicker {
   margin: 0 0 14px !important;
-  font-family: var(--font-serif) !important;
-  font-size: 32px !important;
-  font-weight: 500 !important;
-  line-height: 1.08 !important;
-  letter-spacing: -0.005em !important;
-  text-transform: none !important;
-  color: var(--c-text) !important;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  color: var(--c-text);
 }
 
 .game-card-truth .kicker {
-  font-style: italic !important;
-  font-weight: 400 !important;
+  font-style: italic;
+  font-weight: 400;
 }
 
 /* le texte de la carte : SF Pro, lisible même long */
 .game-card .card-prompt {
-  font-family: var(--font-sans) !important;
+  font-family: var(--font-sans);
   font-size: 19px !important;
-  font-weight: 400 !important;
+  font-weight: 400;
   line-height: 1.5 !important;
   letter-spacing: 0 !important;
-  color: var(--c-text-soft) !important;
+  color: var(--c-text-soft);
 }
 
 .game-card .card-prompt-short {
@@ -239,73 +535,73 @@ button.primary:disabled,
 
 /* badge de type : couleur du type, lisible */
 .card-type {
-  font-size: 11px !important;
-  font-weight: 700 !important;
+  font-size: var(--fs-label);
+  font-weight: 700;
   letter-spacing: 0.16em !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  background: transparent;
+  box-shadow: none;
 }
-.card-type-truth  { color: var(--c-truth) !important;  border-color: rgba(var(--c-truth-rgb), 0.5) !important; }
-.card-type-action { color: var(--c-accent) !important; border-color: rgba(var(--c-accent-rgb), 0.5) !important; }
-.card-type-duel   { color: var(--c-duel) !important;   border-color: rgba(var(--c-duel-rgb), 0.5) !important; }
-.card-type-scene  { color: var(--c-scene) !important;  border-color: rgba(var(--c-scene-rgb), 0.5) !important; }
+.card-type-truth  { color: var(--c-truth);  border-color: rgba(var(--c-truth-rgb), 0.5); }
+.card-type-action { color: var(--c-accent); border-color: rgba(var(--c-accent-rgb), 0.5); }
+.card-type-duel   { color: var(--c-duel);   border-color: rgba(var(--c-duel-rgb), 0.5); }
+.card-type-scene  { color: var(--c-scene);  border-color: rgba(var(--c-scene-rgb), 0.5); }
 
 /* en-tête de jeu : logo, scores */
 .play-page .logo {
-  font-family: var(--font-serif) !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.3em !important;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
 }
 
 .play-page .score-board span {
-  font-size: 11px !important;
-  letter-spacing: 0.08em !important;
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
 }
 
 .play-page .score-board strong {
-  font-family: var(--font-serif) !important;
-  font-size: 24px !important;
-  font-weight: 500 !important;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-weight: 500;
 }
 
 /* barre Avantages repliée */
 .bonus-toggle-label,
 .bonus-toggle-meta,
 .bonus-toggle-dot {
-  font-size: 12px !important;
+  font-size: 12px;
 }
 
 .bonus-toggle-label {
-  color: var(--c-text) !important;
-  letter-spacing: 0.12em !important;
+  color: var(--c-text);
+  letter-spacing: 0.12em;
 }
 
 .bonus-toggle-meta {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 /* chrono */
 .protocol-timer-label {
-  font-size: 11px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.08em !important;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
 .protocol-timer-inner strong {
-  font-family: var(--font-serif) !important;
-  font-size: 26px !important;
-  font-weight: 400 !important;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 400;
 }
 
 .protocol-timer-main {
-  min-height: 44px !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.1em !important;
-  color: var(--type, var(--c-accent)) !important;
-  border-color: rgba(var(--type-rgb, var(--c-accent-rgb)), 0.45) !important;
-  background: transparent !important;
+  min-height: 44px;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--type, var(--c-accent));
+  border-color: rgba(var(--type-rgb, var(--c-accent-rgb)), 0.45);
+  background: transparent;
 }
 
 .protocol-timer-reset {
@@ -316,66 +612,66 @@ button.primary:disabled,
 
 /* duel : qui gagne */
 .duel-question {
-  font-family: var(--font-serif) !important;
-  font-style: italic !important;
-  font-size: 22px !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: var(--c-text) !important;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-text);
 }
 
 .duel-winner {
-  border: 1px solid rgba(var(--c-duel-rgb), 0.55) !important;
-  background: transparent !important;
+  border: 1px solid rgba(var(--c-duel-rgb), 0.55);
+  background: transparent;
 }
 
 .duel-winner span {
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  color: var(--c-text) !important;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text);
 }
 
 .duel-winner strong {
-  font-family: var(--font-serif) !important;
-  font-size: 24px !important;
-  color: var(--c-duel) !important;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  color: var(--c-duel);
 }
 
 /* actions secondaires : texte simple, zone tactile 44 px */
 .text-action {
   min-height: 44px !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: var(--c-muted) !important;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-muted);
 }
 
 /* écran d'annonce entre deux cartes */
 .card-reveal-kicker,
 .card-reveal-whisper,
 .card-reveal-vs {
-  font-size: 12px !important;
-  letter-spacing: 0.18em !important;
-  color: var(--c-muted) !important;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--c-muted);
 }
 
 .card-reveal-player,
 .card-reveal-type {
-  font-family: var(--font-serif) !important;
-  font-weight: 500 !important;
-  font-size: 44px !important;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 44px;
 }
 
-.card-reveal-truth .card-reveal-type { color: var(--c-truth) !important; font-style: italic; font-weight: 400 !important; }
-.card-reveal-action .card-reveal-type { color: var(--c-accent) !important; }
-.card-reveal-duel .card-reveal-kicker { color: var(--c-duel) !important; }
-.card-reveal-scene .card-reveal-type { color: var(--c-scene) !important; }
+.card-reveal-truth .card-reveal-type { color: var(--c-truth); font-style: italic; font-weight: 400; }
+.card-reveal-action .card-reveal-type { color: var(--c-accent); }
+.card-reveal-duel .card-reveal-kicker { color: var(--c-duel); }
+.card-reveal-scene .card-reveal-type { color: var(--c-scene); }
 
 /* STOP : reste neutre et lisible */
 .protocol-stop-button {
-  font-size: 12px !important;
+  font-size: 12px;
 }
 
 
@@ -389,36 +685,36 @@ button.primary:disabled,
 .messages-page .kicker,
 .protocol-settings .kicker,
 .card-page .kicker {
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.16em !important;
-  color: var(--c-muted) !important;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--c-muted);
 }
 
 .library-page .intro,
 .invitations-page .intro,
 .messages-page .intro {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 /* filtres et onglets : la sélection est en néon */
 .library-filter-label {
-  font-size: 11px !important;
-  color: var(--c-label) !important;
+  font-size: var(--fs-label);
+  color: var(--c-label);
 }
 
 .library-filter {
-  min-height: 40px !important;
-  border-color: var(--c-line) !important;
-  background: transparent !important;
-  color: var(--c-muted) !important;
+  min-height: 40px;
+  border-color: var(--c-line);
+  background: transparent;
+  color: var(--c-muted);
 }
 
 .library-filter.active {
-  border-color: var(--c-accent) !important;
-  background: rgba(var(--c-accent-rgb), 0.12) !important;
-  color: var(--c-accent) !important;
-  box-shadow: none !important;
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.12);
+  color: var(--c-accent);
+  box-shadow: none;
 }
 
 
@@ -427,42 +723,42 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .library-count {
-  font-size: 12px !important;
-  color: var(--c-label) !important;
+  font-size: 12px;
+  color: var(--c-label);
 }
 
 .library-card {
-  border: 1px solid var(--c-line) !important;
+  border: 1px solid var(--c-line);
   --type: rgb(var(--card-accent));
   --type-rgb: var(--card-accent);
-  background: var(--c-surface) !important;
+  background: var(--c-surface);
 }
 
 .library-card-type {
-  font-size: 11px !important;
-  color: rgb(var(--card-accent)) !important;
+  font-size: var(--fs-label);
+  color: rgb(var(--card-accent));
 }
 
 .library-card-title {
-  font-family: var(--font-serif) !important;
-  font-size: 25px !important;
-  font-weight: 500 !important;
-  line-height: 1.12 !important;
-  letter-spacing: 0 !important;
+  font-family: var(--font-serif);
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: 0;
 }
 
 .library-card-truth .library-card-title {
-  font-style: italic !important;
-  font-weight: 400 !important;
+  font-style: italic;
+  font-weight: 400;
 }
 
 .library-card-prompt {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 .library-card-intensity .is-active {
   background: rgb(var(--card-accent)) !important;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 
@@ -476,26 +772,26 @@ button.primary:disabled,
 .card-page-scene  { --type: var(--c-scene);  --type-rgb: var(--c-scene-rgb); }
 
 .card-page .card-type {
-  font-size: 11px !important;
-  color: var(--type, var(--c-accent)) !important;
-  border-color: rgba(var(--type-rgb, var(--c-accent-rgb)), 0.5) !important;
-  background: transparent !important;
+  font-size: var(--fs-label);
+  color: var(--type, var(--c-accent));
+  border-color: rgba(var(--type-rgb, var(--c-accent-rgb)), 0.5);
+  background: transparent;
 }
 
 .card-page-truth .card-title {
-  font-style: italic !important;
-  font-weight: 400 !important;
+  font-style: italic;
+  font-weight: 400;
 }
 
 .card-page .card-prompt {
-  font-family: var(--font-sans) !important;
-  font-size: 19px !important;
-  line-height: 1.55 !important;
-  color: var(--c-text-soft) !important;
+  font-family: var(--font-sans);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--c-text-soft);
 }
 
 .card-page .card-prompt::before {
-  background: var(--type, var(--c-accent)) !important;
+  background: var(--type, var(--c-accent));
 }
 
 /* « Proposer à … » : bouton principal */
@@ -503,7 +799,7 @@ button.primary:disabled,
   border: 0 !important;
   background: var(--c-accent) !important;
   color: var(--c-on-accent) !important;
-  font-weight: 700 !important;
+  font-weight: 700;
   box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28) !important;
 }
 
@@ -513,9 +809,9 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .invitations-kicker {
-  font-size: 11px !important;
-  letter-spacing: 0.16em !important;
-  color: var(--c-muted) !important;
+  font-size: var(--fs-label);
+  letter-spacing: 0.16em;
+  color: var(--c-muted);
 }
 
 .invitations-intro p {
@@ -523,35 +819,35 @@ button.primary:disabled,
 }
 
 .invitation-item {
-  border: 1px solid var(--c-line) !important;
+  border: 1px solid var(--c-line);
   --type: rgb(var(--inv-accent));
   --type-rgb: var(--inv-accent);
   position: relative;
   overflow: hidden;
-  background: var(--c-surface) !important;
+  background: var(--c-surface);
 }
 
 .invitation-type {
-  font-size: 11px !important;
-  color: rgb(var(--inv-accent)) !important;
+  font-size: var(--fs-label);
+  color: rgb(var(--inv-accent));
 }
 
 .invitation-date {
-  font-size: 12px !important;
-  color: var(--c-label) !important;
+  font-size: 12px;
+  color: var(--c-label);
 }
 
 .invitation-title {
-  font-family: var(--font-serif) !important;
-  font-size: 24px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 .invitation-direction,
 .invitation-direction span,
 .invitation-direction-icon {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 
@@ -560,35 +856,34 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .messages-kicker {
-  font-size: 11px !important;
-  letter-spacing: 0.16em !important;
-  color: var(--c-muted) !important;
+  font-size: var(--fs-label);
+  letter-spacing: 0.16em;
+  color: var(--c-muted);
 }
 
 .messages-intro-text {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 .messages-empty strong {
-  font-family: var(--font-serif) !important;
-  font-style: italic !important;
-  font-size: 24px !important;
-  font-weight: 400 !important;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--fs-heading);
+  font-weight: 400;
 }
 
 /* envoyer = l'action de l'écran : néon */
 .messages-send {
-  border: 0 !important;
-  background: var(--c-accent) !important;
-  color: var(--c-on-accent) !important;
-  box-shadow: 0 8px 24px rgba(var(--c-accent-rgb), 0.3) !important;
+  border: 0;
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+  box-shadow: 0 8px 24px rgba(var(--c-accent-rgb), 0.3);
 }
-
 
 
 /* mes messages : néon éteint, texte clair (contraste 8:1) */
 .message-bubble.is-mine {
-  background: var(--c-accent-deep) !important;
+  background: var(--c-accent-deep);
 }
 
 
@@ -597,70 +892,70 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .settings-card {
-  border: 1px solid var(--c-line) !important;
-  background: var(--c-surface) !important;
+  border: 1px solid var(--c-line);
+  background: var(--c-surface);
 }
 
 .settings-card-eyebrow {
-  font-size: 11px !important;
-  letter-spacing: 0.16em !important;
-  color: var(--c-muted) !important;
+  font-size: var(--fs-label);
+  letter-spacing: 0.16em;
+  color: var(--c-muted);
 }
 
 .settings-card-heading h2 {
   font-size: 30px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 .settings-card-copy,
 .protocol-settings .intro {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 .settings-status-row span {
-  font-size: 11px !important;
+  font-size: var(--fs-label);
 }
 
 .settings-feedback {
-  font-size: 12.5px !important;
-  color: var(--c-muted) !important;
+  font-size: 12.5px;
+  color: var(--c-muted);
 }
 
 .settings-text-action,
 .settings-privacy-link,
 .settings-secondary-action {
-  min-height: 44px !important;
-  font-size: 14px !important;
-  color: var(--c-muted) !important;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--c-muted);
 }
 
 /* choix du mode : la sélection est en néon */
 .director-mode-option {
-  border: 1px solid var(--c-line) !important;
-  background: transparent !important;
+  border: 1px solid var(--c-line);
+  background: transparent;
 }
 
 .director-mode-option.is-active {
-  border-color: var(--c-accent) !important;
-  background: rgba(var(--c-accent-rgb), 0.1) !important;
-  box-shadow: none !important;
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.1);
+  box-shadow: none;
 }
 
 .director-mode-option span {
-  font-size: 12.5px !important;
+  font-size: 12.5px;
   color: var(--c-muted) !important;
 }
 
 /* actions de carte : contour, pas de néon (une seule action principale par écran) */
 .settings-primary-action {
-  border: 1px solid var(--c-line-strong) !important;
-  background: transparent !important;
-  color: var(--c-text) !important;
+  border: 1px solid var(--c-line-strong);
+  background: transparent;
+  color: var(--c-text);
 }
 
 .settings-privacy-icon {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 
@@ -680,59 +975,50 @@ button.primary:disabled,
    ET de l'en-tête ; on ne garde que celui de l'en-tête */
 .library-page,
 .card-page {
-  padding-top: 0 !important;
+  padding-top: 0;
 }
 
 /* écrans de jeu (attente, calibration, partie, fin…) */
 .app:not(.protocol-home-page):not(.protocol-settings-page):not(.join-page):not(.protocol-legal-page) {
-  padding-top: var(--top-clear) !important;
+  padding-top: var(--top-clear);
 }
 
 /* ces écrans touchaient les bords (couche « SAFE AREAS ») :
    même gouttière de 18 px que le reste, textes alignés sur les cadres */
 .app:not(.protocol-home-page):not(.protocol-settings-page):not(.play-page):not(.protocol-legal-page) {
   --protocol-text-gutter: 0px;
-  padding-left: max(18px, env(safe-area-inset-left)) !important;
-  padding-right: max(18px, env(safe-area-inset-right)) !important;
+  padding-left: max(18px, env(safe-area-inset-left));
+  padding-right: max(18px, env(safe-area-inset-right));
 }
 
 .app .header {
-  transform: none !important;
+  transform: none;
 }
 
 /* logo des écrans de jeu : le même que partout */
 .header .logo {
-  font-family: var(--font-serif) !important;
+  font-family: var(--font-serif);
   font-size: 14px !important;
-  font-weight: 600 !important;
+  font-weight: 600;
   letter-spacing: 0.3em !important;
-  text-shadow: none !important;
+  text-shadow: none;
 }
 
 /* sur-titres des écrans de jeu (« VOTRE CODE »…) : discrets */
 .app:not(.play-page) .kicker {
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 /* code de partie : Bodoni un peu plus nourrie, les déliés
    trop fins gênent la lecture d'un code à recopier */
 .game-code {
-  font-weight: 500 !important;
-  letter-spacing: 0.04em !important;
+  font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
-
-/* ---------------------------------------------------------
-   12. ACCUEIL : retouches après essai sur iPhone
-   --------------------------------------------------------- */
-
-/* logo : un seul filet néon, centré sous le mot */
-.protocol-home-brand-sub {
-  display: none !important;
-}
 
 .protocol-home-brand-name {
-  padding-left: 0.34em !important;   /* compense l'espacement après le L */
+  padding-left: 0.34em;   /* compense l'espacement après le L */
 }
 
 .protocol-home-brand::after {
@@ -746,28 +1032,28 @@ button.primary:disabled,
 
 /* tuiles : le nom suffit, comme les tuiles du bas */
 .protocol-home-nav small {
-  display: none !important;
+  display: none;
 }
 
 .protocol-home-nav button {
-  gap: 10px !important;
-  justify-content: center !important;
+  gap: 10px;
+  justify-content: center;
 }
 
 /* « Un signe ? » : de l'air avant les tuiles, sans sous-titre */
 .protocol-home-section-title {
-  height: auto !important;
-  min-height: 32px !important;
-  margin-bottom: 12px !important;
-  grid-template-columns: 20px auto !important;
+  height: auto;
+  min-height: 32px;
+  margin-bottom: 12px;
+  grid-template-columns: 20px auto;
 }
 
 .protocol-home-section-title small {
-  display: none !important;
+  display: none;
 }
 
 .protocol-home-signal-grid {
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
 
@@ -787,27 +1073,27 @@ button.primary:disabled,
 }
 
 .protocol-home-nav {
-  flex: 0 0 var(--home-tile-h) !important;
-  gap: 10px !important;
+  flex: 0 0 var(--home-tile-h);
+  gap: 10px;
 }
 
 .protocol-home-signal-grid {
-  gap: 10px !important;
+  gap: 10px;
 }
 
 .protocol-home-nav button,
 .protocol-home-signal-grid button {
-  height: var(--home-tile-h) !important;
-  padding: 10px 6px !important;
-  gap: 10px !important;
-  border-radius: 20px !important;
+  height: var(--home-tile-h);
+  padding: 10px 6px;
+  gap: 10px;
+  border-radius: 20px;
 }
 
 /* même taille d'icône en haut et en bas */
 .protocol-home-nav button svg,
 .protocol-home-signal-grid button svg {
-  width: 24px !important;
-  height: 24px !important;
+  width: 24px;
+  height: 24px;
 }
 
 
@@ -874,12 +1160,12 @@ button.primary:disabled,
 
 /* overflow: clip (et non hidden) pour que sticky fonctionne */
 .app.play-page {
-  overflow: clip !important;
-  padding-bottom: calc(var(--bottom-clear) + 12px) !important;
+  overflow: clip;
+  padding-bottom: calc(var(--bottom-clear) + 12px);
 }
 
 .play-page .play-header {
-  position: sticky !important;
+  position: sticky;
   /* au défilement, l'en-tête remonte jusqu'à 8 px sous
      la zone de la caméra, puis reste en place */
   top: calc(env(safe-area-inset-top) + 8px - var(--top-clear));
@@ -947,28 +1233,28 @@ button.primary:disabled,
 /* STOP : neutre, lisible, toujours là. Pas de néon
    (ce n'est pas une action de jeu), pas de rouge alarmant. */
 .play-page .protocol-stop-button {
-  position: static !important;
+  position: static;
   flex: none;
 
-  width: 46px !important;
-  height: 46px !important;
-  margin: 0 !important;
+  width: 46px;
+  height: 46px;
+  margin: 0;
 
   display: grid;
   place-items: center;
 
-  border: 1px solid var(--c-line-strong) !important;
-  border-radius: var(--r-pill) !important;
-  background: var(--c-surface-2) !important;
-  color: var(--c-text) !important;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: var(--c-surface-2);
+  color: var(--c-text);
 
-  font-size: 10px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.08em !important;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 /* le pied de page n'a plus à éviter un bouton flottant */
@@ -984,22 +1270,22 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .play-page .play-meta {
-  display: grid !important;
+  display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px !important;
+  gap: 12px;
 
   margin: 0 0 14px !important;
 
-  font-size: var(--fs-small) !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: var(--c-muted) !important;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-muted);
 }
 
 .play-page .play-meta .card-type {
-  padding: 5px 11px !important;
+  padding: 5px 11px;
 }
 
 .play-meta-turn {
@@ -1033,7 +1319,7 @@ button.primary:disabled,
 .play-meta-progress strong span {
   margin: 0 2px;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: var(--fs-small);
   font-weight: 400;
   color: var(--c-muted);
 }
@@ -1052,30 +1338,30 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .final-wow-score {
-  border: 1px solid var(--c-line) !important;
-  border-radius: var(--r-card) !important;
-  background: var(--c-surface) !important;
-  backdrop-filter: none !important;
-  padding: 26px 18px 24px !important;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-card);
+  background: var(--c-surface);
+  backdrop-filter: none;
+  padding: 26px 18px 24px;
 }
 
 .final-wow-player {
-  opacity: 1 !important;
-  gap: 8px !important;
+  opacity: 1;
+  gap: 8px;
 }
 
 .final-wow-player span {
-  font-size: var(--fs-label) !important;
+  font-size: var(--fs-label);
   font-weight: 700;
-  letter-spacing: 0.16em !important;
+  letter-spacing: 0.16em;
   color: var(--c-muted);
 }
 
 .final-wow-player strong {
-  font-family: var(--font-serif) !important;
-  font-size: 64px !important;
-  font-weight: 400 !important;
-  line-height: 0.95 !important;
+  font-family: var(--font-serif);
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 0.95;
   color: var(--c-text);
   font-variant-numeric: lining-nums;
 }
@@ -1090,31 +1376,31 @@ button.primary:disabled,
 }
 
 .final-wow-separator {
-  opacity: 1 !important;
+  opacity: 1;
   color: var(--c-label);
 }
 
 .final-rematch-hint {
-  font-size: 12px !important;
-  letter-spacing: 0 !important;
-  color: var(--c-label) !important;
+  font-size: 12px;
+  letter-spacing: 0;
+  color: var(--c-label);
 }
 
 /* « Terminer » : action tertiaire, lisible */
 .final-close-button {
   min-height: 44px;
-  margin: 18px auto 0 !important;
-  padding: 0 16px !important;
-  border: 0 !important;
-  background: transparent !important;
-  opacity: 1 !important;
+  margin: 18px auto 0;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  opacity: 1;
 
   font: inherit;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  color: var(--c-muted) !important;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-muted);
 }
 
 .final-close-button:hover,
@@ -1130,7 +1416,7 @@ button.primary:disabled,
 
 /* le dégagement du haut est porté par l'en-tête commun */
 .app.join-page {
-  padding-top: 0 !important;
+  padding-top: 0;
 }
 
 .join-page .screen-topbar {
@@ -1148,13 +1434,13 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .protocol-legal-page.app {
-  padding: 0 0 calc(var(--bottom-clear) + 24px) !important;
+  padding: 0 0 calc(var(--bottom-clear) + 24px);
 }
 
 .protocol-legal-shell {
-  width: 100% !important;
+  width: 100%;
   max-width: 720px;
-  padding: 0 !important;
+  padding: 0;
 }
 
 .protocol-legal-header,
@@ -1163,9 +1449,9 @@ button.primary:disabled,
 }
 
 .protocol-legal-header h1 {
-  font-size: var(--fs-title) !important;
-  line-height: 1.05 !important;
-  margin: 10px 0 10px !important;
+  font-size: var(--fs-title);
+  line-height: 1.05;
+  margin: 10px 0 10px;
 }
 
 .protocol-legal-header .settings-card-eyebrow {
@@ -1173,24 +1459,24 @@ button.primary:disabled,
 }
 
 .protocol-legal-header p {
-  font-size: var(--fs-small) !important;
-  color: var(--c-label) !important;
+  font-size: var(--fs-small);
+  color: var(--c-label);
 }
 
 .protocol-legal-section h2 {
-  margin: 0 0 10px !important;
+  margin: 0 0 10px;
   font-family: var(--font-serif);
-  font-size: 22px !important;
-  font-weight: 500 !important;
+  font-size: 22px;
+  font-weight: 500;
   line-height: 1.2;
   color: var(--c-text);
 }
 
 .protocol-legal-section p,
 .protocol-legal-section li {
-  font-size: var(--fs-body) !important;
-  line-height: 1.6 !important;
-  color: var(--c-muted) !important;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--c-muted);
 }
 
 
@@ -1205,10 +1491,6 @@ button.primary:disabled,
 [data-type="duel"]   { --type: var(--c-duel);   --type-rgb: var(--c-duel-rgb); }
 [data-type="scene"]  { --type: var(--c-scene);  --type-rgb: var(--c-scene-rgb); }
 
-/* filet de type : trait fin en haut de la carte, qui
-   s'efface vers les bords (remplace border-top sur rayon,
-   qui dessinait un « sourire » coupé dans les coins) */
-.type-filet::before,
 .custom-manage-card::before,
 .library-card::before,
 .invitation-item::before,
@@ -1241,7 +1523,7 @@ button.primary:disabled,
   width: 16px;
   height: 3px;
   border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--c-line);
 }
 
 .type-intensity i.is-active {
@@ -1291,30 +1573,30 @@ button.primary:disabled,
 /* état (« Associés », « Non connecté ») : une étiquette,
    pas une fausse zone de saisie */
 .settings-status-row {
-  display: inline-flex !important;
-  min-height: 0 !important;
-  padding: 0 !important;
+  display: inline-flex;
+  min-height: 0;
+  padding: 0;
   margin: 2px 0 6px;
-  border: 0 !important;
-  background: transparent !important;
-  font-size: var(--fs-label) !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.16em !important;
-  color: var(--c-muted) !important;
+  border: 0;
+  background: transparent;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--c-muted);
 }
 
 .settings-status-dot.is-active {
-  background: var(--c-accent) !important;
-  box-shadow: none !important;
+  background: var(--c-accent);
+  box-shadow: none;
 }
 
 /* champ de code : le même champ « satin » qu'à la connexion */
 .settings-code-input {
-  height: 54px !important;
-  border: 1px solid var(--c-line) !important;
-  border-radius: var(--r-control) !important;
-  background: var(--c-surface-2) !important;
-  font-size: 16px !important;
+  height: 54px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-control);
+  background: var(--c-surface-2);
+  font-size: 16px;
 }
 
 .settings-code-input:focus {
@@ -1324,15 +1606,15 @@ button.primary:disabled,
 
 /* se déconnecter : action tertiaire (texte), pas un bouton plein */
 .settings-logout-button {
-  min-height: 48px !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: var(--c-text-soft) !important;
-  font-size: var(--fs-body) !important;
-  font-weight: 500 !important;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--c-text-soft);
+  font-size: var(--fs-body);
+  font-weight: 500;
 }
 
 
@@ -1375,9 +1657,9 @@ button.primary:disabled,
 
 .waiting-turn:has(.waiting-presence) {
   justify-content: center;
-  padding: 30px 18px 26px !important;
-  border: 0 !important;
-  background: transparent !important;
+  padding: 30px 18px 26px;
+  border: 0;
+  background: transparent;
 }
 
 .waiting-presence {
@@ -1392,12 +1674,12 @@ button.primary:disabled,
 }
 
 .waiting-presence .waiting-text {
-  margin: 18px 0 0 !important;
+  margin: 18px 0 0;
   font-family: var(--font-serif);
-  font-size: 26px !important;
+  font-size: 26px;
   font-weight: 400;
   line-height: 1.15;
-  color: var(--c-text) !important;
+  color: var(--c-text);
 }
 
 .waiting-presence .waiting-text em {
@@ -1448,7 +1730,7 @@ button.primary:disabled,
 .play-page .bonus-panel .bonus-button {
   border: 1px solid var(--c-line) !important;
   border-radius: var(--r-control) !important;
-  background: var(--c-surface-2) !important;
+  background: var(--c-surface-2);
 }
 
 @keyframes protocolDrawerIn {
@@ -1460,11 +1742,11 @@ button.primary:disabled,
    .play ne crée plus de contexte d'empilement. L'en-tête
    (et donc STOP) reste au-dessus de tout, même de l'annonce. */
 .play-page .play {
-  z-index: auto !important;
+  z-index: auto;
 }
 
 .play-page .play-header {
-  z-index: 1001 !important;
+  z-index: 1001;
 }
 
 /* voile sous le tiroir ouvert (n'intercepte pas les touches) */
@@ -1495,8 +1777,8 @@ button.primary:disabled,
 .messages-page {
   width: 100%;
   max-width: 430px;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 
@@ -1506,8 +1788,8 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .library-filter-row {
-  margin-right: calc(-1 * var(--gutter)) !important;
-  padding-right: var(--gutter) !important;
+  margin-right: calc(-1 * var(--gutter));
+  padding-right: var(--gutter);
   -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--gutter)), transparent);
   mask-image: linear-gradient(90deg, #000 calc(100% - var(--gutter)), transparent);
 }
@@ -1564,11 +1846,11 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .app .footer {
-  justify-content: center !important;
-  gap: 10px !important;
-  font-size: var(--fs-label) !important;
-  letter-spacing: 0.12em !important;
-  color: var(--c-label) !important;
+  justify-content: center;
+  gap: 10px;
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  color: var(--c-label);
 }
 
 .app .footer span + span::before {
@@ -1577,12 +1859,12 @@ button.primary:disabled,
 }
 
 .protocol-home-footer {
-  color: var(--c-label) !important;
+  color: var(--c-label);
 }
 
 /* état vide des messages : aligné sur la gouttière */
 .messages-empty {
-  width: 100% !important;
+  width: 100%;
 }
 
 
@@ -1592,20 +1874,20 @@ button.primary:disabled,
    --------------------------------------------------------- */
 
 .protocol-timer-label {
-  font-size: 10px !important;
-  letter-spacing: 0.06em !important;
-  line-height: 1.2 !important;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
 }
 
 @media (min-width: 390px) {
   .protocol-timer-ring {
-    width: 92px !important;
-    height: 92px !important;
-    flex: 0 0 92px !important;
+    width: 92px;
+    height: 92px;
+    flex: 0 0 92px;
   }
 
   .protocol-timer-inner strong {
-    font-size: 29px !important;
+    font-size: 29px;
   }
 }
 
@@ -1619,15 +1901,15 @@ button.primary:disabled,
   display: inline-flex;
   align-items: center;
   min-height: 30px;
-  padding: 0 12px !important;
-  border: 1px solid var(--c-line-strong) !important;
-  border-radius: var(--r-pill) !important;
-  background: transparent !important;
-  font-size: var(--fs-label) !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.14em !important;
+  padding: 0 12px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: transparent;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--c-muted) !important;
+  color: var(--c-muted);
 }
 
 
@@ -1646,5 +1928,5 @@ button.primary:disabled,
 
 /* la pause couvre tout, en-tête de jeu compris */
 .protocol-stop-overlay {
-  z-index: 1100 !important;
+  z-index: 1100;
 }

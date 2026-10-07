@@ -210,7 +210,7 @@
     var(--library-pink);
 
   font-size:
-    11px;
+    var(--fs-label);
 
   line-height:
     1.2;
@@ -264,7 +264,7 @@
     0;
 
   font-size:
-    15px;
+    var(--fs-body);
 
   line-height:
     1.55;
@@ -507,7 +507,7 @@ input::-webkit-search-cancel-button {
     rgba(var(--c-accent-rgb), 0.13);
 
   border-radius:
-    999px;
+    var(--r-pill);
 
   background:
     rgba(255, 255, 255, 0.018);
@@ -519,7 +519,7 @@ input::-webkit-search-cancel-button {
     inherit;
 
   font-size:
-    13px;
+    var(--fs-small);
 
   font-weight:
     600;
@@ -864,7 +864,7 @@ input::-webkit-search-cancel-button {
     rgba(var(--c-text-soft-rgb), 0.22);
 
   font-size:
-    11px;
+    var(--fs-label);
 }
 
 
@@ -926,7 +926,7 @@ input::-webkit-search-cancel-button {
     rgba(var(--c-accent-rgb), 0.13);
 
   border-radius:
-    999px;
+    var(--r-pill);
 
   background:
     rgba(var(--c-accent-deep-rgb), 0.055);
@@ -984,7 +984,7 @@ input::-webkit-search-cancel-button {
     rgba(var(--c-text-soft-rgb), 0.61);
 
   font-size:
-    15px;
+    var(--fs-body);
 
   line-height:
     1.48;
@@ -1037,7 +1037,7 @@ input::-webkit-search-cancel-button {
     3px;
 
   border-radius:
-    999px;
+    var(--r-pill);
 
   background:
     rgba(255, 255, 255, 0.075);
@@ -1376,7 +1376,7 @@ span.is-active {
   border: 1px solid
     rgba(255, 255, 255, 0.18);
 
-  border-radius: 999px;
+  border-radius: var(--r-pill);
 
   font-size: 0.58rem;
   font-weight: 600;

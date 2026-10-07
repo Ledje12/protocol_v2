@@ -123,7 +123,7 @@
     inherit;
 
   font-size:
-    24px;
+    var(--fs-heading);
 
   line-height:
     1;
@@ -237,7 +237,7 @@
     rgba(var(--c-accent-rgb), 0.90);
 
   font-size:
-    11px;
+    var(--fs-label);
 
   font-weight:
     600;
@@ -296,87 +296,10 @@
 }
 
 
-/* =========================================================
-   PRIVATE BADGE
-   ========================================================= */
-
-.messages-private-badge {
-  width:
-    fit-content;
-
-  max-width:
-    100%;
-
-  margin-top:
-    18px;
-
-  padding:
-    10px
-    14px;
-
-  display:
-    inline-flex;
-
-  align-items:
-    center;
-
-  gap: 10px;
-
-  box-sizing:
-    border-box;
-
-  border:
-    1px solid
-    rgba(var(--c-accent-rgb), 0.15);
-
-  border-radius:
-    999px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(255, 255, 255, 0.038),
-      rgba(255, 255, 255, 0.018)
-    );
-
-  color:
-    rgba(var(--c-accent-soft-rgb), 0.72);
-
-  font-size:
-    13px;
-
-  letter-spacing:
-    0.02em;
-
-  backdrop-filter:
-    blur(14px);
-
-  -webkit-backdrop-filter:
-    blur(14px);
-}
 
 
-.messages-private-dot {
-  width: 7px;
-  height: 7px;
 
-  flex:
-    0
-    0
-    7px;
 
-  border-radius:
-    50%;
-
-  background:
-    var(--messages-pink);
-
-  box-shadow:
-    0
-    0
-    12px
-    rgba(var(--c-accent-rgb), 0.64);
-}
 
 
 /* =========================================================
@@ -396,7 +319,7 @@
     12px;
 
   font-size:
-    13px;
+    var(--fs-small);
 }
 
 
@@ -465,7 +388,7 @@
     rgba(var(--c-accent-rgb), 0.62);
 
   font-size:
-    18px;
+    var(--fs-lead);
 }
 
 
@@ -490,7 +413,7 @@
     rgba(var(--c-text-soft-rgb), 0.46);
 
   font-size:
-    13px;
+    var(--fs-small);
 
   line-height:
     1.45;
@@ -909,7 +832,7 @@
     0
     1px
     0
-    rgba(255, 255, 255, 0.08);
+    var(--c-line);
 
   -webkit-tap-highlight-color:
     transparent;
@@ -1004,17 +927,7 @@ body,
   }
 
 
-  .messages-private-badge {
-    margin-top:
-      9px;
 
-    padding:
-      7px
-      11px;
-
-    font-size:
-      11px;
-  }
 
 
   .messages-content {
@@ -1070,7 +983,7 @@ body,
       15px;
 
     font-size:
-      15px;
+      var(--fs-body);
   }
 
 

@@ -83,11 +83,6 @@
     rgba(255, 255, 255, 0.82);
 }
 
-.protocol-settings-header-spacer {
-  width: 42px;
-  height: 42px;
-}
-
 
 /* =========================================================
    PAGE
@@ -347,7 +342,7 @@
     rgba(var(--c-accent-rgb), 0.18);
 
   border-radius:
-    18px;
+    var(--r-control);
 
   background:
     rgba(255, 255, 255, 0.018);
@@ -368,7 +363,7 @@
   flex: 0 0 8px;
 
   border-radius:
-    999px;
+    var(--r-pill);
 
   background:
     rgba(255, 255, 255, 0.22);
@@ -578,7 +573,7 @@
     rgba(var(--c-accent-rgb), 0.15);
 
   border-radius:
-    18px;
+    var(--r-control);
 
   background:
     rgba(255, 255, 255, 0.018);
@@ -721,7 +716,7 @@
 
   border:
     1px solid
-    rgba(255, 255, 255, 0.08);
+    var(--c-line);
 
   border-radius:
     50%;
@@ -854,23 +849,6 @@
 
 .settings-lovense-open {
   margin-top: 4px;
-}
-
-.settings-lovense-test {
-  margin-top: 22px;
-}
-
-.settings-lovense-test > p {
-  margin:
-    0
-    0
-    14px;
-
-  color:
-    rgba(var(--c-text-soft-rgb), 0.53);
-
-  font-size: 0.80rem;
-  line-height: 1.5;
 }
 
 
@@ -1386,7 +1364,7 @@ div span {
 .director-mode-option {
   min-height: 92px;
   padding: 16px 15px;
-  border-radius: 18px;
+  border-radius: var(--r-control);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1395,7 +1373,7 @@ div span {
 
 .director-mode-option strong {
   display: block;
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 650;
   letter-spacing: 0.01em;
 }

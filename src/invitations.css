@@ -168,7 +168,7 @@
     var(--inv-pink);
 
   font-size:
-    11px;
+    var(--fs-label);
 
   font-weight:
     700;
@@ -438,7 +438,7 @@
     rgba(var(--c-text-soft-rgb), 0.28);
 
   font-size:
-    11px;
+    var(--fs-label);
 }
 
 
@@ -483,7 +483,7 @@
     rgba(var(--c-text-soft-rgb), 0.51);
 
   font-size:
-    13px;
+    var(--fs-small);
 }
 
 
@@ -639,7 +639,7 @@
     rgba(var(--c-text-soft-rgb), 0.40);
 
   font-size:
-    13px;
+    var(--fs-small);
 }
 
 
@@ -677,7 +677,7 @@
     rgba(var(--c-text-rgb), 0.80);
 
   font-size:
-    15px;
+    var(--fs-body);
 }
 
 
@@ -691,7 +691,7 @@
     0;
 
   font-size:
-    13px;
+    var(--fs-small);
 
   line-height:
     1.5;

@@ -5,7 +5,6 @@ import "@fontsource-variable/bodoni-moda/opsz.css"; // sérif de l'app, héberg�
 import "@fontsource-variable/bodoni-moda/opsz-italic.css";
 import "./tokens.css"; // passe 2 : couleurs et polices (source unique)
 import "./index.css";
-import "./pass1.css"; // passe 1 : corrections de mise en page, chargée en dernier
 import "./identity.css"; // passe 2 : identité visuelle, chargée en dernier
 
 
