@@ -709,3 +709,43 @@ button.primary:disabled {
 .protocol-home-signal-grid {
   margin-top: 0 !important;
 }
+
+
+/* ---------------------------------------------------------
+   13. ACCUEIL : les deux rangées de tuiles ont la même taille
+   (avant : 92 px en haut, 78 px en bas ; 72 / 68 sur petit écran)
+   --------------------------------------------------------- */
+
+:root {
+  --home-tile-h: 84px;
+}
+
+@media (max-height: 800px) {
+  :root {
+    --home-tile-h: 70px;
+  }
+}
+
+.protocol-home-nav {
+  flex: 0 0 var(--home-tile-h) !important;
+  gap: 10px !important;
+}
+
+.protocol-home-signal-grid {
+  gap: 10px !important;
+}
+
+.protocol-home-nav button,
+.protocol-home-signal-grid button {
+  height: var(--home-tile-h) !important;
+  padding: 10px 6px !important;
+  gap: 10px !important;
+  border-radius: 20px !important;
+}
+
+/* même taille d'icône en haut et en bas */
+.protocol-home-nav button svg,
+.protocol-home-signal-grid button svg {
+  width: 24px !important;
+  height: 24px !important;
+}
