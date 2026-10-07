@@ -84,19 +84,6 @@ button.primary:disabled {
   letter-spacing: 0.34em !important;
 }
 
-/* « V2 » : étiquette technique, remplacée par un filet néon */
-.protocol-home-brand-sub small {
-  display: none !important;
-}
-
-.protocol-home-brand-sub span {
-  width: 14px !important;
-  height: 1px !important;
-  background: var(--c-accent) !important;
-  opacity: 1 !important;
-}
-
-
 /* ---------------------------------------------------------
    3. ACCUEIL
    --------------------------------------------------------- */
@@ -614,4 +601,111 @@ button.primary:disabled {
 
 .settings-privacy-icon {
   color: var(--c-muted) !important;
+}
+
+
+/* ---------------------------------------------------------
+   11. HAUT D'ÉCRAN (iPhone) : même hauteur partout
+   iOS floute la zone de la caméra : le premier élément
+   commence juste en dessous, sur tous les écrans.
+   Une seule valeur : --top-clear.
+   --------------------------------------------------------- */
+
+:root {
+  --top-clear: calc(env(safe-area-inset-top) + 46px);
+  --p1-top: var(--top-clear);   /* en-têtes des écrans secondaires (passe 1) */
+}
+
+/* bibliothèque et fiche carte : le décalage venait du conteneur
+   ET de l'en-tête ; on ne garde que celui de l'en-tête */
+.library-page,
+.card-page {
+  padding-top: 0 !important;
+}
+
+/* écrans de jeu (attente, calibration, partie, fin…) */
+.app:not(.protocol-home-page):not(.protocol-settings-page) {
+  padding-top: var(--top-clear) !important;
+}
+
+/* ces écrans touchaient les bords (couche « SAFE AREAS ») :
+   même gouttière de 18 px que le reste, textes alignés sur les cadres */
+.app:not(.protocol-home-page):not(.protocol-settings-page):not(.play-page) {
+  --protocol-text-gutter: 0px;
+  padding-left: max(18px, env(safe-area-inset-left)) !important;
+  padding-right: max(18px, env(safe-area-inset-right)) !important;
+}
+
+.app .header {
+  transform: none !important;
+}
+
+/* logo des écrans de jeu : le même que partout */
+.header .logo {
+  font-family: var(--font-serif) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3em !important;
+  text-shadow: none !important;
+}
+
+/* sur-titres des écrans de jeu (« VOTRE CODE »…) : discrets */
+.app:not(.play-page) .kicker {
+  color: var(--c-muted) !important;
+}
+
+/* code de partie : Bodoni un peu plus nourrie, les déliés
+   trop fins gênent la lecture d'un code à recopier */
+.game-code {
+  font-weight: 500 !important;
+  letter-spacing: 0.04em !important;
+}
+
+
+/* ---------------------------------------------------------
+   12. ACCUEIL : retouches après essai sur iPhone
+   --------------------------------------------------------- */
+
+/* logo : un seul filet néon, centré sous le mot */
+.protocol-home-brand-sub {
+  display: none !important;
+}
+
+.protocol-home-brand-name {
+  padding-left: 0.34em !important;   /* compense l'espacement après le L */
+}
+
+.protocol-home-brand::after {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 1px;
+  margin: 10px auto 0;
+  background: var(--c-accent);
+}
+
+/* tuiles : le nom suffit, comme les tuiles du bas */
+.protocol-home-nav small {
+  display: none !important;
+}
+
+.protocol-home-nav button {
+  gap: 10px !important;
+  justify-content: center !important;
+}
+
+/* « Un signe ? » : de l'air avant les tuiles, sans sous-titre */
+.protocol-home-section-title {
+  height: auto !important;
+  min-height: 32px !important;
+  margin-bottom: 12px !important;
+  grid-template-columns: 20px auto !important;
+}
+
+.protocol-home-section-title small {
+  display: none !important;
+}
+
+.protocol-home-signal-grid {
+  margin-top: 0 !important;
 }
