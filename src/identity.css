@@ -1491,6 +1491,7 @@ button.primary:disabled,
 [data-type="duel"]   { --type: var(--c-duel);   --type-rgb: var(--c-duel-rgb); }
 [data-type="scene"]  { --type: var(--c-scene);  --type-rgb: var(--c-scene-rgb); }
 
+.final-closing-card::before,
 .custom-manage-card::before,
 .library-card::before,
 .invitation-item::before,
@@ -2030,8 +2031,13 @@ button.secondary {
   margin: 0 0 22px;
   padding: 22px 22px 24px;
 
+  /* filet de type (vérité) comme les autres cartes,
+     au lieu d'un border-top coupé dans les coins */
+  --type: var(--c-truth);
+  --type-rgb: var(--c-truth-rgb);
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--c-line);
-  border-top: 2px solid var(--c-truth);
   border-radius: var(--r-card);
 
   background: var(--c-surface);
