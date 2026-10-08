@@ -13,6 +13,10 @@ import MessagesScreen from "./MessagesScreen.jsx";
 import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
 import {
+  UnreadBadge,
+  useUnreadCounts,
+} from "./unread.jsx";
+import {
   getCurrentPushSubscription,
   registerPushNotifications,
 } from "./pushNotifications.js";
@@ -1980,6 +1984,12 @@ function HomeIcon({
    ========================================================= */
 
 function HomeScreen({ navigate , profile, }) {
+  const unread =
+    useUnreadCounts(
+      supabase,
+      profile?.user_id
+    );
+
   const [loading, setLoading] =
     useState(false);
 
@@ -2730,9 +2740,10 @@ function HomeScreen({ navigate , profile, }) {
                 size={24}
               />
 
-              {resumeHasUpdate && (
-                <i />
-              )}
+              <UnreadBadge
+                count={unread.invitations}
+                label="invitations non ouvertes"
+              />
 
             </span>
 
@@ -2812,6 +2823,11 @@ function HomeScreen({ navigate , profile, }) {
                 <HomeIcon
                   name="sparkles"
                   size={28}
+                />
+
+                <UnreadBadge
+                  count={unread.messages}
+                  label="messages non lus"
                 />
 
               </span>
