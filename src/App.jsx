@@ -7822,7 +7822,11 @@ function LobbyScreen({
   ) {
     return (
       <StateScreen
-        title="Partie introuvable."
+        title={
+          error === "Partie introuvable."
+            ? "Partie introuvable."
+            : "La partie ne répond pas."
+        }
         text={
           error === "Partie introuvable."
             ? "Le code n’est plus valable, ou la partie est terminée."
@@ -9181,6 +9185,13 @@ function PlayScreen({
   const loadStatePendingRef =
     useRef(false);
 
+  /* chargement relancé en attente : les appels qui arrivent
+     pendant un chargement en cours attendent son résultat
+     (sinon le premier affichage restait bloqué sur
+     « Préparation… », sans partie ni erreur) */
+  const loadStateQueuedRef =
+    useRef(null);
+
   const currentCardRef =
     useRef(null);
 
@@ -9407,7 +9418,27 @@ async function handleSceneRead() {
       loadStatePendingRef.current =
         true;
 
-      return;
+      if (!loadStateQueuedRef.current) {
+        let resolve;
+        let reject;
+
+        const promise =
+          new Promise((ok, ko) => {
+            resolve = ok;
+            reject = ko;
+          });
+
+        // une erreur que personne n'attend reste silencieuse
+        promise.catch(() => {});
+
+        loadStateQueuedRef.current = {
+          promise,
+          resolve,
+          reject,
+        };
+      }
+
+      return loadStateQueuedRef.current.promise;
     }
 
 
@@ -9612,7 +9643,25 @@ async function handleSceneRead() {
         loadStatePendingRef.current =
           false;
 
-        void loadState();
+        const queued =
+          loadStateQueuedRef.current;
+
+        loadStateQueuedRef.current =
+          null;
+
+        loadState().then(
+          queued?.resolve,
+          (err) => {
+            if (queued) {
+              queued.reject(err);
+            } else {
+              console.warn(
+                "PLAY RELOAD ERROR:",
+                err
+              );
+            }
+          }
+        );
       }
     }
   };
@@ -9639,7 +9688,9 @@ async function handleSceneRead() {
 
           if (active) {
             setError(
-              "Impossible de charger la partie."
+              err?.message === "Partie introuvable."
+                ? "Partie introuvable."
+                : "Impossible de charger la partie."
             );
           }
 
@@ -10172,7 +10223,11 @@ async function handleSceneRead() {
   ) {
     return (
       <StateScreen
-        title="Partie introuvable."
+        title={
+          error === "Partie introuvable."
+            ? "Partie introuvable."
+            : "La partie ne répond pas."
+        }
         text={
           error === "Partie introuvable."
             ? "Le code n’est plus valable, ou la partie est terminée."
