@@ -13,6 +13,8 @@ import MessagesScreen from "./MessagesScreen.jsx";
 import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
 import PairingPanel from "./PairingPanel.jsx";
+import HowToPlay from "./HowToPlay.jsx";
+import { hasSeenHowToPlay } from "./howto.js";
 import UnreadBadge from "./UnreadBadge.jsx";
 import { useUnreadCounts } from "./unread.js";
 import {
@@ -2004,6 +2006,10 @@ function HomeScreen({
       profile?.user_id
     );
 
+  // « Comment on joue » : une fois, quand le duo est formé
+  const [showHowTo, setShowHowTo] =
+    useState(() => !hasSeenHowToPlay());
+
   /*
    * Partie créée par le partenaire et qui l'attend :
    * on propose de la rejoindre sans taper le code.
@@ -2552,6 +2558,14 @@ function HomeScreen({
 
   return (
     <main className="app protocol-home-page">
+
+      {hasPartner && showHowTo && (
+        <HowToPlay
+          onClose={() =>
+            setShowHowTo(false)
+          }
+        />
+      )}
 
       {/* =========================================
           HEADER
@@ -4589,6 +4603,9 @@ function SettingsScreen({
   couple,
   onCoupleChanged,
 }) {
+  const [showHowTo, setShowHowTo] =
+    useState(false);
+
   const [permission, setPermission] =
     useState(() => {
       if (!("Notification" in window)) {
@@ -7325,6 +7342,30 @@ function SettingsScreen({
               →
             </span>
           </button>
+
+          <button
+            type="button"
+            className="settings-privacy-link"
+            onClick={() =>
+              setShowHowTo(true)
+            }
+          >
+            <span>
+              Comment on joue
+            </span>
+
+            <span>
+              →
+            </span>
+          </button>
+
+          {showHowTo && (
+            <HowToPlay
+              onClose={() =>
+                setShowHowTo(false)
+              }
+            />
+          )}
 
         </section>
 
