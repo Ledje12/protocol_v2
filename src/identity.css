@@ -2075,3 +2075,21 @@ button.secondary {
 
   color: var(--c-text-soft);
 }
+
+
+/* ---------------------------------------------------------
+   36. DUEL : chez celui qui n'a pas la main, les boutons
+   restent visibles (on voit l'enjeu) mais inactifs
+   --------------------------------------------------------- */
+
+.duel-hint {
+  margin: -6px 0 14px;
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+}
+
+.duel-winner:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
