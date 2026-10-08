@@ -109,9 +109,7 @@
   min-width: 0;
 
   display: flex;
-  align-items: baseline;
 
-  gap: 9px;
 }
 
 
@@ -128,12 +126,6 @@
 }
 
 
-.invitations-subtitle {
-  font-size: 14px;
-
-  color:
-    rgba(var(--c-text-soft-rgb), 0.48);
-}
 
 
 /* =========================================================
