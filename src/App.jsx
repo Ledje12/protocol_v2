@@ -14,6 +14,7 @@ import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
 import PairingPanel from "./PairingPanel.jsx";
 import HowToPlay from "./HowToPlay.jsx";
+import { SettingsGroup, SettingsRow, SettingsSheet } from "./SettingsParts.jsx";
 import { hasSeenHowToPlay } from "./howto.js";
 import UnreadBadge from "./UnreadBadge.jsx";
 import { useUnreadCounts } from "./unread.js";
@@ -3216,6 +3217,29 @@ function HomeScreen({
           </header>
 
 
+          <section className="protocol-legal-brief">
+            <span className="settings-card-eyebrow">
+              EN BREF
+            </span>
+
+            <ul>
+              <li>
+                <strong>Notifications discrètes.</strong>{" "}
+                Le contenu sensible des cartes n’est jamais affiché dans les notifications.
+              </li>
+
+              <li>
+                <strong>Session privée.</strong>{" "}
+                L’accès à une partie repose sur un identifiant propre à chaque appareil.
+              </li>
+
+              <li>
+                <strong>Contrôle local.</strong>{" "}
+                Tu peux oublier la partie mémorisée sur un appareil à tout moment, depuis les réglages.
+              </li>
+            </ul>
+          </section>
+
           <section className="protocol-legal-section">
 
             <h2>
@@ -4606,6 +4630,9 @@ function SettingsScreen({
   const [showHowTo, setShowHowTo] =
     useState(false);
 
+  // panneau de détail ouvert : pairing, ambiance, notifications, lovense
+  const [sheet, setSheet] =
+    useState(null);
   const [permission, setPermission] =
     useState(() => {
       if (!("Notification" in window)) {
@@ -6299,6 +6326,52 @@ function SettingsScreen({
                 className: "",
               };
 
+  const directorProfiles = [
+                          {
+                            value: "classic",
+                            label: "Classique",
+                            description:
+                              "Équilibré, varié et progressif.",
+                          },
+                          {
+                            value: "complice",
+                            label: "Complice",
+                            description:
+                              "Plus de vérités, d'échanges et de proximité.",
+                          },
+                          {
+                            value: "sensual",
+                            label: "Sensuel",
+                            description:
+                              "Gestes, sensations et scènes plus présentes.",
+                          },
+                          {
+                            value: "provocative",
+                            label: "Provocateur",
+                            description:
+                              "Davantage de défis, de duels et d'imprévus.",
+                          },
+                          {
+                            value: "unrestrained",
+                            label: "Débridé",
+                            description:
+                              "Une progression plus intense dans les limites de votre calibration.",
+                          },
+                        ];
+
+  const notificationValue =
+    status.label.charAt(0) +
+    status.label.slice(1).toLowerCase();
+
+  const notificationTone =
+    permission === "granted" && subscribed
+      ? "on"
+      : permission === "denied"
+        ? "off"
+        : permission === "granted"
+          ? "wait"
+          : undefined;
+
   return (
     <main className="app protocol-settings-page">
 
@@ -6327,78 +6400,278 @@ function SettingsScreen({
 
       <section className="protocol-settings">
 
-        {/* =========================================
-            INTRO
-            ========================================= */}
-
         <section className="protocol-settings-intro">
-
           <p className="kicker">
             RÉGLAGES
           </p>
 
           <h1>
-            Votre
-            <br />
-            espace.
+            Votre espace.
           </h1>
 
           <p className="intro">
-            Ce qui se règle à deux,
-            <br />
-            et ce qui reste sur ce téléphone.
-          </p>
-
-        </section>
-
-
-        {/* =========================================
-            PARTENAIRE
-            ========================================= */}
-
-        <h2 className="settings-group-title">
-          <span aria-hidden="true" />
-          Le duo
-        </h2>
-
-        <section className="settings-card settings-card-partner">
-
-          <div className="settings-card-heading">
-
-            <span className="settings-card-eyebrow">
-              PARTENAIRE
-            </span>
-
-            <h2>
-              Votre duo.
-            </h2>
-
-          </div>
-
-
-          {couple?.partner ? (
-
-            <div className="settings-partner-connected">
-
-              <p className="settings-card-copy">
-                Tu es associé à{" "}
+            {couple?.partner ? (
+              <>
+                Avec{" "}
                 <strong>
                   {couple.partner.display_name ||
                     "ton partenaire"}
-                </strong>.
+                </strong>
+                {" "}· associés.
+              </>
+            ) : (
+              "Ce qui se règle à deux, et ce qui reste sur ce téléphone."
+            )}
+          </p>
+        </section>
+
+        {!couple?.partner && (
+          <SettingsGroup title="Le duo">
+            <SettingsRow
+              label="Associer ton partenaire"
+              hint="Invitations, messages et parties, à deux."
+              onClick={() => setSheet("pairing")}
+            />
+          </SettingsGroup>
+        )}
+
+        {couple?.partner && (
+          <SettingsGroup title="Le jeu">
+            <SettingsRow
+              label="Mode de soirée"
+              hint={
+                directorMode === "custom"
+                  ? "Une ambiance plus affirmée."
+                  : "Le rythme PROTOCOL original."
+              }
+            >
+              {directorLoading ? (
+                <p className="settings-feedback">
+                  Chargement…
+                </p>
+              ) : (
+                <div
+                  className="settings-segmented"
+                  role="group"
+                  aria-label="Mode de soirée"
+                >
+                  <button
+                    type="button"
+                    aria-pressed={directorMode === "classic"}
+                    className={
+                      directorMode === "classic"
+                        ? "is-active"
+                        : undefined
+                    }
+                    onClick={() => {
+                      setDirectorMode("classic");
+                      setDirectorProfile(null);
+                      saveDirectorSettings({
+                        mode: "classic",
+                        profile: null,
+                      });
+                    }}
+                    disabled={directorSaving}
+                  >
+                    Spontané
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-pressed={directorMode === "custom"}
+                    className={
+                      directorMode === "custom"
+                        ? "is-active"
+                        : undefined
+                    }
+                    onClick={() => {
+                      const nextProfile =
+                        directorProfile || "classic";
+
+                      setDirectorMode("custom");
+                      setDirectorProfile(nextProfile);
+                      saveDirectorSettings({
+                        mode: "custom",
+                        profile: nextProfile,
+                      });
+                    }}
+                    disabled={directorSaving}
+                  >
+                    Sur mesure
+                  </button>
+                </div>
+              )}
+            </SettingsRow>
+
+            {!directorLoading &&
+              directorMode === "custom" && (
+                <>
+                  <SettingsRow
+                    label="Ambiance"
+                    value={
+                      directorProfiles.find(
+                        (option) =>
+                          option.value === directorProfile
+                      )?.label || "Classique"
+                    }
+                    onClick={() => setSheet("ambiance")}
+                  />
+
+                  <SettingsRow label="Durée">
+                    <div className="director-duration-switch">
+
+                        {[
+                          ["short", "Courte"],
+                          ["normal", "Normale"],
+                          ["long", "Longue"],
+                        ].map(
+                          ([
+                            value,
+                            label,
+                          ]) => (
+
+                            <button
+                              key={value}
+                              type="button"
+                              className={
+                                directorDuration ===
+                                value
+                                  ? "director-duration-option is-active"
+                                  : "director-duration-option"
+                              }
+                              onClick={() => {
+
+                                setDirectorDuration(
+                                  value
+                                );
+
+                                saveDirectorSettings({
+                                  duration:
+                                    value,
+                                });
+                              }}
+                              disabled={directorSaving}
+                            >
+                              {label}
+                            </button>
+
+                          )
+                        )}
+
+                    </div>
+                  </SettingsRow>
+                </>
+              )}
+
+            {directorMessage && (
+              <p className="settings-feedback settings-list-feedback">
+                {directorMessage}
               </p>
+            )}
 
-              <div className="settings-status-row">
-                <span className="settings-status-dot is-active" />
+            <SettingsRow
+              label="Mes cartes"
+              hint="Vos actions, vérités et duels, privés à votre duo."
+              onClick={() =>
+                navigate("/settings/custom-library")
+              }
+            />
 
-                <span>
-                  ASSOCIÉS
-                </span>
-              </div>
+            <SettingsRow
+              label="Comment on joue"
+              onClick={() => setShowHowTo(true)}
+            />
+          </SettingsGroup>
+        )}
 
-            </div>
+        <SettingsGroup title="Ce téléphone">
+          <SettingsRow
+            label="Notifications"
+            value={
+              checkingSubscription
+                ? "Vérification…"
+                : notificationValue
+            }
+            tone={notificationTone}
+            onClick={() => setSheet("notifications")}
+          />
 
-          ) : (
+          <SettingsRow
+            label="Lovense"
+            value={
+              lovenseStatusLoading
+                ? "Vérification…"
+                : lovenseConnected
+                  ? lovenseToyName || "Connecté"
+                  : "Non connecté"
+            }
+            tone={lovenseConnected ? "on" : undefined}
+            onClick={() => setSheet("lovense")}
+          />
+        </SettingsGroup>
+
+        <SettingsGroup title="Compte">
+          <SettingsRow
+            label="Confidentialité"
+            onClick={() => navigate("/privacy")}
+          />
+
+          <SettingsRow
+            label="Partie mémorisée"
+            hint="Pour reprendre une partie sur ce téléphone."
+            value={hasLocalGameSession ? null : "Aucune"}
+          >
+            {hasLocalGameSession && (
+              <button
+                type="button"
+                className="settings-inline-action"
+                onClick={forgetLocalGame}
+              >
+                Oublier cette partie
+              </button>
+            )}
+          </SettingsRow>
+
+          <SettingsRow
+            label="Se déconnecter"
+            onClick={logout}
+          />
+        </SettingsGroup>
+
+        <div className="settings-danger-zone">
+          {deleteAccountMessage && (
+            <p className="settings-feedback">
+              {deleteAccountMessage}
+            </p>
+          )}
+
+          <SettingsRow
+            label={
+              deleteAccountLoading
+                ? "Suppression…"
+                : "Supprimer mon compte"
+            }
+            hint="Définitif : ton compte et les données qui lui sont associées."
+            onClick={deleteAccount}
+            disabled={deleteAccountLoading}
+            danger
+          />
+        </div>
+
+        {showHowTo && (
+          <HowToPlay
+            onClose={() =>
+              setShowHowTo(false)
+            }
+          />
+        )}
+
+        {sheet === "pairing" && (
+          <SettingsSheet
+            eyebrow="LE DUO"
+            title="Votre duo."
+            onClose={() => setSheet(null)}
+          >
 
             <>
 
@@ -6490,173 +6763,22 @@ function SettingsScreen({
 
             </>
 
-          )}
-
-
-          {coupleMessage && (
-            <p className="settings-feedback">
-              {coupleMessage}
-            </p>
-          )}
-
-        </section>
-
-        {/* =========================================
-            MODE DE SOIRÉE
-            ========================================= */}
-
-        {couple?.partner && (
-          <h2 className="settings-group-title">
-            <span aria-hidden="true" />
-            Le jeu
-          </h2>
+            {coupleMessage && (
+              <p className="settings-feedback">
+                {coupleMessage}
+              </p>
+            )}
+          </SettingsSheet>
         )}
 
-        {couple?.partner && (
-
-          <section className="settings-card settings-card-director">
-
-            <div className="settings-card-heading">
-
-              <span className="settings-card-eyebrow">
-                MODE DE SOIRÉE
-              </span>
-
-              <h2>
-                Donnez le ton.
-              </h2>
-
-            </div>
-
-
-            <p className="settings-card-copy">
-              PROTOCOL peut rester spontané,
-              ou adapter la sélection des cartes
-              à l’ambiance choisie pour vos prochaines parties.
-            </p>
-
-
-            {directorLoading ? (
-
-              <p className="settings-feedback">
-                Chargement…
-              </p>
-
-            ) : (
-
-              <>
-
-                <div className="director-mode-switch">
-
-                  <button
-                    type="button"
-                    className={
-                      directorMode === "classic"
-                        ? "director-mode-option is-active"
-                        : "director-mode-option"
-                    }
-                    onClick={() => {
-                      setDirectorMode("classic");
-                      setDirectorProfile(null);
-
-                      saveDirectorSettings({
-                        mode: "classic",
-                        profile: null,
-                      });
-                    }}
-                    disabled={directorSaving}
-                  >
-                    <strong>
-                      Spontané
-                    </strong>
-
-                    <span>
-                      Le rythme PROTOCOL original.
-                    </span>
-                  </button>
-
-
-                  <button
-                    type="button"
-                    className={
-                      directorMode === "custom"
-                        ? "director-mode-option is-active"
-                        : "director-mode-option"
-                    }
-                    onClick={() => {
-
-                      const nextProfile =
-                        directorProfile || "classic";
-
-                      setDirectorMode("custom");
-                      setDirectorProfile(
-                        nextProfile
-                      );
-
-                      saveDirectorSettings({
-                        mode: "custom",
-                        profile:
-                          nextProfile,
-                      });
-                    }}
-                    disabled={directorSaving}
-                  >
-                    <strong>
-                      Sur mesure
-                    </strong>
-
-                    <span>
-                      Une ambiance plus affirmée.
-                    </span>
-                  </button>
-
-                </div>
-
-
-                {directorMode === "custom" && (
-
-                  <>
-
-                    <div className="settings-subsection">
-
-                      <span className="settings-card-eyebrow">
-                        AMBIANCE
-                      </span>
-
-                      <div className="director-profile-grid">
-
-                        {[
-                          {
-                            value: "classic",
-                            label: "Classique",
-                            description:
-                              "Équilibré, varié et progressif.",
-                          },
-                          {
-                            value: "complice",
-                            label: "Complice",
-                            description:
-                              "Plus de vérités, d'échanges et de proximité.",
-                          },
-                          {
-                            value: "sensual",
-                            label: "Sensuel",
-                            description:
-                              "Gestes, sensations et scènes plus présentes.",
-                          },
-                          {
-                            value: "provocative",
-                            label: "Provocateur",
-                            description:
-                              "Davantage de défis, de duels et d'imprévus.",
-                          },
-                          {
-                            value: "unrestrained",
-                            label: "Débridé",
-                            description:
-                              "Une progression plus intense dans les limites de votre calibration.",
-                          },
-                        ].map((option) => (
+        {sheet === "ambiance" && (
+          <SettingsSheet
+            eyebrow="MODE SUR MESURE"
+            title="Donnez le ton."
+            onClose={() => setSheet(null)}
+          >
+            <div className="director-profile-grid">
+              {directorProfiles.map((option) => (
 
                           <button
                             key={option.value}
@@ -6678,6 +6800,9 @@ function SettingsScreen({
                                 profile:
                                   option.value,
                               });
+
+                              // le choix fait, on revient à la liste
+                              setSheet(null);
                             }}
                             disabled={directorSaving}
                           >
@@ -6691,181 +6816,21 @@ function SettingsScreen({
                             </span>
 
                           </button>
-
-                        ))}
-
-                      </div>
-
-                    </div>
-
-
-                    <div className="settings-subsection">
-
-                      <span className="settings-card-eyebrow">
-                        DURÉE
-                      </span>
-
-                      <div className="director-duration-switch">
-
-                        {[
-                          ["short", "Courte"],
-                          ["normal", "Normale"],
-                          ["long", "Longue"],
-                        ].map(
-                          ([
-                            value,
-                            label,
-                          ]) => (
-
-                            <button
-                              key={value}
-                              type="button"
-                              className={
-                                directorDuration ===
-                                value
-                                  ? "director-duration-option is-active"
-                                  : "director-duration-option"
-                              }
-                              onClick={() => {
-
-                                setDirectorDuration(
-                                  value
-                                );
-
-                                saveDirectorSettings({
-                                  duration:
-                                    value,
-                                });
-                              }}
-                              disabled={directorSaving}
-                            >
-                              {label}
-                            </button>
-
-                          )
-                        )}
-
-                      </div>
-
-                    </div>
-
-                  </>
-
-                )}
-
-
-                {directorMessage && (
-
-                  <p className="settings-feedback">
-                    {directorMessage}
-                  </p>
-
-                )}
-
-              </>
-
-            )}
-
-          </section>
-
+              ))}
+            </div>
+          </SettingsSheet>
         )}
 
-        {/* =========================================
-            BIBLIOTHÈQUE PERSONNELLE
-            ========================================= */}
-
-        {couple?.partner && (
-          <section className="settings-card">
-
-            <div className="settings-card-heading">
-
-              <span className="settings-card-eyebrow">
-                BIBLIOTHÈQUE
-              </span>
-
-              <h2>
-                Vos cartes personnelles.
-              </h2>
-
-            </div>
-
-            <p className="settings-card-copy">
-              Ajoutez vos propres actions,
-              vérités et duels à PROTOCOL.
-              Elles restent privées à votre duo.
-            </p>
-
-            <button
-              type="button"
-              className="settings-primary-action"
-              onClick={() =>
-                navigate("/settings/custom-library")
-              }
-            >
-              <span>
-                Gérer mes cartes
-              </span>
-
-              <span className="settings-action-arrow">
-                →
-              </span>
-            </button>
-
-          </section>
-        )}
-
-
-        {/* =========================================
-            NOTIFICATIONS
-            ========================================= */}
-
-        <h2 className="settings-group-title">
-          <span aria-hidden="true" />
-          Ce téléphone
-        </h2>
-
-        <section
-          className={
-            `settings-card settings-card-notifications ${
-              permission === "granted" &&
-              subscribed
-                ? "is-active"
-                : ""
-            }`
-          }
-        >
-
-          <div className="settings-card-topline">
-
-            <div className="settings-card-heading">
-
-              <span className="settings-card-eyebrow">
-                NOTIFICATIONS
-              </span>
-
-              <h2>
-                {checkingSubscription
-                  ? "On vérifie cet appareil."
-                  : status.title}
-              </h2>
-
-            </div>
-
-
-            <div
-              className={
-                permission === "granted" &&
-                subscribed
-                  ? "settings-state-mark is-active"
-                  : "settings-state-mark"
-              }
-            >
-              <span />
-            </div>
-
-          </div>
-
-
+        {sheet === "notifications" && (
+          <SettingsSheet
+            eyebrow="NOTIFICATIONS"
+            title={
+              checkingSubscription
+                ? "On vérifie cet appareil."
+                : status.title
+            }
+            onClose={() => setSheet(null)}
+          >
           <p className="settings-card-copy">
             {checkingSubscription
               ? "PROTOCOL vérifie si cet iPhone possède déjà un abonnement Push."
@@ -6961,31 +6926,19 @@ function SettingsScreen({
               {message}
             </p>
           )}
+          </SettingsSheet>
+        )}
 
-        </section>
-
-
-        {/* =========================================
-            LOVENSE
-            ========================================= */}
-
-        <section className="settings-card settings-card-lovense">
-
-          <div className="settings-card-heading">
-
-            <span className="settings-card-eyebrow">
-              LOVENSE
-            </span>
-
-            <h2>
-              {lovenseConnected
+        {sheet === "lovense" && (
+          <SettingsSheet
+            eyebrow="LOVENSE"
+            title={
+              lovenseConnected
                 ? "Lush 4 prêt."
-                : "Connecter le Lush 4."}
-            </h2>
-
-          </div>
-
-
+                : "Connecter le Lush 4."
+            }
+            onClose={() => setSheet(null)}
+          >
           {/* =======================================
               STATUS
               ======================================= */}
@@ -7233,256 +7186,9 @@ function SettingsScreen({
               </>
 
             )}
-
-        </section>
-
-
-        {/* =========================================
-            CONFIDENTIALITÉ
-            ========================================= */}
-
-        <section className="settings-card settings-card-privacy">
-
-          <div className="settings-card-heading">
-
-            <span className="settings-card-eyebrow">
-              CONFIDENTIALITÉ
-            </span>
-
-            <h2>
-              Ce qui reste entre vous
-              reste entre vous.
-            </h2>
-
-          </div>
-
-
-          <div className="settings-privacy-list">
-
-            <div className="settings-privacy-item">
-
-              <span className="settings-privacy-icon">
-                <span className="protocol-diamond" aria-hidden="true" />
-              </span>
-
-              <div>
-
-                <strong>
-                  Notifications discrètes
-                </strong>
-
-                <span>
-                  Le contenu sensible des cartes
-                  n’est jamais affiché dans les
-                  notifications.
-                </span>
-
-              </div>
-
-            </div>
-
-
-            <div className="settings-privacy-item">
-
-              <span className="settings-privacy-icon">
-                <span className="protocol-diamond" aria-hidden="true" />
-              </span>
-
-              <div>
-
-                <strong>
-                  Session privée
-                </strong>
-
-                <span>
-                  L’accès à une partie repose sur
-                  un identifiant propre à cet appareil.
-                </span>
-
-              </div>
-
-            </div>
-
-
-            <div className="settings-privacy-item">
-
-              <span className="settings-privacy-icon">
-                <span className="protocol-diamond" aria-hidden="true" />
-              </span>
-
-              <div>
-
-                <strong>
-                  Contrôle local
-                </strong>
-
-                <span>
-                  Tu peux oublier la partie mémorisée
-                  sur cet appareil à tout moment.
-                </span>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          <button
-            type="button"
-            className="settings-privacy-link"
-            onClick={() =>
-              navigate("/privacy")
-            }
-          >
-            <span>
-              Politique de confidentialité
-            </span>
-
-            <span>
-              →
-            </span>
-          </button>
-
-          <button
-            type="button"
-            className="settings-privacy-link"
-            onClick={() =>
-              setShowHowTo(true)
-            }
-          >
-            <span>
-              Comment on joue
-            </span>
-
-            <span>
-              →
-            </span>
-          </button>
-
-          {showHowTo && (
-            <HowToPlay
-              onClose={() =>
-                setShowHowTo(false)
-              }
-            />
-          )}
-
-        </section>
-
-
-        {/* =========================================
-            CET APPAREIL
-            ========================================= */}
-
-        <section className="settings-card settings-card-device">
-
-          <div className="settings-card-heading">
-
-            <span className="settings-card-eyebrow">
-              CET APPAREIL
-            </span>
-
-            <h2>
-              Session mémorisée
-            </h2>
-
-          </div>
-
-
-          <p className="settings-card-copy">
-            PROTOCOL conserve localement l’accès
-            nécessaire pour reprendre cette partie.
-          </p>
-
-
-          {hasLocalGameSession ? (
-
-            <button
-              type="button"
-              className="settings-secondary-action"
-              onClick={forgetLocalGame}
-            >
-              <span>
-                Oublier cette partie
-              </span>
-
-              <span>
-                ×
-              </span>
-            </button>
-
-          ) : (
-
-            <div className="settings-device-empty">
-              Aucune partie mémorisée sur cet appareil.
-            </div>
-
-          )}
-
-
-          <div className="settings-account-divider" />
-
-
-          <button
-            type="button"
-            className="settings-logout-button"
-            onClick={logout}
-          >
-            <span>
-              Se déconnecter
-            </span>
-
-            <span>
-              →
-            </span>
-          </button>
-
-        <div className="settings-account-divider" />
-
-
-          <div className="settings-delete-account">
-
-            <span className="settings-card-eyebrow">
-              COMPTE
-            </span>
-
-            <p className="settings-card-copy">
-              Supprimer définitivement ton compte
-              PROTOCOL et les données qui lui sont
-              associées.
-            </p>
-
-
-            {deleteAccountMessage && (
-              <p className="settings-feedback">
-                {deleteAccountMessage}
-              </p>
-            )}
-
-
-            <button
-              type="button"
-              className="settings-delete-account-button"
-              onClick={deleteAccount}
-              disabled={deleteAccountLoading}
-            >
-              <span>
-                {deleteAccountLoading
-                  ? "Suppression…"
-                  : "Supprimer mon compte"}
-              </span>
-
-              <span>
-                ×
-              </span>
-            </button>
-
-          </div>
-
-        </section>
-
+          </SettingsSheet>
+        )}
       </section>
-
 
       <Footer />
 

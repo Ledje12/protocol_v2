@@ -2799,3 +2799,260 @@ button.secondary {
 .settings-privacy-link + .settings-privacy-link {
   margin-top: 10px;
 }
+
+
+/* ---------------------------------------------------------
+   44. RÉGLAGES EN LISTE : une ligne par réglage, l'état à
+   droite, les explications dans un panneau à la demande
+   --------------------------------------------------------- */
+
+.protocol-settings-intro .intro strong {
+  color: var(--c-text);
+  font-weight: 600;
+}
+
+.protocol-settings-intro + .settings-group .settings-group-title {
+  margin-top: 8px;
+}
+
+.settings-list {
+  overflow: hidden;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-card);
+  background: rgba(var(--c-surface-rgb), 0.72);
+}
+
+.protocol-settings .settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 58px;
+  margin: 0;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--c-text);
+  font: inherit;
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.protocol-settings .settings-row + .settings-row,
+.protocol-settings .settings-list-feedback + .settings-row {
+  border-top: 1px solid var(--c-line);
+}
+
+.protocol-settings button.settings-row:active {
+  background: rgba(var(--c-text-rgb), 0.04);
+}
+
+.protocol-settings .settings-row.is-static {
+  display: block;
+}
+
+.settings-row-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-row-main {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+
+.settings-row-label {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+.settings-row-hint {
+  font-size: var(--fs-small);
+  line-height: 1.35;
+  color: var(--c-muted);
+}
+
+.settings-row-value {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  max-width: 48%;
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+  text-align: right;
+}
+
+.settings-row-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.settings-row-value.is-on .settings-row-dot { background: var(--c-accent); }
+.settings-row-value.is-on { color: var(--c-text-soft); }
+.settings-row-value.is-off .settings-row-dot { background: var(--c-danger); }
+.settings-row-value.is-wait .settings-row-dot { background: var(--c-duel); }
+
+.settings-row-arrow {
+  flex: 0 0 auto;
+  color: var(--c-label);
+}
+
+/* choix posé directement dans la ligne (mode, durée) */
+.settings-row.is-static > :not(.settings-row-line) {
+  margin-top: 12px;
+}
+
+.settings-segmented,
+.settings-row .director-duration-switch {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: rgba(var(--c-bg-rgb), 0.6);
+}
+
+.settings-segmented button,
+.settings-row .director-duration-option {
+  width: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: none;
+  box-shadow: none;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+.settings-segmented button.is-active,
+.settings-row .director-duration-option.is-active {
+  background: var(--c-surface-2);
+  box-shadow: inset 0 0 0 1px rgba(var(--c-accent-rgb), 0.55);
+  color: var(--c-text);
+}
+
+.protocol-settings .settings-inline-action {
+  width: auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: none;
+  box-shadow: none;
+  color: var(--c-text-soft);
+  font-size: var(--fs-small);
+}
+
+.settings-list-feedback {
+  margin: 0;
+  padding: 0 18px 12px;
+}
+
+/* suppression du compte : isolée, en rouge, sans flèche */
+.settings-danger-zone {
+  margin-top: 26px;
+}
+
+.settings-danger-zone .settings-row {
+  border: 1px solid rgba(var(--c-danger-rgb), 0.35);
+  border-radius: var(--r-card);
+}
+
+.protocol-settings .settings-row.is-danger .settings-row-label {
+  color: var(--c-danger);
+}
+
+/* panneau de détail (notifications, Lovense, duo, ambiance) */
+.settings-sheet-title {
+  margin: 16px 0 14px;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--c-text);
+}
+
+.settings-sheet-body {
+  display: grid;
+  gap: 14px;
+  padding-bottom: 6px;
+  color: var(--c-text-soft);
+}
+
+.settings-sheet-body > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+@media (min-width: 700px) {
+  .settings-sheet {
+    min-height: 0;
+  }
+}
+
+/* « Réglage enregistré. » : simple mention sous les choix */
+.protocol-settings .settings-list-feedback {
+  min-height: 0;
+  padding: 0 18px 12px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
+
+/* politique de confidentialité : les trois engagements en tête */
+.protocol-legal-brief {
+  margin: 8px 0 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-card);
+  background: rgba(var(--c-surface-rgb), 0.72);
+}
+
+.protocol-legal-brief ul {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.protocol-legal-brief li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--c-text-soft);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.protocol-legal-brief li::before {
+  content: "";
+  position: absolute;
+  top: 0.55em;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--c-accent);
+  transform: rotate(45deg);
+}
+
+.protocol-legal-brief strong {
+  color: var(--c-text);
+  font-weight: 600;
+}
