@@ -134,6 +134,12 @@ function formatDuration(seconds) {
     : `${minutes} min`;
 }
 
+const RESPONSE_LABELS = {
+  tonight: "Ce soir",
+  later: "Plus tard",
+  love: "J’adore",
+};
+
 const INTENSITY_NAMES = [
   null,
   "Doux",
@@ -210,6 +216,79 @@ export default function CardScreen({
     setOpenedAt,
   ] =
     useState(null);
+
+  /* réponse rapide du destinataire (« Ce soir »…) */
+  const [
+    response,
+    setResponse,
+  ] =
+    useState(null);
+
+  const [
+    responding,
+    setResponding,
+  ] =
+    useState(false);
+
+  useEffect(() => {
+    if (!trackedInvitationId) {
+      return undefined;
+    }
+
+    let active = true;
+
+    const loadResponse = () =>
+      supabase
+        .from("card_invitations")
+        .select("response")
+        .eq("id", String(trackedInvitationId))
+        .maybeSingle()
+        .then(({ data, error: responseError }) => {
+          // colonne absente tant que la migration n'est pas appliquée
+          if (active && !responseError) {
+            setResponse(data?.response || null);
+          }
+        });
+
+    loadResponse();
+
+    // côté expéditeur : la réponse peut arriver écran ouvert
+    const timer =
+      window.setInterval(loadResponse, 15000);
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [
+    supabase,
+    trackedInvitationId,
+  ]);
+
+  const respond = async (value) => {
+    if (!trackedInvitationId || responding) {
+      return;
+    }
+
+    setResponding(true);
+
+    const { error: respondError } =
+      await supabase.rpc(
+        "respond_card_invitation",
+        {
+          p_invitation_id: String(trackedInvitationId),
+          p_response: value,
+        }
+      );
+
+    if (!respondError) {
+      setResponse(value);
+    } else {
+      console.error("RESPOND ERROR:", respondError);
+    }
+
+    setResponding(false);
+  };
 
 
   const [
@@ -2369,6 +2448,7 @@ export default function CardScreen({
 
             {openedAt ? (
 
+              <>
               <p className="card-send-message">
                 ✓ Vue par{" "}
                 {
@@ -2389,6 +2469,17 @@ export default function CardScreen({
                   </>
                 )}
               </p>
+
+              {response && (
+                <p className="card-response-received">
+                  {activePerson?.display_name || "Ton partenaire"} a répondu
+                  {" "}
+                  <strong>
+                    « {RESPONSE_LABELS[response]} »
+                  </strong>
+                </p>
+              )}
+              </>
 
             ) : sendMessage ? (
 
@@ -2425,16 +2516,46 @@ export default function CardScreen({
           </>
         ) : (
 
-          <p className="card-send-message">
+          <div className="card-received">
+            <p className="card-send-message">
 
-            {
-              senderPerson
-                ?.display_name
-                ? `Proposé par ${senderPerson.display_name}.`
-                : "Proposé par ton partenaire."
-            }
+              {
+                senderPerson
+                  ?.display_name
+                  ? `Proposé par ${senderPerson.display_name}.`
+                  : "Proposé par ton partenaire."
+              }
 
-          </p>
+            </p>
+
+            {/* réponse rapide : l'expéditeur la voit */}
+            {trackedInvitationId && (
+              <div
+                className="card-responses"
+                role="group"
+                aria-label="Ta réponse"
+              >
+                {Object.entries(RESPONSE_LABELS).map(
+                  ([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={
+                        response === value
+                          ? "card-response is-selected"
+                          : "card-response"
+                      }
+                      aria-pressed={response === value}
+                      disabled={responding}
+                      onClick={() => respond(value)}
+                    >
+                      {label}
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
 
         )}
 

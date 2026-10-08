@@ -12,8 +12,8 @@ import {
  * déployée, une date « vu le » gardée sur l'appareil prend le
  * relais, pour que le badge disparaisse quand même.
  *
- * Invitations : reçues et pas encore ouvertes (opened_at vide,
- * déjà rempli à l'ouverture de la carte).
+ * Invitations : cartes reçues pas encore ouvertes, signes reçus
+ * non vus et réponses reçues à mes propositions.
  */
 
 const MESSAGES_SEEN_KEY =
@@ -52,6 +52,19 @@ export async function markMessagesSeen(
   }
 }
 
+/* ouverture de l'écran Invitations : signes et réponses vus */
+export async function markInboxSeen(
+  supabase
+) {
+  try {
+    await supabase.rpc(
+      "mark_inbox_seen"
+    );
+  } catch {
+    // fonction pas encore déployée : sans effet
+  }
+}
+
 async function countUnread(
   supabase,
   userId
@@ -59,6 +72,7 @@ async function countUnread(
   const [
     messages,
     invitations,
+    inbox,
   ] = await Promise.all([
     supabase
       .from("protocol_messages")
@@ -87,7 +101,17 @@ async function countUnread(
         userId
       )
       .is("opened_at", null),
+
+    // signes reçus non vus + réponses reçues à mes propositions
+    // (fonction get_inbox_counts, migration 20261009090000)
+    supabase.rpc("get_inbox_counts"),
   ]);
+
+  const extras =
+    inbox.error
+      ? 0
+      : Number(inbox.data?.signals || 0) +
+        Number(inbox.data?.responses || 0);
 
   return {
     messages:
@@ -95,9 +119,10 @@ async function countUnread(
         ? 0
         : messages.count || 0,
     invitations:
-      invitations.error
+      (invitations.error
         ? 0
-        : invitations.count || 0,
+        : invitations.count || 0) +
+      extras,
   };
 }
 

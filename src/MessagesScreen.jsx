@@ -118,8 +118,11 @@ export default function MessagesScreen({
   useEffect(() => {
     let active = true;
 
+    /* silent : actualisation en arrière-plan, sans état de
+       chargement (l'écran reste en place, seuls les nouveaux
+       messages apparaissent) */
     const loadMessages =
-      async () => {
+      async ({ silent = false } = {}) => {
         if (
           !currentUserId ||
           !coupleId
@@ -133,8 +136,10 @@ export default function MessagesScreen({
         }
 
         try {
-          setLoading(true);
-          setError("");
+          if (!silent) {
+            setLoading(true);
+            setError("");
+          }
 
           const {
             data,
@@ -175,17 +180,40 @@ export default function MessagesScreen({
             return;
           }
 
-          setMessages(data || []);
+          const next = data || [];
+
+          // ne remplace la liste que si elle a changé (évite de
+          // relancer le défilement automatique toutes les 4 s)
+          setMessages((previous) =>
+            previous.length === next.length &&
+            previous.every(
+              (message, index) =>
+                message.id === next[index].id &&
+                message.reaction === next[index].reaction
+            )
+              ? previous
+              : next
+          );
 
           // ouverture de l'écran = messages reçus vus
-          markMessagesSeen(supabase);
+          if (
+            !silent ||
+            next.some(
+              (message) =>
+                message.recipient_user_id === currentUserId &&
+                !message.read_at
+            )
+          ) {
+            markMessagesSeen(supabase);
+          }
         } catch (err) {
           console.error(
             "MESSAGES LOAD ERROR:",
             err
           );
 
-          if (active) {
+          // une actualisation en arrière-plan ratée reste silencieuse
+          if (active && !silent) {
             /* message humain : l'erreur technique reste en console */
             setError(
               "Impossible de charger les messages. Vérifie ta connexion puis réessaie."
@@ -200,8 +228,33 @@ export default function MessagesScreen({
 
     loadMessages();
 
+    /* messages en direct : actualisation toutes les 4 s tant que
+       l'écran est ouvert et visible, et au retour dans l'app */
+    const timer =
+      window.setInterval(() => {
+        if (document.visibilityState === "visible") {
+          loadMessages({ silent: true });
+        }
+      }, 4000);
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        loadMessages({ silent: true });
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      onVisible
+    );
+
     return () => {
       active = false;
+      window.clearInterval(timer);
+      document.removeEventListener(
+        "visibilitychange",
+        onVisible
+      );
     };
   }, [
     supabase,
