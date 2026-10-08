@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import OfflineBanner from "./OfflineBanner.jsx";
 import "@fontsource-variable/bodoni-moda/opsz.css"; // sérif de l'app, hébergée avec elle
 import "@fontsource-variable/bodoni-moda/opsz-italic.css";
 import "./tokens.css"; // passe 2 : couleurs et polices (source unique)
@@ -36,5 +37,6 @@ ReactDOM.createRoot(
 ).render(
   <React.StrictMode>
     <App />
+    <OfflineBanner />
   </React.StrictMode>
 );
