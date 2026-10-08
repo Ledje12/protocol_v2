@@ -2134,3 +2134,350 @@ button.secondary {
   /* annule le scale(0.88) de l'icône parente */
   transform-origin: left bottom;
 }
+
+
+/* ---------------------------------------------------------
+   38. SIGNES REÇUS (écran Invitations)
+   Même titre de groupe que les Réglages ; un signe = une
+   ligne avec le losange, néon quand il est nouveau.
+   --------------------------------------------------------- */
+
+.signals-list {
+  margin: 0 0 22px;
+}
+
+.signals-title {
+  display: grid;
+  grid-template-columns: 20px auto;
+  align-items: center;
+  gap: 14px;
+  margin: 4px 0 12px;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--c-text);
+}
+
+.signals-title span {
+  height: 1px;
+  background: var(--c-accent);
+}
+
+.signal-item {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-control);
+  background: var(--c-surface);
+}
+
+.signal-item + .signal-item {
+  margin-top: 8px;
+}
+
+.signal-item .protocol-diamond {
+  border-color: var(--c-line-strong);
+}
+
+.signal-item.is-new .protocol-diamond {
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.25);
+}
+
+.signal-body p {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.35;
+  color: var(--c-text);
+}
+
+.signal-body small {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--c-label);
+}
+
+.signal-action {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.5);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--c-accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+
+/* ---------------------------------------------------------
+   39. RÉPONSE RAPIDE À UNE CARTE PROPOSÉE
+   Trois pilules ; la réponse choisie passe en néon.
+   --------------------------------------------------------- */
+
+.card-received {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.card-responses {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.card-response {
+  min-height: 48px;
+  padding: 0 8px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out);
+}
+
+.card-response.is-selected {
+  border-color: var(--c-accent);
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+}
+
+.card-response:disabled {
+  opacity: 0.6;
+}
+
+.card-response-received {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+}
+
+.card-response-received strong {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--c-text);
+}
+
+
+/* ---------------------------------------------------------
+   40. ACCUEIL : « Audrey t'attend »
+   Le moment le plus urgent de l'app : nom en sérif italique,
+   bouton néon. Placé au-dessus de la carte principale.
+   --------------------------------------------------------- */
+
+.protocol-home-waiting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0 0 12px;
+  padding: 16px 16px 16px 18px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.45);
+  border-radius: var(--r-card);
+  background:
+    radial-gradient(
+      circle at 0% 50%,
+      rgba(var(--c-accent-deep-rgb), 0.35),
+      transparent 60%
+    ),
+    var(--c-surface);
+  animation: protocolDrawerIn var(--dur-base) var(--ease-out);
+}
+
+.protocol-home-waiting-copy {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+}
+
+.protocol-home-waiting-copy .protocol-diamond {
+  grid-row: span 2;
+  animation: protocolBreathe 2.4s var(--ease-in-out) infinite;
+}
+
+.protocol-home-waiting-copy p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--c-text);
+}
+
+.protocol-home-waiting-copy em {
+  font-style: italic;
+}
+
+.protocol-home-waiting-copy small {
+  font-size: 12px;
+  color: var(--c-muted);
+}
+
+.protocol-home-waiting-join {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.28);
+  cursor: pointer;
+}
+
+.protocol-home-waiting .protocol-home-message {
+  grid-column: 1 / -1;
+}
+
+
+/* ---------------------------------------------------------
+   41. PREMIER LANCEMENT : associer le duo depuis l'accueil
+   --------------------------------------------------------- */
+
+.pairing-panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.pairing-kicker {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--c-text-soft);
+}
+
+.pairing-panel h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--c-text);
+}
+
+.pairing-copy {
+  margin: 0 0 4px;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+  color: var(--c-text-soft);
+}
+
+.pairing-choices,
+.pairing-join {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pairing-panel .primary,
+.pairing-panel .secondary {
+  min-height: 52px;
+}
+
+.pairing-panel .secondary {
+  justify-content: center;
+  background: rgba(var(--c-bg-rgb), 0.55);
+}
+
+.pairing-join input {
+  height: 58px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: rgba(var(--c-bg-rgb), 0.7);
+  color: var(--c-text);
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  outline: none;
+}
+
+.pairing-join input::placeholder {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  letter-spacing: 0;
+  color: var(--c-muted);
+}
+
+.pairing-join input:focus {
+  border-color: rgba(var(--c-accent-rgb), 0.6);
+}
+
+.pairing-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.45);
+  border-radius: var(--r-control);
+  background: rgba(var(--c-bg-rgb), 0.7);
+  text-align: center;
+}
+
+.pairing-code span {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.pairing-code strong {
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--c-text);
+}
+
+.pairing-code small {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--c-muted);
+}
+
+.pairing-switch {
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--c-text-soft);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.pairing-panel .error {
+  margin: 0;
+  text-align: center;
+}

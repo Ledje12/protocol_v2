@@ -5,6 +5,7 @@ import {
 
 import "./invitations.css";
 import { formatRelativeTime } from "./formatTime.js";
+import { markInboxSeen } from "./unread.js";
 import { BackIcon } from "./ScreenHeader.jsx";
 
 
@@ -32,12 +33,38 @@ function getInvitationTypeLabel(
   }
 }
 
+/* textes des signes reçus et action proposée */
+const SIGNAL_COPY = {
+  challenge: {
+    text: (name) => `${name} te laisse lui choisir un défi.`,
+    action: "Choisir son défi",
+    path: (signal) => `/library?challenge=${signal.id}`,
+  },
+  tonight: {
+    text: (name) => `${name} propose Protocol ce soir.`,
+    action: "Lancer une partie",
+    path: () => "/",
+  },
+  secret: {
+    text: (name) => `${name} a un secret à partager avec toi.`,
+    action: "Lui écrire",
+    path: () => "/messages",
+  },
+};
+
+const RESPONSE_LABELS = {
+  tonight: "Ce soir",
+  later: "Plus tard",
+  love: "J’adore",
+};
+
 export default function InvitationsScreen({
   supabase,
   profile,
   couple,
   onBack,
   onOpenCard,
+  onOpenPath,
 }) {
 
   const [
@@ -51,6 +78,31 @@ export default function InvitationsScreen({
     setLoading,
   ] =
     useState(true);
+
+  /* signes reçus (« Un défi ? », « Ce soir ? »…) */
+  const [
+    signals,
+    setSignals,
+  ] =
+    useState([]);
+
+  useEffect(() => {
+    let active = true;
+
+    supabase
+      .rpc("get_my_signals")
+      .then(({ data, error: signalError }) => {
+        if (active && !signalError && Array.isArray(data)) {
+          setSignals(
+            data.filter((signal) => SIGNAL_COPY[signal.type])
+          );
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
 
   const [
     error,
@@ -112,14 +164,11 @@ export default function InvitationsScreen({
              INVITATIONS DU COUPLE
              ============================================= */
 
-          const {
-            data:
-              invitationRows,
-
-            error:
-              invitationError,
-          } =
-            await supabase
+          /* réponses rapides (migration 20261009090000) :
+             si la base n'a pas encore les colonnes, on relit
+             sans elles plutôt que de bloquer l'écran */
+          const loadRows = (withResponse) =>
+            supabase
               .from(
                 "card_invitations"
               )
@@ -132,7 +181,7 @@ export default function InvitationsScreen({
                 recipient_user_id,
                 couple_id,
                 sent_at,
-                opened_at
+                opened_at${withResponse ? ",\n                response" : ""}
               `)
               .eq(
                 "couple_id",
@@ -148,6 +197,25 @@ export default function InvitationsScreen({
                     false,
                 }
               );
+
+          let {
+            data:
+              invitationRows,
+            error:
+              invitationError,
+          } = await loadRows(true);
+
+          if (
+            invitationError?.code ===
+            "42703"
+          ) {
+            ({
+              data:
+                invitationRows,
+              error:
+                invitationError,
+            } = await loadRows(false));
+          }
 
 
           if (
@@ -401,6 +469,10 @@ export default function InvitationsScreen({
                       opened_at:
                         invitation.opened_at,
 
+                      response:
+                        invitation.response ||
+                        null,
+
                     };
 
                   }
@@ -412,6 +484,9 @@ export default function InvitationsScreen({
                   setInvitations(
                     normalized
                   );
+
+                  // ouverture de l'écran : signes et réponses vus
+                  markInboxSeen(supabase);
                 }
 
 
@@ -532,7 +607,8 @@ export default function InvitationsScreen({
             {error}
           </p>
 
-        ) : invitations.length === 0 ? (
+        ) : invitations.length === 0 &&
+          signals.length === 0 ? (
 
           <div className="invitations-empty">
 
@@ -553,6 +629,65 @@ export default function InvitationsScreen({
 
         ) : (
 
+          <>
+          {signals.length > 0 && (
+            <section className="signals-list">
+              <h2 className="signals-title">
+                <span aria-hidden="true" />
+                Signes reçus
+              </h2>
+
+              {signals.map((signal) => {
+                const copy =
+                  SIGNAL_COPY[signal.type];
+
+                const done =
+                  signal.type === "challenge" &&
+                  signal.status !== "pending";
+
+                return (
+                  <article
+                    key={signal.id}
+                    className={
+                      signal.seen_at
+                        ? "signal-item"
+                        : "signal-item is-new"
+                    }
+                  >
+                    <span
+                      className="protocol-diamond"
+                      aria-hidden="true"
+                    />
+
+                    <div className="signal-body">
+                      <p>
+                        {copy.text(signal.sender_name)}
+                      </p>
+
+                      <small>
+                        {formatRelativeTime(signal.created_at)}
+                        {done && " · Défi choisi"}
+                      </small>
+                    </div>
+
+                    {!done && onOpenPath && (
+                      <button
+                        type="button"
+                        className="signal-action"
+                        onClick={() =>
+                          onOpenPath(copy.path(signal))
+                        }
+                      >
+                        {copy.action}
+                      </button>
+                    )}
+                  </article>
+                );
+              })}
+            </section>
+          )}
+
+          {invitations.length > 0 && (
           <div className="invitations-list">
 
             {invitations.map(
@@ -678,7 +813,11 @@ export default function InvitationsScreen({
                         <span className="invitation-status-dot" />
 
                         <span>
-                          {isSent
+                          {invitation.response
+                            ? isSent
+                              ? `${otherName} : « ${RESPONSE_LABELS[invitation.response]} »`
+                              : `Tu as répondu « ${RESPONSE_LABELS[invitation.response]} »`
+                            : isSent
                             ? invitation.opened_at
                               ? `Vue ${formatRelativeTime(
                                   invitation.opened_at,
@@ -708,6 +847,8 @@ export default function InvitationsScreen({
             )}
 
           </div>
+          )}
+          </>
 
         )}
 

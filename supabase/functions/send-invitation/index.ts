@@ -149,7 +149,9 @@ Deno.serve(async (req)=>{
     /* =====================================================
          CREATE SIGNAL
          ===================================================== */ let createdSignalId = null;
-    if (isSignalInvitation && (signal === "challenge" || signal === "secret")) {
+    // tous les signes sont enregistrés : ils restent visibles dans l'app
+    // (Invitations) même si la notification n'arrive pas
+    if (isSignalInvitation) {
       const { data: createdSignal, error: signalCreateError } = await supabase.from("protocol_signals").insert({
         type: signal,
         sender_user_id: currentUser.id,
@@ -376,6 +378,23 @@ Deno.serve(async (req)=>{
           }
         });
       }
+      if (isSignalInvitation && createdSignalId) {
+        return new Response(JSON.stringify({
+          success: true,
+          type: "signal",
+          signal,
+          signal_id: createdSignalId,
+          sent: 0,
+          push_sent: false,
+          warning: "Signe enregistré, mais aucun appareil actif pour la notification push."
+        }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json"
+          }
+        });
+      }
       return new Response(JSON.stringify({
         success: false,
         error: "Aucun appareil actif pour le destinataire."
@@ -397,7 +416,8 @@ Deno.serve(async (req)=>{
       if (signal === "challenge" && createdSignalId) {
         pushUrl = `/library?challenge=${createdSignalId}`;
       } else {
-        pushUrl = "/";
+        // la notification ouvre la boîte de réception, où le signe est visible
+        pushUrl = "/invitations";
       }
       pushTag = `protocol-signal-${currentUser.id}-${signal}`;
     } else {

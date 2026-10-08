@@ -12,6 +12,7 @@ import InvitationsScreen from "./InvitationsScreen.jsx";
 import MessagesScreen from "./MessagesScreen.jsx";
 import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
+import PairingPanel from "./PairingPanel.jsx";
 import UnreadBadge from "./UnreadBadge.jsx";
 import { useUnreadCounts } from "./unread.js";
 import {
@@ -1705,6 +1706,10 @@ function App() {
           );
 
         }}
+
+        onOpenPath={(path) =>
+          navigate(path)
+        }
       />
     );
   }
@@ -1869,6 +1874,12 @@ function App() {
     <HomeScreen
       navigate={navigate}
       profile={profile}
+      hasPartner={Boolean(couple?.partner)}
+      onPaired={() =>
+        setCoupleRefreshKey(
+          (value) => value + 1
+        )
+      }
     />
   );
 }
@@ -1981,12 +1992,72 @@ function HomeIcon({
    HOME
    ========================================================= */
 
-function HomeScreen({ navigate , profile, }) {
+function HomeScreen({
+  navigate,
+  profile,
+  hasPartner = true,
+  onPaired,
+}) {
   const unread =
     useUnreadCounts(
       supabase,
       profile?.user_id
     );
+
+  /*
+   * Partie créée par le partenaire et qui l'attend :
+   * on propose de la rejoindre sans taper le code.
+   * (fonction get_partner_waiting_game, migration 20261009090000)
+   */
+  const [partnerGame, setPartnerGame] =
+    useState(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const check = async () => {
+      const { data, error: partnerGameError } =
+        await supabase.rpc(
+          "get_partner_waiting_game"
+        );
+
+      if (active && !partnerGameError) {
+        const row =
+          Array.isArray(data)
+            ? data[0]
+            : data;
+
+        setPartnerGame(
+          row?.code ? row : null
+        );
+      }
+    };
+
+    check();
+
+    const timer =
+      window.setInterval(check, 8000);
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        check();
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      onVisible
+    );
+
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      document.removeEventListener(
+        "visibilitychange",
+        onVisible
+      );
+    };
+  }, []);
 
   const [loading, setLoading] =
     useState(false);
@@ -2341,11 +2412,12 @@ function HomeScreen({ navigate , profile, }) {
   };
 
   const joinGameFromHome = async (
-    event
+    event,
+    codeToJoin = joinCode
   ) => {
     event?.preventDefault();
 
-    if (joinCode.length !== 6) {
+    if (codeToJoin.length !== 6) {
       return;
     }
 
@@ -2354,7 +2426,7 @@ function HomeScreen({ navigate , profile, }) {
       setJoinError("");
 
       const normalized =
-        joinCode.toUpperCase();
+        codeToJoin.toUpperCase();
 
       const {
         data,
@@ -2500,6 +2572,56 @@ function HomeScreen({ navigate , profile, }) {
 
       <section className="protocol-home-dashboard">
 
+        {/* =========================================
+            LE PARTENAIRE ATTEND
+            ========================================= */}
+
+        {partnerGame && (
+          <section
+            className="protocol-home-waiting"
+            aria-live="polite"
+          >
+            <div className="protocol-home-waiting-copy">
+              <span
+                className="protocol-diamond"
+                aria-hidden="true"
+              />
+
+              <p>
+                <em>{partnerGame.host_name}</em>
+                {" "}
+                t’attend.
+              </p>
+
+              <small>
+                Une partie vient d’être lancée.
+              </small>
+            </div>
+
+            <button
+              type="button"
+              className="protocol-home-waiting-join"
+              disabled={joinLoading}
+              onClick={() =>
+                joinGameFromHome(
+                  null,
+                  partnerGame.code
+                )
+              }
+            >
+              {joinLoading
+                ? "Un instant…"
+                : "Rejoindre"}
+            </button>
+
+            {joinError && !joinOpen && (
+              <p className="protocol-home-message is-error">
+                {joinError}
+              </p>
+            )}
+          </section>
+        )}
+
 
         {/* =========================================
             HERO
@@ -2592,6 +2714,12 @@ function HomeScreen({ navigate , profile, }) {
 
             {/* ACTIONS */}
 
+            {!hasPartner ? (
+              <PairingPanel
+                supabase={supabase}
+                onPaired={onPaired}
+              />
+            ) : (
             <div className="protocol-home-hero-actions">
 
               {error && (
@@ -2688,6 +2816,7 @@ function HomeScreen({ navigate , profile, }) {
               )}
 
             </div>
+            )}
 
           </div>
 
@@ -2786,6 +2915,8 @@ function HomeScreen({ navigate , profile, }) {
             SIGNAUX
             ========================================= */}
 
+        {/* les signes supposent un partenaire associé */}
+        {hasPartner && (
         <section className="protocol-home-signals">
 
           <div className="protocol-home-section-title">
@@ -2887,6 +3018,7 @@ function HomeScreen({ navigate , profile, }) {
           </div>
 
         </section>
+        )}
 
 
 
