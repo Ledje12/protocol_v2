@@ -273,10 +273,21 @@
   flex-direction: column;
 }
 
-/* clavier ouvert : le titre s'efface pour laisser la place
-   à la conversation */
-.messages-keyboard-open .messages-intro {
-  display: none;
+/* saisie sur téléphone (clavier ouvert) : le titre s'efface
+   pour laisser la place à la conversation, et la marge de la
+   barre d'accueil disparaît (le clavier la recouvre) */
+@media (hover: none) and (pointer: coarse) {
+  .messages-page.is-typing .messages-intro {
+    display: none;
+  }
+
+  .messages-page.is-typing .messages-content {
+    padding-bottom: 0;
+  }
+
+  .messages-page.is-typing .messages-composer-wrap {
+    padding-bottom: 8px;
+  }
 }
 
 .messages-composer-wrap {
