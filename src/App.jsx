@@ -2300,9 +2300,26 @@ function HomeScreen({ navigate , profile, }) {
         err
       );
 
-      // message lisible : l'erreur technique reste dans la console
+      // message lisible : l'erreur technique reste dans la console.
+      // Cas fréquent : l'autre n'a pas activé les notifications,
+      // le signe ne peut alors pas lui parvenir.
+      let reason =
+        err?.message || "";
+
+      try {
+        const body =
+          await err?.context?.json?.();
+
+        reason =
+          body?.error || reason;
+      } catch {
+        // corps illisible : on garde le message générique
+      }
+
       setInviteMessage(
-        "Le signal n’a pas pu partir. Réessaie dans un instant."
+        /aucun appareil actif/i.test(reason)
+          ? "Ton partenaire n’a pas activé les notifications : le signe ne peut pas lui parvenir pour l’instant."
+          : "Le signal n’a pas pu partir. Réessaie dans un instant."
       );
 
     } finally {
@@ -9839,9 +9856,11 @@ async function handleSceneRead() {
           err
         );
 
+        /* message humain : l'erreur technique reste en console */
         setError(
-          err?.message ||
-            "Impossible de continuer."
+          /not active player/i.test(err?.message || "")
+            ? "C'est à l'autre de valider ce tour."
+            : "Impossible de continuer. Réessaie dans un instant."
         );
 
       } finally {
@@ -11420,6 +11439,14 @@ async function handleSceneRead() {
                 Qui remporte ce duel ?
               </p>
 
+              {/* seul le joueur qui a la main désigne le gagnant
+                  (le serveur refuse sinon) */}
+              {!isMyTurn && (
+                <p className="duel-hint">
+                  {activePlayerName} désigne le gagnant.
+                </p>
+              )}
+
 
               <div className="duel-buttons">
 
@@ -11434,7 +11461,8 @@ async function handleSceneRead() {
                   }
 
                   disabled={
-                    nextLoading
+                    nextLoading ||
+                    !isMyTurn
                   }
                 >
                   <span>
@@ -11458,7 +11486,8 @@ async function handleSceneRead() {
                   }
 
                   disabled={
-                    nextLoading
+                    nextLoading ||
+                    !isMyTurn
                   }
                 >
                   <span>
@@ -11473,6 +11502,7 @@ async function handleSceneRead() {
               </div>
 
 
+              {isMyTurn && (
               <button
                 className="text-action pass-action"
 
@@ -11488,6 +11518,7 @@ async function handleSceneRead() {
               >
                 Passer ce duel
               </button>
+              )}
 
             </div>
 
