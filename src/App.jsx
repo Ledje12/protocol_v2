@@ -8335,6 +8335,10 @@ function PlayScreen({
   const [finalStats, setFinalStats] =
     useState(null);
 
+  // carte de fin : la même pour les deux joueurs (choisie à partir du code)
+  const [closingCard, setClosingCard] =
+    useState(null);
+
   const [rematchLoading, setRematchLoading] =
     useState(false);
 
@@ -9566,6 +9570,25 @@ async function handleSceneRead() {
               setFinalStats(data);
             }
 
+            const {
+              data: closingCards,
+            } = await supabase
+              .from("protocol_cards")
+              .select("id, title, prompt")
+              .eq("library_version", "closing")
+              .eq("active", true)
+              .order("id");
+
+            if (active && closingCards?.length) {
+              let hash = 0;
+              for (const ch of code) {
+                hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+              }
+              setClosingCard(
+                closingCards[hash % closingCards.length]
+              );
+            }
+
           } catch (err) {
             console.error(
               "FINAL STATS ERROR:",
@@ -10311,6 +10334,25 @@ async function handleSceneRead() {
                 </span>
 
               </div>
+            )}
+
+
+            {/* =====================================
+                CARTE DE FIN
+                ===================================== */}
+
+            {closingCard && (
+              <section className="final-closing-card">
+                <p className="final-closing-card-kicker">
+                  Le mot de la fin
+                </p>
+                <h2>
+                  {closingCard.title}
+                </h2>
+                <p>
+                  {closingCard.prompt}
+                </p>
+              </section>
             )}
 
 

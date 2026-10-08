@@ -2019,3 +2019,53 @@ button.secondary {
   font-size: var(--fs-body);
   font-weight: 600;
 }
+
+
+/* ---------------------------------------------------------
+   CARTE DE FIN (écran de fin de partie)
+   Une carte « le mot de la fin », la même pour les deux.
+   --------------------------------------------------------- */
+
+.final-closing-card {
+  margin: 0 0 22px;
+  padding: 22px 22px 24px;
+
+  border: 1px solid var(--c-line);
+  border-top: 2px solid var(--c-truth);
+  border-radius: var(--r-card);
+
+  background: var(--c-surface);
+  text-align: left;
+}
+
+.final-closing-card-kicker {
+  margin: 0 0 10px;
+
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+
+  color: var(--c-truth);
+}
+
+.final-closing-card h2 {
+  margin: 0 0 10px;
+
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--fs-heading);
+  font-weight: 400;
+  line-height: 1.15;
+
+  color: var(--c-text);
+}
+
+.final-closing-card p:last-child {
+  margin: 0;
+
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+
+  color: var(--c-text-soft);
+}
