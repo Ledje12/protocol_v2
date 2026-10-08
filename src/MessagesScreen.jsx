@@ -43,6 +43,12 @@ export default function MessagesScreen({
     setSending,
   ] = useState(false);
 
+  // saisie en cours (sur téléphone : clavier ouvert)
+  const [
+    typing,
+    setTyping,
+  ] = useState(false);
+
   const currentUserId =
     profile?.user_id || null;
 
@@ -77,11 +83,15 @@ export default function MessagesScreen({
         `${viewport.offsetTop}px`
       );
 
-      // clavier ouvert : la zone visible a nettement rétréci
-      document.documentElement.classList.toggle(
-        "messages-keyboard-open",
-        window.innerHeight - viewport.height > 120
-      );
+      // la zone visible change (clavier) : on garde le dernier
+      // message en vue
+      const thread =
+        threadRef.current;
+
+      if (thread) {
+        thread.scrollTop =
+          thread.scrollHeight;
+      }
     };
 
     updateViewport();
@@ -113,10 +123,6 @@ export default function MessagesScreen({
 
       document.documentElement.style.removeProperty(
         "--messages-viewport-top"
-      );
-
-      document.documentElement.classList.remove(
-        "messages-keyboard-open"
       );
     };
   }, []);
@@ -297,7 +303,7 @@ export default function MessagesScreen({
         frame
       );
     };
-  }, [messages.length]);
+  }, [messages.length, typing]);
 
   /* =========================================================
      SEND MESSAGE
@@ -398,7 +404,13 @@ export default function MessagesScreen({
      ========================================================= */
 
   return (
-    <main className="messages-page">
+    <main
+      className={
+        typing
+          ? "messages-page is-typing"
+          : "messages-page"
+      }
+    >
       <header className="messages-topbar">
         <button
           type="button"
@@ -543,6 +555,12 @@ export default function MessagesScreen({
                   sendMessage();
                 }
               }}
+              onFocus={() =>
+                setTyping(true)
+              }
+              onBlur={() =>
+                setTyping(false)
+              }
               placeholder="Écris-lui…"
               rows={1}
               maxLength={1200}
@@ -551,6 +569,13 @@ export default function MessagesScreen({
             <button
               type="button"
               className="messages-send"
+              // le bouton ne prend pas le focus : le clavier reste
+              // ouvert après l'envoi
+              onMouseDown={(
+                event
+              ) =>
+                event.preventDefault()
+              }
               onClick={
                 sendMessage
               }
