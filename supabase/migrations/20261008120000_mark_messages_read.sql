@@ -1,5 +1,5 @@
 -- Marque comme lus les messages reçus par l'utilisateur connecté.
--- Appelée par l'écran Messages à son ouverture (src/unread.jsx).
+-- Appelée par l'écran Messages à son ouverture (src/unread.js).
 -- SECURITY DEFINER : la table reste en lecture seule pour les
 -- clients ; seule cette fonction peut remplir read_at, et
 -- uniquement pour les messages dont on est le destinataire.

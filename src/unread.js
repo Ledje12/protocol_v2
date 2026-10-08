@@ -177,22 +177,3 @@ export function useUnreadCounts(
 
   return counts;
 }
-
-/* pastille façon iOS : nombre, 9+ au-delà */
-export function UnreadBadge({
-  count,
-  label,
-}) {
-  if (!count) {
-    return null;
-  }
-
-  return (
-    <i
-      className="protocol-badge"
-      aria-label={`${count} ${label}`}
-    >
-      {count > 9 ? "9+" : count}
-    </i>
-  );
-}

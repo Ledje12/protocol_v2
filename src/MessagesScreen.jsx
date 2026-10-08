@@ -6,7 +6,7 @@ import {
 
 import "./messages.css";
 import { formatRelativeTime } from "./formatTime.js";
-import { markMessagesSeen } from "./unread.jsx";
+import { markMessagesSeen } from "./unread.js";
 import { BackIcon } from "./ScreenHeader.jsx";
 
 // PROTOCOL private messaging

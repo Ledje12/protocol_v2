@@ -12,10 +12,8 @@ import InvitationsScreen from "./InvitationsScreen.jsx";
 import MessagesScreen from "./MessagesScreen.jsx";
 import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
-import {
-  UnreadBadge,
-  useUnreadCounts,
-} from "./unread.jsx";
+import UnreadBadge from "./UnreadBadge.jsx";
+import { useUnreadCounts } from "./unread.js";
 import {
   getCurrentPushSubscription,
   registerPushNotifications,
