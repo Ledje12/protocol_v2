@@ -944,28 +944,10 @@ button.primary:disabled,
 }
 
 .settings-text-action,
-.settings-privacy-link,
 .settings-secondary-action {
   min-height: 44px;
   font-size: 14px;
   color: var(--c-muted);
-}
-
-/* choix du mode : la sélection est en néon */
-.director-mode-option {
-  border: 1px solid var(--c-line);
-  background: transparent;
-}
-
-.director-mode-option.is-active {
-  border-color: var(--c-accent);
-  background: rgba(var(--c-accent-rgb), 0.1);
-  box-shadow: none;
-}
-
-.director-mode-option span {
-  font-size: 12.5px;
-  color: var(--c-muted) !important;
 }
 
 /* actions de carte : contour, pas de néon (une seule action principale par écran) */
@@ -973,10 +955,6 @@ button.primary:disabled,
   border: 1px solid var(--c-line-strong);
   background: transparent;
   color: var(--c-text);
-}
-
-.settings-privacy-icon {
-  color: var(--c-muted);
 }
 
 
@@ -1624,19 +1602,6 @@ button.primary:disabled,
 .settings-code-input:focus {
   border-color: rgba(var(--c-accent-rgb), 0.6) !important;
   box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb), 0.10) !important;
-}
-
-/* se déconnecter : action tertiaire (texte), pas un bouton plein */
-.settings-logout-button {
-  min-height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--c-text-soft);
-  font-size: var(--fs-body);
-  font-weight: 500;
 }
 
 
@@ -2793,11 +2758,6 @@ button.secondary {
   .howto-body {
     animation: none;
   }
-}
-
-/* deux liens à la suite dans les réglages */
-.settings-privacy-link + .settings-privacy-link {
-  margin-top: 10px;
 }
 
 

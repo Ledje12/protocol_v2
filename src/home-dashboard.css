@@ -689,7 +689,6 @@
 }
 
 
-
 /* =========================================================
    SIGNALS
    ========================================================= */
@@ -1725,38 +1724,6 @@
   color: var(--c-accent);
 }
 
-.settings-delete-account {
-  margin-top: 4px;
-}
-
-/* destructif : corail, jamais le néon */
-.settings-delete-account-button {
-  width: 100%;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14px;
-  padding: 0 16px;
-  border: 1px solid rgba(var(--c-danger-rgb), 0.32);
-  border-radius: var(--r-control);
-  background: rgba(var(--c-danger-rgb), 0.06);
-  color: var(--c-danger);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.settings-delete-account-button:hover:not(:disabled) {
-  background: rgba(var(--c-danger-rgb), 0.12);
-}
-
-.settings-delete-account-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
 .protocol-auth-legal {
   margin-top: 18px;
   text-align: center;
@@ -1769,29 +1736,6 @@
   color: var(--c-muted);
   font-size: var(--fs-small);
   text-decoration: none;
-}
-
-.settings-privacy-link {
-  width: 100%;
-  min-height: 46px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-top: 18px;
-  padding: 0;
-
-  border: 0;
-  border-top: 1px solid var(--c-line);
-
-  background: transparent;
-  color: rgba(255, 255, 255, 0.72);
-
-  font: inherit;
-  font-size: var(--fs-small);
-
-  cursor: pointer;
 }
 
 .protocol-legal-page {

@@ -392,13 +392,8 @@
 }
 
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
 .settings-primary-action,
-.settings-secondary-action,
-.settings-logout-button {
+.settings-secondary-action {
   width: 100%;
 
   min-height: 58px;
@@ -479,8 +474,7 @@
 }
 
 .settings-primary-action:active:not(:disabled),
-.settings-secondary-action:active:not(:disabled),
-.settings-logout-button:active:not(:disabled) {
+.settings-secondary-action:active:not(:disabled) {
   transform:
     scale(0.985);
 
@@ -546,20 +540,6 @@
 
 .settings-text-action:disabled {
   opacity: 0.35;
-}
-
-
-/* =========================================================
-   PARTNER
-   ========================================================= */
-
-.settings-card-partner {
-  padding-bottom: 22px;
-}
-
-.settings-partner-connected
-.settings-card-copy {
-  margin-bottom: 15px;
 }
 
 .settings-code-box {
@@ -684,71 +664,6 @@
 
 
 /* =========================================================
-   NOTIFICATIONS
-   ========================================================= */
-
-.settings-card-topline {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  gap: 18px;
-}
-
-.settings-card-notifications
-.settings-card-heading {
-  margin-bottom: 0;
-}
-
-.settings-card-notifications
-.settings-card-copy {
-  margin-top: 18px;
-}
-
-.settings-state-mark {
-  width: 43px;
-  height: 43px;
-
-  flex: 0 0 43px;
-
-  display: grid;
-  place-items: center;
-
-  border:
-    1px solid
-    var(--c-line);
-
-  border-radius:
-    50%;
-
-  background:
-    rgba(255, 255, 255, 0.018);
-}
-
-.settings-state-mark span {
-  width: 8px;
-  height: 8px;
-
-  border-radius:
-    50%;
-
-  background:
-    rgba(255, 255, 255, 0.20);
-}
-
-.settings-state-mark.is-active span {
-  background:
-    var(--settings-pink-soft);
-
-  box-shadow:
-    0
-    0
-    11px
-    rgba(var(--c-accent-soft-rgb), 0.62);
-}
-
-
-/* =========================================================
    CONFIRMATION
    ========================================================= */
 
@@ -819,16 +734,6 @@
     rgba(var(--c-text-soft-rgb), 0.46);
 
   font-size: 0.70rem;
-}
-
-
-/* =========================================================
-   LOVENSE
-   ========================================================= */
-
-.settings-card-lovense
-.settings-card-copy {
-  margin-bottom: 16px;
 }
 
 .settings-lovense-status {
@@ -909,136 +814,6 @@
     rgba(255, 255, 255, 0.32);
 
   font-size: 0.68rem;
-}
-
-
-/* =========================================================
-   PRIVACY
-   ========================================================= */
-
-.settings-card-privacy
-.settings-card-heading {
-  margin-bottom: 7px;
-}
-
-.settings-card-privacy
-.settings-card-heading h2 {
-  max-width: 390px;
-}
-
-.settings-privacy-list {
-  display: grid;
-}
-
-.settings-privacy-item {
-  display: grid;
-
-  grid-template-columns:
-    28px
-    minmax(0, 1fr);
-
-  gap: 12px;
-
-  padding:
-    17px
-    0;
-
-  border-top:
-    1px solid
-    var(--settings-line-soft);
-}
-
-.settings-privacy-item:first-child {
-  border-top: 0;
-}
-
-.settings-privacy-icon {
-  padding-top: 2px;
-
-  color:
-    rgba(var(--c-accent-rgb), 0.74);
-
-  font-size: 0.88rem;
-}
-
-.settings-privacy-item strong {
-  display: block;
-
-  margin-bottom: 5px;
-
-  color:
-    rgba(var(--c-text-rgb), 0.90);
-
-  font-size: 0.84rem;
-}
-
-.settings-privacy-item
-div span {
-  display: block;
-
-  max-width: 390px;
-
-  color:
-    rgba(var(--c-text-soft-rgb), 0.49);
-
-  font-size: 0.77rem;
-  line-height: 1.52;
-}
-
-
-/* =========================================================
-   DEVICE
-   ========================================================= */
-
-.settings-card-device
-.settings-card-copy {
-  margin-bottom: 18px;
-}
-
-.settings-device-empty {
-  padding:
-    15px
-    16px;
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.045);
-
-  border-radius:
-    17px;
-
-  background:
-    rgba(255, 255, 255, 0.018);
-
-  color:
-    rgba(var(--c-text-soft-rgb), 0.40);
-
-  font-size: 0.77rem;
-}
-
-.settings-account-divider {
-  height: 1px;
-
-  margin:
-    22px
-    0;
-
-  background:
-    var(--settings-line-soft);
-}
-
-.settings-logout-button {
-  border:
-    1px solid
-    rgba(var(--c-accent-rgb), 0.27);
-
-  background:
-    rgba(var(--c-accent-deep-rgb), 0.07);
-
-  color:
-    rgba(var(--c-text-rgb), 0.83);
-
-  font-size: 0.86rem;
 }
 
 
@@ -1168,8 +943,7 @@ div span {
   }
 
   .settings-primary-action,
-  .settings-secondary-action,
-  .settings-logout-button {
+.settings-secondary-action {
     min-height: 55px;
   }
 
@@ -1226,35 +1000,6 @@ div span {
 }
 
 
-/* 3. Notification : le statut ne mange plus le titre */
-.settings-card-topline {
-  position: relative;
-  display: block;
-}
-
-.settings-card-notifications
-.settings-card-heading {
-  padding-right: 54px;
-}
-
-.settings-state-mark {
-  position: absolute;
-
-  top: 0;
-  right: 0;
-
-  width: 40px;
-  height: 40px;
-
-  flex: none;
-}
-
-.settings-card-notifications
-.settings-card-heading h2 {
-  max-width: 355px;
-}
-
-
 /* 4. Lovense : CTA moins "bonbon rose" */
 .settings-lovense-open {
   background:
@@ -1280,30 +1025,6 @@ div span {
 }
 
 
-/* 5. Confidentialité un peu plus compacte */
-.settings-card-privacy {
-  padding-bottom: 18px;
-}
-
-.settings-card-privacy
-.settings-card-heading h2 {
-  font-size:
-    clamp(
-      1.95rem,
-      7.8vw,
-      2.35rem
-    );
-
-  line-height: 1;
-}
-
-.settings-privacy-item {
-  padding:
-    15px
-    0;
-}
-
-
 /* 6. Espacement général légèrement resserré */
 .protocol-settings {
   gap: 14px;
@@ -1322,22 +1043,6 @@ div span {
     rgba(0, 0, 0, 0.17);
 }
 
-/* =========================================================
-   DIRECTOR MODE
-   ========================================================= */
-
-.settings-card-director {
-  overflow: hidden;
-}
-
-.director-mode-switch {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.director-mode-option,
 .director-profile-option,
 .director-duration-option {
   appearance: none;
@@ -1354,44 +1059,10 @@ div span {
     opacity 160ms ease;
 }
 
-.director-mode-option:disabled,
 .director-profile-option:disabled,
 .director-duration-option:disabled {
   cursor: default;
   opacity: 0.55;
-}
-
-.director-mode-option {
-  min-height: 92px;
-  padding: 16px 15px;
-  border-radius: var(--r-control);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 9px;
-}
-
-.director-mode-option strong {
-  display: block;
-  font-size: var(--fs-body);
-  font-weight: 650;
-  letter-spacing: 0.01em;
-}
-
-.director-mode-option span {
-  display: block;
-  color: rgba(255, 255, 255, 0.52);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.director-mode-option.is-active {
-  border-color: rgba(255, 255, 255, 0.26);
-  background: rgba(255, 255, 255, 0.09);
-}
-
-.director-mode-option.is-active span {
-  color: rgba(255, 255, 255, 0.72);
 }
 
 
@@ -1469,16 +1140,14 @@ div span {
 
 @media (hover: hover) {
 
-  .director-mode-option:not(:disabled):hover,
   .director-profile-option:not(:disabled):hover,
-  .director-duration-option:not(:disabled):hover {
+.director-duration-option:not(:disabled):hover {
     border-color: rgba(255, 255, 255, 0.18);
     background: rgba(255, 255, 255, 0.065);
   }
 
 }
 
-.director-mode-option:not(:disabled):active,
 .director-profile-option:not(:disabled):active,
 .director-duration-option:not(:disabled):active {
   transform: scale(0.985);
@@ -1489,14 +1158,3 @@ div span {
    SMALL SCREENS
    ========================================================= */
 
-@media (max-width: 390px) {
-
-  .director-mode-switch {
-    grid-template-columns: 1fr;
-  }
-
-  .director-mode-option {
-    min-height: 78px;
-  }
-
-}
