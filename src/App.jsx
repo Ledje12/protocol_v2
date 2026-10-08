@@ -13,6 +13,8 @@ import MessagesScreen from "./MessagesScreen.jsx";
 import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
 import PairingPanel from "./PairingPanel.jsx";
+import HowToPlay from "./HowToPlay.jsx";
+import { hasSeenHowToPlay } from "./howto.js";
 import UnreadBadge from "./UnreadBadge.jsx";
 import { useUnreadCounts } from "./unread.js";
 import {
@@ -2004,6 +2006,10 @@ function HomeScreen({
       profile?.user_id
     );
 
+  // « Comment on joue » : une fois, quand le duo est formé
+  const [showHowTo, setShowHowTo] =
+    useState(() => !hasSeenHowToPlay());
+
   /*
    * Partie créée par le partenaire et qui l'attend :
    * on propose de la rejoindre sans taper le code.
@@ -2552,6 +2558,14 @@ function HomeScreen({
 
   return (
     <main className="app protocol-home-page">
+
+      {hasPartner && showHowTo && (
+        <HowToPlay
+          onClose={() =>
+            setShowHowTo(false)
+          }
+        />
+      )}
 
       {/* =========================================
           HEADER
@@ -4589,6 +4603,9 @@ function SettingsScreen({
   couple,
   onCoupleChanged,
 }) {
+  const [showHowTo, setShowHowTo] =
+    useState(false);
+
   const [permission, setPermission] =
     useState(() => {
       if (!("Notification" in window)) {
@@ -7326,6 +7343,30 @@ function SettingsScreen({
             </span>
           </button>
 
+          <button
+            type="button"
+            className="settings-privacy-link"
+            onClick={() =>
+              setShowHowTo(true)
+            }
+          >
+            <span>
+              Comment on joue
+            </span>
+
+            <span>
+              →
+            </span>
+          </button>
+
+          {showHowTo && (
+            <HowToPlay
+              onClose={() =>
+                setShowHowTo(false)
+              }
+            />
+          )}
+
         </section>
 
 
@@ -7822,7 +7863,11 @@ function LobbyScreen({
   ) {
     return (
       <StateScreen
-        title="Partie introuvable."
+        title={
+          error === "Partie introuvable."
+            ? "Partie introuvable."
+            : "La partie ne répond pas."
+        }
         text={
           error === "Partie introuvable."
             ? "Le code n’est plus valable, ou la partie est terminée."
@@ -9181,6 +9226,13 @@ function PlayScreen({
   const loadStatePendingRef =
     useRef(false);
 
+  /* chargement relancé en attente : les appels qui arrivent
+     pendant un chargement en cours attendent son résultat
+     (sinon le premier affichage restait bloqué sur
+     « Préparation… », sans partie ni erreur) */
+  const loadStateQueuedRef =
+    useRef(null);
+
   const currentCardRef =
     useRef(null);
 
@@ -9407,7 +9459,27 @@ async function handleSceneRead() {
       loadStatePendingRef.current =
         true;
 
-      return;
+      if (!loadStateQueuedRef.current) {
+        let resolve;
+        let reject;
+
+        const promise =
+          new Promise((ok, ko) => {
+            resolve = ok;
+            reject = ko;
+          });
+
+        // une erreur que personne n'attend reste silencieuse
+        promise.catch(() => {});
+
+        loadStateQueuedRef.current = {
+          promise,
+          resolve,
+          reject,
+        };
+      }
+
+      return loadStateQueuedRef.current.promise;
     }
 
 
@@ -9612,7 +9684,25 @@ async function handleSceneRead() {
         loadStatePendingRef.current =
           false;
 
-        void loadState();
+        const queued =
+          loadStateQueuedRef.current;
+
+        loadStateQueuedRef.current =
+          null;
+
+        loadState().then(
+          queued?.resolve,
+          (err) => {
+            if (queued) {
+              queued.reject(err);
+            } else {
+              console.warn(
+                "PLAY RELOAD ERROR:",
+                err
+              );
+            }
+          }
+        );
       }
     }
   };
@@ -9639,7 +9729,9 @@ async function handleSceneRead() {
 
           if (active) {
             setError(
-              "Impossible de charger la partie."
+              err?.message === "Partie introuvable."
+                ? "Partie introuvable."
+                : "Impossible de charger la partie."
             );
           }
 
@@ -10172,7 +10264,11 @@ async function handleSceneRead() {
   ) {
     return (
       <StateScreen
-        title="Partie introuvable."
+        title={
+          error === "Partie introuvable."
+            ? "Partie introuvable."
+            : "La partie ne répond pas."
+        }
         text={
           error === "Partie introuvable."
             ? "Le code n’est plus valable, ou la partie est terminée."
