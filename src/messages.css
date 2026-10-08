@@ -330,8 +330,7 @@
 
 
 .messages-error {
-  color:
-    var(--c-accent-soft);
+  color: var(--c-danger);
 }
 
 

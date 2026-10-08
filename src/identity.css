@@ -1948,3 +1948,74 @@ button.primary:disabled,
 .custom-card-submit:not(:disabled) .settings-action-arrow {
   color: var(--c-on-accent) !important;
 }
+
+
+/* ---------------------------------------------------------
+   34. ÉTATS PLEIN ÉCRAN (StateScreen) : chargement, erreur,
+   accès impossible. Losange, sérif, une action.
+   --------------------------------------------------------- */
+
+.protocol-state-page {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.protocol-state {
+  width: min(100%, 340px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transform: translateY(-4vh);
+}
+
+.protocol-state h1 {
+  margin: 26px 0 10px;
+  font-family: var(--font-serif);
+  font-size: var(--fs-title);
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--c-text);
+}
+
+.protocol-state p {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--c-muted);
+}
+
+.protocol-state-loading .protocol-diamond {
+  animation: protocolBreathe 2.4s var(--ease-in-out) infinite;
+}
+
+.protocol-state-loading p {
+  margin-top: 22px;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-style: italic;
+}
+
+.protocol-state .secondary {
+  margin-top: 28px;
+  justify-content: center;
+}
+
+
+/* ---------------------------------------------------------
+   35. BOUTON SECONDAIRE : le même partout
+   (contour clair, casse normale, pas de néon)
+   --------------------------------------------------------- */
+
+button.secondary {
+  min-height: 56px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--c-text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+}

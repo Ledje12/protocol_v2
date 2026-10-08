@@ -6,6 +6,7 @@ import {
 
 import "./card.css";
 import { BackIcon } from "./ScreenHeader.jsx";
+import StateScreen from "./StateScreen.jsx";
 
 
 function getTypeLabel(
@@ -1794,11 +1795,11 @@ export default function CardScreen({
     loading
   ) {
     return (
-      <main className="card-page card-center">
-        <p>
-          Chargement…
-        </p>
-      </main>
+      <StateScreen
+        kind="loading"
+        className="card-page"
+        text="Chargement…"
+      />
     );
   }
 
@@ -1808,24 +1809,13 @@ export default function CardScreen({
     !card
   ) {
     return (
-      <main className="card-page card-center">
-
-        <p className="error">
-          {error ||
-            "Carte introuvable."}
-        </p>
-
-        <button
-          type="button"
-          className="secondary"
-          onClick={
-            onBack
-          }
-        >
-          Retour
-        </button>
-
-      </main>
+      <StateScreen
+        className="card-page"
+        title="Carte introuvable."
+        text="Elle a peut-être été retirée de la bibliothèque, ou la connexion a échoué."
+        actionLabel="Retour"
+        onAction={onBack}
+      />
     );
   }
 
@@ -1836,13 +1826,11 @@ export default function CardScreen({
     lovenseStatusLoading
   ) {
     return (
-      <main className="card-page card-center">
-
-        <p>
-          Vérification du jouet…
-        </p>
-
-      </main>
+      <StateScreen
+        kind="loading"
+        className="card-page"
+        text="Vérification du jouet…"
+      />
     );
   }
 
@@ -1853,23 +1841,13 @@ export default function CardScreen({
     !lovenseConnected
   ) {
     return (
-      <main className="card-page card-center">
-
-        <p className="error">
-          Cette carte nécessite un jouet Lovense connecté.
-        </p>
-
-        <button
-          type="button"
-          className="secondary"
-          onClick={
-            onBack
-          }
-        >
-          Retour
-        </button>
-
-      </main>
+      <StateScreen
+        className="card-page"
+        title="Il manque le jouet."
+        text="Cette carte se joue avec un jouet Lovense connecté. Connecte-le depuis les réglages."
+        actionLabel="Retour"
+        onAction={onBack}
+      />
     );
   }
 

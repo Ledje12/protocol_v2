@@ -428,9 +428,9 @@ export default function InvitationsScreen({
           if (
             active
           ) {
+            /* message humain : l'erreur technique reste en console */
             setError(
-              err?.message ||
-                "Impossible de charger les invitations."
+              "Impossible de charger les invitations. Vérifie ta connexion puis réessaie."
             );
           }
 

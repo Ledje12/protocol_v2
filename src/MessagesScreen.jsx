@@ -182,9 +182,9 @@ export default function MessagesScreen({
           );
 
           if (active) {
+            /* message humain : l'erreur technique reste en console */
             setError(
-              err?.message ||
-                "Impossible de charger les messages."
+              "Impossible de charger les messages. Vérifie ta connexion puis réessaie."
             );
           }
         } finally {
@@ -319,8 +319,7 @@ export default function MessagesScreen({
         );
 
         setError(
-          err?.message ||
-            "Impossible d’envoyer le message."
+          "Le message n’est pas parti. Réessaie dans un instant."
         );
       } finally {
         setSending(false);

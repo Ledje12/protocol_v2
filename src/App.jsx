@@ -11,6 +11,7 @@ import CardScreen from "./CardScreen.jsx";
 import InvitationsScreen from "./InvitationsScreen.jsx";
 import MessagesScreen from "./MessagesScreen.jsx";
 import ScreenHeader, { BackIcon } from "./ScreenHeader.jsx";
+import StateScreen from "./StateScreen.jsx";
 import {
   getCurrentPushSubscription,
   registerPushNotifications,
@@ -2507,28 +2508,37 @@ function HomeScreen({ navigate , profile, }) {
                 {resumeGame?.shared_profile?.intensity && (
 
                   <div className="protocol-home-level">
-
-                    <div className="protocol-level-dots">
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-
+                    <span
+                      className="type-intensity"
+                      aria-hidden="true"
+                    >
+                      {Array.from({
+                        length: 5,
+                      }).map((_, index) => (
+                        <i
+                          key={index}
+                          className={
+                            index <
+                            Number(
+                              resumeGame.shared_profile.intensity
+                            )
+                              ? "is-active"
+                              : ""
+                          }
+                        />
+                      ))}
+                    </span>
                     <strong>
-                      Niveau{" "}
-                      {
-                        resumeGame
-                          .shared_profile
-                          .intensity
-                      }
+                      {INTENSITY_LEVELS.find(
+                        (level) =>
+                          level.value ===
+                          Number(
+                            resumeGame.shared_profile.intensity
+                          )
+                      )?.title ||
+                        `Niveau ${resumeGame.shared_profile.intensity}`}
                     </strong>
-
-                    <small>
-                      PLUS INTENSE
-                    </small>
-
                   </div>
-
                 )}
 
               </div>
@@ -7648,38 +7658,31 @@ function LobbyScreen({
     !game
   ) {
     return (
-      <main className="app center">
-        <p>{error}</p>
-
-        <button
-          className="secondary"
-          onClick={() =>
-            navigate("/")
-          }
-        >
-          Retour
-        </button>
-      </main>
+      <StateScreen
+        title="Partie introuvable."
+        text={
+          error === "Partie introuvable."
+            ? "Le code n’est plus valable, ou la partie est terminée."
+            : "Impossible de charger la partie. Vérifie ta connexion puis réessaie."
+        }
+        actionLabel="Retour à l’accueil"
+        onAction={() =>
+          navigate("/")
+        }
+      />
     );
   }
 
   if (!hasGameSession) {
     return (
-      <main className="app center">
-        <p>
-          Ce téléphone n'est pas
-          associé à cette partie.
-        </p>
-
-        <button
-          className="secondary"
-          onClick={() =>
-            navigate("/")
-          }
-        >
-          Retour
-        </button>
-      </main>
+      <StateScreen
+        title="Pas sur ce téléphone."
+        text="Ce téléphone n’est pas associé à cette partie. Rejoins-la avec son code."
+        actionLabel="Retour à l’accueil"
+        onAction={() =>
+          navigate("/")
+        }
+      />
     );
   }
 
@@ -8148,7 +8151,7 @@ function CalibrationScreen({
                 }}
               >
                 <span>
-                  COMMENCER
+                  Commencer
                 </span>
 
                 <span>→</span>
@@ -8156,7 +8159,8 @@ function CalibrationScreen({
 
 
               <p className="protocol-opening-safety">
-                PASS · AUTRE PROPOSITION · STOP
+                Passer, autre proposition ou STOP :
+                à tout moment, sans vous justifier.
               </p>
             </>
           )}
@@ -9979,22 +9983,18 @@ async function handleSceneRead() {
     !game
   ) {
     return (
-      <main className="app center">
-
-        <p>
-          {error}
-        </p>
-
-        <button
-          className="secondary"
-          onClick={() =>
-            navigate("/")
-          }
-        >
-          Retour
-        </button>
-
-      </main>
+      <StateScreen
+        title="Partie introuvable."
+        text={
+          error === "Partie introuvable."
+            ? "Le code n’est plus valable, ou la partie est terminée."
+            : "Impossible de charger la partie. Vérifie ta connexion puis réessaie."
+        }
+        actionLabel="Retour à l’accueil"
+        onAction={() =>
+          navigate("/")
+        }
+      />
     );
   }
 
@@ -11755,11 +11755,10 @@ function Footer() {
 
 function LoadingScreen() {
   return (
-    <main className="app center">
-      <span className="loading">
-        Préparation…
-      </span>
-    </main>
+    <StateScreen
+      kind="loading"
+      text="Préparation…"
+    />
   );
 }
 

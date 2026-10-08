@@ -315,12 +315,12 @@ h1 {
   color: var(--c-muted);
 }
 
+/* erreur : corail (le néon reste réservé à l'action) */
 .error {
   margin: 12px 0;
-
-  font-size: 12px;
-
-  color: var(--c-accent);
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--c-danger);
 }
 
 
@@ -2045,26 +2045,19 @@ h1 {
   color: var(--c-accent);
 }
 
+/* « Utiliser Prendre la main » : c'est une action de jeu,
+   donc néon, en contour (l'action principale reste « C'est fait ») */
 .activate-bonus {
   width: 100%;
-  min-height: 45px;
-
+  min-height: 44px;
   margin-top: 9px;
-
-  border:
-    1px solid
-    rgba(var(--c-accent-deep-rgb), 0.52);
-
-  border-radius: var(--r-chip);
-
-  background:
-    rgba(var(--c-accent-deep-rgb), 0.16);
-
-  color: var(--c-accent-soft);
-
-  font-size: var(--fs-label);
+  border: 1px solid rgba(var(--c-accent-rgb), 0.5);
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--c-accent);
+  font: inherit;
+  font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
@@ -2073,22 +2066,15 @@ h1 {
    CHOOSE TYPE
    ========================================================= */
 
+/* choisir le type de la prochaine carte : surface neutre,
+   chaque type dans sa couleur */
 .type-picker {
   margin-top: 10px;
-
   padding: 16px;
-
-  border:
-    1px solid
-    rgba(133, 73, 95, 0.43);
-
-  border-radius: 15px;
-
-  background:
-    rgba(var(--c-accent-deep-rgb), 0.32);
-
-  backdrop-filter:
-    blur(12px);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-card);
+  background: var(--c-surface);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
 .type-picker-header {
@@ -2107,31 +2093,26 @@ h1 {
 }
 
 .type-picker-header strong {
-  font-size: 12px;
-
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
   color: var(--c-text);
 }
 
 .type-picker-header span {
-  font-size: 10px;
-
-  color: #846c75;
+  font-size: var(--fs-small);
+  color: var(--c-muted);
 }
 
 .type-picker-close {
-  width: 28px;
-  height: 28px;
-
+  width: 44px;
+  height: 44px;
+  margin: -10px -10px 0 0;
   padding: 0;
-
   border: 0;
-
   background: transparent;
-
   color: var(--c-muted);
-
-  font-size: 21px;
-
+  font-size: 22px;
   cursor: pointer;
 }
 
@@ -2147,59 +2128,41 @@ h1 {
 
 .type-picker-grid button {
   min-height: 58px;
-
   display: flex;
   align-items: center;
-
   gap: 10px;
-
-  padding:
-    0
-    13px;
-
-  border:
-    1px solid
-    rgba(134, 80, 100, 0.36);
-
-  border-radius: var(--r-chip);
-
-  background:
-    rgba(255, 255, 255, 0.025);
-
-  color: var(--c-text-soft);
-
-  font-size: var(--fs-label);
+  padding: 0 14px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-control);
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 14px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
 .type-picker-grid button:active {
-  border-color:
-    rgba(var(--c-accent-rgb), 0.58);
-
-  background:
-    rgba(var(--c-accent-deep-rgb), 0.18);
+  border-color: var(--type, var(--c-accent));
 }
 
 .type-picker-grid button > span {
-  width: 24px;
-  height: 24px;
-
+  width: 26px;
+  height: 26px;
   display: grid;
   place-items: center;
-
-  border-radius: 50%;
-
-  background:
-    rgba(var(--c-accent-deep-rgb), 0.15);
-
-  color: var(--c-accent);
-
+  border: 1px solid rgba(var(--type-rgb, var(--c-accent-rgb)), 0.45);
+  border-radius: var(--r-pill);
+  color: var(--type, var(--c-accent));
   font-family: var(--font-sans);
-
-  font-size: 14px;
+  line-height: 1;
 }
+
+/* ordre des boutons : vérité, action, duel, scène */
+.type-picker-grid button:nth-child(1) { --type: var(--c-truth); --type-rgb: var(--c-truth-rgb); }
+.type-picker-grid button:nth-child(2) { --type: var(--c-accent); --type-rgb: var(--c-accent-rgb); }
+.type-picker-grid button:nth-child(3) { --type: var(--c-duel); --type-rgb: var(--c-duel-rgb); }
+.type-picker-grid button:nth-child(4) { --type: var(--c-scene); --type-rgb: var(--c-scene-rgb); }
 
 .identity {
   position: relative;
@@ -2588,187 +2551,71 @@ h1 {
 
 /* =========================================================
    ACTIVE RULES
-   ========================================================= */
-
-.active-rules {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.active-rule {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-
-  gap: 16px;
-
-  padding: 13px 15px;
-
-  border: 1px solid
-    rgba(var(--c-muted-rgb), 0.20);
-
-  border-radius: 14px;
-
-  background:
-    rgba(var(--c-accent-deep-rgb), 0.18);
-
-  backdrop-filter:
-    blur(10px);
-}
-
-.active-rule strong {
-  display: block;
-
-  margin-bottom: 4px;
-
-  font-size: 0.74rem;
-
-  letter-spacing: 0.08em;
-
-  color: var(--c-accent-soft);
-}
-
-.active-rule p {
-  margin: 0;
-
-  font-family: var(--font-sans);
-
-  font-size: 0.92rem;
-
-  line-height: 1.4;
-
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.82
-    );
-}
-
-.active-rule-duration {
-  flex: 0 0 auto;
-
-  padding-top: 2px;
-
-  font-size: 0.68rem;
-
-  white-space: nowrap;
-
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.42
-    );
-}
-
-/* =========================================================
-   ACTIVE RULES
+   Une règle en cours : étiquette néon (elle se joue),
+   titre en sérif, texte lisible. Une seule définition.
    ========================================================= */
 
 .active-rules {
   display: grid;
   gap: 8px;
-  margin: 0 0 18px;
+  margin: 0 0 14px;
 }
 
 .active-rule {
+  display: block;
   position: relative;
-
-  padding: 11px 13px 12px;
-
-  border:
-    1px solid
-    rgba(var(--c-accent-rgb), 0.18);
-
-  border-radius: var(--r-chip);
-
-  background:
-    linear-gradient(
-      135deg,
-      rgba(var(--c-accent-deep-rgb), 0.24),
-      rgba(var(--c-surface-rgb), 0.12)
-    );
-
-  box-shadow:
-    inset 0 1px 0
-    rgba(255, 255, 255, 0.025);
+  padding: 14px 16px 15px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: var(--c-surface-2);
 }
 
 .active-rule-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 12px;
-
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 }
 
 .active-rule-label {
   display: flex;
   align-items: center;
-
   gap: 6px;
-
-  font-size: 0.58rem;
-  font-weight: 600;
-
+  font-size: var(--fs-label);
+  font-weight: 700;
   letter-spacing: 0.16em;
-
-  text-transform: uppercase;
-
-  color:
-    rgba(var(--c-accent-rgb), 0.78);
+  color: var(--c-accent);
 }
 
 .active-rule-dot {
-  font-size: 0.48rem;
-
-  color:
-    rgba(var(--c-accent-rgb), 0.9);
+  font-size: 8px;
+  line-height: 1;
 }
 
 .active-rule-duration {
-  flex: 0 0 auto;
-
-  font-size: 0.62rem;
-
-  letter-spacing: 0.04em;
-
-  color:
-    rgba(255, 255, 255, 0.38);
+  font-size: 12px;
+  white-space: nowrap;
+  color: var(--c-label);
 }
 
 .active-rule-title {
   display: block;
-
-  margin-bottom: 3px;
-
-  font-size: 0.72rem;
-  font-weight: 600;
-
-  letter-spacing: 0.08em;
-
-  text-transform: uppercase;
-
-  color:
-    rgba(255, 255, 255, 0.76);
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--c-text);
 }
 
 .active-rule-text {
   margin: 0;
-
-  font-family: var(--font-sans);
-
-  font-size: 0.78rem;
-  line-height: 1.38;
-
-  color:
-    rgba(255, 255, 255, 0.55);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--c-text-soft);
 }
 
 /* =========================================================
@@ -2868,31 +2715,29 @@ h1 {
 
 .protocol-opening-copy {
   width: min(100%, 340px);
-
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  font-family: var(--font-serif);
 }
 
 
+/* texte courant : police système (la sérif est réservée
+   aux grandes tailles) ; le passage intime reste en sérif */
 .protocol-opening-copy p {
   margin: 0;
-
   font-size: var(--fs-body);
-  line-height: 1.62;
-
-  color: rgba(var(--c-text-rgb), 0.56);
+  line-height: 1.6;
+  color: var(--c-muted);
 }
 
 
 .protocol-opening-copy
 .protocol-opening-emphasis {
-  font-size: 17px;
-  line-height: 1.58;
-
-  color: rgba(var(--c-text-rgb), 0.78);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-style: italic;
+  line-height: 1.35;
+  color: var(--c-text);
 }
 
 
@@ -2900,8 +2745,7 @@ h1 {
 .protocol-opening-final {
   font-size: 14px;
   line-height: 1.65;
-
-  color: rgba(var(--c-text-rgb), 0.48);
+  color: var(--c-muted);
 }
 
 
@@ -2921,44 +2765,30 @@ h1 {
 
 
 .protocol-opening-whisper {
-  margin:
-    31px 0
-    0;
-
-  font-family: var(--font-sans);
-
-  font-size: 16px;
+  margin: 31px 0 0;
+  font-family: var(--font-serif);
+  font-size: 20px;
   font-style: italic;
-
-  color: rgba(var(--c-accent-rgb), 0.78);
+  color: var(--c-text-soft);
 }
 
 
 .protocol-opening-button {
   margin-top: 28px;
-
   min-height: 58px;
-
-  letter-spacing: 0.11em;
 }
 
 
+/* rappel de consentement : lisible, jamais caché */
 .protocol-opening-safety {
-  margin:
-    16px 0
-    0;
-
+  margin: 16px 0 0;
   text-align: center;
-
   font-family: var(--font-sans);
-
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 500;
-
-  letter-spacing: 0.19em;
-
-  color:
-    rgba(255, 255, 255, 0.24);
+  letter-spacing: 0;
+  line-height: 1.5;
+  color: var(--c-label);
 }
 
 
@@ -3204,68 +3034,6 @@ h1 {
 
 
 /* ---------------------------------------------------------
-   REGLES ACTIVES
-   Plus compactes et moins concurrentes de la vraie carte.
-   --------------------------------------------------------- */
-
-.active-rules {
-  margin-bottom: 26px;
-}
-
-
-.active-rule {
-  padding: 18px 20px;
-
-  min-height: 0;
-
-  border-radius: 20px;
-}
-
-
-.active-rule-top {
-  margin-bottom: 10px;
-}
-
-
-.active-rule-label {
-  font-size: 10px;
-
-  letter-spacing: 0.18em;
-}
-
-
-.active-rule-duration {
-  font-size: 12px;
-
-  opacity: 0.55;
-}
-
-
-.active-rule-title {
-  display: block;
-
-  margin-bottom: 5px;
-
-  font-size: 14px;
-
-  letter-spacing: 0.14em;
-
-  text-transform: uppercase;
-}
-
-
-.active-rule-text {
-  margin: 0;
-
-  font-size: var(--fs-body);
-
-  line-height: 1.38;
-
-  opacity: 0.78;
-}
-
-
-/* ---------------------------------------------------------
    PLAY BOTTOM / BOUTONS
    --------------------------------------------------------- */
 
@@ -3428,11 +3196,6 @@ h1 {
       38px;
   }
 
-  .active-rule {
-    padding:
-      17px
-      20px;
-  }
 
   .play-meta {
     margin-bottom: 44px;
@@ -3440,9 +3203,10 @@ h1 {
 
 }
 
+/* sérif réservée aux grandes tailles : le texte courant de
+   l'écran d'ouverture repasse en police système */
 .game-card .card-prompt,
 .protocol-opening-title h1,
-.protocol-opening-copy,
 .protocol-opening-whisper,
 .final-screen h1 {
   font-family: var(--font-serif);
@@ -3667,50 +3431,14 @@ h1 {
    REGLES ACTIVES
    --------------------------------------------------------- */
 
-.active-rules {
-  margin:
-    0 0
-    6px !important;
-}
 
 
-.active-rule {
-  padding:
-    14px
-    16px !important;
-
-  min-height:
-    0 !important;
-
-  border-radius:
-    17px !important;
-}
 
 
-.active-rule-top {
-  margin-bottom:
-    7px !important;
-}
 
 
-.active-rule-title {
-  margin-bottom:
-    3px !important;
-
-  font-size:
-    12px !important;
-}
 
 
-.active-rule-text {
-  font-family: var(--font-sans);
-
-  font-size:
-    var(--fs-body) !important;
-
-  line-height:
-    1.28 !important;
-}
 
 
 /* ---------------------------------------------------------
@@ -5513,9 +5241,6 @@ h1 {
  * elle garde sa propre respiration avant la carte.
  */
 
-.active-rules {
-  margin-bottom: 12px !important;
-}
 
 
 /* ---------------------------------------------------------
@@ -5528,9 +5253,6 @@ h1 {
     margin-bottom: 12px;
   }
 
-  .active-rules {
-    margin-bottom: 10px !important;
-  }
 
 }
 

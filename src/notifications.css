@@ -1425,13 +1425,14 @@ div span {
   line-height: 1.45;
 }
 
+/* sélection : néon, comme le choix du mode juste au-dessus */
 .director-profile-option.is-active {
-  border-color: rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.085);
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.1);
 }
 
 .director-profile-option.is-active span {
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--c-text-soft);
 }
 
 
@@ -1456,8 +1457,9 @@ div span {
 }
 
 .director-duration-option.is-active {
-  border-color: rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.085);
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.1);
+  color: var(--c-text);
 }
 
 
