@@ -76,6 +76,12 @@ export default function MessagesScreen({
         "--messages-viewport-top",
         `${viewport.offsetTop}px`
       );
+
+      // clavier ouvert : la zone visible a nettement rétréci
+      document.documentElement.classList.toggle(
+        "messages-keyboard-open",
+        window.innerHeight - viewport.height > 120
+      );
     };
 
     updateViewport();
@@ -107,6 +113,10 @@ export default function MessagesScreen({
 
       document.documentElement.style.removeProperty(
         "--messages-viewport-top"
+      );
+
+      document.documentElement.classList.remove(
+        "messages-keyboard-open"
       );
     };
   }, []);

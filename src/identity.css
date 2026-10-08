@@ -258,15 +258,25 @@
    --------------------------------------------------------- */
 
 .messages-page {
-  min-height: 100dvh;
+  /* la hauteur suit la zone visible (clavier ouvert compris) :
+     surtout pas de min-height 100dvh, qui pousserait la saisie
+     derrière le clavier */
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .messages-content {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* clavier ouvert : le titre s'efface pour laisser la place
+   à la conversation */
+.messages-keyboard-open .messages-intro {
+  display: none;
 }
 
 .messages-composer-wrap {
