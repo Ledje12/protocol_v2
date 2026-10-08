@@ -2093,3 +2093,44 @@ button.secondary {
   opacity: 0.5;
   cursor: default;
 }
+
+
+/* ---------------------------------------------------------
+   37. PASTILLE « NON LU » (accueil : Entre nous, Invitations)
+   Façon iOS : rond, nombre, en haut à droite de l'icône.
+   Néon plein : c'est quelque chose qui attend une réponse.
+   --------------------------------------------------------- */
+
+.protocol-home-nav-icon,
+.protocol-home-icon-pink {
+  position: relative;
+}
+
+.protocol-badge {
+  position: absolute;
+  top: -8px;
+  left: calc(100% - 8px);
+
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+
+  display: grid;
+  place-items: center;
+
+  border: 2px solid var(--c-bg);
+  border-radius: var(--r-pill);
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+
+  /* annule le scale(0.88) de l'icône parente */
+  transform-origin: left bottom;
+}

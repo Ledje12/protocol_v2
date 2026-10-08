@@ -6,6 +6,7 @@ import {
 
 import "./messages.css";
 import { formatRelativeTime } from "./formatTime.js";
+import { markMessagesSeen } from "./unread.js";
 import { BackIcon } from "./ScreenHeader.jsx";
 
 // PROTOCOL private messaging
@@ -175,6 +176,9 @@ export default function MessagesScreen({
           }
 
           setMessages(data || []);
+
+          // ouverture de l'écran = messages reçus vus
+          markMessagesSeen(supabase);
         } catch (err) {
           console.error(
             "MESSAGES LOAD ERROR:",
