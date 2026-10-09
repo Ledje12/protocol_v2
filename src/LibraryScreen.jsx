@@ -14,10 +14,6 @@ import { BackIcon } from "./ScreenHeader.jsx";
 
 const TYPE_FILTERS = [
   {
-    value: "all",
-    label: "Toutes",
-  },
-  {
     value: "action",
     label: "Actions",
   },
@@ -36,10 +32,6 @@ const TYPE_FILTERS = [
 ];
 
 const INTENSITY_FILTERS = [
-  {
-    value: "all",
-    label: "Toutes",
-  },
   {
     value: 1,
     label: "1",
@@ -137,6 +129,25 @@ async function fetchOfficialCards(supabase) {
 
 /* catégories : les cartes perso d'abord, les familles non
    rangées à la fin */
+const STYLE_FILTERS = [
+  { value: "vanilla", label: "Vanilla" },
+  { value: "kinky", label: "Kinky" },
+];
+
+// tri alphabétique à la française (accents et casse ignorés)
+const byTitle = (a, b) =>
+  String(a.title || "").localeCompare(
+    String(b.title || ""),
+    "fr",
+    { sensitivity: "base" }
+  );
+
+// « Toutes » = liste vide ; retoucher un filtre actif le retire
+const toggleIn = (list, value) =>
+  list.includes(value)
+    ? list.filter((item) => item !== value)
+    : [...list, value];
+
 const OWN_CATEGORY = "Vos cartes";
 
 const RATING_ICONS = {
@@ -156,6 +167,51 @@ function readSavedView() {
   } catch {
     return {};
   }
+}
+
+/* Une rangée de filtres : « Toutes » vide la sélection, chaque
+   option s'ajoute ou se retire d'un toucher. */
+function FilterRow({ label, options, selected, onChange }) {
+  return (
+    <div className="library-filter-block">
+      <span className="library-filter-label">
+        {label}
+      </span>
+
+      <div className="library-filter-row">
+        <button
+          type="button"
+          className={
+            selected.length === 0
+              ? "library-filter active"
+              : "library-filter"
+          }
+          aria-pressed={selected.length === 0}
+          onClick={() => onChange([])}
+        >
+          Toutes
+        </button>
+
+        {options.map((filter) => (
+          <button
+            key={filter.value}
+            type="button"
+            className={
+              selected.includes(filter.value)
+                ? "library-filter active"
+                : "library-filter"
+            }
+            aria-pressed={selected.includes(filter.value)}
+            onClick={() =>
+              onChange(toggleIn(selected, filter.value))
+            }
+          >
+            {filter.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default function LibraryScreen({
@@ -181,14 +237,24 @@ export default function LibraryScreen({
     useState(savedView.search || "");
 
   const [
-    selectedType,
-    setSelectedType,
-  ] = useState(savedView.type || "all");
+    selectedTypes,
+    setSelectedTypes,
+  ] = useState(
+    Array.isArray(savedView.types) ? savedView.types : []
+  );
 
   const [
-    selectedIntensity,
-    setSelectedIntensity,
-  ] = useState(savedView.intensity || "all");
+    selectedIntensities,
+    setSelectedIntensities,
+  ] = useState(
+    Array.isArray(savedView.intensities) ? savedView.intensities : []
+  );
+
+  // vanilla / kinky (null = toutes)
+  const [
+    selectedStyle,
+    setSelectedStyle,
+  ] = useState(savedView.style || null);
 
   const [
     selectedCategory,
@@ -235,8 +301,9 @@ export default function LibraryScreen({
         VIEW_KEY,
         JSON.stringify({
           search,
-          type: selectedType,
-          intensity: selectedIntensity,
+          types: selectedTypes,
+          intensities: selectedIntensities,
+          style: selectedStyle,
           category: selectedCategory,
         })
       );
@@ -245,8 +312,9 @@ export default function LibraryScreen({
     }
   }, [
     search,
-    selectedType,
-    selectedIntensity,
+    selectedTypes,
+    selectedIntensities,
+    selectedStyle,
     selectedCategory,
   ]);
 
@@ -255,7 +323,7 @@ export default function LibraryScreen({
 
     supabase
       .from("protocol_card_families")
-      .select("family_key, category, category_position")
+      .select("family_key, category, category_position, style")
       .then(({ data, error: familiesError }) => {
         if (!active) {
           return;
@@ -546,58 +614,37 @@ export default function LibraryScreen({
           ];
 
 
+          /* toutes les cartes sont visibles ; celles prévues pour
+             l'autre sexe se lisent du point de vue de celui qui
+             les jouerait (rôles inversés) et ne s'envoient pas */
           const personalised =
-            allCards
-              .map(
-                (card) => {
+            allCards.map((card) => {
+              const compatible =
+                !card.target_sex ||
+                !partnerSex ||
+                card.target_sex === partnerSex;
 
-                  const compatible =
-                    !card.target_sex ||
-                    !partnerSex ||
-                    card.target_sex ===
-                      partnerSex;
+              const doer =
+                compatible ? partnerName : myName;
 
+              const other =
+                compatible ? myName : partnerName;
 
-                  const displayPrompt =
-                    String(
-                      card.prompt ||
-                        ""
-                    )
-                      .replaceAll(
-                        "{{active}}",
-                        partnerName
-                      )
-                      .replaceAll(
-                        "{{partner}}",
-                        myName
-                      )
-                      /* la carte s'adresse à la personne
-                         qui la jouera : {{me}} = elle,
-                         {{other}} = celui qui propose */
-                      .replaceAll(
-                        "{{me}}",
-                        partnerName
-                      )
-                      .replaceAll(
-                        "{{other}}",
-                        myName
-                      );
+              const displayPrompt =
+                String(card.prompt || "")
+                  .replaceAll("{{active}}", doer)
+                  .replaceAll("{{partner}}", other)
+                  /* la carte s'adresse à la personne qui la
+                     jouera : {{me}} = elle, {{other}} = l'autre */
+                  .replaceAll("{{me}}", doer)
+                  .replaceAll("{{other}}", other);
 
-
-                  return {
-                    ...card,
-
-                    compatible,
-
-                    displayPrompt,
-                  };
-
-                }
-              )
-              .filter(
-                (card) =>
-                  card.compatible
-              );
+              return {
+                ...card,
+                compatible,
+                displayPrompt,
+              };
+            });
 
 
           setCards(
@@ -675,23 +722,26 @@ export default function LibraryScreen({
               return false;
             }
           if (
-            selectedType !==
-              "all" &&
-            card.type !==
-              selectedType
+            selectedTypes.length > 0 &&
+            !selectedTypes.includes(card.type)
           ) {
             return false;
           }
 
           if (
-            selectedIntensity !==
-              "all" &&
-            Number(
-              card.intensity
-            ) !==
-              Number(
-                selectedIntensity
-              )
+            selectedIntensities.length > 0 &&
+            !selectedIntensities.includes(
+              Number(card.intensity)
+            )
+          ) {
+            return false;
+          }
+
+          // vanilla / kinky : seules les cartes classées
+          // (familles connues) entrent dans ces filtres
+          if (
+            selectedStyle &&
+            families?.[card.family_key]?.style !== selectedStyle
           ) {
             return false;
           }
@@ -720,8 +770,10 @@ export default function LibraryScreen({
     }, [
       cards,
       search,
-      selectedType,
-      selectedIntensity,
+      selectedTypes,
+      selectedIntensities,
+      selectedStyle,
+      families,
       lovenseConnected,
       lovenseStatusLoading,
     ]);
@@ -763,8 +815,14 @@ export default function LibraryScreen({
         byName.set(name, entry);
       }
 
+      // « Vos cartes » en tête, « Autres » à la fin, le reste de A à Z
+      const rank = (entry) =>
+        entry.name === OWN_CATEGORY ? 0 : entry.name === OTHER_CATEGORY ? 2 : 1;
+
       return [...byName.values()].sort(
-        (a, b) => a.position - b.position || a.name.localeCompare(b.name)
+        (a, b) =>
+          rank(a) - rank(b) ||
+          a.name.localeCompare(b.name, "fr", { sensitivity: "base" })
       );
     // categoryOf ne dépend que de families
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -774,11 +832,13 @@ export default function LibraryScreen({
     Boolean(families) && !isSearching && !selectedCategory;
 
   const visibleCards =
-    families && !isSearching && selectedCategory
-      ? filteredCards.filter(
-          (card) => categoryOf(card).name === selectedCategory
-        )
-      : filteredCards;
+    (
+      families && !isSearching && selectedCategory
+        ? filteredCards.filter(
+            (card) => categoryOf(card).name === selectedCategory
+          )
+        : [...filteredCards]
+    ).sort(byTitle);
 
 
   /* =======================================================
@@ -885,78 +945,33 @@ export default function LibraryScreen({
           </label>
 
 
-          <div className="library-filter-block">
+          <FilterRow
+            label="TYPE"
+            options={TYPE_FILTERS}
+            selected={selectedTypes}
+            onChange={setSelectedTypes}
+          />
 
-            <span className="library-filter-label">
-              TYPE
-            </span>
+          <FilterRow
+            label="INTENSITÉ"
+            options={INTENSITY_FILTERS}
+            selected={selectedIntensities}
+            onChange={setSelectedIntensities}
+          />
 
-            <div className="library-filter-row">
-
-              {TYPE_FILTERS.map(
-                (filter) => (
-
-                  <button
-                    key={filter.value}
-                    type="button"
-                    className={
-                      selectedType ===
-                      filter.value
-                        ? "library-filter active"
-                        : "library-filter"
-                    }
-                    onClick={() =>
-                      setSelectedType(
-                        filter.value
-                      )
-                    }
-                  >
-                    {filter.label}
-                  </button>
-
+          {families && (
+            <FilterRow
+              label="STYLE"
+              options={STYLE_FILTERS}
+              selected={selectedStyle ? [selectedStyle] : []}
+              onChange={(values) =>
+                // un seul style à la fois : le dernier touché
+                setSelectedStyle(
+                  values.length ? values[values.length - 1] : null
                 )
-              )}
-
-            </div>
-
-          </div>
-
-
-          <div className="library-filter-block">
-
-            <span className="library-filter-label">
-              INTENSITÉ
-            </span>
-
-            <div className="library-filter-row">
-
-              {INTENSITY_FILTERS.map(
-                (filter) => (
-
-                  <button
-                    key={filter.value}
-                    type="button"
-                    className={
-                      selectedIntensity ===
-                      filter.value
-                        ? "library-filter active"
-                        : "library-filter"
-                    }
-                    onClick={() =>
-                      setSelectedIntensity(
-                        filter.value
-                      )
-                    }
-                  >
-                    {filter.label}
-                  </button>
-
-                )
-              )}
-
-            </div>
-
-          </div>
+              }
+            />
+          )}
 
         </section>
 
@@ -1123,6 +1138,12 @@ export default function LibraryScreen({
 
                       </div>
 
+
+                      {!card.compatible && (
+                        <span className="library-card-for-me">
+                          Pour toi
+                        </span>
+                      )}
 
                       {ratings[`${card.card_source || "official"}-${card.id}`] && (
                         <span

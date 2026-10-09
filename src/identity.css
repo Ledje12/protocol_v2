@@ -815,8 +815,8 @@ button.primary:disabled,
   background: var(--type, var(--c-accent));
 }
 
-/* « Proposer à … » : bouton principal */
-.card-propose {
+/* « Proposer à … » : bouton principal (désactivé : règle commune) */
+.card-propose:not(:disabled) {
   border: 0 !important;
   background: var(--c-accent) !important;
   color: var(--c-on-accent) !important;

@@ -1460,3 +1460,15 @@ span.is-active {
   line-height: 1.1;
   color: var(--c-text);
 }
+
+
+/* carte prévue pour l'autre sexe : visible, pas envoyable */
+.library-card-for-me {
+  margin-right: 8px;
+  padding: 2px 8px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  color: var(--c-muted);
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+}

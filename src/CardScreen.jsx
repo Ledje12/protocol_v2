@@ -729,19 +729,26 @@ export default function CardScreen({
           }
 
 
-          if (
-            data.target_sex &&
-            activePerson?.sex &&
-            data.target_sex !==
-              activePerson.sex
-          ) {
-
-            throw new Error(
-              "Cette carte n'est pas compatible avec ce destinataire."
+          /* carte prévue pour l'autre sexe : visible (lecture),
+             mais pas envoyable. On la lit alors du point de vue
+             de celui qui la jouerait, donc les rôles s'inversent. */
+          const notForRecipient =
+            Boolean(
+              data.target_sex &&
+              activePerson?.sex &&
+              data.target_sex !==
+                activePerson.sex
             );
 
-          }
+          const doer =
+            notForRecipient
+              ? senderPerson
+              : activePerson;
 
+          const other =
+            notForRecipient
+              ? activePerson
+              : senderPerson;
 
           const personaliseText = (
             value
@@ -749,13 +756,13 @@ export default function CardScreen({
             String(value || "")
               .replaceAll(
                 "{{active}}",
-                activePerson
+                doer
                   ?.display_name ||
                   "ton partenaire"
               )
               .replaceAll(
                 "{{partner}}",
-                senderPerson
+                other
                   ?.display_name ||
                   "toi"
               )
@@ -764,13 +771,13 @@ export default function CardScreen({
                  celui qui la propose */
               .replaceAll(
                 "{{me}}",
-                activePerson
+                doer
                   ?.display_name ||
                   "ton partenaire"
               )
               .replaceAll(
                 "{{other}}",
-                senderPerson
+                other
                   ?.display_name ||
                   "toi"
               );
@@ -847,8 +854,8 @@ export default function CardScreen({
 
           setCard({
             ...data,
-
             displayPrompt,
+            notForRecipient,
           });
 
 
@@ -2501,6 +2508,18 @@ export default function CardScreen({
             ) : null}
 
 
+            {card.notForRecipient && (
+              <p className="card-send-message card-not-for">
+                Cette carte est prévue pour{" "}
+                {card.target_sex === "female"
+                  ? "une femme"
+                  : "un homme"}
+                {" "}: elle ne peut pas être proposée à{" "}
+                {activePerson?.display_name ||
+                  "ton partenaire"}.
+              </p>
+            )}
+
             <button
               type="button"
               className="card-propose"
@@ -2508,7 +2527,8 @@ export default function CardScreen({
                 sendCard
               }
               disabled={
-                sending
+                sending ||
+                card.notForRecipient
               }
             >
               {
