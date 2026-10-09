@@ -84,8 +84,6 @@
   min-width: 0;
 
   display: flex;
-  align-items: baseline;
-  gap: 8px;
 }
 
 
@@ -96,11 +94,6 @@
 }
 
 
-.card-page .card-recipient {
-  font-size: 14px;
-
-  color: rgba(var(--c-text-rgb), 0.55);
-}
 
 
 /* =========================================================
@@ -269,21 +262,6 @@
   cursor: default;
 
   filter: saturate(0.65);
-}
-
-
-/* =========================================================
-   LOADING / ERROR
-   ========================================================= */
-
-.card-page.card-center {
-  align-items: center;
-  justify-content: center;
-
-  padding-left: 24px;
-  padding-right: 24px;
-
-  text-align: center;
 }
 
 /* =========================================================

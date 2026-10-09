@@ -158,7 +158,6 @@
   display: flex;
   flex-direction: column;
 
-  gap: 2px;
 }
 
 
@@ -177,13 +176,6 @@
 }
 
 
-.messages-subtitle {
-  color:
-    rgba(var(--c-text-soft-rgb), 0.54);
-
-  font-size:
-    14px;
-}
 
 
 /* =========================================================
