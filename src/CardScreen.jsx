@@ -7,6 +7,7 @@ import {
 import "./card.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
+import CardRating from "./CardRating.jsx";
 
 
 function getTypeLabel(
@@ -2073,6 +2074,14 @@ export default function CardScreen({
           )}
         </div>
 
+        {/* ton avis, privé : n'influence pas le tirage */}
+        <CardRating
+          key={`${card.card_source || "official"}-${card.id}`}
+          supabase={supabase}
+          cardSource={card.card_source || "official"}
+          cardId={card.id}
+          className="card-rating-detail"
+        />
         {card.type === "scene" &&
           sceneSteps.length > 0 && (
 

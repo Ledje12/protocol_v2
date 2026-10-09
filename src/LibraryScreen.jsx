@@ -138,6 +138,12 @@ async function fetchOfficialCards(supabase) {
 /* catégories : les cartes perso d'abord, les familles non
    rangées à la fin */
 const OWN_CATEGORY = "Vos cartes";
+
+const RATING_ICONS = {
+  fire: "🔥",
+  like: "👍",
+  dislike: "👎",
+};
 const OTHER_CATEGORY = "Autres";
 
 /* filtres et catégorie retenus le temps de la session (ouvrir
@@ -188,6 +194,35 @@ export default function LibraryScreen({
     selectedCategory,
     setSelectedCategory,
   ] = useState(savedView.category || null);
+
+  // mes avis (🔥 👍 👎), affichés dans la liste
+  const [ratings, setRatings] =
+    useState({});
+
+  useEffect(() => {
+    let active = true;
+
+    supabase
+      .from("protocol_card_ratings")
+      .select("card_source, card_id, rating")
+      .then(({ data, error: ratingsError }) => {
+        if (!active || ratingsError) {
+          return;
+        }
+
+        const map = {};
+
+        for (const row of data || []) {
+          map[`${row.card_source}-${row.card_id}`] = row.rating;
+        }
+
+        setRatings(map);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
 
   // familles -> catégorie (null tant que la table n'existe pas :
   // la bibliothèque reste alors une simple liste)
@@ -1088,6 +1123,17 @@ export default function LibraryScreen({
 
                       </div>
 
+
+                      {ratings[`${card.card_source || "official"}-${card.id}`] && (
+                        <span
+                          className="library-card-rating"
+                          aria-label="Ton avis"
+                        >
+                          {RATING_ICONS[
+                            ratings[`${card.card_source || "official"}-${card.id}`]
+                          ]}
+                        </span>
+                      )}
 
                       <span className="library-card-id">
 

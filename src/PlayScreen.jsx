@@ -5,6 +5,7 @@ import { getGameSession } from "./gameSession.js";
 import LoadingScreen from "./LoadingScreen.jsx";
 import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
+import CardRating from "./CardRating.jsx";
 
 /* =========================================================
    PLAY
@@ -3133,6 +3134,15 @@ async function handleSceneRead() {
         )}
 
         </div>
+
+          {/* avis facultatif et privé : n'influence pas le tirage */}
+          <CardRating
+            key={`${card.card_source || "official"}-${card.id}`}
+            supabase={supabase}
+            cardSource={card.card_source || "official"}
+            cardId={card.id}
+            className="card-rating-play"
+          />
 
 
         {/* ===================================

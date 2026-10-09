@@ -3016,3 +3016,71 @@ button.secondary {
   color: var(--c-text);
   font-weight: 600;
 }
+
+
+/* ---------------------------------------------------------
+   45. AVIS SUR LES CARTES : 🔥 👍 👎, facultatif et privé
+   Discret par défaut ; l'avis choisi reste en surbrillance.
+   --------------------------------------------------------- */
+
+.card-rating {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.card-rating .card-rating-option {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 36px;
+  min-height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  box-shadow: none;
+  font-size: 16px;
+  line-height: 1;
+  filter: grayscale(1);
+  opacity: 0.45;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.card-rating .card-rating-option.is-active {
+  border-color: rgba(var(--c-accent-rgb), 0.55);
+  background: var(--c-surface-2);
+  filter: none;
+  opacity: 1;
+}
+
+/* en partie : sous la carte, avant les boutons d'action */
+.card-rating-play {
+  margin: 10px 2px 0;
+}
+
+/* fiche carte : sous les repères */
+.card-rating-detail {
+  justify-content: flex-start;
+  margin: 18px 0 0 22px;
+}
+
+/* bibliothèque : ma marque à côté du numéro */
+.library-card-rating {
+  margin-right: 8px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+@media (hover: hover) {
+  .card-rating .card-rating-option:hover {
+    filter: none;
+    opacity: 0.8;
+  }
+}
