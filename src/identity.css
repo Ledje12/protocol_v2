@@ -3084,3 +3084,21 @@ button.secondary {
     opacity: 0.8;
   }
 }
+
+
+/* ---------------------------------------------------------
+   46. JOKERS (à la place des points)
+   --------------------------------------------------------- */
+
+.bonus-note {
+  grid-column: 1 / -1;
+  margin: 4px 2px 0;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
+
+/* « Prendre la main » s'utilise depuis le bouton du tour :
+   ici la ligne ne fait qu'indiquer l'état du joker */
+div.bonus-button {
+  cursor: default;
+}

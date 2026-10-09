@@ -1583,73 +1583,6 @@ async function handleSceneRead() {
 
 
   /* =========================================
-     BUY BONUS
-     ========================================= */
-
-  const buyBonus =
-    async (bonus) => {
-      try {
-        setNextLoading(true);
-        setError("");
-
-        const {
-          data,
-          error: rpcError,
-        } = await supabase.rpc(
-          "buy_protocol_bonus_guarded",
-          {
-            p_game_code:
-              code,
-
-            p_bonus:
-              bonus,
-
-            p_expected_turn_no:
-              game?.turn_no,
-
-            p_expected_card_id:
-              card?.id,
-
-            p_expected_card_source:
-              card?.card_source ||
-              "official",
-          }
-        );
-
-        if (rpcError) {
-          throw rpcError;
-        }
-
-        if (data?.stale) {
-          await loadState();
-          return;
-        }
-
-        console.log(
-          "BONUS BOUGHT:",
-          data
-        );
-
-        await loadState();
-
-      } catch (err) {
-        console.error(
-          "BONUS ERROR:",
-          err
-        );
-
-        setError(
-          err?.message ||
-            "Impossible d'acheter cet avantage."
-        );
-
-      } finally {
-        setNextLoading(false);
-      }
-    };
-
-
-  /* =========================================
      CHOOSE NEXT TYPE
      ========================================= */
 
@@ -1845,27 +1778,7 @@ async function handleSceneRead() {
       game.status === "finished"
     ) {
 
-      const score1 =
-        game.score_player_1 || 0;
 
-      const score2 =
-        game.score_player_2 || 0;
-
-
-      const winner =
-        score1 === score2
-          ? null
-          : score1 > score2
-            ? 1
-            : 2;
-
-
-      const winnerName =
-        winner === 1
-          ? player1Name
-          : winner === 2
-            ? player2Name
-            : null;
 
 
       const maxIntensity =
@@ -1980,63 +1893,6 @@ async function handleSceneRead() {
               </h1>
 
             </div>
-
-
-            {/* =====================================
-                SCORE
-                ===================================== */}
-
-            <div className="final-wow-score">
-
-              <div
-                className={
-                  winner === 1
-                    ? "final-wow-player final-wow-winner"
-                    : "final-wow-player"
-                }
-              >
-
-                <span>
-                  {player1Name}
-                </span>
-
-                <strong>
-                  {score1}
-                </strong>
-
-              </div>
-
-
-              <div className="final-wow-separator">
-                <span>—</span>
-              </div>
-
-
-              <div
-                className={
-                  winner === 2
-                    ? "final-wow-player final-wow-winner"
-                    : "final-wow-player"
-                }
-              >
-
-                <span>
-                  {player2Name}
-                </span>
-
-                <strong>
-                  {score2}
-                </strong>
-
-              </div>
-
-            </div>
-
-            <p className="final-result-copy">
-              {winnerName
-                ? `${winnerName} termine en tête.`
-                : "Vous terminez à égalité."}
-            </p>
 
 
             {/* =====================================
@@ -2214,11 +2070,10 @@ async function handleSceneRead() {
       ? game.bonus_player_1 || {}
       : game.bonus_player_2 || {};
 
-  const myScore =
-    playerNumber === 1
-      ? game.score_player_1
-      : game.score_player_2;
-
+  // jokers encore en main (les points ont disparu)
+  const jokersLeft =
+    (myBonuses.choose_type ? 1 : 0) +
+    (myBonuses.take_control ? 1 : 0);
   const isMyTurn =
     game.active_player ===
     playerNumber;
@@ -2349,49 +2204,6 @@ async function handleSceneRead() {
         </span>
 
 
-        <div className="score-board">
-
-          <div
-            className={
-              playerNumber === 1
-                ? "score-me"
-                : ""
-            }
-          >
-            <span>
-              {player1Name}
-            </span>
-
-            <strong>
-              {game.score_player_1}
-            </strong>
-          </div>
-
-
-          <span className="score-separator">
-            ·
-          </span>
-
-
-          <div
-            className={
-              playerNumber === 2
-                ? "score-me"
-                : ""
-            }
-          >
-            <span>
-              {player2Name}
-            </span>
-
-            <strong>
-              {game.score_player_2}
-            </strong>
-          </div>
-
-        </div>
-
-
         {game.status !== "paused" && (
           <button
             type="button"
@@ -2429,7 +2241,7 @@ async function handleSceneRead() {
         }
       >
         <span className="bonus-toggle-label">
-          AVANTAGES
+          JOKERS
         </span>
 
         <span className="bonus-toggle-meta">
@@ -2438,98 +2250,28 @@ async function handleSceneRead() {
               Prochaine : {TYPE_LABELS[myBonuses.choose_type_armed] || myBonuses.choose_type_armed}
             </span>
           ) : (
-            <>{myScore} pts</>
+            <>
+              {jokersLeft === 0
+                ? "Aucun"
+                : jokersLeft}
+              {" "}en main
+            </>
           )}
+
           <span className="bonus-toggle-dot">
             ·
           </span>
+
           {showBonuses
             ? "FERMER"
             : "OUVRIR"}
         </span>
       </button>
 
-
       {showBonuses && (
-
         <div className="bonus-bar">
-
-
           <button
-            className={
-              myBonuses.double_reward
-                ? "bonus-button bonus-owned"
-                : "bonus-button"
-            }
-            onClick={() =>
-              buyBonus(
-                "double_reward"
-              )
-            }
-            disabled={
-              nextLoading ||
-              myBonuses.double_reward ||
-              myScore < 3
-            }
-          >
-            <span className="bonus-button-content">
-              <span className="bonus-button-title">
-                Double récompense
-              </span>
-
-              <small>
-                Double les points de ta prochaine carte réussie.
-              </small>
-            </span>
-
-            <strong>
-              {myBonuses.double_reward
-                ? "PRÊT"
-                : "3 pts"}
-            </strong>
-          </button>
-
-
-          <button
-            className={
-              myBonuses.take_control ||
-              myBonuses.take_control_armed
-                ? "bonus-button bonus-owned"
-                : "bonus-button"
-            }
-            onClick={() =>
-              buyBonus(
-                "take_control"
-              )
-            }
-            disabled={
-              nextLoading ||
-              myBonuses.take_control ||
-              myBonuses.take_control_armed ||
-              myScore < 3
-            }
-          >
-            <span className="bonus-button-content">
-              <span className="bonus-button-title">
-                Prendre la main
-              </span>
-
-              <small>
-                Joue aussi le prochain tour à la place de l'autre.
-              </small>
-            </span>
-
-            <strong>
-              {myBonuses.take_control_armed
-                ? "ACTIF"
-                : myBonuses.take_control
-                  ? "PRÊT"
-                  : "3 pts"}
-            </strong>
-          </button>
-
-
-          <button
+            type="button"
             className={
               myBonuses.choose_type ||
               myBonuses.choose_type_armed
@@ -2537,30 +2279,15 @@ async function handleSceneRead() {
                 : "bonus-button"
             }
             onClick={() => {
-
-              if (
-                myBonuses.choose_type ||
-                myBonuses.choose_type_armed
-              ) {
-                setShowBonuses(false);
-
-                setShowTypePicker(
-                  true
-                );
-
-                return;
-              }
-
-              buyBonus(
-                "choose_type"
-              );
+              setShowBonuses(false);
+              setShowTypePicker(true);
             }}
             disabled={
               nextLoading ||
+              !isMyTurn ||
               (
                 !myBonuses.choose_type &&
-                !myBonuses.choose_type_armed &&
-                myScore < 2
+                !myBonuses.choose_type_armed
               )
             }
           >
@@ -2578,19 +2305,47 @@ async function handleSceneRead() {
               {myBonuses.choose_type_armed
                 ? (TYPE_LABELS[myBonuses.choose_type_armed] || myBonuses.choose_type_armed)
                     .toUpperCase()
-                : myBonuses.choose_type
-                  ? "UTILISER"
-                  : "2 pts"}
+                : !myBonuses.choose_type
+                  ? "UTILISÉ"
+                  : isMyTurn
+                    ? "UTILISER"
+                    : "À TON TOUR"}
             </strong>
           </button>
 
+          <div
+            className={
+              myBonuses.take_control ||
+              myBonuses.take_control_armed
+                ? "bonus-button bonus-owned"
+                : "bonus-button"
+            }
+          >
+            <span className="bonus-button-content">
+              <span className="bonus-button-title">
+                Prendre la main
+              </span>
 
+              <small>
+                Joue aussi le prochain tour, à la place de l’autre.
+              </small>
+            </span>
+
+            <strong>
+              {myBonuses.take_control_armed
+                ? "ACTIF"
+                : myBonuses.take_control
+                  ? "EN MAIN"
+                  : "UTILISÉ"}
+            </strong>
+          </div>
+
+          <p className="bonus-note">
+            Un duel gagné recharge un joker utilisé.
+          </p>
         </div>
-
       )}
-
     </div>
-
 
       {/* =====================================
           TYPE PICKER

@@ -2,7 +2,7 @@
  * En-tête des écrans de navigation : un seul modèle.
  * Rond « retour » de 44 px + logo PROTOCOL + sous-titre
  * (pour qui, ou où l'on est). Les écrans de jeu ont leur
- * propre en-tête (logo + score + STOP).
+ * propre en-tête (logo + STOP).
  */
 export function BackIcon() {
   return (
