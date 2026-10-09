@@ -1060,7 +1060,7 @@ export default function HomeScreen({
             <span className="protocol-home-section-line" />
 
             <h2>
-              Un signe ?
+              Lui faire signe
             </h2>
 
             <small>
@@ -1098,7 +1098,7 @@ export default function HomeScreen({
               </span>
 
               <strong>
-                Un message
+                Un message ?
               </strong>
 
             </button>
