@@ -815,9 +815,9 @@ export default function LibraryScreen({
         byName.set(name, entry);
       }
 
-      // « Vos cartes » en tête, « Autres » à la fin, le reste de A à Z
+      // de A à Z (« Vos cartes » comprise), « Autres » à la fin
       const rank = (entry) =>
-        entry.name === OWN_CATEGORY ? 0 : entry.name === OTHER_CATEGORY ? 2 : 1;
+        entry.name === OTHER_CATEGORY ? 1 : 0;
 
       return [...byName.values()].sort(
         (a, b) =>
@@ -945,6 +945,20 @@ export default function LibraryScreen({
           </label>
 
 
+          {families && (
+            <FilterRow
+              label="STYLE"
+              options={STYLE_FILTERS}
+              selected={selectedStyle ? [selectedStyle] : []}
+              onChange={(values) =>
+                // un seul style à la fois : le dernier touché
+                setSelectedStyle(
+                  values.length ? values[values.length - 1] : null
+                )
+              }
+            />
+          )}
+
           <FilterRow
             label="TYPE"
             options={TYPE_FILTERS}
@@ -959,19 +973,7 @@ export default function LibraryScreen({
             onChange={setSelectedIntensities}
           />
 
-          {families && (
-            <FilterRow
-              label="STYLE"
-              options={STYLE_FILTERS}
-              selected={selectedStyle ? [selectedStyle] : []}
-              onChange={(values) =>
-                // un seul style à la fois : le dernier touché
-                setSelectedStyle(
-                  values.length ? values[values.length - 1] : null
-                )
-              }
-            />
-          )}
+
 
         </section>
 

@@ -1098,7 +1098,7 @@ export default function HomeScreen({
               </span>
 
               <strong>
-                Entre nous
+                Un message
               </strong>
 
             </button>

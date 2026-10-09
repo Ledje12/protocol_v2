@@ -1955,6 +1955,45 @@ export default function SettingsScreen({
             {!directorLoading &&
               directorMode === "custom" && (
                 <>
+                  {cardStyle && (
+                    <SettingsRow
+                      label="Cartes"
+                      hint={
+                        cardStyle === "vanilla"
+                          ? "Pratiques classiques, sans le côté kinky."
+                          : cardStyle === "kinky"
+                            ? "Le kinky prend le dessus dès que ça monte."
+                            : "Toute la bibliothèque."
+                      }
+                    >
+                      <div
+                        className="settings-segmented"
+                        role="group"
+                        aria-label="Style des cartes"
+                      >
+                        {[
+                          ["vanilla", "Vanilla"],
+                          ["kinky", "Kinky"],
+                          ["both", "Les deux"],
+                        ].map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            aria-pressed={cardStyle === value}
+                            className={
+                              cardStyle === value
+                                ? "is-active"
+                                : undefined
+                            }
+                            onClick={() => saveCardStyle(value)}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </SettingsRow>
+                  )}
+
                   <SettingsRow
                     label="Ambiance"
                     value={
@@ -2010,44 +2049,6 @@ export default function SettingsScreen({
                     </div>
                   </SettingsRow>
 
-                  {cardStyle && (
-                    <SettingsRow
-                      label="Cartes"
-                      hint={
-                        cardStyle === "vanilla"
-                          ? "Pratiques classiques, sans le côté kinky."
-                          : cardStyle === "kinky"
-                            ? "Le kinky prend le dessus dès que ça monte."
-                            : "Toute la bibliothèque."
-                      }
-                    >
-                      <div
-                        className="settings-segmented"
-                        role="group"
-                        aria-label="Style des cartes"
-                      >
-                        {[
-                          ["vanilla", "Vanilla"],
-                          ["kinky", "Kinky"],
-                          ["both", "Les deux"],
-                        ].map(([value, label]) => (
-                          <button
-                            key={value}
-                            type="button"
-                            aria-pressed={cardStyle === value}
-                            className={
-                              cardStyle === value
-                                ? "is-active"
-                                : undefined
-                            }
-                            onClick={() => saveCardStyle(value)}
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </SettingsRow>
-                  )}
                 </>
               )}
 

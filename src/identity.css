@@ -1095,6 +1095,12 @@ button.primary:disabled,
   height: 24px;
 }
 
+/* Bibliothèque, Invitations, Réglages : icônes roses, comme
+   celles des signes */
+.protocol-home-nav button svg {
+  color: var(--c-accent);
+}
+
 
 /* ---------------------------------------------------------
    14. LOSANGE ◇ : motif de marque
