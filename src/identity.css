@@ -1039,7 +1039,7 @@ button.primary:disabled,
   justify-content: center;
 }
 
-/* « Un signe ? » : de l'air avant les tuiles, sans sous-titre */
+/* « Lui faire signe » : de l'air avant les tuiles, sans sous-titre */
 .protocol-home-section-title {
   height: auto;
   min-height: 32px;
@@ -1093,6 +1093,12 @@ button.primary:disabled,
 .protocol-home-signal-grid button svg {
   width: 24px;
   height: 24px;
+}
+
+/* Bibliothèque, Invitations, Réglages : icônes roses, comme
+   celles des signes */
+.protocol-home-nav button svg {
+  color: var(--c-accent);
 }
 
 
@@ -1534,7 +1540,7 @@ button.primary:disabled,
 /* ---------------------------------------------------------
    22. RÉGLAGES : trois groupes, cartes plus compactes
    Le titre de groupe reprend le motif de l'accueil
-   (« — Un signe ? ») : filet néon + sérif italique.
+   (« — Lui faire signe ») : filet néon + sérif italique.
    --------------------------------------------------------- */
 
 .settings-group-title {
