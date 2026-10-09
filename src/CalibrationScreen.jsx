@@ -13,9 +13,48 @@ export default function CalibrationScreen({
   navigate,
 }) {
   const {
-    playerNumber,
     valid: hasGameSession,
+    singleDevice,
   } = getGameSession(code);
+
+  /* Un seul téléphone : chacun choisit à son tour, l'écran se
+     masque entre les deux (« passe le téléphone »). */
+  const [turn, setTurn] =
+    useState(1);
+
+  const [handoff, setHandoff] =
+    useState(false);
+
+  const [names, setNames] =
+    useState({ 1: "", 2: "" });
+
+  useEffect(() => {
+    if (!singleDevice) {
+      return undefined;
+    }
+
+    let active = true;
+
+    supabase
+      .rpc("get_protocol_game", { p_game_code: code })
+      .then(({ data }) => {
+        const gameData = Array.isArray(data) ? data[0] : data;
+
+        if (active && gameData) {
+          setNames({
+            1: gameData.player_1_name || "Joueur 1",
+            2: gameData.player_2_name || "Joueur 2",
+          });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [singleDevice, code]);
+
+  const currentName = names[turn] || "";
+  const otherName = names[turn === 1 ? 2 : 1] || "";
 
   const [stage, setStage] =
     useState("intro");
@@ -132,18 +171,35 @@ export default function CalibrationScreen({
         const {
           data,
           error: rpcError,
-        } = await supabase.rpc(
-          "submit_calibration",
-          {
-            p_game_code: code,
-            p_intensity:
-              selectedIntensity,
-            p_answers: {},
-          }
-        );
-
+        } = singleDevice
+          ? await supabase.rpc(
+              "submit_calibration_as",
+              {
+                p_game_code: code,
+                p_player_no: turn,
+                p_intensity:
+                  selectedIntensity,
+                p_answers: {},
+              }
+            )
+          : await supabase.rpc(
+              "submit_calibration",
+              {
+                p_game_code: code,
+                p_intensity:
+                  selectedIntensity,
+                p_answers: {},
+              }
+            );
         if (rpcError) {
           throw rpcError;
+        }
+
+        // un seul téléphone : après le premier choix, on passe
+        // le téléphone à l'autre
+        if (singleDevice && turn === 1) {
+          setHandoff(true);
+          return;
         }
 
         setSubmitted(true);
@@ -358,6 +414,52 @@ export default function CalibrationScreen({
      INTRO
      ========================================= */
 
+  if (singleDevice && handoff) {
+    return (
+      <main className="app">
+        <div className="glow glow-center" />
+        <header className="header">
+          <span className="logo">
+            PROTOCOL
+          </span>
+          <span className="pill">
+            Privé
+          </span>
+        </header>
+        <section className="calibration handoff-screen">
+          <div>
+            <p className="kicker">
+              C’EST ENREGISTRÉ
+            </p>
+            <h1>
+              Passe le téléphone
+              <br />
+              à <em>{otherName}</em>.
+            </h1>
+            <p className="intro">
+              {currentName}, ton choix reste secret.
+              {" "}{otherName}, à toi de choisir, sans regarder
+              ce que l’autre a fait.
+            </p>
+          </div>
+          <button
+            className="primary"
+            onClick={() => {
+              setTurn(2);
+              setHandoff(false);
+              setStage("intensity");
+            }}
+          >
+            <span>
+              C’est {otherName}
+            </span>
+            <span>→</span>
+          </button>
+        </section>
+      </main>
+    );
+  }
+
   if (stage === "intro") {
     return (
       <main className="app">
@@ -376,19 +478,31 @@ export default function CalibrationScreen({
         <section className="calibration">
           <div>
             <p className="kicker">
-              JUSTE ENTRE NOUS
+              {singleDevice
+                ? "UN TÉLÉPHONE, DEUX CHOIX SECRETS"
+                : "JUSTE ENTRE NOUS"}
             </p>
 
             <h1>
-              Ce que
-              <br />
-              tu veux.
+              {singleDevice ? (
+                <>
+                  Chacun
+                  <br />
+                  son tour.
+                </>
+              ) : (
+                <>
+                  Ce que
+                  <br />
+                  tu veux.
+                </>
+              )}
             </h1>
 
             <p className="intro">
-              Un choix rapide.
-              Réponds pour toi, pas pour
-              deviner ce que l'autre veut.
+              {singleDevice
+                ? `${currentName || "Le premier"} commence. ${otherName || "L’autre"}, ne regarde pas l’écran : chacun répond pour soi.`
+                : "Un choix rapide. Réponds pour toi, pas pour deviner ce que l'autre veut."}
             </p>
 
             <div className="privacy">
@@ -443,14 +557,18 @@ export default function CalibrationScreen({
           </span>
 
           <span className="progress-label">
-            01 / 01
+            {singleDevice
+              ? `${turn} / 2`
+              : "01 / 01"}
           </span>
         </header>
 
         <section className="question-screen">
           <div>
             <p className="kicker">
-              INTENSITÉ
+              {singleDevice && currentName
+                ? `${currentName.toUpperCase()}, À TOI`
+                : "INTENSITÉ"}
             </p>
 
             <h1>

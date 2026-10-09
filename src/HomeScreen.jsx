@@ -4,6 +4,7 @@ import { clearGameSession, getGameSession, getLastSeenCard, saveGameSession, sav
 import { hasSeenHowToPlay } from "./howto.js";
 import HowToPlay from "./HowToPlay.jsx";
 import PairingPanel from "./PairingPanel.jsx";
+import { SettingsSheet } from "./SettingsParts.jsx";
 import { supabase } from "./supabaseClient.js";
 import { useUnreadCounts } from "./unread.js";
 import UnreadBadge from "./UnreadBadge.jsx";
@@ -617,7 +618,64 @@ export default function HomeScreen({
     }
   };
   
+  /* Lancer une partie : un seul téléphone posé entre vous,
+     ou chacun le sien. Le dernier choix est proposé en premier. */
+  const PLAY_MODE_KEY = "protocol-play-mode";
+
+  const [showLaunchChoice, setShowLaunchChoice] =
+    useState(false);
+
+  const lastPlayMode = (() => {
+    try {
+      return localStorage.getItem(PLAY_MODE_KEY) || "two";
+    } catch {
+      return "two";
+    }
+  })();
+
+  const rememberPlayMode = (mode) => {
+    try {
+      localStorage.setItem(PLAY_MODE_KEY, mode);
+    } catch {
+      // stockage indisponible : sans conséquence
+    }
+  };
+
+  const createSingleDeviceGame = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      rememberPlayMode("single");
+
+      const { data: newCode, error: rpcError } =
+        await supabase.rpc("create_single_device_game");
+
+      if (rpcError) {
+        throw rpcError;
+      }
+
+      if (!newCode) {
+        throw new Error("Réponse de création invalide.");
+      }
+
+      saveGameSession(newCode, 1, { singleDevice: true });
+      setShowLaunchChoice(false);
+      navigate(`/game/${newCode}/calibration`);
+    } catch (err) {
+      console.error("CREATE SINGLE DEVICE GAME ERROR:", err);
+      setShowLaunchChoice(false);
+      setError(
+        "Impossible de lancer la partie sur ce téléphone. Réessaie dans un instant."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const createGame = async () => {
+    rememberPlayMode("two");
+    setShowLaunchChoice(false);
+
     try {
       setLoading(true);
       setError("");
@@ -681,6 +739,49 @@ export default function HomeScreen({
   return (
     <main className="app protocol-home-page">
 
+      {showLaunchChoice && (
+        <SettingsSheet
+          eyebrow="NOUVELLE PARTIE"
+          title="Comment jouez-vous ce soir ?"
+          onClose={() => setShowLaunchChoice(false)}
+        >
+          <div className="launch-choice">
+            {[
+              {
+                mode: "single",
+                title: "Sur un seul téléphone",
+                text: "Posé entre vous. Vous vous le passez pour les choix secrets.",
+                onClick: createSingleDeviceGame,
+              },
+              {
+                mode: "two",
+                title: "Chacun le sien",
+                text: "Un code, chacun rejoint la partie sur son téléphone.",
+                onClick: createGame,
+              },
+            ]
+              .sort((a, b) =>
+                a.mode === lastPlayMode ? -1 : b.mode === lastPlayMode ? 1 : 0
+              )
+              .map((option) => (
+                <button
+                  key={option.mode}
+                  type="button"
+                  className={
+                    option.mode === lastPlayMode
+                      ? "launch-choice-option is-last"
+                      : "launch-choice-option"
+                  }
+                  onClick={option.onClick}
+                  disabled={loading}
+                >
+                  <strong>{option.title}</strong>
+                  <span>{option.text}</span>
+                </button>
+              ))}
+          </div>
+        </SettingsSheet>
+      )}
       {hasPartner && showHowTo && (
         <HowToPlay
           onClose={() =>
@@ -876,7 +977,7 @@ export default function HomeScreen({
               <button
                 type="button"
                 className="protocol-home-primary"
-                onClick={createGame}
+                onClick={() => setShowLaunchChoice(true)}
                 disabled={loading}
               >
 
