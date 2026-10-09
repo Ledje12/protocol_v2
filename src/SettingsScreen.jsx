@@ -566,7 +566,7 @@ export default function SettingsScreen({
     }, [coupleId]);
 
 
-    /* Style des cartes (Sur mesure) : Vanille, Kinky ou Les deux.
+    /* Style des cartes (Sur mesure) : Vanilla, Kinky ou Les deux.
        null tant que la migration n'est pas appliquée : la ligne
        reste alors masquée. */
     const [cardStyle, setCardStyle] =
@@ -2027,7 +2027,7 @@ export default function SettingsScreen({
                         aria-label="Style des cartes"
                       >
                         {[
-                          ["vanilla", "Vanille"],
+                          ["vanilla", "Vanilla"],
                           ["kinky", "Kinky"],
                           ["both", "Les deux"],
                         ].map(([value, label]) => (

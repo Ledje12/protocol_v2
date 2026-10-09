@@ -611,3 +611,8 @@
   color:
     rgba(var(--c-text-rgb), 0.68);
 }
+
+/* carte prévue pour l'autre sexe : explication sous l'envoi */
+.card-page .card-not-for {
+  color: var(--c-muted);
+}
