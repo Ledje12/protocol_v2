@@ -1037,6 +1037,11 @@ button.primary:disabled,
 .protocol-home-nav button {
   gap: 10px;
   justify-content: center;
+  /* strictement comme les tuiles « Lui faire signe » :
+     contour néon discret, fond transparent */
+  border-color: rgba(var(--c-accent-rgb), 0.26);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.77);
 }
 
 /* « Lui faire signe » : de l'air avant les tuiles, sans sous-titre */
