@@ -3113,3 +3113,132 @@ button.secondary {
 div.bonus-button {
   cursor: default;
 }
+
+
+/* ---------------------------------------------------------
+   47. UN SEUL TÉLÉPHONE
+   --------------------------------------------------------- */
+
+/* choix au lancement */
+.launch-choice {
+  display: grid;
+  gap: 10px;
+}
+
+.howto-overlay .launch-choice-option {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: transparent;
+  box-shadow: none;
+  color: var(--c-text);
+  font: inherit;
+  text-align: left;
+}
+
+.howto-overlay .launch-choice-option.is-last {
+  border-color: rgba(var(--c-accent-rgb), 0.55);
+  background: var(--c-surface-2);
+}
+
+.launch-choice-option strong {
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+.launch-choice-option span {
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
+
+/* calibration : « passe le téléphone » */
+.handoff-screen h1 em {
+  font-style: italic;
+  color: var(--c-accent-soft);
+}
+
+/* lecture privée : plein écran opaque, rien ne transparaît */
+.private-reader {
+  position: fixed;
+  inset: 0;
+  z-index: 1150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top) + 24px) var(--gutter) var(--bottom-clear);
+  background: var(--c-bg);
+}
+
+.private-reader-sheet {
+  width: 100%;
+  max-width: 420px;
+  display: grid;
+  gap: 18px;
+}
+
+.private-reader-sheet h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-title);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--c-text);
+}
+
+.private-reader-sheet h2 em {
+  font-style: italic;
+  color: var(--c-accent-soft);
+}
+
+.private-reader-note {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.private-reader-sheet .private-reader-title {
+  font-size: var(--fs-heading);
+}
+
+.private-reader-text {
+  margin: 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--c-scene);
+  color: var(--c-text-soft);
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+}
+
+/* après lecture : relire son texte */
+.private-reread {
+  display: grid;
+  gap: 8px;
+  margin: 12px 2px 0;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
+
+.private-reread div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.private-reread button {
+  width: auto;
+  min-height: 36px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: none;
+  box-shadow: none;
+  color: var(--c-text-soft);
+  font-size: var(--fs-small);
+}

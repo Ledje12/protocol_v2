@@ -9,7 +9,8 @@ const PROTOCOL_SESSION_KEY =
 
 export function saveGameSession(
   code,
-  playerNumber
+  playerNumber,
+  { singleDevice = false } = {}
 ) {
   const normalizedCode =
     String(code || "")
@@ -31,6 +32,8 @@ export function saveGameSession(
   const session = {
     code: normalizedCode,
     playerNumber: normalizedPlayerNumber,
+    // partie sur un seul téléphone : ce téléphone joue pour les deux
+    singleDevice: Boolean(singleDevice),
     savedAt: new Date().toISOString(),
   };
 
@@ -84,6 +87,8 @@ export function getGameSession(code = null) {
     return {
       code: sessionCode,
       playerNumber,
+      singleDevice:
+        Boolean(session?.singleDevice),
       savedAt:
         session?.savedAt || null,
       valid,

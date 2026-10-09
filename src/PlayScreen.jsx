@@ -6,6 +6,7 @@ import LoadingScreen from "./LoadingScreen.jsx";
 import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
 import CardRating from "./CardRating.jsx";
+import PrivateStepReader from "./PrivateStepReader.jsx";
 
 /* =========================================================
    PLAY
@@ -29,7 +30,8 @@ export default function PlayScreen({
     useState("");
 
   const {
-    playerNumber,
+    playerNumber: sessionPlayerNumber,
+    singleDevice,
     valid: hasGameSession,
   } = getGameSession(code);
 
@@ -38,6 +40,13 @@ export default function PlayScreen({
 
   const [game, setGame] =
     useState(null);
+
+  /* Un seul téléphone : il joue pour la personne dont c'est le
+     tour (le serveur l'autorise pour ces parties seulement). */
+  const playerNumber =
+    singleDevice && game?.active_player
+      ? game.active_player
+      : sessionPlayerNumber;
 
   const [card, setCard] =
     useState(null);
@@ -1752,11 +1761,15 @@ async function handleSceneRead() {
       card?.prompt
     );
 
+  // un seul téléphone : le texte privé ne reste jamais affiché
+  // sur la carte (il se lit dans le lecteur privé)
   const displayPrompt =
     sceneState?.is_multistep
-      ? renderProtocolText(
-          sceneState.prompt
-        )
+      ? singleDevice && sceneState.is_private
+        ? "Étape privée : chacun lit son texte en secret."
+        : renderProtocolText(
+            sceneState.prompt
+          )
       : cardText;
 
   const promptLength =
@@ -2889,6 +2902,19 @@ async function handleSceneRead() {
         )}
 
         </div>
+
+          {singleDevice &&
+            card?.type === "scene" &&
+            sceneState?.is_multistep && (
+              <PrivateStepReader
+                supabase={supabase}
+                code={code}
+                card={card}
+                game={game}
+                renderText={renderProtocolText}
+                onUpdated={loadState}
+              />
+            )}
 
           {/* avis facultatif et privé : n'influence pas le tirage */}
           <CardRating
