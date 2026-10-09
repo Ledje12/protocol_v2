@@ -2091,13 +2091,6 @@ async function handleSceneRead() {
     game.active_player ===
     playerNumber;
 
-  const duelReward =
-    card?.intensity >= 5
-      ? 6
-      : card?.intensity >= 3
-        ? 4
-        : 2;
-
   const mySceneStepRead =
     playerNumber === 1
       ? game.scene_step_read_player_1
@@ -2977,7 +2970,7 @@ async function handleSceneRead() {
                   </span>
 
                   <strong>
-                    +{duelReward}
+                    GAGNE
                   </strong>
                 </button>
 
@@ -3002,13 +2995,16 @@ async function handleSceneRead() {
                   </span>
 
                   <strong>
-                    +{duelReward}
+                    GAGNE
                   </strong>
                 </button>
 
               </div>
 
-
+              {/* plus de points : le duel recharge un joker */}
+              <p className="duel-note">
+                Le gagnant recharge un joker utilisé.
+              </p>
               {isMyTurn && (
               <button
                 className="text-action pass-action"
