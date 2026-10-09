@@ -16,6 +16,10 @@ export default function SettingsScreen({
   couple,
   onCoupleChanged,
 }) {
+  // get_protocol_couple renvoie « id » (et non « couple_id »)
+  const coupleId =
+    couple?.id || couple?.couple_id || null;
+
   const [showHowTo, setShowHowTo] =
     useState(false);
 
@@ -488,7 +492,7 @@ export default function SettingsScreen({
       const loadDirectorSettings =
         async () => {
 
-          if (!couple?.couple_id) {
+          if (!coupleId) {
             if (active) {
               setDirectorLoading(false);
             }
@@ -559,8 +563,64 @@ export default function SettingsScreen({
         active = false;
       };
 
-    }, [couple?.couple_id]);
+    }, [coupleId]);
 
+
+    /* Style des cartes (Sur mesure) : Vanille, Kinky ou Les deux.
+       null tant que la migration n'est pas appliquée : la ligne
+       reste alors masquée. */
+    const [cardStyle, setCardStyle] =
+      useState(null);
+
+    useEffect(() => {
+      let active = true;
+
+      if (!coupleId) {
+        return undefined;
+      }
+
+      supabase
+        .rpc("get_protocol_card_style")
+        .then(({ data, error }) => {
+          if (active && !error && data) {
+            setCardStyle(data);
+          }
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [coupleId]);
+
+    const saveCardStyle =
+      async (value) => {
+        const previous = cardStyle;
+
+        setCardStyle(value);
+        setDirectorMessage("");
+
+        const { error } =
+          await supabase.rpc(
+            "set_protocol_card_style",
+            { p_style: value }
+          );
+
+        if (error) {
+          console.error(
+            "CARD STYLE SAVE ERROR:",
+            error
+          );
+          setCardStyle(previous);
+          setDirectorMessage(
+            "Impossible d’enregistrer ce réglage."
+          );
+          return;
+        }
+
+        setDirectorMessage(
+          "Réglage enregistré."
+        );
+      };
 
     const saveDirectorSettings =
       async ({
@@ -1949,6 +2009,45 @@ export default function SettingsScreen({
 
                     </div>
                   </SettingsRow>
+
+                  {cardStyle && (
+                    <SettingsRow
+                      label="Cartes"
+                      hint={
+                        cardStyle === "vanilla"
+                          ? "Pratiques classiques, sans le côté kinky."
+                          : cardStyle === "kinky"
+                            ? "Le kinky prend le dessus dès que ça monte."
+                            : "Toute la bibliothèque."
+                      }
+                    >
+                      <div
+                        className="settings-segmented"
+                        role="group"
+                        aria-label="Style des cartes"
+                      >
+                        {[
+                          ["vanilla", "Vanille"],
+                          ["kinky", "Kinky"],
+                          ["both", "Les deux"],
+                        ].map(([value, label]) => (
+                          <button
+                            key={value}
+                            type="button"
+                            aria-pressed={cardStyle === value}
+                            className={
+                              cardStyle === value
+                                ? "is-active"
+                                : undefined
+                            }
+                            onClick={() => saveCardStyle(value)}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </SettingsRow>
+                  )}
                 </>
               )}
 

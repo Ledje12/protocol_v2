@@ -49,19 +49,19 @@ const STEPS = [
     ),
   },
   {
-    kicker: "LES POINTS",
-    title: "Oser rapporte.",
+    kicker: "LES JOKERS",
+    title: "Pas de score. Des jokers.",
     body: (
       <>
         <p>
-          Une carte faite rapporte 1 à 3 points selon son intensité,
-          un duel gagné jusqu’à 6. Passer ne coûte rien.
+          Personne ne compte les points : on ne joue pas l’un
+          contre l’autre. Passer ne coûte rien.
         </p>
         <p>
-          Les points s’échangent contre des avantages :{" "}
-          <strong>doubler</strong> sa prochaine carte,{" "}
-          <strong>prendre la main</strong> pour jouer deux fois,{" "}
-          <strong>imposer le type</strong> de la carte suivante.
+          Chacun commence avec deux jokers :{" "}
+          <strong>imposer le type</strong> de la prochaine carte,
+          et <strong>prendre la main</strong> pour jouer deux fois
+          de suite. <em>Un duel gagné recharge un joker utilisé.</em>
         </p>
       </>
     ),
