@@ -815,13 +815,9 @@ export default function LibraryScreen({
         byName.set(name, entry);
       }
 
-      // de A à Z (« Vos cartes » comprise), « Autres » à la fin
-      const rank = (entry) =>
-        entry.name === OTHER_CATEGORY ? 1 : 0;
-
+      // toutes les catégories de A à Z
       return [...byName.values()].sort(
         (a, b) =>
-          rank(a) - rank(b) ||
           a.name.localeCompare(b.name, "fr", { sensitivity: "base" })
       );
     // categoryOf ne dépend que de families
