@@ -1378,3 +1378,85 @@ span.is-active {
 
   opacity: 0.7;
 }
+
+/* =========================================================
+   CATÉGORIES
+   Une ligne par catégorie : nom, nombre de cartes (selon les
+   filtres actifs), flèche. Même langage que les réglages.
+   ========================================================= */
+
+.library-categories {
+  overflow: hidden;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-card);
+  background: rgba(var(--c-surface-rgb), 0.72);
+}
+
+.library-page .library-category {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--c-text);
+  font: inherit;
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.library-page .library-category + .library-category {
+  border-top: 1px solid var(--c-line);
+}
+
+.library-page .library-category:active {
+  background: rgba(var(--c-text-rgb), 0.04);
+}
+
+.library-category-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body);
+  font-weight: 500;
+}
+
+.library-category-count {
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.library-category-arrow {
+  color: var(--c-label);
+}
+
+/* catégorie ouverte : retour + titre */
+.library-category-head {
+  margin: 4px 0 14px;
+}
+
+.library-page .library-category-back {
+  width: auto;
+  min-height: 40px;
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
+
+.library-category-head h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--c-text);
+}

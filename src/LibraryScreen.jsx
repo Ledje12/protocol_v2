@@ -107,6 +107,51 @@ function getTypeLabel(
    LIBRARY SCREEN
    ========================================================= */
 
+/* Supabase renvoie au plus 1 000 lignes par requête : la
+   bibliothèque officielle est chargée par pages. */
+const PAGE_SIZE = 1000;
+
+async function fetchOfficialCards(supabase) {
+  const rows = [];
+
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from("protocol_cards")
+      .select("*")
+      .eq("library_version", "v1")
+      .eq("active", true)
+      .order("id", { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    rows.push(...(data || []));
+
+    if (!data || data.length < PAGE_SIZE) {
+      return { data: rows, error: null };
+    }
+  }
+}
+
+/* catégories : les cartes perso d'abord, les familles non
+   rangées à la fin */
+const OWN_CATEGORY = "Vos cartes";
+const OTHER_CATEGORY = "Autres";
+
+/* filtres et catégorie retenus le temps de la session (ouvrir
+   une carte puis revenir ne remet pas tout à zéro) */
+const VIEW_KEY = "protocol-library-view";
+
+function readSavedView() {
+  try {
+    return JSON.parse(sessionStorage.getItem(VIEW_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
 export default function LibraryScreen({
   supabase,
   profile,
@@ -123,18 +168,82 @@ export default function LibraryScreen({
   const [error, setError] =
     useState("");
 
+  const [savedView] =
+    useState(readSavedView);
+
   const [search, setSearch] =
-    useState("");
+    useState(savedView.search || "");
 
   const [
     selectedType,
     setSelectedType,
-  ] = useState("all");
+  ] = useState(savedView.type || "all");
 
   const [
     selectedIntensity,
     setSelectedIntensity,
-  ] = useState("all");
+  ] = useState(savedView.intensity || "all");
+
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState(savedView.category || null);
+
+  // familles -> catégorie (null tant que la table n'existe pas :
+  // la bibliothèque reste alors une simple liste)
+  const [families, setFamilies] =
+    useState(null);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        VIEW_KEY,
+        JSON.stringify({
+          search,
+          type: selectedType,
+          intensity: selectedIntensity,
+          category: selectedCategory,
+        })
+      );
+    } catch {
+      // stockage indisponible : sans conséquence
+    }
+  }, [
+    search,
+    selectedType,
+    selectedIntensity,
+    selectedCategory,
+  ]);
+
+  useEffect(() => {
+    let active = true;
+
+    supabase
+      .from("protocol_card_families")
+      .select("family_key, category, category_position")
+      .then(({ data, error: familiesError }) => {
+        if (!active) {
+          return;
+        }
+
+        if (familiesError || !data?.length) {
+          setFamilies(null);
+          return;
+        }
+
+        const map = {};
+
+        for (const row of data) {
+          map[row.family_key] = row;
+        }
+
+        setFamilies(map);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
 
     const [
     lovenseConnected,
@@ -311,26 +420,7 @@ export default function LibraryScreen({
           ] =
             await Promise.all([
 
-              supabase
-                .from(
-                  "protocol_cards"
-                )
-                .select("*")
-                .eq(
-                  "library_version",
-                  "v1"
-                )
-                .eq(
-                  "active",
-                  true
-                )
-                .order(
-                  "id",
-                  {
-                    ascending: true,
-                  }
-                ),
-
+              fetchOfficialCards(supabase),
               supabase
                 .from(
                   "protocol_custom_cards"
@@ -530,7 +620,7 @@ export default function LibraryScreen({
      FILTERING
      ======================================================= */
 
-  const visibleCards =
+  const filteredCards =
     useMemo(() => {
       const searchValue =
         normaliseSearchText(
@@ -600,6 +690,60 @@ export default function LibraryScreen({
       lovenseConnected,
       lovenseStatusLoading,
     ]);
+
+  /* =======================================================
+     CATÉGORIES
+     Sans recherche : liste des catégories (nombre de cartes
+     selon les filtres actifs), puis les cartes de celle choisie.
+     Avec une recherche : toutes les cartes trouvées.
+     ======================================================= */
+
+  const categoryOf = (card) => {
+    if (card.card_source === "custom") {
+      return { name: OWN_CATEGORY, position: 0 };
+    }
+
+    const family = families?.[card.family_key];
+
+    return family
+      ? { name: family.category, position: family.category_position }
+      : { name: OTHER_CATEGORY, position: 999 };
+  };
+
+  const isSearching =
+    normaliseSearchText(search) !== "";
+
+  const categories =
+    useMemo(() => {
+      if (!families) {
+        return [];
+      }
+
+      const byName = new Map();
+
+      for (const card of filteredCards) {
+        const { name, position } = categoryOf(card);
+        const entry = byName.get(name) || { name, position, count: 0 };
+        entry.count += 1;
+        byName.set(name, entry);
+      }
+
+      return [...byName.values()].sort(
+        (a, b) => a.position - b.position || a.name.localeCompare(b.name)
+      );
+    // categoryOf ne dépend que de families
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filteredCards, families]);
+
+  const showCategories =
+    Boolean(families) && !isSearching && !selectedCategory;
+
+  const visibleCards =
+    families && !isSearching && selectedCategory
+      ? filteredCards.filter(
+          (card) => categoryOf(card).name === selectedCategory
+        )
+      : filteredCards;
 
 
   /* =======================================================
@@ -786,16 +930,35 @@ export default function LibraryScreen({
             RESULT SUMMARY
             ========================================= */}
 
+        {families &&
+          !isSearching &&
+          selectedCategory && (
+            <div className="library-category-head">
+              <button
+                type="button"
+                className="library-category-back"
+                onClick={() => setSelectedCategory(null)}
+              >
+                <span aria-hidden="true">←</span>
+                {" "}Toutes les catégories
+              </button>
+
+              <h2>{selectedCategory}</h2>
+            </div>
+          )}
+
         <div className="library-results-meta">
 
           <span className="library-count">
             {loading
               ? "Chargement…"
-              : `${visibleCards.length} carte${
-                  visibleCards.length > 1
-                    ? "s"
-                    : ""
-                }`}
+              : showCategories
+                ? `${filteredCards.length} cartes · ${categories.length} catégories`
+                : `${visibleCards.length} carte${
+                    visibleCards.length > 1
+                      ? "s"
+                      : ""
+                  }`}
           </span>
 
           {!loading &&
@@ -846,6 +1009,36 @@ export default function LibraryScreen({
         {!loading &&
           !error && (
 
+            showCategories ? (
+            <div className="library-categories">
+              {categories.map((category) => (
+                <button
+                  key={category.name}
+                  type="button"
+                  className="library-category"
+                  onClick={() => {
+                    setSelectedCategory(category.name);
+                    window.scrollTo(0, 0);
+                  }}
+                >
+                  <span className="library-category-name">
+                    {category.name}
+                  </span>
+
+                  <span className="library-category-count">
+                    {category.count}
+                  </span>
+
+                  <span
+                    className="library-category-arrow"
+                    aria-hidden="true"
+                  >
+                    →
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
             <div className="library-list">
 
               {visibleCards.map(
@@ -979,6 +1172,7 @@ export default function LibraryScreen({
               )}
 
             </div>
+          )
 
           )}
 
