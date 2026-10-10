@@ -1,0 +1,82 @@
+# Sauvegarde nocturne de la base Supabase (structure + données).
+#
+# Le dépôt est PUBLIC : la sauvegarde est chiffrée (AES-256, gpg)
+# avant d'être déposée en artefact. Sans la phrase secrète, le
+# fichier est illisible. Rien n'est écrit dans les journaux.
+#
+# Secrets à créer (Settings → Secrets and variables → Actions) :
+#   SUPABASE_DB_URL     chaîne « Session pooler » de Supabase (Connect)
+#   BACKUP_PASSPHRASE   phrase secrète de chiffrement (à garder ailleurs)
+#
+# Restauration : voir docs/sauvegarde.md
+
+name: Sauvegarde
+
+on:
+  schedule:
+    - cron: "17 2 * * *" # chaque nuit, 2h17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+
+    steps:
+      - name: Vérifier les secrets
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Secrets SUPABASE_DB_URL et BACKUP_PASSPHRASE requis (voir docs/sauvegarde.md)."
+            exit 1
+          fi
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Exporter la base
+        run: |
+          mkdir -p dump
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f dump/roles.sql --role-only
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f dump/schema.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f dump/data.sql --use-copy --data-only
+
+          # une sauvegarde vide ou tronquée doit faire échouer le job
+          for f in roles schema data; do
+            test -s "dump/$f.sql" || { echo "::error::dump/$f.sql vide"; exit 1; }
+          done
+          grep -q "protocol_cards" dump/schema.sql || { echo "::error::schéma incomplet"; exit 1; }
+
+          ls -l dump
+
+      - name: Chiffrer
+        run: |
+          stamp=$(date -u +%Y-%m-%d)
+          echo "STAMP=$stamp" >> "$GITHUB_ENV"
+          tar -czf "protocol-$stamp.tar.gz" -C dump .
+          printf '%s' "$BACKUP_PASSPHRASE" | gpg --batch --yes --quiet \
+            --pinentry-mode loopback --passphrase-fd 0 \
+            --symmetric --cipher-algo AES256 \
+            -o "protocol-$stamp.tar.gz.gpg" "protocol-$stamp.tar.gz"
+          # ne laisser que la version chiffrée
+          rm -rf dump "protocol-$stamp.tar.gz"
+          ls -l protocol-*.gpg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sauvegarde-${{ env.STAMP }}
+          path: protocol-${{ env.STAMP }}.tar.gz.gpg
+          retention-days: 30
+          if-no-files-found: error
+          compression-level: 0
