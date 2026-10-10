@@ -122,7 +122,7 @@ export function PhotoDayBanner({
   const onFile = (file) =>
     file &&
     run(async () => {
-      const caption = `Défi ${day.turn_no}/${day.total_turns} · ${day.challenge.title}`;
+      const caption = `Défi ${day.turn_no}/${day.total_turns} · ${day.challenge.title.replaceAll("{{partner}}", partnerName)}`;
       const photo = await sendPhoto(file, caption);
       await call("complete_photo_turn", { p_day_id: day.id, p_photo_id: photo.id });
     });
@@ -182,7 +182,9 @@ export function PhotoDayBanner({
         <>
           <span className="photo-day-level">Niveau {day.level} · {LEVELS[day.level]}</span>
           <h2>{day.challenge.title}</h2>
-          <p className="photo-day-prompt">{day.challenge.prompt}</p>
+          <p className="photo-day-prompt">
+            {day.challenge.prompt.replaceAll("{{partner}}", partnerName)}
+          </p>
           <div className="photo-day-actions">
             <button type="button" className="primary" disabled={busy} onClick={takePhoto}>
               <span>{busy ? "Envoi chiffré…" : "Prendre la photo"}</span>
