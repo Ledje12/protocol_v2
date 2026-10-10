@@ -694,7 +694,7 @@ export default function HomeScreen({
         await supabase.functions
           .invoke("send-message", {
             body: {
-              body: "📷 Je te lance une journée de défis photo, à distance. Tu acceptes ?",
+              body: "Je te lance une journée de défis photo, à distance. Tu acceptes ?",
             },
           })
           .catch(() => {});

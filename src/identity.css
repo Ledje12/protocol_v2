@@ -3586,10 +3586,11 @@ button.envelope-card:not(:disabled) {
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid var(--c-line-strong);
+  /* même contour rose que les tuiles de l'accueil */
+  border: 1px solid rgba(var(--c-accent-rgb), 0.45);
   border-radius: 50%;
   background: transparent;
-  font-size: 20px;
+  color: var(--c-accent-soft);
   line-height: 1;
 }
 
@@ -3851,6 +3852,12 @@ button.envelope-card:not(:disabled) {
   background: rgba(var(--c-accent-rgb), 0.08);
   color: var(--c-text);
   text-align: left;
+}
+
+.photo-day-notice-icon {
+  display: grid;
+  place-items: center;
+  color: var(--c-accent-soft);
 }
 
 .photo-day-notice strong {

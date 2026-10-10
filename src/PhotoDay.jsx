@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import CameraIcon from "./CameraIcon.jsx";
+
 /* « À distance » : une journée de défis photo, à tour de rôle.
    Le bandeau vit dans Messages (là où arrivent les photos) ;
    l'accueil n'affiche qu'un rappel quand c'est à toi. */
@@ -91,7 +93,7 @@ export function PhotoDayBanner({
       await call("respond_photo_day", { p_day_id: day.id, p_accept: accept });
       await sendText(
         accept
-          ? "📷 Défis photo : c’est parti. À toi le premier !"
+          ? "Défis photo : c’est parti. À toi le premier !"
           : "Pas aujourd’hui pour les défis photo."
       );
     });
@@ -188,7 +190,7 @@ export function PhotoDayBanner({
           <div className="photo-day-actions">
             <button type="button" className="primary" disabled={busy} onClick={takePhoto}>
               <span>{busy ? "Envoi chiffré…" : "Prendre la photo"}</span>
-              <span aria-hidden="true">📷</span>
+              <CameraIcon size={20} />
             </button>
             <button type="button" disabled={busy} onClick={skip}>Passer</button>
           </div>
@@ -266,7 +268,9 @@ export function PhotoDayHomeNotice({ supabase, onOpen }) {
 
   return (
     <button type="button" className="photo-day-notice" onClick={onOpen}>
-      <span aria-hidden="true">📷</span>
+      <span className="photo-day-notice-icon">
+        <CameraIcon size={24} />
+      </span>
       <strong>{text}</strong>
       <span aria-hidden="true">→</span>
     </button>
