@@ -3250,3 +3250,37 @@ div.bonus-button {
   font-size: var(--fs-small);
   text-align: center;
 }
+
+
+/* ---------------------------------------------------------
+   48. RÉGLAGES : panneau « Mode de soirée »
+   --------------------------------------------------------- */
+
+.mode-sheet {
+  display: grid;
+  gap: 12px;
+}
+
+.mode-sheet-section {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-line);
+}
+
+.mode-sheet-section h3 {
+  margin: 0;
+  color: var(--c-label);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.mode-sheet-hint {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}

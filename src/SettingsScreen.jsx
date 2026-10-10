@@ -11,6 +11,18 @@ import { supabase } from "./supabaseClient.js";
    SETTINGS
    ========================================================= */
 
+const CARD_STYLE_LABELS = {
+  vanilla: "Vanilla",
+  kinky: "Kinky",
+  both: "Les deux",
+};
+
+const DURATION_LABELS = {
+  short: "Courte",
+  normal: "Normale",
+  long: "Longue",
+};
+
 export default function SettingsScreen({
   navigate,
   couple,
@@ -1889,174 +1901,31 @@ export default function SettingsScreen({
             <SettingsRow
               label="Mode de soirée"
               hint={
-                directorMode === "custom"
-                  ? "Une ambiance plus affirmée."
-                  : "Le rythme PROTOCOL original."
+                directorLoading
+                  ? "Chargement…"
+                  : directorMode === "custom"
+                    ? [
+                        cardStyle && CARD_STYLE_LABELS[cardStyle],
+                        DURATION_LABELS[directorDuration],
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")
+                    : "Le rythme PROTOCOL original."
               }
-            >
-              {directorLoading ? (
-                <p className="settings-feedback">
-                  Chargement…
-                </p>
-              ) : (
-                <div
-                  className="settings-segmented"
-                  role="group"
-                  aria-label="Mode de soirée"
-                >
-                  <button
-                    type="button"
-                    aria-pressed={directorMode === "classic"}
-                    className={
-                      directorMode === "classic"
-                        ? "is-active"
-                        : undefined
-                    }
-                    onClick={() => {
-                      setDirectorMode("classic");
-                      setDirectorProfile(null);
-                      saveDirectorSettings({
-                        mode: "classic",
-                        profile: null,
-                      });
-                    }}
-                    disabled={directorSaving}
-                  >
-                    Spontané
-                  </button>
-
-                  <button
-                    type="button"
-                    aria-pressed={directorMode === "custom"}
-                    className={
-                      directorMode === "custom"
-                        ? "is-active"
-                        : undefined
-                    }
-                    onClick={() => {
-                      const nextProfile =
-                        directorProfile || "classic";
-
-                      setDirectorMode("custom");
-                      setDirectorProfile(nextProfile);
-                      saveDirectorSettings({
-                        mode: "custom",
-                        profile: nextProfile,
-                      });
-                    }}
-                    disabled={directorSaving}
-                  >
-                    Sur mesure
-                  </button>
-                </div>
-              )}
-            </SettingsRow>
-
-            {!directorLoading &&
-              directorMode === "custom" && (
-                <>
-                  {cardStyle && (
-                    <SettingsRow
-                      label="Cartes"
-                      hint={
-                        cardStyle === "vanilla"
-                          ? "Pratiques classiques, sans le côté kinky."
-                          : cardStyle === "kinky"
-                            ? "Le kinky prend le dessus dès que ça monte."
-                            : "Toute la bibliothèque."
-                      }
-                    >
-                      <div
-                        className="settings-segmented"
-                        role="group"
-                        aria-label="Style des cartes"
-                      >
-                        {[
-                          ["vanilla", "Vanilla"],
-                          ["kinky", "Kinky"],
-                          ["both", "Les deux"],
-                        ].map(([value, label]) => (
-                          <button
-                            key={value}
-                            type="button"
-                            aria-pressed={cardStyle === value}
-                            className={
-                              cardStyle === value
-                                ? "is-active"
-                                : undefined
-                            }
-                            onClick={() => saveCardStyle(value)}
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </SettingsRow>
-                  )}
-
-                  <SettingsRow
-                    label="Ambiance"
-                    value={
-                      directorProfiles.find(
-                        (option) =>
-                          option.value === directorProfile
-                      )?.label || "Classique"
-                    }
-                    onClick={() => setSheet("ambiance")}
-                  />
-
-                  <SettingsRow label="Durée">
-                    <div className="director-duration-switch">
-
-                        {[
-                          ["short", "Courte"],
-                          ["normal", "Normale"],
-                          ["long", "Longue"],
-                        ].map(
-                          ([
-                            value,
-                            label,
-                          ]) => (
-
-                            <button
-                              key={value}
-                              type="button"
-                              className={
-                                directorDuration ===
-                                value
-                                  ? "director-duration-option is-active"
-                                  : "director-duration-option"
-                              }
-                              onClick={() => {
-
-                                setDirectorDuration(
-                                  value
-                                );
-
-                                saveDirectorSettings({
-                                  duration:
-                                    value,
-                                });
-                              }}
-                              disabled={directorSaving}
-                            >
-                              {label}
-                            </button>
-
-                          )
-                        )}
-
-                    </div>
-                  </SettingsRow>
-
-                </>
-              )}
-
-            {directorMessage && (
-              <p className="settings-feedback settings-list-feedback">
-                {directorMessage}
-              </p>
-            )}
+              value={
+                directorLoading
+                  ? null
+                  : directorMode === "custom"
+                    ? `Sur mesure · ${
+                        directorProfiles.find(
+                          (option) => option.value === directorProfile
+                        )?.label || "Classique"
+                      }`
+                    : "Spontané"
+              }
+              onClick={() => setSheet("mode")}
+              disabled={directorLoading}
+            />
 
             <SettingsRow
               label="Mes cartes"
@@ -2260,52 +2129,150 @@ export default function SettingsScreen({
           </SettingsSheet>
         )}
 
-        {sheet === "ambiance" && (
+        {sheet === "mode" && (
           <SettingsSheet
-            eyebrow="MODE SUR MESURE"
-            title="Donnez le ton."
+            eyebrow="LE JEU"
+            title="Mode de soirée."
             onClose={() => setSheet(null)}
           >
-            <div className="director-profile-grid">
-              {directorProfiles.map((option) => (
+            <div className="mode-sheet">
+              <div
+                className="settings-segmented"
+                role="group"
+                aria-label="Mode de soirée"
+              >
+                {[
+                  ["classic", "Spontané"],
+                  ["custom", "Sur mesure"],
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={directorMode === value}
+                    className={directorMode === value ? "is-active" : undefined}
+                    onClick={() => {
+                      if (value === "classic") {
+                        setDirectorMode("classic");
+                        setDirectorProfile(null);
+                        saveDirectorSettings({ mode: "classic", profile: null });
+                        return;
+                      }
 
+                      const nextProfile = directorProfile || "classic";
+
+                      setDirectorMode("custom");
+                      setDirectorProfile(nextProfile);
+                      saveDirectorSettings({ mode: "custom", profile: nextProfile });
+                    }}
+                    disabled={directorSaving}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <p className="mode-sheet-hint">
+                {directorMode === "custom"
+                  ? "Une ambiance plus affirmée, réglée par vous."
+                  : "Le rythme PROTOCOL original : le jeu choisit tout."}
+              </p>
+
+              {directorMode === "custom" && (
+                <>
+                  {cardStyle && (
+                    <section className="mode-sheet-section">
+                      <h3>Cartes</h3>
+
+                      <div
+                        className="settings-segmented"
+                        role="group"
+                        aria-label="Style des cartes"
+                      >
+                        {Object.entries(CARD_STYLE_LABELS).map(([value, label]) => (
                           <button
-                            key={option.value}
+                            key={value}
                             type="button"
-                            className={
-                              directorProfile ===
-                              option.value
-                                ? "director-profile-option is-active"
-                                : "director-profile-option"
-                            }
-                            onClick={() => {
-
-                              setDirectorProfile(
-                                option.value
-                              );
-
-                              saveDirectorSettings({
-                                mode: "custom",
-                                profile:
-                                  option.value,
-                              });
-
-                              // le choix fait, on revient à la liste
-                              setSheet(null);
-                            }}
-                            disabled={directorSaving}
+                            aria-pressed={cardStyle === value}
+                            className={cardStyle === value ? "is-active" : undefined}
+                            onClick={() => saveCardStyle(value)}
                           >
-
-                            <strong>
-                              {option.label}
-                            </strong>
-
-                            <span>
-                              {option.description}
-                            </span>
-
+                            {label}
                           </button>
-              ))}
+                        ))}
+                      </div>
+
+                      <p className="mode-sheet-hint">
+                        {cardStyle === "vanilla"
+                          ? "Pratiques classiques, sans le côté kinky."
+                          : cardStyle === "kinky"
+                            ? "Le kinky prend le dessus dès que ça monte."
+                            : "Toute la bibliothèque."}
+                      </p>
+                    </section>
+                  )}
+
+                  <section className="mode-sheet-section">
+                    <h3>Ambiance</h3>
+
+                    <div className="director-profile-grid">
+                      {directorProfiles.map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className={
+                            directorProfile === option.value
+                              ? "director-profile-option is-active"
+                              : "director-profile-option"
+                          }
+                          onClick={() => {
+                            setDirectorProfile(option.value);
+                            saveDirectorSettings({
+                              mode: "custom",
+                              profile: option.value,
+                            });
+                          }}
+                          disabled={directorSaving}
+                        >
+                          <strong>{option.label}</strong>
+                          <span>{option.description}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+
+                  <section className="mode-sheet-section">
+                    <h3>Durée</h3>
+
+                    <div
+                      className="settings-segmented"
+                      role="group"
+                      aria-label="Durée"
+                    >
+                      {Object.entries(DURATION_LABELS).map(([value, label]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          aria-pressed={directorDuration === value}
+                          className={directorDuration === value ? "is-active" : undefined}
+                          onClick={() => {
+                            setDirectorDuration(value);
+                            saveDirectorSettings({ duration: value });
+                          }}
+                          disabled={directorSaving}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                </>
+              )}
+
+              {directorMessage && (
+                <p className="mode-sheet-hint mode-sheet-feedback">
+                  {directorMessage}
+                </p>
+              )}
             </div>
           </SettingsSheet>
         )}
