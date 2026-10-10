@@ -7,6 +7,8 @@ import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
 import CardRating from "./CardRating.jsx";
 import PrivateStepReader from "./PrivateStepReader.jsx";
+import { EnvelopeWriter } from "./Envelope.jsx";
+import { FinalReveals, SecretMission } from "./Missions.jsx";
 
 /* =========================================================
    PLAY
@@ -1867,6 +1869,13 @@ async function handleSceneRead() {
 
         <main className="app final-page final-wow-page">
 
+          {/* missions secrètes puis enveloppes, avant l'écran de fin */}
+          <FinalReveals
+            supabase={supabase}
+            code={code}
+            game={game}
+          />
+
           <div className="final-glow final-glow-top" />
           <div className="final-glow final-glow-bottom" />
 
@@ -2223,6 +2232,19 @@ async function handleSceneRead() {
         )}
 
       </header>
+
+
+    {/* =====================================
+        MISSION SECRÈTE (si activée)
+        ===================================== */}
+
+    <SecretMission
+      supabase={supabase}
+      code={code}
+      game={game}
+      singleDevice={singleDevice}
+      names={{ 1: player1Name, 2: player2Name }}
+    />
 
 
     {/* =====================================
@@ -2908,6 +2930,15 @@ async function handleSceneRead() {
                 onUpdated={loadState}
               />
             )}
+
+          {/* l'enveloppe : à écrire en secret après 60 % de la partie */}
+          <EnvelopeWriter
+            supabase={supabase}
+            code={code}
+            game={game}
+            singleDevice={singleDevice}
+            names={{ 1: player1Name, 2: player2Name }}
+          />
 
           {/* avis facultatif et privé : n'influence pas le tirage */}
           <CardRating

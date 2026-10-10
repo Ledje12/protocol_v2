@@ -4,6 +4,7 @@
 -- niveau d'intensité, le type tournant d'une famille à l'autre ;
 -- deux tiers des cartes (hors duels) visent un sexe précis. Chaque scène a trois
 -- étapes, dont une privée (un texte différent pour chaque joueur).
+-- Missions secrètes : textes neutres générés de la même façon.
 
 begin;
 
@@ -55,5 +56,16 @@ from public.protocol_cards c
 cross join generate_series(1, 3) as s
 where c.type = 'scene'
   and c.library_key like 'test-%';
+
+-- missions secrètes : deux par intensité, style et sexe visé
+insert into public.protocol_missions (title, prompt, intensity, style, target_sex)
+select
+  'Mission test ' || i || '.' || st || '.' || coalesce(sx, 'tous') || '.' || n,
+  'Consigne de mission de test (niveau ' || i || ').',
+  i, st, sx
+from generate_series(1, 5) as i
+cross join unnest(array['vanilla', 'kinky']) as st
+cross join unnest(array[null, 'male', 'female']) as sx
+cross join generate_series(1, 2) as n;
 
 commit;
