@@ -1,4 +1,4 @@
-# Sauvegarde nocturne de la base Supabase (structure + données).
+# Sauvegarde hebdomadaire de la base Supabase (structure + données).
 #
 # Le dépôt est PUBLIC : la sauvegarde est chiffrée (AES-256, gpg)
 # avant d'être déposée en artefact. Sans la phrase secrète, le
@@ -14,7 +14,8 @@ name: Sauvegarde
 
 on:
   schedule:
-    - cron: "17 2 * * *" # chaque nuit, 2h17 UTC
+    - cron: "17 2 * * 1" # chaque lundi, 2h17 UTC
+  # et à la demande : Actions → Sauvegarde → Run workflow
   workflow_dispatch:
 
 permissions:

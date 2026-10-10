@@ -1,6 +1,7 @@
 # Sauvegarde de la base
 
-Chaque nuit (2h17 UTC), l'action **Sauvegarde** exporte toute la base
+Chaque lundi (2h17 UTC), et à la demande avant une grosse étape
+(*Actions → Sauvegarde → Run workflow*), l'action **Sauvegarde** exporte toute la base
 Supabase : rôles, structure (tables, fonctions, règles d'accès) et
 données. L'export est chiffré puis gardé **30 jours** dans l'onglet
 *Actions* du dépôt.
@@ -29,7 +30,7 @@ réactiver dans *Actions*.
 
 ## Restaurer
 
-1. *Actions → Sauvegarde* → la nuit voulue → télécharger l'artefact,
+1. *Actions → Sauvegarde* → la sauvegarde voulue → télécharger l'artefact,
    le dézipper : on obtient `protocol-AAAA-MM-JJ.tar.gz.gpg`.
 2. Déchiffrer :
 
