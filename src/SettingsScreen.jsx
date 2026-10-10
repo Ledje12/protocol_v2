@@ -5,6 +5,8 @@ import HowToPlay from "./HowToPlay.jsx";
 import { getCurrentPushSubscription, registerPushNotifications } from "./pushNotifications.js";
 import { BackIcon } from "./ScreenHeader.jsx";
 import { SettingsGroup, SettingsRow, SettingsSheet } from "./SettingsParts.jsx";
+import { forgetKey } from "./albumCrypto.js";
+import { getSavedAlbumKey } from "./photoAlbum.js";
 import { supabase } from "./supabaseClient.js";
 
 /* =========================================================
@@ -742,6 +744,30 @@ export default function SettingsScreen({
         setDirectorMessage(
           "Réglage enregistré."
         );
+      };
+
+    /* Album photo : la phrase est-elle gardée sur ce téléphone ? */
+    const [albumUnlocked, setAlbumUnlocked] =
+      useState(false);
+
+    useEffect(() => {
+      let active = true;
+
+      getSavedAlbumKey(coupleId).then((key) => {
+        if (active) {
+          setAlbumUnlocked(Boolean(key));
+        }
+      });
+
+      return () => {
+        active = false;
+      };
+    }, [coupleId]);
+
+    const forgetAlbumPhrase =
+      async () => {
+        await forgetKey(coupleId);
+        setAlbumUnlocked(false);
       };
 
     const saveDirectorSettings =
@@ -2076,6 +2102,22 @@ export default function SettingsScreen({
             tone={lovenseConnected ? "on" : undefined}
             onClick={() => setSheet("lovense")}
           />
+
+          <SettingsRow
+            label="Album photo"
+            hint="Phrase secrète gardée sur ce téléphone pour voir vos photos."
+            value={albumUnlocked ? null : "Verrouillé"}
+          >
+            {albumUnlocked && (
+              <button
+                type="button"
+                className="settings-inline-action"
+                onClick={forgetAlbumPhrase}
+              >
+                Oublier la phrase ici
+              </button>
+            )}
+          </SettingsRow>
         </SettingsGroup>
 
         <SettingsGroup title="Compte">

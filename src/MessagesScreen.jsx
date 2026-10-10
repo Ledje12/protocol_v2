@@ -8,8 +8,21 @@ import "./messages.css";
 import { formatRelativeTime } from "./formatTime.js";
 import { markMessagesSeen } from "./unread.js";
 import { BackIcon } from "./ScreenHeader.jsx";
+import {
+  AlbumGrid,
+  AlbumKeySheet,
+  PhotoThumb,
+  PhotoViewer,
+} from "./PhotoAlbum.jsx";
+import { getSavedAlbumKey, uploadPhoto } from "./photoAlbum.js";
 
 // PROTOCOL private messaging
+
+const MESSAGE_COLUMNS =
+  "id, sender_user_id, recipient_user_id, couple_id, body, reply_to_id, reaction, created_at, read_at";
+
+// passe à false si la migration de l'album n'est pas appliquée
+let photoColumnsAvailable = true;
 
 
 export default function MessagesScreen({
@@ -63,6 +76,29 @@ export default function MessagesScreen({
 
   const threadRef =
     useRef(null);
+
+  /* Album chiffré : clé gardée sur ce téléphone, onglet, envoi */
+  const [tab, setTab] = useState("chat");
+  const [albumKey, setAlbumKey] = useState(null);
+  const [keySheet, setKeySheet] = useState(false);
+  const [viewer, setViewer] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [albumVersion, setAlbumVersion] = useState(0);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+
+    getSavedAlbumKey(coupleId).then((key) => {
+      if (active && key) {
+        setAlbumKey(key);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [coupleId]);
 
   useEffect(() => {
     const viewport =
@@ -157,36 +193,27 @@ export default function MessagesScreen({
             setError("");
           }
 
-          const {
+          const query = (columns) =>
+            supabase
+              .from("protocol_messages")
+              .select(columns)
+              .eq("couple_id", coupleId)
+              .order("created_at", { ascending: true });
+
+          let {
             data,
             error: queryError,
-          } = await supabase
-            .from(
-              "protocol_messages"
-            )
-            .select(
-              `
-                id,
-                sender_user_id,
-                recipient_user_id,
-                couple_id,
-                body,
-                reply_to_id,
-                reaction,
-                created_at,
-                read_at
-              `
-            )
-            .eq(
-              "couple_id",
-              coupleId
-            )
-            .order(
-              "created_at",
-              {
-                ascending: true,
-              }
-            );
+          } = await query(
+            photoColumnsAvailable
+              ? `${MESSAGE_COLUMNS}, photo_id, photo:protocol_photos (id, couple_id, created_at, mime, width, height)`
+              : MESSAGE_COLUMNS
+          );
+
+          // album pas encore installé dans la base : messages seuls
+          if (queryError && photoColumnsAvailable) {
+            photoColumnsAvailable = false;
+            ({ data, error: queryError } = await query(MESSAGE_COLUMNS));
+          }
 
           if (queryError) {
             throw queryError;
@@ -205,7 +232,8 @@ export default function MessagesScreen({
             previous.every(
               (message, index) =>
                 message.id === next[index].id &&
-                message.reaction === next[index].reaction
+                message.reaction === next[index].reaction &&
+                message.photo_id === next[index].photo_id
             )
               ? previous
               : next
@@ -400,6 +428,76 @@ export default function MessagesScreen({
     };
 
   /* =========================================================
+     SEND PHOTO (chiffrée sur le téléphone, puis message)
+     ========================================================= */
+
+  const pickPhoto = () => {
+    if (!albumKey) {
+      setKeySheet(true);
+      return;
+    }
+
+    fileInputRef.current?.click();
+  };
+
+  const sendPhoto =
+    async (file) => {
+      if (!file || !albumKey || uploading) {
+        return;
+      }
+
+      try {
+        setUploading(true);
+        setError("");
+
+        const photo =
+          await uploadPhoto(
+            supabase,
+            albumKey,
+            file
+          );
+
+        const {
+          data,
+          error: functionError,
+        } = await supabase
+          .functions
+          .invoke(
+            "send-message",
+            {
+              body: {
+                photo_id: photo.id,
+              },
+            }
+          );
+
+        if (functionError || !data?.success || !data?.message) {
+          throw functionError || new Error(data?.error || "send-message");
+        }
+
+        setMessages((current) =>
+          current.some((message) => message.id === data.message.id)
+            ? current
+            : [...current, { ...data.message, photo }]
+        );
+        setAlbumVersion((version) => version + 1);
+      } catch (err) {
+        console.error(
+          "PHOTO SEND ERROR:",
+          err
+        );
+
+        setError(
+          /album full/i.test(err?.message || "")
+            ? "L’album est plein : supprime quelques photos pour en envoyer d’autres."
+            : "La photo n’est pas partie. Réessaie dans un instant."
+        );
+      } finally {
+        setUploading(false);
+      }
+    };
+
+  /* =========================================================
      RENDER
      ========================================================= */
 
@@ -448,7 +546,39 @@ export default function MessagesScreen({
           </p>
         </div>
 
-        {loading && (
+        <div
+          className="settings-segmented messages-tabs"
+          role="tablist"
+          aria-label="Messages ou album"
+        >
+          {[
+            ["chat", "Conversation"],
+            ["album", "Album"],
+          ].map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={tab === value}
+              className={tab === value ? "is-active" : undefined}
+              onClick={() => setTab(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {tab === "album" && (
+          <AlbumGrid
+            supabase={supabase}
+            albumKey={albumKey}
+            refreshKey={albumVersion}
+            onOpen={setViewer}
+            onLocked={() => setKeySheet(true)}
+          />
+        )}
+
+        {tab === "chat" && loading && (
           <p className="messages-status">
             Chargement…
           </p>
@@ -460,7 +590,8 @@ export default function MessagesScreen({
           </p>
         )}
 
-        {!loading &&
+        {tab === "chat" &&
+          !loading &&
           !error &&
           messages.length === 0 && (
             <div className="messages-empty">
@@ -481,7 +612,8 @@ export default function MessagesScreen({
             </div>
           )}
 
-        {!loading &&
+        {tab === "chat" &&
+          !loading &&
           messages.length > 0 && (
             <div className="messages-thread-shell">
               <div
@@ -510,9 +642,28 @@ export default function MessagesScreen({
                               : "message-bubble is-theirs"
                           }
                         >
-                          <p className="message-body">
-                            {message.body}
-                          </p>
+                          {message.photo && (
+                            <PhotoThumb
+                              supabase={supabase}
+                              albumKey={albumKey}
+                              photo={message.photo}
+                              onOpen={setViewer}
+                              onLocked={() => setKeySheet(true)}
+                              className="message-photo"
+                            />
+                          )}
+
+                          {!message.photo && !message.body && (
+                            <p className="message-body message-photo-gone">
+                              Photo supprimée
+                            </p>
+                          )}
+
+                          {message.body && (
+                            <p className="message-body">
+                              {message.body}
+                            </p>
+                          )}
 
                           <div className="message-meta">
                             <span>
@@ -532,8 +683,32 @@ export default function MessagesScreen({
             </div>
           )}
 
+        {tab === "chat" && (
         <div className="messages-composer-wrap">
           <div className="messages-composer">
+            <button
+              type="button"
+              className="messages-photo"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={pickPhoto}
+              disabled={uploading || !currentUserId || !coupleId}
+              aria-label="Envoyer une photo chiffrée"
+            >
+              {uploading ? "…" : "📷"}
+            </button>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(event) => {
+                const [file] = event.target.files || [];
+                event.target.value = "";
+                sendPhoto(file);
+              }}
+            />
+
             <textarea
               value={draft}
               onChange={(
@@ -593,7 +768,40 @@ export default function MessagesScreen({
             </button>
           </div>
         </div>
+        )}
       </section>
+
+      {keySheet && (
+        <AlbumKeySheet
+          supabase={supabase}
+          coupleId={coupleId}
+          partnerName={partnerName}
+          onUnlocked={(key) => {
+            setAlbumKey(key);
+            setKeySheet(false);
+          }}
+          onClose={() => setKeySheet(false)}
+        />
+      )}
+
+      {viewer && albumKey && (
+        <PhotoViewer
+          supabase={supabase}
+          albumKey={albumKey}
+          photo={viewer}
+          onClose={() => setViewer(null)}
+          onDeleted={(photo) => {
+            setMessages((current) =>
+              current.map((message) =>
+                message.photo_id === photo.id
+                  ? { ...message, photo_id: null, photo: null }
+                  : message
+              )
+            );
+            setAlbumVersion((version) => version + 1);
+          }}
+        />
+      )}
     </main>
   );
 }

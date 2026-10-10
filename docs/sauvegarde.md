@@ -9,6 +9,10 @@ données. L'export est chiffré puis gardé **30 jours** dans l'onglet
 Le dépôt est public : sans la phrase secrète, les fichiers sont
 illisibles. **Perdre la phrase secrète, c'est perdre les sauvegardes.**
 
+Les **photos de l'album** ne sont pas dans ces sauvegardes (elles
+sont dans le stockage de fichiers, chiffrées avec la phrase du duo) :
+pour les garder, les enregistrer dans *Photos* depuis l'album.
+
 ## Mise en place (une fois)
 
 1. Supabase → projet → bouton **Connect** → onglet *Connection string*
