@@ -3567,3 +3567,174 @@ button.envelope-card:not(:disabled) {
   border-color: rgba(var(--c-accent-rgb), 0.5);
   color: var(--c-accent-soft);
 }
+
+
+/* ---------------------------------------------------------
+   52. ALBUM PRIVÉ : photos chiffrées dans les messages
+   --------------------------------------------------------- */
+
+.messages-tabs {
+  margin: 0 0 12px;
+}
+
+.messages-photo {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  align-self: flex-end;
+  margin-bottom: 4px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 50%;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.messages-photo:disabled {
+  opacity: 0.4;
+}
+
+.photo-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.photo-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-thumb-lock {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+  text-align: center;
+}
+
+.message-photo {
+  width: min(62vw, 240px);
+  max-height: 340px;
+  margin: 2px 0 6px;
+}
+
+.message-photo-gone {
+  color: var(--c-muted);
+  font-style: italic;
+}
+
+.album {
+  display: grid;
+  gap: 14px;
+  padding-bottom: var(--bottom-clear);
+}
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.album-cell {
+  border-radius: 10px;
+}
+
+.album-usage {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+  text-align: center;
+}
+
+.album-key-form {
+  display: grid;
+  gap: 12px;
+}
+
+.album-key-text {
+  margin: 0;
+  color: var(--c-text-soft);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.album-key-form input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--c-text);
+  font-size: 16px; /* évite le zoom de Safari */
+  outline: none;
+}
+
+.album-key-form input:focus {
+  border-color: rgba(var(--c-accent-rgb), 0.4);
+}
+
+.photo-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  background: #000;
+  padding: env(safe-area-inset-top) 0 0;
+}
+
+.photo-viewer-image {
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  color: var(--c-muted);
+}
+
+.photo-viewer-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.photo-viewer-actions {
+  display: grid;
+  gap: 8px;
+  padding: 12px var(--gutter) calc(env(safe-area-inset-bottom) + 14px);
+  background: var(--c-bg);
+}
+
+.photo-viewer-actions p {
+  margin: 0;
+  color: var(--c-text-soft);
+  font-size: var(--fs-small);
+  text-align: center;
+}
+
+.photo-viewer-actions > button:not(.primary) {
+  min-height: 44px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--c-text-soft);
+  font-size: var(--fs-body);
+}
+
+.photo-viewer-actions .photo-viewer-danger {
+  border-color: rgba(var(--c-danger-rgb), 0.5);
+  color: var(--c-danger);
+}

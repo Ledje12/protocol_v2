@@ -54,7 +54,9 @@ Deno.serve(async (req)=>{
          INPUT
          ===================================================== */ const body = await req.json();
     const messageBody = String(body?.body || "").trim();
-    if (!messageBody) {
+    // photo de l'album (déjà chiffrée et envoyée par le téléphone)
+    const photoId = body?.photo_id ? String(body.photo_id) : null;
+    if (!messageBody && !photoId) {
       throw new Error("Le message est vide.");
     }
     if (messageBody.length > 1200) {
@@ -78,6 +80,12 @@ Deno.serve(async (req)=>{
       throw new Error("Partenaire introuvable.");
     }
     const recipientUserId = partnerMembership.user_id;
+    if (photoId) {
+      const { data: photo, error: photoError } = await supabase.from("protocol_photos").select("id").eq("id", photoId).eq("couple_id", coupleId).eq("sender_user_id", currentUser.id).eq("ready", true).maybeSingle();
+      if (photoError || !photo) {
+        throw new Error("Photo introuvable.");
+      }
+    }
     /* =====================================================
          PROFILE
          ===================================================== */ const { data: senderProfile, error: profileError } = await supabase.from("protocol_profiles").select("display_name").eq("user_id", currentUser.id).maybeSingle();
@@ -91,13 +99,15 @@ Deno.serve(async (req)=>{
       sender_user_id: currentUser.id,
       recipient_user_id: recipientUserId,
       couple_id: coupleId,
-      body: messageBody
+      body: messageBody,
+      photo_id: photoId
     }).select(`
             id,
             sender_user_id,
             recipient_user_id,
             couple_id,
             body,
+            photo_id,
             reply_to_id,
             reaction,
             created_at,
@@ -130,7 +140,7 @@ Deno.serve(async (req)=>{
       };
       const message = {
         title: "PROTOCOL",
-        body: `${senderName} t’a laissé un message.`,
+        body: photoId ? `${senderName} t’a envoyé une photo.` : `${senderName} t’a laissé un message.`,
         url: `/messages?message=${createdMessage.id}`,
         tag: `protocol-message-${createdMessage.id}`
       };
