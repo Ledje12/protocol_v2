@@ -7,6 +7,7 @@ import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
 import CardRating from "./CardRating.jsx";
 import PrivateStepReader from "./PrivateStepReader.jsx";
+import { EnvelopeReveal, EnvelopeWriter } from "./Envelope.jsx";
 
 /* =========================================================
    PLAY
@@ -1867,6 +1868,13 @@ async function handleSceneRead() {
 
         <main className="app final-page final-wow-page">
 
+          {/* les enveloppes s'ouvrent avant l'écran de fin */}
+          <EnvelopeReveal
+            supabase={supabase}
+            code={code}
+            game={game}
+          />
+
           <div className="final-glow final-glow-top" />
           <div className="final-glow final-glow-bottom" />
 
@@ -2908,6 +2916,15 @@ async function handleSceneRead() {
                 onUpdated={loadState}
               />
             )}
+
+          {/* l'enveloppe : à écrire en secret après 60 % de la partie */}
+          <EnvelopeWriter
+            supabase={supabase}
+            code={code}
+            game={game}
+            singleDevice={singleDevice}
+            names={{ 1: player1Name, 2: player2Name }}
+          />
 
           {/* avis facultatif et privé : n'influence pas le tirage */}
           <CardRating

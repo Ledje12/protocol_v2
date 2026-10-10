@@ -3326,3 +3326,149 @@ div.bonus-button {
   color: var(--c-text-soft);
   font-size: var(--fs-small);
 }
+
+
+/* ---------------------------------------------------------
+   50. L'ENVELOPPE : écrire en secret, ouvrir à la fin
+   --------------------------------------------------------- */
+
+.envelope-field {
+  position: relative;
+  display: block;
+}
+
+.envelope-field textarea {
+  width: 100%;
+  min-height: 112px;
+  resize: none;
+  padding: 16px 18px 30px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--c-text);
+  font-family: var(--font-serif);
+  font-size: var(--fs-lead);
+  font-style: italic;
+  line-height: 1.4;
+  outline: none;
+}
+
+.envelope-field textarea::placeholder {
+  color: rgba(var(--c-text-rgb), 0.29);
+}
+
+.envelope-field textarea:focus {
+  border-color: rgba(var(--c-accent-rgb), 0.4);
+}
+
+.envelope-count {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  color: var(--c-muted);
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
+}
+
+.envelope-skip {
+  justify-self: center;
+  padding: 6px 12px;
+  border: 0;
+  background: none;
+  color: var(--c-text-soft);
+  font-size: var(--fs-small);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.envelope-hint,
+.envelope-error {
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+}
+
+.envelope-error {
+  color: var(--c-danger);
+}
+
+.envelope-list {
+  display: grid;
+  gap: 12px;
+}
+
+.envelope-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 22px 18px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-card);
+  background: rgba(var(--c-accent-rgb), 0.05);
+  color: var(--c-text);
+  text-align: center;
+}
+
+.envelope-card:disabled {
+  opacity: 0.45;
+}
+
+button.envelope-card:not(:disabled) {
+  border-color: rgba(var(--c-accent-rgb), 0.45);
+  box-shadow: 0 0 28px rgba(var(--c-accent-rgb), 0.16);
+}
+
+.envelope-card.is-open {
+  justify-items: start;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  animation: envelope-open var(--dur-slow) var(--ease-out);
+}
+
+.envelope-seal {
+  color: var(--c-accent);
+  font-size: 22px;
+}
+
+.envelope-from {
+  color: var(--c-label);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.envelope-from em {
+  color: var(--c-accent-soft);
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.envelope-tap {
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
+
+.envelope-card blockquote {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-style: italic;
+  line-height: 1.3;
+  color: var(--c-text);
+}
+
+@keyframes envelope-open {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .envelope-card.is-open { animation: none; }
+}

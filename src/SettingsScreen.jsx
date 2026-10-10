@@ -634,6 +634,61 @@ export default function SettingsScreen({
         );
       };
 
+    /* L'enveloppe (écrite à 60 % de la partie, ouverte à la fin).
+       null tant que la migration n'est pas appliquée. */
+    const [envelopeEnabled, setEnvelopeEnabled] =
+      useState(null);
+
+    useEffect(() => {
+      let active = true;
+
+      if (!coupleId) {
+        return undefined;
+      }
+
+      supabase
+        .rpc("get_protocol_envelope_enabled")
+        .then(({ data, error }) => {
+          if (active && !error && typeof data === "boolean") {
+            setEnvelopeEnabled(data);
+          }
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [coupleId]);
+
+    const saveEnvelope =
+      async (value) => {
+        const previous = envelopeEnabled;
+
+        setEnvelopeEnabled(value);
+        setDirectorMessage("");
+
+        const { error } =
+          await supabase.rpc(
+            "set_protocol_envelope_enabled",
+            { p_enabled: value }
+          );
+
+        if (error) {
+          console.error(
+            "ENVELOPE SETTING ERROR:",
+            error
+          );
+          setEnvelopeEnabled(previous);
+          setDirectorMessage(
+            "Impossible d’enregistrer ce réglage."
+          );
+          return;
+        }
+
+        setDirectorMessage(
+          "Réglage enregistré."
+        );
+      };
+
     const saveDirectorSettings =
       async ({
         mode = directorMode,
@@ -2266,6 +2321,39 @@ export default function SettingsScreen({
                     </div>
                   </section>
                 </>
+              )}
+
+              {envelopeEnabled !== null && (
+                <section className="mode-sheet-section">
+                  <h3>L’enveloppe</h3>
+
+                  <div
+                    className="settings-segmented"
+                    role="group"
+                    aria-label="L’enveloppe"
+                  >
+                    {[
+                      [true, "Oui"],
+                      [false, "Non"],
+                    ].map(([value, label]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-pressed={envelopeEnabled === value}
+                        className={envelopeEnabled === value ? "is-active" : undefined}
+                        onClick={() => saveEnvelope(value)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="mode-sheet-hint">
+                    Vers la fin de la partie, chacun écrit en secret ce
+                    qu’il veut pour la fin de soirée. Les enveloppes
+                    s’ouvrent à la dernière carte.
+                  </p>
+                </section>
               )}
 
               {directorMessage && (
