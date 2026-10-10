@@ -165,7 +165,13 @@ test("style Kinky : seulement des cartes kinky, sauf vérités, duels et niveaux
 
 test("joker « Imposer le type » puis duel gagné : le joker est rechargé", async () => {
   const couple = await createCouple();
-  const code = await startTwoPhoneGame(couple);
+  let code = await startTwoPhoneGame(couple);
+
+  // pas deux duels de suite : partir d'une première carte qui n'en est pas un
+  while ((await currentCard(code)).type === "duel") {
+    code = await startTwoPhoneGame(couple);
+  }
+
   const jokerPlayer = await imposeType(couple, code, "duel");
   const bonusKey = `bonus_player_${jokerPlayer}`;
 
