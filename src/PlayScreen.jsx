@@ -7,7 +7,8 @@ import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
 import CardRating from "./CardRating.jsx";
 import PrivateStepReader from "./PrivateStepReader.jsx";
-import { EnvelopeReveal, EnvelopeWriter } from "./Envelope.jsx";
+import { EnvelopeWriter } from "./Envelope.jsx";
+import { FinalReveals, SecretMission } from "./Missions.jsx";
 
 /* =========================================================
    PLAY
@@ -1868,8 +1869,8 @@ async function handleSceneRead() {
 
         <main className="app final-page final-wow-page">
 
-          {/* les enveloppes s'ouvrent avant l'écran de fin */}
-          <EnvelopeReveal
+          {/* missions secrètes puis enveloppes, avant l'écran de fin */}
+          <FinalReveals
             supabase={supabase}
             code={code}
             game={game}
@@ -2231,6 +2232,19 @@ async function handleSceneRead() {
         )}
 
       </header>
+
+
+    {/* =====================================
+        MISSION SECRÈTE (si activée)
+        ===================================== */}
+
+    <SecretMission
+      supabase={supabase}
+      code={code}
+      game={game}
+      singleDevice={singleDevice}
+      names={{ 1: player1Name, 2: player2Name }}
+    />
 
 
     {/* =====================================

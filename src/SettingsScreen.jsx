@@ -689,6 +689,61 @@ export default function SettingsScreen({
         );
       };
 
+    /* Missions secrètes (désactivées par défaut).
+       null tant que la migration n'est pas appliquée. */
+    const [missionsEnabled, setMissionsEnabled] =
+      useState(null);
+
+    useEffect(() => {
+      let active = true;
+
+      if (!coupleId) {
+        return undefined;
+      }
+
+      supabase
+        .rpc("get_protocol_missions_enabled")
+        .then(({ data, error }) => {
+          if (active && !error && typeof data === "boolean") {
+            setMissionsEnabled(data);
+          }
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [coupleId]);
+
+    const saveMissions =
+      async (value) => {
+        const previous = missionsEnabled;
+
+        setMissionsEnabled(value);
+        setDirectorMessage("");
+
+        const { error } =
+          await supabase.rpc(
+            "set_protocol_missions_enabled",
+            { p_enabled: value }
+          );
+
+        if (error) {
+          console.error(
+            "MISSIONS SETTING ERROR:",
+            error
+          );
+          setMissionsEnabled(previous);
+          setDirectorMessage(
+            "Impossible d’enregistrer ce réglage."
+          );
+          return;
+        }
+
+        setDirectorMessage(
+          "Réglage enregistré."
+        );
+      };
+
     const saveDirectorSettings =
       async ({
         mode = directorMode,
@@ -2352,6 +2407,39 @@ export default function SettingsScreen({
                     Vers la fin de la partie, chacun écrit en secret ce
                     qu’il veut pour la fin de soirée. Les enveloppes
                     s’ouvrent à la dernière carte.
+                  </p>
+                </section>
+              )}
+
+              {missionsEnabled !== null && (
+                <section className="mode-sheet-section">
+                  <h3>Missions secrètes</h3>
+
+                  <div
+                    className="settings-segmented"
+                    role="group"
+                    aria-label="Missions secrètes"
+                  >
+                    {[
+                      [true, "Oui"],
+                      [false, "Non"],
+                    ].map(([value, label]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-pressed={missionsEnabled === value}
+                        className={missionsEnabled === value ? "is-active" : undefined}
+                        onClick={() => saveMissions(value)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="mode-sheet-hint">
+                    Au lancement, chacun reçoit en secret une mission
+                    discrète à réussir pendant la soirée. On les révèle
+                    à la fin.
                   </p>
                 </section>
               )}
