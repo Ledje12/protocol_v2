@@ -1,0 +1,11 @@
+{
+  "name": "protocol-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 \"db/*.test.mjs\""
+  },
+  "devDependencies": {
+    "pg": "^8.16.0"
+  }
+}

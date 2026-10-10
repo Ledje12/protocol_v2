@@ -3284,3 +3284,45 @@ div.bonus-button {
   font-size: var(--fs-small);
   line-height: 1.4;
 }
+
+
+/* ---------------------------------------------------------
+   49. PLANTAGE : sortie de secours (ErrorBoundary)
+   --------------------------------------------------------- */
+
+.app-crash {
+  min-height: 100dvh;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: calc(var(--top-clear) + 40px) var(--gutter) var(--bottom-clear);
+  display: grid;
+  align-content: center;
+  gap: 16px;
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+
+.app-crash h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-title);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.app-crash p {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.app-crash .kicker {
+  color: var(--c-label);
+}
+
+.app-crash a {
+  justify-self: center;
+  color: var(--c-text-soft);
+  font-size: var(--fs-small);
+}

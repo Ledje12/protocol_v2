@@ -1,0 +1,79 @@
+# Tests automatiques à chaque push, sur toutes les branches (le
+# résultat s'affiche aussi sur la PR de la branche) :
+#   - l'app : lint et build, comme Vercel ;
+#   - la base : une copie neuve (structure + migrations + cartes
+#     synthétiques neutres) sur laquelle on rejoue des parties à
+#     deux. Aucune donnée réelle, aucun secret.
+# En local : tests/db/setup.sh puis (cd tests && npm test).
+
+name: Tests
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: App (lint + build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  database:
+    name: Base (parties à deux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      PGURL: postgres://postgres:postgres@localhost:5432
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/protocol_test
+      PGOPTIONS: -c client_min_messages=warning
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Monter la base de test
+        run: tests/db/setup.sh protocol_test
+
+      - name: Rejouer des parties
+        working-directory: tests
+        run: |
+          npm ci
+          npm test
