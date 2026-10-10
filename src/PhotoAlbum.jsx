@@ -300,7 +300,7 @@ export function AlbumGrid({ supabase, albumKey, refreshKey, onOpen, onLocked }) 
             <span className="protocol-diamond" aria-hidden="true" />
           </span>
           <strong>Aucune photo pour l’instant.</strong>
-          <p>Le bouton 📷 de la conversation en envoie une, chiffrée.</p>
+          <p>L’appareil photo de la conversation en envoie une, chiffrée.</p>
         </div>
       ) : (
         <div className="album-grid">

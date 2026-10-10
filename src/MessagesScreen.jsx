@@ -16,6 +16,7 @@ import {
 } from "./PhotoAlbum.jsx";
 import { getSavedAlbumKey, uploadPhoto } from "./photoAlbum.js";
 import { PhotoDayBanner } from "./PhotoDay.jsx";
+import CameraIcon from "./CameraIcon.jsx";
 
 // PROTOCOL private messaging
 
@@ -715,7 +716,7 @@ export default function MessagesScreen({
               disabled={uploading || !currentUserId || !coupleId}
               aria-label="Envoyer une photo chiffrée"
             >
-              {uploading ? "…" : "📷"}
+              {uploading ? "…" : <CameraIcon />}
             </button>
 
             <input
