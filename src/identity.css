@@ -3738,3 +3738,123 @@ button.envelope-card:not(:disabled) {
   border-color: rgba(var(--c-danger-rgb), 0.5);
   color: var(--c-danger);
 }
+
+
+/* ---------------------------------------------------------
+   53. À DISTANCE : journée de défis photo
+   --------------------------------------------------------- */
+
+.photo-day {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 16px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.35);
+  border-radius: var(--r-card);
+  background: rgba(var(--c-accent-rgb), 0.06);
+}
+
+.photo-day-kicker {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  color: var(--c-accent);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.photo-day h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--c-text);
+}
+
+.photo-day > p {
+  margin: 0;
+  color: var(--c-text-soft);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+}
+
+.photo-day .photo-day-prompt {
+  font-family: var(--font-serif);
+  font-size: var(--fs-lead);
+  font-style: italic;
+  color: var(--c-text);
+}
+
+.photo-day-level {
+  justify-self: start;
+  padding: 3px 10px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.4);
+  border-radius: var(--r-pill);
+  color: var(--c-accent-soft);
+  font-size: var(--fs-small);
+}
+
+.photo-day-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.photo-day-actions > button:not(.primary) {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--c-text-soft);
+  font-size: var(--fs-body);
+}
+
+.photo-day-actions > .primary:only-child {
+  grid-column: 1 / -1;
+}
+
+.photo-day-note,
+.photo-day-stop {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
+
+.photo-day-stop button,
+.photo-day-stop-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--c-text-soft);
+  font-size: var(--fs-small);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.photo-day-stop-link {
+  justify-self: start;
+}
+
+.photo-day-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.45);
+  border-radius: var(--r-card);
+  background: rgba(var(--c-accent-rgb), 0.08);
+  color: var(--c-text);
+  text-align: left;
+}
+
+.photo-day-notice strong {
+  flex: 1;
+  font-weight: 500;
+  font-size: var(--fs-body);
+}

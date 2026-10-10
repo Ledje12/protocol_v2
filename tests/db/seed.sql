@@ -68,4 +68,14 @@ cross join unnest(array['vanilla', 'kinky']) as st
 cross join unnest(array[null, 'male', 'female']) as sx
 cross join generate_series(1, 2) as n;
 
+-- défis photo (jeu « À distance ») : cinq par niveau et par sexe visé
+insert into public.protocol_photo_challenges (title, prompt, intensity, target_sex)
+select
+  'Défi test ' || i || '.' || coalesce(sx, 'tous') || '.' || n,
+  'Consigne de défi photo de test (niveau ' || i || ').',
+  i, sx
+from generate_series(1, 4) as i
+cross join unnest(array[null, 'male', 'female']) as sx
+cross join generate_series(1, 5) as n;
+
 commit;

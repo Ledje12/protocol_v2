@@ -8,6 +8,7 @@ import { SettingsSheet } from "./SettingsParts.jsx";
 import { supabase } from "./supabaseClient.js";
 import { useUnreadCounts } from "./unread.js";
 import UnreadBadge from "./UnreadBadge.jsx";
+import { PhotoDayHomeNotice } from "./PhotoDay.jsx";
 
 function HomeIcon({
   name,
@@ -672,6 +673,46 @@ export default function HomeScreen({
     }
   };
 
+  /* « À distance » : une journée de défis photo, dans Messages */
+  const startPhotoDay = async () => {
+    rememberPlayMode("remote");
+    setShowLaunchChoice(false);
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const { error: rpcError } = await supabase.rpc("start_photo_day");
+
+      // une journée est déjà lancée : on la rejoint
+      if (rpcError && !/already running/i.test(rpcError.message)) {
+        throw rpcError;
+      }
+
+      if (!rpcError) {
+        // prévient l'autre (notification) ; sans gravité si ça échoue
+        await supabase.functions
+          .invoke("send-message", {
+            body: {
+              body: "📷 Je te lance une journée de défis photo, à distance. Tu acceptes ?",
+            },
+          })
+          .catch(() => {});
+      }
+
+      navigate("/messages");
+    } catch (err) {
+      console.error("START PHOTO DAY ERROR:", err);
+      setError(
+        /no photo challenge/i.test(err?.message || "")
+          ? "Les défis photo ne sont pas encore écrits."
+          : "Impossible de lancer la journée à distance. Réessaie dans un instant."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const createGame = async () => {
     rememberPlayMode("two");
     setShowLaunchChoice(false);
@@ -742,7 +783,7 @@ export default function HomeScreen({
       {showLaunchChoice && (
         <SettingsSheet
           eyebrow="NOUVELLE PARTIE"
-          title="Comment jouez-vous ce soir ?"
+          title="Comment jouez-vous ?"
           onClose={() => setShowLaunchChoice(false)}
         >
           <div className="launch-choice">
@@ -758,6 +799,12 @@ export default function HomeScreen({
                 title: "Chacun le sien",
                 text: "Un code, chacun rejoint la partie sur son téléphone.",
                 onClick: createGame,
+              },
+              {
+                mode: "remote",
+                title: "À distance",
+                text: "Toute la journée, chacun de son côté : des défis photo, à tour de rôle.",
+                onClick: startPhotoDay,
               },
             ]
               .sort((a, b) =>
@@ -1153,6 +1200,13 @@ export default function HomeScreen({
             ========================================= */}
 
         {/* les signes supposent un partenaire associé */}
+        {hasPartner && (
+          <PhotoDayHomeNotice
+            supabase={supabase}
+            onOpen={() => navigate("/messages")}
+          />
+        )}
+
         {hasPartner && (
         <section className="protocol-home-signals">
 

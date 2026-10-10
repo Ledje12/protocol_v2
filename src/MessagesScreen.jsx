@@ -15,6 +15,7 @@ import {
   PhotoViewer,
 } from "./PhotoAlbum.jsx";
 import { getSavedAlbumKey, uploadPhoto } from "./photoAlbum.js";
+import { PhotoDayBanner } from "./PhotoDay.jsx";
 
 // PROTOCOL private messaging
 
@@ -440,6 +441,46 @@ export default function MessagesScreen({
     fileInputRef.current?.click();
   };
 
+  // envoie un message (texte et/ou photo) ; l'erreur remonte
+  const postMessage =
+    async (payload, photo = null) => {
+      const {
+        data,
+        error: functionError,
+      } = await supabase
+        .functions
+        .invoke(
+          "send-message",
+          { body: payload }
+        );
+
+      if (functionError || !data?.success || !data?.message) {
+        throw functionError || new Error(data?.error || "send-message");
+      }
+
+      setMessages((current) =>
+        current.some((message) => message.id === data.message.id)
+          ? current
+          : [...current, photo ? { ...data.message, photo } : data.message]
+      );
+
+      return data.message;
+    };
+
+  const postPhoto =
+    async (file, caption = "") => {
+      const photo =
+        await uploadPhoto(
+          supabase,
+          albumKey,
+          file
+        );
+
+      setAlbumVersion((version) => version + 1);
+      await postMessage({ photo_id: photo.id, body: caption }, photo);
+      return photo;
+    };
+
   const sendPhoto =
     async (file) => {
       if (!file || !albumKey || uploading) {
@@ -449,38 +490,7 @@ export default function MessagesScreen({
       try {
         setUploading(true);
         setError("");
-
-        const photo =
-          await uploadPhoto(
-            supabase,
-            albumKey,
-            file
-          );
-
-        const {
-          data,
-          error: functionError,
-        } = await supabase
-          .functions
-          .invoke(
-            "send-message",
-            {
-              body: {
-                photo_id: photo.id,
-              },
-            }
-          );
-
-        if (functionError || !data?.success || !data?.message) {
-          throw functionError || new Error(data?.error || "send-message");
-        }
-
-        setMessages((current) =>
-          current.some((message) => message.id === data.message.id)
-            ? current
-            : [...current, { ...data.message, photo }]
-        );
-        setAlbumVersion((version) => version + 1);
+        await postPhoto(file);
       } catch (err) {
         console.error(
           "PHOTO SEND ERROR:",
@@ -567,6 +577,17 @@ export default function MessagesScreen({
             </button>
           ))}
         </div>
+
+        {tab === "chat" && (
+          <PhotoDayBanner
+            supabase={supabase}
+            partnerName={partnerName}
+            albumKey={albumKey}
+            onNeedAlbumKey={() => setKeySheet(true)}
+            sendText={(body) => postMessage({ body })}
+            sendPhoto={postPhoto}
+          />
+        )}
 
         {tab === "album" && (
           <AlbumGrid
