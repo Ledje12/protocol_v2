@@ -39,6 +39,21 @@ réactiver dans *Actions*.
    ```
 
    (la phrase secrète est demandée) → `roles.sql`, `schema.sql`, `data.sql`.
+
+   **Sous Windows** : installer [Gpg4win](https://gpg4win.org) (gratuit,
+   avec l'appli Kleopatra), puis au choix :
+   - clic droit sur le fichier → *Déchiffrer et vérifier* (Kleopatra) ;
+   - ou en PowerShell, dans le dossier du fichier :
+
+     ```powershell
+     gpg --output protocol.tar.gz --decrypt protocol-AAAA-MM-JJ.tar.gz.gpg
+     tar -xzf protocol.tar.gz
+     ```
+
+     (garder `--output` : PowerShell abîme les fichiers passés par `>` ou `|`.)
+
+   Les fichiers déchiffrés contiennent tout en clair : les supprimer
+   une fois la vérification ou la restauration faite.
 3. Rejouer dans une base **neuve** (nouveau projet Supabase, de
    préférence, pour ne rien écraser) :
 
