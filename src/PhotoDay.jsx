@@ -93,7 +93,7 @@ export function PhotoDayBanner({
       await call("respond_photo_day", { p_day_id: day.id, p_accept: accept });
       await sendText(
         accept
-          ? "Défis photo : c’est parti. À toi le premier !"
+          ? "Je relève tes défis photo ! À toi de commencer."
           : "Pas aujourd’hui pour les défis photo."
       );
     });
@@ -153,14 +153,15 @@ export function PhotoDayBanner({
 
       {day.status === "invited" && !day.started_by_me && (
         <>
-          <h2>{partnerName} te lance une journée.</h2>
+          <h2>{partnerName} te défie, à distance.</h2>
           <p>
-            6 défis photo chacun, à tour de rôle, de plus en plus osés.
+            Aujourd’hui, chacun de son côté : 6 défis photo chacun, à
+            tour de rôle, de plus en plus osés.
             Tu peux toujours passer, sans te justifier.
           </p>
           <div className="photo-day-actions">
             <button type="button" className="primary" disabled={busy} onClick={() => respond(true)}>
-              <span>J’accepte</span>
+              <span>Relever le défi</span>
               <span aria-hidden="true">→</span>
             </button>
             <button type="button" disabled={busy} onClick={() => respond(false)}>
@@ -172,8 +173,8 @@ export function PhotoDayBanner({
 
       {day.status === "invited" && day.started_by_me && (
         <>
-          <h2>En attente {deName(partnerName)}…</h2>
-          <p>Dès que l’invitation est acceptée, tu relèves le premier défi.</p>
+          <h2>Invitation envoyée à {partnerName}.</h2>
+          <p>Dès qu’elle est acceptée, c’est toi qui relèves le premier défi.</p>
           <div className="photo-day-actions">
             <button type="button" disabled={busy} onClick={stop}>Annuler</button>
           </div>
@@ -257,7 +258,7 @@ export function PhotoDayHomeNotice({ supabase, onOpen }) {
 
   const text =
     day.status === "invited" && !day.started_by_me
-      ? "Une journée de défis photo t’attend."
+      ? "Défis photo à distance : une invitation t’attend."
       : day.status === "active" && day.my_turn
         ? `Défi photo ${day.turn_no}/${day.total_turns} : à toi.`
         : null;
