@@ -196,7 +196,9 @@ export function PhotoViewer({ supabase, albumKey, photo, onClose, onDeleted }) {
       .then((next) => active && setReady(next))
       .catch((err) => {
         console.error("PHOTO OPEN ERROR:", err);
-        active && setError("Impossible d’ouvrir cette photo.");
+        if (active) {
+          setError("Impossible d’ouvrir cette photo.");
+        }
       });
 
     return () => {

@@ -9,8 +9,6 @@ import { SettingsSheet } from "./SettingsParts.jsx";
 
 export const PHOTO_CATEGORY = "Défis photo";
 
-const LEVELS = ["", "Suggestif", "Sensuel", "Osé", "Explicite"];
-const TARGETS = { male: "Pour lui", female: "Pour elle" };
 
 export function usePhotoChallenges(supabase) {
   const [challenges, setChallenges] = useState(null);
@@ -33,22 +31,21 @@ export function usePhotoChallenges(supabase) {
   return challenges;
 }
 
-export function PhotoBadge() {
+// 4 niveaux, comme les points d'intensité des cartes
+function Leds({ level }) {
   return (
-    <span className="photo-badge">
-      <CameraIcon size={13} strokeWidth={1.8} />
-      À distance
-    </span>
+    <div className="library-card-intensity" aria-label={`Niveau ${level} sur 4`}>
+      {[0, 1, 2, 3].map((index) => (
+        <span key={index} className={index < level ? "is-active" : ""} />
+      ))}
+    </div>
   );
 }
 
 export function PhotoCategoryButton({ count, onOpen }) {
   return (
-    <button type="button" className="library-category library-category-photo" onClick={onOpen}>
-      <span className="library-category-name">
-        {PHOTO_CATEGORY}
-        <PhotoBadge />
-      </span>
+    <button type="button" className="library-category" onClick={onOpen}>
+      <span className="library-category-name">{PHOTO_CATEGORY}</span>
       <span className="library-category-count">{count}</span>
       <span className="library-category-arrow" aria-hidden="true">→</span>
     </button>
@@ -93,11 +90,12 @@ export function PhotoChallengeList({ supabase, challenges, partnerName, partnerS
 
   return (
     <>
-      <p className="photo-challenges-intro">
-        Ils sortent dans le jeu « À distance », du niveau 1 (Suggestif) au
-        niveau 4 (Explicite).
-        Tu peux aussi en envoyer un à {partnerName}, à tout moment.
-      </p>
+      <div className="library-results-meta">
+        <span className="library-count">
+          {challenges.length} défi{challenges.length > 1 ? "s" : ""}
+        </span>
+        <span className="library-results-line" aria-hidden="true" />
+      </div>
 
       {/* une seule liste, de A à Z ; le niveau sur chaque fiche */}
       <div className="library-list">
@@ -109,35 +107,43 @@ export function PhotoChallengeList({ supabase, challenges, partnerName, partnerS
             <button
               key={challenge.id}
               type="button"
-              className={`library-card photo-challenge-card library-card-intensity-${challenge.intensity}`}
+              className={`library-card library-card-photo library-card-intensity-${challenge.intensity}`}
               onClick={() => {
                 setFeedback("");
                 setOpen(challenge);
               }}
             >
               <div className="library-card-accent" />
+
               <div className="library-card-header">
-                <PhotoBadge />
-                <span className="photo-challenge-target">
-                  Niveau {challenge.intensity} · {LEVELS[challenge.intensity]}
-                  {" · "}
-                  {TARGETS[challenge.target_sex] || "Pour tous"}
-                </span>
+                <div className="library-card-type-group">
+                  <span className="library-card-type">PHOTO</span>
+                </div>
+
+                {!canSend(challenge) && (
+                  <span className="library-card-for-me">Pour toi</span>
+                )}
               </div>
-              <h3 className="library-card-title">{text(challenge.title)}</h3>
+
+              <h2 className="library-card-title">{text(challenge.title)}</h2>
               <p className="library-card-prompt">{text(challenge.prompt)}</p>
+
+              <div className="library-card-footer">
+                <Leds level={challenge.intensity} />
+                <span className="library-card-open">→</span>
+              </div>
             </button>
           ))}
       </div>
 
       {open && (
         <SettingsSheet
-          eyebrow={`DÉFI PHOTO · NIVEAU ${open.intensity} · ${LEVELS[open.intensity].toUpperCase()}`}
+          eyebrow="DÉFI PHOTO"
           title={text(open.title)}
           onClose={() => setOpen(null)}
         >
           <div className="photo-challenge-sheet">
-            <PhotoBadge />
+            <Leds level={open.intensity} />
             <p className="photo-challenge-prompt">{text(open.prompt)}</p>
 
             {canSend(open) ? (
