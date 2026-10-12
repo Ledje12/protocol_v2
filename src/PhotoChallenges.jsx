@@ -94,49 +94,41 @@ export function PhotoChallengeList({ supabase, challenges, partnerName, partnerS
   return (
     <>
       <p className="photo-challenges-intro">
-        Ils sortent dans le jeu « À distance », de Suggestif à Explicite.
+        Ils sortent dans le jeu « À distance », du niveau 1 (Suggestif) au
+        niveau 4 (Explicite).
         Tu peux aussi en envoyer un à {partnerName}, à tout moment.
       </p>
 
-      {[1, 2, 3, 4].map((level) => {
-        const list = challenges.filter((challenge) => challenge.intensity === level);
-
-        if (list.length === 0) {
-          return null;
-        }
-
-        return (
-          <section key={level} className="photo-challenges-level">
-            <h3>
-              Niveau {level} · {LEVELS[level]} <span>{list.length}</span>
-            </h3>
-
-            <div className="library-list">
-              {list.map((challenge) => (
-                <button
-                  key={challenge.id}
-                  type="button"
-                  className={`library-card photo-challenge-card library-card-intensity-${level}`}
-                  onClick={() => {
-                    setFeedback("");
-                    setOpen(challenge);
-                  }}
-                >
-                  <div className="library-card-accent" />
-                  <div className="library-card-header">
-                    <PhotoBadge />
-                    <span className="photo-challenge-target">
-                      {TARGETS[challenge.target_sex] || "Pour tous"}
-                    </span>
-                  </div>
-                  <h3 className="library-card-title">{text(challenge.title)}</h3>
-                  <p className="library-card-prompt">{text(challenge.prompt)}</p>
-                </button>
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      {/* une seule liste, de A à Z ; le niveau sur chaque fiche */}
+      <div className="library-list">
+        {[...challenges]
+          .sort((x, y) =>
+            text(x.title).localeCompare(text(y.title), "fr", { sensitivity: "base" })
+          )
+          .map((challenge) => (
+            <button
+              key={challenge.id}
+              type="button"
+              className={`library-card photo-challenge-card library-card-intensity-${challenge.intensity}`}
+              onClick={() => {
+                setFeedback("");
+                setOpen(challenge);
+              }}
+            >
+              <div className="library-card-accent" />
+              <div className="library-card-header">
+                <PhotoBadge />
+                <span className="photo-challenge-target">
+                  Niveau {challenge.intensity} · {LEVELS[challenge.intensity]}
+                  {" · "}
+                  {TARGETS[challenge.target_sex] || "Pour tous"}
+                </span>
+              </div>
+              <h3 className="library-card-title">{text(challenge.title)}</h3>
+              <p className="library-card-prompt">{text(challenge.prompt)}</p>
+            </button>
+          ))}
+      </div>
 
       {open && (
         <SettingsSheet

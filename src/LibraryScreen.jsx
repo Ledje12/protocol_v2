@@ -1087,7 +1087,26 @@ export default function LibraryScreen({
 
             showCategories ? (
             <div className="library-categories">
-              {categories.map((category) => (
+              {[
+                ...categories,
+                ...(photoChallenges?.length > 0
+                  ? [{ name: PHOTO_CATEGORY, count: photoChallenges.length, photo: true }]
+                  : []),
+              ]
+                // toutes les catégories de A à Z, défis photo compris
+                .sort((a, b) =>
+                  a.name.localeCompare(b.name, "fr", { sensitivity: "base" })
+                )
+                .map((category) => category.photo ? (
+                <PhotoCategoryButton
+                  key={category.name}
+                  count={category.count}
+                  onOpen={() => {
+                    setSelectedCategory(PHOTO_CATEGORY);
+                    window.scrollTo(0, 0);
+                  }}
+                />
+              ) : (
                 <button
                   key={category.name}
                   type="button"
@@ -1113,16 +1132,6 @@ export default function LibraryScreen({
                   </span>
                 </button>
               ))}
-
-              {photoChallenges?.length > 0 && (
-                <PhotoCategoryButton
-                  count={photoChallenges.length}
-                  onOpen={() => {
-                    setSelectedCategory(PHOTO_CATEGORY);
-                    window.scrollTo(0, 0);
-                  }}
-                />
-              )}
             </div>
           ) : (
             <div className="library-list">
