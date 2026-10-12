@@ -12,6 +12,8 @@ import CustomLibraryScreen from "./CustomLibraryScreen.jsx";
 import HomeScreen from "./HomeScreen.jsx";
 import JoinScreen from "./JoinScreen.jsx";
 import { AppLoadingScreen } from "./LoadingScreen.jsx";
+import LockScreen from "./LockScreen.jsx";
+import { RELOCK_AFTER_MS, isAppLocked, relockApp } from "./appLock.js";
 import LobbyScreen from "./LobbyScreen.jsx";
 import PlayScreen from "./PlayScreen.jsx";
 import PrivacyScreen from "./PrivacyScreen.jsx";
@@ -25,6 +27,27 @@ import { supabase } from "./supabaseClient.js";
    ========================================================= */
 
 function App() {
+  // verrou Face ID : change pour réafficher après (dé)verrouillage
+  const [, setLockVersion] = useState(0);
+
+  // longtemps en arrière-plan : on reverrouille au retour
+  useEffect(() => {
+    let hiddenAt = null;
+
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        hiddenAt = Date.now();
+      } else if (hiddenAt && Date.now() - hiddenAt > RELOCK_AFTER_MS) {
+        hiddenAt = null;
+        relockApp();
+        setLockVersion((value) => value + 1);
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
   const [authSession, setAuthSession] =
     useState(null);
 
@@ -477,6 +500,21 @@ function App() {
 
   if (authLoading) {
     return <AppLoadingScreen />;
+  }
+
+  // verrou Face ID : les données se chargent derrière en attendant
+  if (
+    authSession?.user?.id &&
+    route.screen !== "privacy" &&
+    isAppLocked(authSession.user.id)
+  ) {
+    return (
+      <LockScreen
+        userId={authSession.user.id}
+        supabase={supabase}
+        onUnlocked={() => setLockVersion((value) => value + 1)}
+      />
+    );
   }
 
   if (route.screen === "privacy") {
