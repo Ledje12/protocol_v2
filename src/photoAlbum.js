@@ -8,7 +8,6 @@ import {
   makeWitness,
   newSalt,
   saveKey,
-  stripJpegGps,
 } from "./albumCrypto.js";
 
 /* =========================================================
@@ -75,11 +74,10 @@ export async function unlockAlbum(supabase, coupleId, phrase) {
 export async function uploadPhoto(supabase, key, file) {
   const raw = new Uint8Array(await file.arrayBuffer());
   const isJpeg = raw[0] === 0xff && raw[1] === 0xd8;
-  const original = isJpeg ? stripJpegGps(raw) : raw;
   const thumb = await makeThumbnail(file);
 
   const [lockedOriginal, lockedThumb] = await Promise.all([
-    encryptBytes(key, original),
+    encryptBytes(key, raw), // original intact, métadonnées comprises
     encryptBytes(key, thumb.bytes),
   ]);
 
