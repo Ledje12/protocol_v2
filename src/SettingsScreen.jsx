@@ -8,12 +8,6 @@ import { SettingsGroup, SettingsRow, SettingsSheet } from "./SettingsParts.jsx";
 import { forgetKey } from "./albumCrypto.js";
 import { getSavedAlbumKey } from "./photoAlbum.js";
 import { AlbumKeySheet } from "./PhotoAlbum.jsx";
-import {
-  disableAppLock,
-  enableAppLock,
-  isAppLockEnabled,
-  isAppLockSupported,
-} from "./appLock.js";
 import { supabase } from "./supabaseClient.js";
 
 /* =========================================================
@@ -770,59 +764,6 @@ export default function SettingsScreen({
         active = false;
       };
     }, [coupleId]);
-
-    /* Verrou Face ID (ce téléphone) */
-    const [lockSupported, setLockSupported] = useState(false);
-    const [lockUserId, setLockUserId] = useState(null);
-    const [lockEnabled, setLockEnabled] = useState(false);
-    const [lockBusy, setLockBusy] = useState(false);
-    const [lockError, setLockError] = useState("");
-
-    useEffect(() => {
-      let active = true;
-
-      Promise.all([isAppLockSupported(), supabase.auth.getSession()]).then(
-        ([supported, { data }]) => {
-          const userId = data?.session?.user?.id || null;
-
-          if (active) {
-            setLockSupported(supported);
-            setLockUserId(userId);
-            setLockEnabled(isAppLockEnabled(userId));
-          }
-        }
-      );
-
-      return () => {
-        active = false;
-      };
-    }, []);
-
-    const toggleAppLock =
-      async () => {
-        setLockBusy(true);
-        setLockError("");
-
-        try {
-          if (lockEnabled) {
-            disableAppLock();
-            setLockEnabled(false);
-          } else {
-            await enableAppLock(lockUserId);
-            setLockEnabled(true);
-          }
-
-          setSheet(null);
-        } catch (err) {
-          if (err?.name !== "NotAllowedError" && err?.name !== "AbortError") {
-            console.error("APP LOCK ERROR:", err);
-          }
-
-          setLockError("Face ID n’a pas abouti. Réessaie.");
-        } finally {
-          setLockBusy(false);
-        }
-      };
 
     const forgetAlbumPhrase =
       async () => {
@@ -2186,19 +2127,6 @@ export default function SettingsScreen({
               onClick={() => setSheet("album")}
             />
           )}
-
-          {lockSupported && lockUserId && (
-            <SettingsRow
-              label="Verrouillage"
-              hint="Face ID à l’ouverture de l’app."
-              value={lockEnabled ? "Activé" : "Désactivé"}
-              tone={lockEnabled ? "on" : undefined}
-              onClick={() => {
-                setLockError("");
-                setSheet("lock");
-              }}
-            />
-          )}
         </SettingsGroup>
 
         <SettingsGroup title="Compte">
@@ -2587,43 +2515,6 @@ export default function SettingsScreen({
             }}
             onClose={() => setSheet(null)}
           />
-        )}
-
-        {sheet === "lock" && (
-          <SettingsSheet
-            eyebrow="VERROUILLAGE"
-            title={lockEnabled ? "Protocol est verrouillé." : "Verrouiller avec Face ID."}
-            onClose={() => setSheet(null)}
-          >
-            <p className="settings-card-copy">
-              {lockEnabled
-                ? "À chaque ouverture, et après 5 minutes en arrière-plan, Face ID est demandé avant d’entrer."
-                : "À chaque ouverture, et après 5 minutes en arrière-plan, l’app demandera Face ID (ou ton empreinte) avant de s’afficher. Uniquement sur ce téléphone."}
-            </p>
-
-            <button
-              type="button"
-              className="settings-primary-action"
-              onClick={toggleAppLock}
-              disabled={lockBusy}
-            >
-              <span>
-                {lockBusy
-                  ? "Un instant…"
-                  : lockEnabled
-                    ? "Désactiver le verrouillage"
-                    : "Activer avec Face ID"}
-              </span>
-
-              <span className="settings-action-arrow">
-                →
-              </span>
-            </button>
-
-            {lockError && (
-              <p className="settings-feedback">{lockError}</p>
-            )}
-          </SettingsSheet>
         )}
 
         {sheet === "notifications" && (
