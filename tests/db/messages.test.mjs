@@ -34,15 +34,26 @@ test("le destinataire réagit, change d'avis, retire sa réaction", async () => 
   assert.equal(await reactionOf(couple.a, id), null);
 });
 
-test("on ne réagit ni à son propre message, ni à celui d'un autre duo, ni avec n'importe quoi", async () => {
+test("chacun sa réaction : l'expéditeur réagit sans écraser le destinataire", async () => {
+  const couple = await createCouple();
+  const id = await newMessage(couple);
+
+  await rpc(couple.b, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "🔥" });
+  await rpc(couple.a, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "❤️" });
+
+  const { rows } = await asUser(
+    couple.b,
+    "select reaction, sender_reaction from public.protocol_messages where id = $1",
+    [id]
+  );
+  assert.deepEqual(rows[0], { reaction: "🔥", sender_reaction: "❤️" });
+});
+
+test("on ne réagit ni au message d'un autre duo, ni avec n'importe quoi", async () => {
   const couple = await createCouple();
   const other = await createCouple();
   const id = await newMessage(couple);
 
-  await rejects(
-    rpc(couple.a, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "❤️" }),
-    /Message not found/
-  );
   await rejects(
     rpc(other.b, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "❤️" }),
     /Message not found/
