@@ -4,6 +4,13 @@ import {
   useState,
 } from "react";
 
+import {
+  PHOTO_CATEGORY,
+  PhotoCategoryButton,
+  PhotoChallengeList,
+  usePhotoChallenges,
+} from "./PhotoChallenges.jsx";
+
 import "./library.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 
@@ -824,6 +831,11 @@ export default function LibraryScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [filteredCards, families]);
 
+  // défis photo (jeu « À distance ») : catégorie à part
+  const photoChallenges = usePhotoChallenges(supabase);
+  const photoView =
+    !isSearching && selectedCategory === PHOTO_CATEGORY;
+
   const showCategories =
     Boolean(families) && !isSearching && !selectedCategory;
 
@@ -904,6 +916,7 @@ export default function LibraryScreen({
             CONTROLS
             ========================================= */}
 
+        {!photoView && (
         <section className="library-controls">
 
           <label className="library-search">
@@ -972,6 +985,7 @@ export default function LibraryScreen({
 
 
         </section>
+        )}
 
 
         {/* =========================================
@@ -995,6 +1009,17 @@ export default function LibraryScreen({
             </div>
           )}
 
+        {photoView && photoChallenges && (
+          <PhotoChallengeList
+            supabase={supabase}
+            challenges={photoChallenges}
+            partnerName={partnerName}
+            partnerSex={partnerSex}
+            myName={myName}
+          />
+        )}
+
+        {!photoView && (
         <div className="library-results-meta">
 
           <span className="library-count">
@@ -1021,6 +1046,7 @@ export default function LibraryScreen({
             )}
 
         </div>
+        )}
 
 
         {error && (
@@ -1030,7 +1056,8 @@ export default function LibraryScreen({
         )}
 
 
-        {!loading &&
+        {!photoView &&
+          !loading &&
           !error &&
           visibleCards.length === 0 && (
 
@@ -1054,12 +1081,32 @@ export default function LibraryScreen({
             CARDS
             ========================================= */}
 
-        {!loading &&
+        {!photoView &&
+          !loading &&
           !error && (
 
             showCategories ? (
             <div className="library-categories">
-              {categories.map((category) => (
+              {[
+                ...categories,
+                ...(photoChallenges?.length > 0
+                  ? [{ name: PHOTO_CATEGORY, count: photoChallenges.length, photo: true }]
+                  : []),
+              ]
+                // toutes les catégories de A à Z, défis photo compris
+                .sort((a, b) =>
+                  a.name.localeCompare(b.name, "fr", { sensitivity: "base" })
+                )
+                .map((category) => category.photo ? (
+                <PhotoCategoryButton
+                  key={category.name}
+                  count={category.count}
+                  onOpen={() => {
+                    setSelectedCategory(PHOTO_CATEGORY);
+                    window.scrollTo(0, 0);
+                  }}
+                />
+              ) : (
                 <button
                   key={category.name}
                   type="button"

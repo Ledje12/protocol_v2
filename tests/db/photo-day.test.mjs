@@ -118,3 +118,14 @@ test("refuser, arrêter, et une photo d'un autre ne compte pas", async () => {
   const other = await createCouple();
   assert.equal(await day(other.a), null, "un autre duo ne voit rien");
 });
+
+test("bibliothèque : le duo lit les défis photo, pas un compte sans duo", async () => {
+  const { a } = await createCouple();
+  const list = await rpc(a, "get_photo_challenges");
+  assert.ok(list.length >= 60);
+  assert.deepEqual(Object.keys(list[0]).sort(), ["id", "intensity", "prompt", "target_sex", "title"]);
+  assert.equal(list[0].intensity, 1, "triés par niveau");
+
+  const [loner] = await sql("insert into auth.users (email) values ('seul-' || gen_random_uuid() || '@test.local') returning id");
+  assert.equal((await rpc(loner, "get_photo_challenges")).length, 0);
+});

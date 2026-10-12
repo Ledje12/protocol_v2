@@ -3865,3 +3865,95 @@ button.envelope-card:not(:disabled) {
   font-weight: 500;
   font-size: var(--fs-body);
 }
+
+
+/* ---------------------------------------------------------
+   54. BIBLIOTHÈQUE : défis photo (jeu « À distance »)
+   --------------------------------------------------------- */
+
+.photo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.45);
+  border-radius: var(--r-pill);
+  color: var(--c-accent-soft);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.library-category-photo {
+  border-color: rgba(var(--c-accent-rgb), 0.4);
+  background: rgba(var(--c-accent-rgb), 0.05);
+}
+
+.library-category-photo .library-category-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-challenges-intro {
+  margin: 0 0 18px;
+  color: var(--c-text-soft);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.photo-challenges-level {
+  margin-bottom: 26px;
+}
+
+.photo-challenges-level > h3 {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 12px;
+  color: var(--c-label);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.photo-challenges-level > h3 span {
+  color: var(--c-muted);
+}
+
+.photo-challenge-card .library-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.photo-challenge-target {
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
+
+.photo-challenge-sheet {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+}
+
+.photo-challenge-sheet .primary {
+  width: 100%;
+}
+
+.photo-challenge-prompt {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lead);
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--c-text);
+}
+
+.photo-challenge-note {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--fs-small);
+}
