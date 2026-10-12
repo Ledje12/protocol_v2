@@ -30,7 +30,20 @@ if ("serviceWorker" in navigator) {
 
       refreshing = true;
 
-      window.location.reload();
+      // nouvelle version : on recharge derrière l'écran de chargement
+      // de l'app, plutôt que de voir l'écran sauter
+      const overlay = document.createElement("div");
+      overlay.className =
+        "protocol-auth-page protocol-loading-page protocol-update-overlay";
+      overlay.innerHTML =
+        '<div class="protocol-auth-glow"></div>' +
+        '<section class="protocol-loading">' +
+        '<span class="protocol-diamond protocol-loading-diamond" aria-hidden="true"></span>' +
+        "<p>Mise à jour…</p>" +
+        "</section>";
+      document.body.appendChild(overlay);
+
+      window.setTimeout(() => window.location.reload(), 120);
 
     }
   );

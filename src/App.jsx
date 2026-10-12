@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./notifications.css";
 import "./home-dashboard.css";
 import LibraryScreen from "./LibraryScreen.jsx";
@@ -37,6 +37,15 @@ function App() {
   const [profileLoading, setProfileLoading] =
     useState(true);
 
+  // compte pour lequel profil et couple ont été chargés : tant
+  // qu'ils ne correspondent pas à la session, on reste sur le
+  // chargement (sinon « Qui joue ? » clignotait à l'ouverture)
+  const [profileUserId, setProfileUserId] =
+    useState(undefined);
+
+  const [coupleUserId, setCoupleUserId] =
+    useState(undefined);
+
   const [profileError, setProfileError] =
     useState("");
 
@@ -54,22 +63,34 @@ function App() {
     setCoupleRefreshKey,
   ] = useState(0);
 
+  // le couple a déjà été chargé une fois (actualisations silencieuses)
+  const coupleLoadedRef =
+    useRef(false);
+
   useEffect(() => {
     let active = true;
 
+    /* À l'ouverture, une connexion expirée est d'abord vue comme
+       « absente » le temps de la renouveler : l'écran de connexion
+       clignotait. On attend donc le verdict de Supabase
+       (INITIAL_SESSION, après renouvellement) ; getSession ne sert
+       qu'à afficher plus vite une connexion valide, et un délai de
+       secours évite de rester bloqué sur le chargement. */
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (!active) {
-          return;
+        if (active && data?.session) {
+          setAuthSession(data.session);
+          setAuthLoading(false);
         }
-
-        setAuthSession(
-          data?.session ?? null
-        );
-
-        setAuthLoading(false);
       });
+
+    const fallback =
+      window.setTimeout(() => {
+        if (active) {
+          setAuthLoading(false);
+        }
+      }, 6000);
 
     const {
       data: authListener,
@@ -92,6 +113,7 @@ function App() {
 
     return () => {
       active = false;
+      window.clearTimeout(fallback);
 
       authListener?.subscription?.unsubscribe();
     };
@@ -155,6 +177,7 @@ function App() {
 
         } finally {
           if (active) {
+            setProfileUserId(authSession.user.id);
             setProfileLoading(false);
           }
         }
@@ -175,6 +198,8 @@ function App() {
       async () => {
 
         if (!authSession?.user?.id) {
+          coupleLoadedRef.current = false;
+
           if (active) {
             setCouple(null);
             setCoupleLoading(false);
@@ -184,7 +209,12 @@ function App() {
         }
 
         try {
-          setCoupleLoading(true);
+          // actualisation (ex. ouverture des réglages) : en silence,
+          // sans repasser par l'écran de chargement
+          if (!coupleLoadedRef.current) {
+            setCoupleLoading(true);
+          }
+
           setCoupleError("");
 
           const {
@@ -200,6 +230,7 @@ function App() {
           }
 
           if (active) {
+            coupleLoadedRef.current = true;
             setCouple(
               data ?? null
             );
@@ -219,6 +250,7 @@ function App() {
 
         } finally {
           if (active) {
+            setCoupleUserId(authSession.user.id);
             setCoupleLoading(false);
           }
         }
@@ -465,11 +497,17 @@ function App() {
     );
   }
 
-  if (profileLoading) {
+  if (
+    profileLoading ||
+    profileUserId !== authSession.user.id
+  ) {
     return <AppLoadingScreen />;
   }
 
-  if (coupleLoading) {
+  if (
+    coupleLoading ||
+    coupleUserId !== authSession.user.id
+  ) {
     return <AppLoadingScreen />;
   }
 

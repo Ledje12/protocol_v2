@@ -12,16 +12,22 @@ const LEVELS = ["", "Suggestif", "Sensuel", "Osé", "Explicite"];
 const deName = (name) =>
   /^[aeiouyhàâäéèêëîïôöûüœ]/i.test(name || "") ? `d’${name}` : `de ${name}`;
 
+// dernière journée connue (session) : affichage immédiat au retour
+let cachedDay;
+
 export function usePhotoDay(supabase, { poll = true } = {}) {
-  const [day, setDay] = useState(null);
+  const [day, setDay] = useState(cachedDay ?? null);
+  const [loaded, setLoaded] = useState(cachedDay !== undefined);
 
   const refresh = useCallback(async () => {
     const { data, error } = await supabase.rpc("get_photo_day");
 
     if (!error) {
-      setDay(data || null);
+      cachedDay = data || null;
+      setDay(cachedDay);
     }
 
+    setLoaded(true);
     return error ? null : data;
   }, [supabase]);
 
@@ -41,7 +47,13 @@ export function usePhotoDay(supabase, { poll = true } = {}) {
     return () => window.clearInterval(timer);
   }, [refresh, poll]);
 
-  return [day, refresh, setDay];
+  // mise à jour locale (bandeau) : la mémoire suit
+  const update = useCallback((next) => {
+    cachedDay = next;
+    setDay(next);
+  }, []);
+
+  return [day, refresh, update, loaded];
 }
 
 export function PhotoDayBanner({
@@ -249,9 +261,7 @@ export function PhotoDayBanner({
 }
 
 /* Rappel sur l'accueil : invitation reçue, ou défi à relever */
-export function PhotoDayHomeNotice({ supabase, onOpen }) {
-  const [day] = usePhotoDay(supabase, { poll: false });
-
+export function PhotoDayHomeNotice({ day, onOpen }) {
   if (!day) {
     return null;
   }

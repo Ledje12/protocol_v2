@@ -3895,3 +3895,35 @@ button.envelope-card:not(:disabled) {
   color: var(--c-muted);
   font-size: var(--fs-small);
 }
+
+
+/* ---------------------------------------------------------
+   55. ACCUEIL : l'animation d'entrée ne se joue qu'une fois
+   Au retour sur l'accueil (bibliothèque, réglages…), tout est
+   déjà en place : pas de seconde « entrée en scène ».
+   --------------------------------------------------------- */
+
+.protocol-home-page.is-revisit .protocol-home-hero-card,
+.protocol-home-page.is-revisit .protocol-home-eyebrow,
+.protocol-home-page.is-revisit .protocol-home-title-line,
+.protocol-home-page.is-revisit .protocol-home-status,
+.protocol-home-page.is-revisit .protocol-home-primary,
+.protocol-home-page.is-revisit .protocol-home-join-main,
+.protocol-home-page.is-revisit .protocol-home-resume-link,
+.protocol-home-page.is-revisit .protocol-home-nav,
+.protocol-home-page.is-revisit .protocol-home-signals,
+.protocol-home-page.is-revisit .protocol-home-footer {
+  animation: none;
+}
+
+
+/* ---------------------------------------------------------
+   56. MISE À JOUR DE L'APP : écran de chargement le temps du
+   rechargement (au lieu d'un saut visible)
+   --------------------------------------------------------- */
+
+.protocol-update-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
