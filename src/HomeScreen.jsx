@@ -1211,7 +1211,7 @@ export default function HomeScreen({
             <span className="protocol-home-nav-icon">
 
               <HomeIcon
-                name="mail"
+                name="sparkles"
                 size={24}
               />
 
@@ -1305,7 +1305,7 @@ export default function HomeScreen({
               <span className="protocol-home-icon-pink">
 
                 <HomeIcon
-                  name="sparkles"
+                  name="mail"
                   size={28}
                 />
 
