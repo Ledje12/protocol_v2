@@ -8,7 +8,18 @@ import { SettingsSheet } from "./SettingsParts.jsx";
 import { supabase } from "./supabaseClient.js";
 import { useUnreadCounts } from "./unread.js";
 import UnreadBadge from "./UnreadBadge.jsx";
-import { PhotoDayHomeNotice } from "./PhotoDay.jsx";
+import { PhotoDayHomeNotice, usePhotoDay } from "./PhotoDay.jsx";
+import { AppLoadingScreen } from "./LoadingScreen.jsx";
+
+/* Mémoire de l'accueil le temps de la session : au retour sur
+   l'accueil, tout s'affiche d'un coup avec les dernières données
+   (plus de blocs qui arrivent en retard et poussent le reste),
+   puis se met à jour en silence. undefined = jamais chargé. */
+const homeCache = {
+  partnerGame: undefined,
+  resume: undefined,
+  visited: false,
+};
 
 function HomeIcon({
   name,
@@ -140,7 +151,10 @@ export default function HomeScreen({
    * (fonction get_partner_waiting_game, migration 20261009090000)
    */
   const [partnerGame, setPartnerGame] =
-    useState(null);
+    useState(homeCache.partnerGame ?? null);
+
+  const [partnerChecked, setPartnerChecked] =
+    useState(homeCache.partnerGame !== undefined);
 
   useEffect(() => {
     let active = true;
@@ -157,9 +171,12 @@ export default function HomeScreen({
             ? data[0]
             : data;
 
-        setPartnerGame(
-          row?.code ? row : null
-        );
+        homeCache.partnerGame = row?.code ? row : null;
+        setPartnerGame(homeCache.partnerGame);
+      }
+
+      if (active) {
+        setPartnerChecked(true);
       }
     };
 
@@ -202,13 +219,13 @@ export default function HomeScreen({
     useState("");
 
   const [resumeGame, setResumeGame] =
-    useState(null);
+    useState(homeCache.resume?.game ?? null);
 
   const [resumeLoading, setResumeLoading] =
-    useState(true);
+    useState(homeCache.resume === undefined);
 
   const [resumeHasUpdate, setResumeHasUpdate] =
-    useState(false);
+    useState(homeCache.resume?.hasUpdate ?? false);
 
   const [joinOpen, setJoinOpen] =
     useState(false);
@@ -777,8 +794,55 @@ export default function HomeScreen({
     }
   };
 
+  /* ---------------------------------------------------------
+     AFFICHAGE PROPRE
+     Première ouverture : écran de chargement jusqu'à ce que tout
+     soit là (2,5 s au plus), puis l'accueil d'un seul tenant.
+     Retours suivants : affichage immédiat, sans rejouer
+     l'animation d'entrée.
+     --------------------------------------------------------- */
+  const [photoDay, , , photoDayLoaded] =
+    usePhotoDay(supabase, { poll: false });
+
+  useEffect(() => {
+    if (!resumeLoading) {
+      homeCache.resume = { game: resumeGame, hasUpdate: resumeHasUpdate };
+    }
+  }, [resumeLoading, resumeGame, resumeHasUpdate]);
+
+  const [timedOut, setTimedOut] =
+    useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setTimedOut(true), 2500);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const [revisit] =
+    useState(() => homeCache.visited);
+
+  const ready =
+    timedOut ||
+    (!resumeLoading && partnerChecked && photoDayLoaded);
+
+  useEffect(() => {
+    if (ready) {
+      homeCache.visited = true;
+    }
+  }, [ready]);
+
+  if (!ready) {
+    return <AppLoadingScreen />;
+  }
+
   return (
-    <main className="app protocol-home-page">
+    <main
+      className={
+        revisit
+          ? "app protocol-home-page is-revisit"
+          : "app protocol-home-page"
+      }
+    >
 
       {showLaunchChoice && (
         <SettingsSheet
@@ -1202,7 +1266,7 @@ export default function HomeScreen({
         {/* les signes supposent un partenaire associé */}
         {hasPartner && (
           <PhotoDayHomeNotice
-            supabase={supabase}
+            day={photoDay}
             onOpen={() => navigate("/messages")}
           />
         )}
