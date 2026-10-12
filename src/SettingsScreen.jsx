@@ -7,6 +7,7 @@ import { BackIcon } from "./ScreenHeader.jsx";
 import { SettingsGroup, SettingsRow, SettingsSheet } from "./SettingsParts.jsx";
 import { forgetKey } from "./albumCrypto.js";
 import { getSavedAlbumKey } from "./photoAlbum.js";
+import { AlbumKeySheet } from "./PhotoAlbum.jsx";
 import { supabase } from "./supabaseClient.js";
 
 /* =========================================================
@@ -2103,12 +2104,13 @@ export default function SettingsScreen({
             onClick={() => setSheet("lovense")}
           />
 
-          <SettingsRow
-            label="Album photo"
-            hint="Phrase secrète gardée sur ce téléphone pour voir vos photos."
-            value={albumUnlocked ? null : "Verrouillé"}
-          >
-            {albumUnlocked && (
+          {albumUnlocked ? (
+            <SettingsRow
+              label="Album photo"
+              hint="Phrase secrète gardée sur ce téléphone pour voir vos photos."
+              value="Déverrouillé"
+              tone="on"
+            >
               <button
                 type="button"
                 className="settings-inline-action"
@@ -2116,8 +2118,15 @@ export default function SettingsScreen({
               >
                 Oublier la phrase ici
               </button>
-            )}
-          </SettingsRow>
+            </SettingsRow>
+          ) : (
+            <SettingsRow
+              label="Album photo"
+              hint="Entre la phrase secrète du duo pour voir vos photos sur ce téléphone."
+              value="Verrouillé"
+              onClick={() => setSheet("album")}
+            />
+          )}
         </SettingsGroup>
 
         <SettingsGroup title="Compte">
@@ -2493,6 +2502,19 @@ export default function SettingsScreen({
               )}
             </div>
           </SettingsSheet>
+        )}
+
+        {sheet === "album" && (
+          <AlbumKeySheet
+            supabase={supabase}
+            coupleId={coupleId}
+            partnerName={couple?.partner?.display_name || "ton partenaire"}
+            onUnlocked={() => {
+              setAlbumUnlocked(true);
+              setSheet(null);
+            }}
+            onClose={() => setSheet(null)}
+          />
         )}
 
         {sheet === "notifications" && (
