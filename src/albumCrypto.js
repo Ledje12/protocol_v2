@@ -162,81 +162,9 @@ export async function forgetKey(coupleId) {
 
 
 /* ---------------------------------------------------------
-   PHOTOS : retirer la position GPS, faire une miniature
+   PHOTOS : miniature (l'original est envoyé tel quel, position
+   GPS comprise : elle reste chiffrée, lisible par vous deux seuls)
    --------------------------------------------------------- */
-
-const TYPE_SIZES = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
-
-// Efface le bloc GPS des métadonnées EXIF d'un JPEG, sans toucher
-// à l'image (pas de recompression : qualité d'origine).
-export function stripJpegGps(input) {
-  const bytes = new Uint8Array(input);
-
-  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) {
-    return bytes;
-  }
-
-  let offset = 2;
-
-  while (offset + 4 < bytes.length && bytes[offset] === 0xff) {
-    const marker = bytes[offset + 1];
-    const length = (bytes[offset + 2] << 8) | bytes[offset + 3];
-
-    // APP1 « Exif\0\0 »
-    if (
-      marker === 0xe1 &&
-      bytes[offset + 4] === 0x45 &&
-      bytes[offset + 5] === 0x78 &&
-      bytes[offset + 6] === 0x69 &&
-      bytes[offset + 7] === 0x66
-    ) {
-      const tiff = offset + 10;
-      const view = new DataView(bytes.buffer, bytes.byteOffset);
-      const little = view.getUint16(tiff) === 0x4949;
-      const u16 = (at) => view.getUint16(at, little);
-      const u32 = (at) => view.getUint32(at, little);
-
-      const ifd0 = tiff + u32(tiff + 4);
-      const count = u16(ifd0);
-
-      for (let i = 0; i < count; i += 1) {
-        const entry = ifd0 + 2 + i * 12;
-
-        if (u16(entry) !== 0x8825) {
-          continue;
-        }
-
-        const gps = tiff + u32(entry + 8);
-        const gpsCount = u16(gps);
-
-        for (let j = 0; j < gpsCount; j += 1) {
-          const gpsEntry = gps + 2 + j * 12;
-          const size = (TYPE_SIZES[u16(gpsEntry + 2)] || 1) * u32(gpsEntry + 4);
-
-          if (size > 4) {
-            const at = tiff + u32(gpsEntry + 8);
-            bytes.fill(0, at, Math.min(at + size, bytes.length));
-          }
-
-          bytes.fill(0, gpsEntry, gpsEntry + 12);
-        }
-
-        // bloc GPS vide
-        view.setUint16(gps, 0, little);
-      }
-
-      return bytes;
-    }
-
-    if (marker === 0xda) {
-      break; // début de l'image : plus de métadonnées
-    }
-
-    offset += 2 + length;
-  }
-
-  return bytes;
-}
 
 // Miniature JPEG (640 px max), orientation respectée
 export async function makeThumbnail(file) {

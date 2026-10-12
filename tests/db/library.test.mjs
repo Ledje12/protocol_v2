@@ -85,3 +85,27 @@ test("le style de cartes est partagé par le couple", async () => {
     /invalid card style/i
   );
 });
+
+test("la vue des cartes jouables n'est pas lisible via l'API", async () => {
+  const { a } = await createCouple();
+
+  // seules les fonctions du jeu s'en servent ; directement : refusé
+  await rejects(
+    asUser(a, "select count(*) from public.protocol_playable_cards"),
+    /permission denied/
+  );
+
+  const client = await pool.connect();
+
+  try {
+    await client.query("begin");
+    await client.query("set local role anon");
+    await rejects(
+      client.query("select count(*) from public.protocol_playable_cards"),
+      /permission denied/
+    );
+  } finally {
+    await client.query("rollback").catch(() => {});
+    client.release();
+  }
+});
