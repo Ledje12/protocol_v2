@@ -157,6 +157,9 @@ const toggleIn = (list, value) =>
 
 const OWN_CATEGORY = "Vos cartes";
 
+// cartes notées 🔥 par vous deux (en plus de leur catégorie)
+const FAVORITES_CATEGORY = "Nos favoris";
+
 const RATING_ICONS = {
   fire: "🔥",
   like: "👍",
@@ -296,6 +299,29 @@ export default function LibraryScreen({
       active = false;
     };
   }, [supabase]);
+
+  // nos favoris : clés « source-id » (null sans la migration)
+  const [favorites, setFavorites] =
+    useState(null);
+
+  useEffect(() => {
+    let active = true;
+
+    supabase.rpc("get_couple_favorites").then(({ data, error: favoritesError }) => {
+      if (active && !favoritesError) {
+        setFavorites(
+          new Set((data || []).map((row) => `${row.card_source}-${row.card_id}`))
+        );
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
+
+  const isFavorite = (card) =>
+    Boolean(favorites?.has(`${card.card_source || "official"}-${card.id}`));
 
   // familles -> catégorie (null tant que la table n'existe pas :
   // la bibliothèque reste alors une simple liste)
@@ -822,6 +848,14 @@ export default function LibraryScreen({
         byName.set(name, entry);
       }
 
+      // toujours visible, même vide : on découvre comment la remplir
+      if (favorites) {
+        byName.set(FAVORITES_CATEGORY, {
+          name: FAVORITES_CATEGORY,
+          count: filteredCards.filter(isFavorite).length,
+        });
+      }
+
       // toutes les catégories de A à Z
       return [...byName.values()].sort(
         (a, b) =>
@@ -829,7 +863,7 @@ export default function LibraryScreen({
       );
     // categoryOf ne dépend que de families
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filteredCards, families]);
+    }, [filteredCards, families, favorites]);
 
   // défis photo (jeu « À distance ») : catégorie à part
   const photoChallenges = usePhotoChallenges(supabase);
@@ -842,8 +876,10 @@ export default function LibraryScreen({
   const visibleCards =
     (
       families && !isSearching && selectedCategory
-        ? filteredCards.filter(
-            (card) => categoryOf(card).name === selectedCategory
+        ? filteredCards.filter((card) =>
+            selectedCategory === FAVORITES_CATEGORY
+              ? isFavorite(card)
+              : categoryOf(card).name === selectedCategory
           )
         : [...filteredCards]
     ).sort(byTitle);
@@ -1026,7 +1062,7 @@ export default function LibraryScreen({
             {loading
               ? "Chargement…"
               : showCategories
-                ? `${filteredCards.length} cartes · ${categories.length} catégories`
+                ? `${filteredCards.length} cartes · ${categories.filter((category) => category.name !== FAVORITES_CATEGORY).length} catégories`
                 : `${visibleCards.length} carte${
                     visibleCards.length > 1
                       ? "s"
@@ -1068,8 +1104,11 @@ export default function LibraryScreen({
               </span>
 
               <p>
-                Aucune carte ne correspond
-                à ces filtres.
+                {selectedCategory === FAVORITES_CATEGORY &&
+                !isSearching &&
+                favorites?.size === 0
+                  ? "Pas encore de favoris. Une carte notée 🔥 par vous deux pendant une partie viendra se ranger ici."
+                  : "Aucune carte ne correspond à ces filtres."}
               </p>
 
             </div>
