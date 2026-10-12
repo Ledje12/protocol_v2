@@ -101,23 +101,53 @@ export default function MessagesScreen({
   const [albumVersion, setAlbumVersion] = useState(0);
   const fileInputRef = useRef(null);
 
-  /* Réactions : appui long sur un message (le sien ou celui de l'autre) */
+  /* Appui long : réagir ou répondre. Glisser vers la droite : répondre. */
   const [picker, setPicker] = useState(null);
-  const pressRef = useRef({ timer: null, x: 0, y: 0, done: false });
+  const [replyTo, setReplyTo] = useState(null);
+  const draftRef = useRef(null);
+  const pressRef = useRef({ timer: null, x: 0, y: 0, done: false, swipe: 0, bubble: null });
+
+  const SWIPE_REPLY = 56;
+
+  const startReply = (message) => {
+    setPicker(null);
+    setReplyTo(message);
+    draftRef.current?.focus();
+  };
 
   const cancelPress = () => {
     window.clearTimeout(pressRef.current.timer);
     pressRef.current.timer = null;
   };
 
+  // fin du geste : la bulle revient en place ; assez glissée = répondre
+  const endPress = (message) => {
+    cancelPress();
+    const { bubble, swipe } = pressRef.current;
+
+    if (bubble && swipe) {
+      bubble.style.transition = "transform 180ms ease";
+      bubble.style.transform = "";
+      pressRef.current.swipe = 0;
+
+      if (swipe >= SWIPE_REPLY) {
+        pressRef.current.done = true; // pas d'ouverture de photo en plus
+        startReply(message);
+      }
+    }
+  };
+
   const pressHandlers = (message) => ({
     onPointerDown: (event) => {
       cancelPress();
       const bubble = event.currentTarget;
+      bubble.style.transition = "";
       pressRef.current = {
         x: event.clientX,
         y: event.clientY,
         done: false,
+        swipe: 0,
+        bubble,
         timer: window.setTimeout(() => {
           pressRef.current.done = true;
           navigator.vibrate?.(10);
@@ -126,17 +156,38 @@ export default function MessagesScreen({
       };
     },
     onPointerMove: (event) => {
-      // le doigt glisse : c'est un défilement, pas un appui
-      if (
-        Math.abs(event.clientX - pressRef.current.x) > 10 ||
-        Math.abs(event.clientY - pressRef.current.y) > 10
-      ) {
+      const press = pressRef.current;
+      if (!press.bubble) {
+        return;
+      }
+
+      const dx = event.clientX - press.x;
+      const dy = event.clientY - press.y;
+
+      // le doigt glisse : c'est un défilement ou un glissé, pas un appui
+      if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
         cancelPress();
       }
+
+      // glissé vers la droite, plutôt horizontal : la bulle suit
+      if (dx > 10 && Math.abs(dy) < 30 && !press.done) {
+        const swipe = Math.min(dx - 10, 80);
+        if (press.swipe < SWIPE_REPLY && swipe >= SWIPE_REPLY) {
+          navigator.vibrate?.(8);
+        }
+        press.swipe = swipe;
+        press.bubble.style.transform = `translateX(${swipe}px)`;
+      }
     },
-    onPointerUp: cancelPress,
-    onPointerCancel: cancelPress,
-    onPointerLeave: cancelPress,
+    onPointerUp: () => endPress(message),
+    onPointerCancel: () => endPress(message),
+    // un doigt reste attaché à la bulle même si la page bouge
+    // (clavier qui se ferme) ; seule la souris « sort » de la bulle
+    onPointerLeave: (event) => {
+      if (event.pointerType === "mouse") {
+        endPress(message);
+      }
+    },
     // le menu du téléphone (copier, enregistrer l'image…) ne s'ouvre pas
     onContextMenu: (event) => event.preventDefault(),
     // l'appui long n'ouvre pas la photo en plus
@@ -463,6 +514,7 @@ export default function MessagesScreen({
             {
               body: {
                 body: trimmed,
+                reply_to_id: replyTo?.id || null,
               },
             }
           );
@@ -502,6 +554,7 @@ export default function MessagesScreen({
         );
 
         setDraft("");
+        setReplyTo(null);
       } catch (err) {
         console.error(
           "MESSAGE SEND ERROR:",
@@ -556,7 +609,7 @@ export default function MessagesScreen({
     };
 
   const postPhoto =
-    async (file, caption = "") => {
+    async (file, caption = "", replyToId = null) => {
       const photo =
         await uploadPhoto(
           supabase,
@@ -565,7 +618,7 @@ export default function MessagesScreen({
         );
 
       setAlbumVersion((version) => version + 1);
-      await postMessage({ photo_id: photo.id, body: caption }, photo);
+      await postMessage({ photo_id: photo.id, body: caption, reply_to_id: replyToId }, photo);
       return photo;
     };
 
@@ -578,7 +631,8 @@ export default function MessagesScreen({
       try {
         setUploading(true);
         setError("");
-        await postPhoto(file);
+        await postPhoto(file, "", replyTo?.id || null);
+        setReplyTo(null);
       } catch (err) {
         console.error(
           "PHOTO SEND ERROR:",
@@ -748,6 +802,7 @@ export default function MessagesScreen({
                     return (
                       <div
                         key={message.id}
+                        data-message-id={message.id}
                         className={[
                           "message-row",
                           isMine ? "is-mine" : "is-theirs",
@@ -766,6 +821,14 @@ export default function MessagesScreen({
                             .join(" ")}
                           {...pressHandlers(message)}
                         >
+                          {message.reply_to_id && (
+                            <ReplyQuote
+                              original={messages.find((item) => item.id === message.reply_to_id)}
+                              currentUserId={currentUserId}
+                              partnerName={partnerName}
+                            />
+                          )}
+
                           {message.photo && (
                             <PhotoThumb
                               supabase={supabase}
@@ -824,6 +887,24 @@ export default function MessagesScreen({
 
         {tab === "chat" && (
         <div className="messages-composer-wrap">
+          {replyTo && (
+            <div className="messages-reply-bar">
+              <div className="messages-reply-bar-text">
+                <span>
+                  Réponse à {replyTo.sender_user_id === currentUserId ? "toi" : partnerName}
+                </span>
+                <p>{snippet(replyTo)}</p>
+              </div>
+              <button
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => setReplyTo(null)}
+                aria-label="Annuler la réponse"
+              >
+                ×
+              </button>
+            </div>
+          )}
           <div className="messages-composer">
             <button
               type="button"
@@ -849,6 +930,7 @@ export default function MessagesScreen({
             />
 
             <textarea
+              ref={draftRef}
               value={draft}
               onChange={(
                 event
@@ -917,6 +999,12 @@ export default function MessagesScreen({
             const message = messages.find((item) => item.id === picker.id);
             return message?.[myReactionField(message)];
           })()}
+          onReply={() => {
+            const message = messages.find((item) => item.id === picker.id);
+            if (message) {
+              startReply(message);
+            }
+          }}
           onPick={(reaction) => {
             const message = messages.find((item) => item.id === picker.id);
             if (message) {
@@ -964,11 +1052,11 @@ export default function MessagesScreen({
 
 /* Les trois réactions, au-dessus du message (en dessous s'il est
    tout en haut de l'écran) ; toucher ailleurs referme. */
-function ReactionPicker({ rect, current, onPick, onClose }) {
+function ReactionPicker({ rect, current, onPick, onReply, onClose }) {
   const above = rect.top > 90;
   const style = {
     top: above ? rect.top - 58 : rect.bottom + 10,
-    left: Math.max(12, Math.min(rect.left, window.innerWidth - 12 - 168)),
+    left: Math.max(12, Math.min(rect.left, window.innerWidth - 12 - 226)),
   };
 
   return createPortal(
@@ -992,8 +1080,60 @@ function ReactionPicker({ rect, current, onPick, onClose }) {
             {reaction}
           </button>
         ))}
+
+        <button
+          type="button"
+          role="menuitem"
+          className="reaction-picker-reply"
+          onClick={onReply}
+          aria-label="Répondre"
+        >
+          ↩
+        </button>
       </div>
     </div>,
     document.body
+  );
+}
+
+// aperçu d'un message (citation, barre de réponse)
+function snippet(message) {
+  if (!message) {
+    return "Message supprimé";
+  }
+
+  if (message.body) {
+    return message.body.length > 90 ? `${message.body.slice(0, 90)}…` : message.body;
+  }
+
+  return message.photo_id ? "📷 Photo" : "Photo supprimée";
+}
+
+/* Le message auquel on répond, en tête de la bulle ; le toucher
+   ramène au message d'origine. */
+function ReplyQuote({ original, currentUserId, partnerName }) {
+  const goTo = (event) => {
+    event.stopPropagation();
+    const row = original && document.querySelector(`[data-message-id="${original.id}"]`);
+
+    if (row) {
+      row.scrollIntoView({ behavior: "smooth", block: "center" });
+      row.classList.remove("is-flash");
+      void row.offsetWidth;
+      row.classList.add("is-flash");
+    }
+  };
+
+  return (
+    <button type="button" className="message-quote" onClick={goTo}>
+      <span>
+        {!original
+          ? "Réponse"
+          : original.sender_user_id === currentUserId
+            ? "Toi"
+            : partnerName}
+      </span>
+      <p>{snippet(original)}</p>
+    </button>
   );
 }

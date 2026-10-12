@@ -1142,3 +1142,123 @@ body,
 .message-seen.is-seen {
   color: rgba(var(--c-text-rgb), 0.85);
 }
+
+
+/* =========================================================
+   RÉPONDRE À UN MESSAGE
+   ========================================================= */
+
+/* le glissé horizontal reste à nous, le défilement vertical à la page */
+.message-bubble {
+  touch-action: pan-y;
+}
+
+.message-quote {
+  display: block;
+  width: 100%;
+  margin: 0 0 7px;
+  padding: 6px 10px;
+  box-sizing: border-box;
+  border: 0;
+  border-left: 3px solid var(--c-accent);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.message-quote span {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--c-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.message-bubble.is-mine .message-quote span {
+  color: rgba(var(--c-text-rgb), 0.9);
+}
+
+.message-quote p {
+  margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: rgba(var(--c-text-rgb), 0.72);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+/* le message d'origine, retrouvé : un bref éclat */
+.message-row.is-flash .message-bubble {
+  animation: message-flash 900ms ease;
+}
+
+@keyframes message-flash {
+  30% {
+    box-shadow: 0 0 0 2px var(--c-accent), 0 12px 28px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.messages-reply-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 8px 8px 8px 12px;
+  border: 1px solid var(--c-line);
+  border-left: 3px solid var(--c-accent);
+  border-radius: 14px;
+  background: var(--c-surface-2);
+}
+
+.messages-reply-bar-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.messages-reply-bar-text span {
+  display: block;
+  color: var(--c-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.messages-reply-bar-text p {
+  margin: 2px 0 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: rgba(var(--c-text-rgb), 0.72);
+  font-size: 13px;
+}
+
+.messages-reply-bar button {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(var(--c-text-rgb), 0.08);
+  color: var(--c-text);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.reaction-picker .reaction-picker-reply {
+  margin-left: 2px;
+  border-left: 1px solid var(--c-line);
+  border-radius: 0 999px 999px 0;
+  color: var(--c-text);
+  font-size: 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-row.is-flash .message-bubble {
+    animation: none;
+  }
+}

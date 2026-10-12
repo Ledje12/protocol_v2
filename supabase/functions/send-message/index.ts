@@ -56,6 +56,8 @@ Deno.serve(async (req)=>{
     const messageBody = String(body?.body || "").trim();
     // photo de l'album (déjà chiffrée et envoyée par le téléphone)
     const photoId = body?.photo_id ? String(body.photo_id) : null;
+    // réponse à un message précis de la conversation
+    const replyToId = Number.isSafeInteger(Number(body?.reply_to_id)) && Number(body?.reply_to_id) > 0 ? Number(body.reply_to_id) : null;
     if (!messageBody && !photoId) {
       throw new Error("Le message est vide.");
     }
@@ -86,6 +88,12 @@ Deno.serve(async (req)=>{
         throw new Error("Photo introuvable.");
       }
     }
+    if (replyToId) {
+      const { data: original, error: originalError } = await supabase.from("protocol_messages").select("id").eq("id", replyToId).eq("couple_id", coupleId).maybeSingle();
+      if (originalError || !original) {
+        throw new Error("Message d'origine introuvable.");
+      }
+    }
     /* =====================================================
          PROFILE
          ===================================================== */ const { data: senderProfile, error: profileError } = await supabase.from("protocol_profiles").select("display_name").eq("user_id", currentUser.id).maybeSingle();
@@ -100,7 +108,8 @@ Deno.serve(async (req)=>{
       recipient_user_id: recipientUserId,
       couple_id: coupleId,
       body: messageBody,
-      photo_id: photoId
+      photo_id: photoId,
+      reply_to_id: replyToId
     }).select(`
             id,
             sender_user_id,

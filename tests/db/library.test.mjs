@@ -109,3 +109,23 @@ test("la vue des cartes jouables n'est pas lisible via l'API", async () => {
     client.release();
   }
 });
+
+test("nos favoris : seulement les cartes notées 🔥 par les deux", async () => {
+  const { a, b } = await createCouple();
+  const other = await createCouple();
+  const [x, y, z] = await sql("select id from public.protocol_cards order by id limit 3");
+  const rate = (user, card, rating) =>
+    rpc(user, "set_card_rating", { p_card_source: "official", p_card_id: card.id, p_rating: rating });
+
+  await rate(a, x, "fire");
+  await rate(b, x, "fire"); // 🔥 + 🔥 : favori
+  await rate(a, y, "fire");
+  await rate(b, y, "like"); // 🔥 + 👍 : non
+  await rate(a, z, "fire"); // un seul avis : non
+  await rate(other.a, z, "fire"); // l'autre duo ne compte pas
+
+  const favorites = await rpc(a, "get_couple_favorites");
+  assert.deepEqual(favorites, [{ card_source: "official", card_id: String(x.id) }]);
+  assert.deepEqual(await rpc(b, "get_couple_favorites"), favorites, "les mêmes pour les deux");
+  assert.deepEqual(await rpc(other.a, "get_couple_favorites"), []);
+});
