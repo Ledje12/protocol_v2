@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import BrandMark from "./BrandMark.jsx";
 import { disableAppLock, markAppUnlocked, unlockApp } from "./appLock.js";
 
 /* Écran de verrouillage : Face ID (ou empreinte) avant d'entrer.
-   L'iPhone ne lance Face ID directement que sur un toucher (sinon
-   il intercale une fenêtre « Utiliser la clé d'accès ») : tout
-   l'écran est donc un bouton, un seul toucher suffit. */
+   Dans une app web, l'iPhone demande toujours de confirmer
+   « Utiliser la clé d'accès » avant Face ID : on ouvre donc cette
+   fenêtre tout de suite (un seul toucher), et tout l'écran permet
+   de réessayer si elle a été fermée. */
 
 export default function LockScreen({ userId, supabase, onUnlocked }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const triedRef = useRef(false);
 
-  const unlock = async () => {
+  const unlock = async ({ quiet = false } = {}) => {
     if (busy) {
       return;
     }
@@ -33,9 +35,20 @@ export default function LockScreen({ userId, supabase, onUnlocked }) {
       }
     }
 
-    setError("Pas reconnu. Réessaie.");
+    if (!quiet) {
+      setError("Pas reconnu. Réessaie.");
+    }
     setBusy(false);
   };
+
+  // la fenêtre Face ID s'ouvre dès l'affichage
+  useEffect(() => {
+    if (!triedRef.current) {
+      triedRef.current = true;
+      unlock({ quiet: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Face ID perdu (nouveau visage, autre téléphone) : on se
   // reconnecte avec son mot de passe, le verrou est à réactiver
@@ -47,7 +60,7 @@ export default function LockScreen({ userId, supabase, onUnlocked }) {
   };
 
   return (
-    <main className="protocol-auth-page protocol-lock-page" onClick={unlock}>
+    <main className="protocol-auth-page protocol-lock-page" onClick={() => unlock()}>
       <div className="protocol-auth-glow" />
 
       <section className="protocol-lock">
