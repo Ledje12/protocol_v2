@@ -1,16 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import BrandMark from "./BrandMark.jsx";
 import { disableAppLock, markAppUnlocked, unlockApp } from "./appLock.js";
 
-/* Écran de verrouillage : Face ID (ou empreinte) avant d'entrer. */
+/* Écran de verrouillage : Face ID (ou empreinte) avant d'entrer.
+   L'iPhone ne lance Face ID directement que sur un toucher (sinon
+   il intercale une fenêtre « Utiliser la clé d'accès ») : tout
+   l'écran est donc un bouton, un seul toucher suffit. */
 
 export default function LockScreen({ userId, supabase, onUnlocked }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const triedRef = useRef(false);
 
   const unlock = async () => {
+    if (busy) {
+      return;
+    }
+
     setBusy(true);
     setError("");
 
@@ -31,26 +37,17 @@ export default function LockScreen({ userId, supabase, onUnlocked }) {
     setBusy(false);
   };
 
-  // première tentative tout de suite (si le téléphone l'accepte
-  // sans toucher l'écran)
-  useEffect(() => {
-    if (!triedRef.current) {
-      triedRef.current = true;
-      unlock().then(() => setError(""));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // Face ID perdu (nouveau visage, autre téléphone) : on se
   // reconnecte avec son mot de passe, le verrou est à réactiver
-  const signOut = async () => {
+  const signOut = async (event) => {
+    event.stopPropagation();
     disableAppLock();
     await supabase.auth.signOut();
     window.location.replace("/");
   };
 
   return (
-    <main className="protocol-auth-page protocol-lock-page">
+    <main className="protocol-auth-page protocol-lock-page" onClick={unlock}>
       <div className="protocol-auth-glow" />
 
       <section className="protocol-lock">
@@ -64,13 +61,12 @@ export default function LockScreen({ userId, supabase, onUnlocked }) {
         </span>
 
         <h1>Verrouillé.</h1>
-        <p>Ce qui se passe ici reste entre vous.</p>
+        <p>Touche l’écran pour entrer.</p>
 
         <button
           type="button"
           className="primary protocol-lock-button"
           disabled={busy}
-          onClick={unlock}
         >
           <span>{busy ? "Un instant…" : "Déverrouiller"}</span>
           <span aria-hidden="true">→</span>
