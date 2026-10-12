@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { createPortal } from "react-dom";
 
 import "./messages.css";
 import { formatRelativeTime } from "./formatTime.js";
@@ -22,6 +23,9 @@ import CameraIcon from "./CameraIcon.jsx";
 
 const MESSAGE_COLUMNS =
   "id, sender_user_id, recipient_user_id, couple_id, body, reply_to_id, reaction, created_at, read_at";
+
+// réactions possibles, en appui long sur un message reçu
+const REACTIONS = ["❤️", "🔥", "👍🏼"];
 
 // passe à false si la migration de l'album n'est pas appliquée
 let photoColumnsAvailable = true;
@@ -87,6 +91,78 @@ export default function MessagesScreen({
   const [uploading, setUploading] = useState(false);
   const [albumVersion, setAlbumVersion] = useState(0);
   const fileInputRef = useRef(null);
+
+  /* Réactions : appui long sur un message reçu */
+  const [picker, setPicker] = useState(null);
+  const pressRef = useRef({ timer: null, x: 0, y: 0, done: false });
+
+  const cancelPress = () => {
+    window.clearTimeout(pressRef.current.timer);
+    pressRef.current.timer = null;
+  };
+
+  const pressHandlers = (message) => ({
+    onPointerDown: (event) => {
+      cancelPress();
+      const bubble = event.currentTarget;
+      pressRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+        done: false,
+        timer: window.setTimeout(() => {
+          pressRef.current.done = true;
+          navigator.vibrate?.(10);
+          setPicker({ id: message.id, rect: bubble.getBoundingClientRect() });
+        }, 450),
+      };
+    },
+    onPointerMove: (event) => {
+      // le doigt glisse : c'est un défilement, pas un appui
+      if (
+        Math.abs(event.clientX - pressRef.current.x) > 10 ||
+        Math.abs(event.clientY - pressRef.current.y) > 10
+      ) {
+        cancelPress();
+      }
+    },
+    onPointerUp: cancelPress,
+    onPointerCancel: cancelPress,
+    onPointerLeave: cancelPress,
+    // le menu du téléphone (copier, enregistrer l'image…) ne s'ouvre pas
+    onContextMenu: (event) => event.preventDefault(),
+    // l'appui long n'ouvre pas la photo en plus
+    onClickCapture: (event) => {
+      if (pressRef.current.done) {
+        event.preventDefault();
+        event.stopPropagation();
+        pressRef.current.done = false;
+      }
+    },
+  });
+
+  const react = async (message, reaction) => {
+    const next = message.reaction === reaction ? null : reaction;
+    const setReaction = (value) =>
+      setMessages((current) =>
+        current.map((item) =>
+          item.id === message.id ? { ...item, reaction: value } : item
+        )
+      );
+
+    setPicker(null);
+    setReaction(next);
+
+    const { error: rpcError } = await supabase.rpc(
+      "set_protocol_message_reaction",
+      { p_message_id: message.id, p_reaction: next }
+    );
+
+    if (rpcError) {
+      console.error("MESSAGE REACTION ERROR:", rpcError);
+      setReaction(message.reaction);
+      setError("La réaction n’est pas passée. Réessaie dans un instant.");
+    }
+  };
 
   useEffect(() => {
     let active = true;
@@ -651,18 +727,23 @@ export default function MessagesScreen({
                     return (
                       <div
                         key={message.id}
-                        className={
-                          isMine
-                            ? "message-row is-mine"
-                            : "message-row is-theirs"
-                        }
+                        className={[
+                          "message-row",
+                          isMine ? "is-mine" : "is-theirs",
+                          message.reaction && "has-reaction",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
                       >
                         <article
-                          className={
-                            isMine
-                              ? "message-bubble is-mine"
-                              : "message-bubble is-theirs"
-                          }
+                          className={[
+                            "message-bubble",
+                            isMine ? "is-mine" : "is-theirs",
+                            picker?.id === message.id && "is-pressed",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                          {...(isMine ? {} : pressHandlers(message))}
                         >
                           {message.photo && (
                             <PhotoThumb
@@ -695,6 +776,15 @@ export default function MessagesScreen({
                               )}
                             </span>
                           </div>
+
+                          {message.reaction && (
+                            <span
+                              className="message-reaction"
+                              aria-label={`Réaction : ${message.reaction}`}
+                            >
+                              {message.reaction}
+                            </span>
+                          )}
                         </article>
                       </div>
                     );
@@ -793,6 +883,20 @@ export default function MessagesScreen({
         )}
       </section>
 
+      {picker && (
+        <ReactionPicker
+          rect={picker.rect}
+          current={messages.find((item) => item.id === picker.id)?.reaction}
+          onPick={(reaction) => {
+            const message = messages.find((item) => item.id === picker.id);
+            if (message) {
+              react(message, reaction);
+            }
+          }}
+          onClose={() => setPicker(null)}
+        />
+      )}
+
       {keySheet && (
         <AlbumKeySheet
           supabase={supabase}
@@ -825,5 +929,41 @@ export default function MessagesScreen({
         />
       )}
     </main>
+  );
+}
+
+/* Les trois réactions, au-dessus du message (en dessous s'il est
+   tout en haut de l'écran) ; toucher ailleurs referme. */
+function ReactionPicker({ rect, current, onPick, onClose }) {
+  const above = rect.top > 90;
+  const style = {
+    top: above ? rect.top - 58 : rect.bottom + 10,
+    left: Math.max(12, Math.min(rect.left, window.innerWidth - 12 - 168)),
+  };
+
+  return createPortal(
+    <div className="reaction-backdrop" onPointerDown={onClose}>
+      <div
+        className="reaction-picker"
+        style={style}
+        role="menu"
+        aria-label="Réagir au message"
+        onPointerDown={(event) => event.stopPropagation()}
+      >
+        {REACTIONS.map((reaction) => (
+          <button
+            key={reaction}
+            type="button"
+            role="menuitemradio"
+            aria-checked={current === reaction}
+            className={current === reaction ? "is-active" : undefined}
+            onClick={() => onPick(reaction)}
+          >
+            {reaction}
+          </button>
+        ))}
+      </div>
+    </div>,
+    document.body
   );
 }

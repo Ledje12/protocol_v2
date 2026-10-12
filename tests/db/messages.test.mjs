@@ -1,0 +1,60 @@
+// Messages : réactions ❤️ / 🔥 / 👍🏼 posées par le destinataire.
+
+import assert from "node:assert/strict";
+import { after, test } from "node:test";
+
+import { asUser, createCouple, pool, rejects, rpc, sql } from "./helpers.mjs";
+
+after(() => pool.end());
+
+async function newMessage({ a, b, coupleId }) {
+  const [{ id }] = await sql(
+    `insert into public.protocol_messages (body, sender_user_id, recipient_user_id, couple_id)
+     values ('Bonsoir', $1, $2, $3) returning id`,
+    [a.id, b.id, coupleId]
+  );
+  return id;
+}
+
+const reactionOf = async (user, id) =>
+  (await asUser(user, "select reaction from public.protocol_messages where id = $1", [id]))
+    .rows[0].reaction;
+
+test("le destinataire réagit, change d'avis, retire sa réaction", async () => {
+  const couple = await createCouple();
+  const id = await newMessage(couple);
+
+  await rpc(couple.b, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "🔥" });
+  assert.equal(await reactionOf(couple.a, id), "🔥", "l'expéditeur la voit");
+
+  await rpc(couple.b, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "❤️" });
+  assert.equal(await reactionOf(couple.b, id), "❤️");
+
+  await rpc(couple.b, "set_protocol_message_reaction", { p_message_id: id, p_reaction: null });
+  assert.equal(await reactionOf(couple.a, id), null);
+});
+
+test("on ne réagit ni à son propre message, ni à celui d'un autre duo, ni avec n'importe quoi", async () => {
+  const couple = await createCouple();
+  const other = await createCouple();
+  const id = await newMessage(couple);
+
+  await rejects(
+    rpc(couple.a, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "❤️" }),
+    /Message not found/
+  );
+  await rejects(
+    rpc(other.b, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "❤️" }),
+    /Message not found/
+  );
+  await rejects(
+    rpc(couple.b, "set_protocol_message_reaction", { p_message_id: id, p_reaction: "💩" }),
+    /Invalid reaction/
+  );
+
+  // et pas d'écriture directe dans la table
+  await rejects(
+    asUser(couple.b, "update public.protocol_messages set reaction = '🔥' where id = $1", [id]),
+    /permission denied/
+  );
+});
