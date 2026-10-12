@@ -1040,8 +1040,8 @@ body,
 }
 
 /* pas de sélection ni de menu du téléphone sur un appui long */
-.message-bubble.is-theirs,
-.message-bubble.is-theirs img {
+.message-bubble,
+.message-bubble img {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
@@ -1131,4 +1131,14 @@ body,
   .reaction-picker {
     animation: none;
   }
+}
+
+
+/* « Vu » sous mon dernier message */
+.message-seen {
+  letter-spacing: 0.02em;
+}
+
+.message-seen.is-seen {
+  color: rgba(var(--c-text-rgb), 0.85);
 }

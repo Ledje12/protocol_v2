@@ -27,8 +27,17 @@ const MESSAGE_COLUMNS =
 // réactions possibles, en appui long sur un message reçu
 const REACTIONS = ["❤️", "🔥", "👍🏼"];
 
-// passe à false si la migration de l'album n'est pas appliquée
-let photoColumnsAvailable = true;
+const PHOTO_COLUMNS =
+  "photo_id, photo:protocol_photos (id, couple_id, created_at, mime, width, height)";
+
+// du plus complet au plus simple : si une migration n'est pas
+// encore appliquée, on retombe sur les colonnes qui existent
+const SELECTS = [
+  `${MESSAGE_COLUMNS}, sender_reaction, ${PHOTO_COLUMNS}`,
+  `${MESSAGE_COLUMNS}, ${PHOTO_COLUMNS}`,
+  MESSAGE_COLUMNS,
+];
+let selectLevel = 0;
 
 
 export default function MessagesScreen({
@@ -92,7 +101,7 @@ export default function MessagesScreen({
   const [albumVersion, setAlbumVersion] = useState(0);
   const fileInputRef = useRef(null);
 
-  /* Réactions : appui long sur un message reçu */
+  /* Réactions : appui long sur un message (le sien ou celui de l'autre) */
   const [picker, setPicker] = useState(null);
   const pressRef = useRef({ timer: null, x: 0, y: 0, done: false });
 
@@ -140,12 +149,17 @@ export default function MessagesScreen({
     },
   });
 
+  // la réaction de chacun a sa colonne
+  const myReactionField = (message) =>
+    message.sender_user_id === currentUserId ? "sender_reaction" : "reaction";
+
   const react = async (message, reaction) => {
-    const next = message.reaction === reaction ? null : reaction;
+    const field = myReactionField(message);
+    const next = message[field] === reaction ? null : reaction;
     const setReaction = (value) =>
       setMessages((current) =>
         current.map((item) =>
-          item.id === message.id ? { ...item, reaction: value } : item
+          item.id === message.id ? { ...item, [field]: value } : item
         )
       );
 
@@ -159,7 +173,7 @@ export default function MessagesScreen({
 
     if (rpcError) {
       console.error("MESSAGE REACTION ERROR:", rpcError);
-      setReaction(message.reaction);
+      setReaction(message[field]);
       setError("La réaction n’est pas passée. Réessaie dans un instant.");
     }
   };
@@ -281,16 +295,11 @@ export default function MessagesScreen({
           let {
             data,
             error: queryError,
-          } = await query(
-            photoColumnsAvailable
-              ? `${MESSAGE_COLUMNS}, photo_id, photo:protocol_photos (id, couple_id, created_at, mime, width, height)`
-              : MESSAGE_COLUMNS
-          );
+          } = await query(SELECTS[selectLevel]);
 
-          // album pas encore installé dans la base : messages seuls
-          if (queryError && photoColumnsAvailable) {
-            photoColumnsAvailable = false;
-            ({ data, error: queryError } = await query(MESSAGE_COLUMNS));
+          while (queryError && selectLevel < SELECTS.length - 1) {
+            selectLevel += 1;
+            ({ data, error: queryError } = await query(SELECTS[selectLevel]));
           }
 
           if (queryError) {
@@ -311,6 +320,8 @@ export default function MessagesScreen({
               (message, index) =>
                 message.id === next[index].id &&
                 message.reaction === next[index].reaction &&
+                message.sender_reaction === next[index].sender_reaction &&
+                message.read_at === next[index].read_at &&
                 message.photo_id === next[index].photo_id
             )
               ? previous
@@ -584,6 +595,11 @@ export default function MessagesScreen({
       }
     };
 
+  // « Vu » / « Envoyé » sous mon dernier message
+  const lastMineId = [...messages]
+    .reverse()
+    .find((message) => message.sender_user_id === currentUserId)?.id;
+
   /* =========================================================
      RENDER
      ========================================================= */
@@ -724,13 +740,18 @@ export default function MessagesScreen({
                       message.sender_user_id ===
                       currentUserId;
 
+                    const reactions = [
+                      message.reaction,
+                      message.sender_reaction,
+                    ].filter(Boolean);
+
                     return (
                       <div
                         key={message.id}
                         className={[
                           "message-row",
                           isMine ? "is-mine" : "is-theirs",
-                          message.reaction && "has-reaction",
+                          reactions.length > 0 && "has-reaction",
                         ]
                           .filter(Boolean)
                           .join(" ")}
@@ -743,7 +764,7 @@ export default function MessagesScreen({
                           ]
                             .filter(Boolean)
                             .join(" ")}
-                          {...(isMine ? {} : pressHandlers(message))}
+                          {...pressHandlers(message)}
                         >
                           {message.photo && (
                             <PhotoThumb
@@ -775,14 +796,20 @@ export default function MessagesScreen({
                                 { style: "clock" }
                               )}
                             </span>
+
+                            {message.id === lastMineId && (
+                              <span className={message.read_at ? "message-seen is-seen" : "message-seen"}>
+                                {message.read_at ? "Vu" : "Envoyé"}
+                              </span>
+                            )}
                           </div>
 
-                          {message.reaction && (
+                          {reactions.length > 0 && (
                             <span
                               className="message-reaction"
-                              aria-label={`Réaction : ${message.reaction}`}
+                              aria-label={`Réactions : ${reactions.join(" ")}`}
                             >
-                              {message.reaction}
+                              {reactions.join("")}
                             </span>
                           )}
                         </article>
@@ -886,7 +913,10 @@ export default function MessagesScreen({
       {picker && (
         <ReactionPicker
           rect={picker.rect}
-          current={messages.find((item) => item.id === picker.id)?.reaction}
+          current={(() => {
+            const message = messages.find((item) => item.id === picker.id);
+            return message?.[myReactionField(message)];
+          })()}
           onPick={(reaction) => {
             const message = messages.find((item) => item.id === picker.id);
             if (message) {
