@@ -3983,3 +3983,15 @@ button.envelope-card:not(:disabled) {
   gap: 6px;
   margin-bottom: 18px;
 }
+
+/* fiche carte (bibliothèque) : 📷 puis les avis, sous les repères */
+.card-extras-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 0 22px;
+}
+
+.card-extras-detail .card-rating-detail {
+  margin: 0;
+}

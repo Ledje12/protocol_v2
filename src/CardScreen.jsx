@@ -7,6 +7,7 @@ import {
 import "./card.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
+import CardPhotos from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 
 
@@ -2081,14 +2082,25 @@ export default function CardScreen({
           )}
         </div>
 
-        {/* ton avis, privé : n'influence pas le tirage */}
-        <CardRating
-          key={`${card.card_source || "official"}-${card.id}`}
-          supabase={supabase}
-          cardSource={card.card_source || "official"}
-          cardId={card.id}
-          className="card-rating-detail"
-        />
+        {/* photos de la carte (album) et ton avis, privé :
+            n'influencent pas le tirage */}
+        <div className="card-extras-detail">
+          <CardPhotos
+            key={`photos-${card.card_source || "official"}-${card.id}`}
+            supabase={supabase}
+            cardSource={card.card_source || "official"}
+            cardId={card.id}
+            canTake
+          />
+
+          <CardRating
+            key={`${card.card_source || "official"}-${card.id}`}
+            supabase={supabase}
+            cardSource={card.card_source || "official"}
+            cardId={card.id}
+            className="card-rating-detail"
+          />
+        </div>
         {card.type === "scene" &&
           sceneSteps.length > 0 && (
 
