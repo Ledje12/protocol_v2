@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import "./recaps.css";
+import CardRating from "./CardRating.jsx";
 import ScreenHeader from "./ScreenHeader.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
 
@@ -13,6 +14,12 @@ const TYPE_LABELS = {
   truth: "Vérité",
   duel: "Duel",
   scene: "Scène",
+};
+
+const RATING_ICONS = {
+  fire: "🔥",
+  like: "👍",
+  dislike: "👎",
 };
 
 const OUTCOME_LABELS = {
@@ -59,6 +66,30 @@ const favoritesOf = (recap) =>
 const doneCount = (recap) =>
   (recap?.cards || []).filter((card) => card.outcome === "done").length;
 
+// mon avis changé : toutes les apparitions de la carte suivent
+const withRating = (recap, card, rating) => ({
+  ...recap,
+  cards: recap.cards.map((item) =>
+    item.source === card.source && item.card_id === card.card_id
+      ? { ...item, my_rating: rating }
+      : item
+  ),
+});
+
+// après un avis : relire les soirées (🔥 à deux) sans à-coups
+function useRatingRefresh(supabase, onFresh) {
+  const timerRef = useRef(null);
+
+  useEffect(() => () => window.clearTimeout(timerRef.current), []);
+
+  return () => {
+    window.clearTimeout(timerRef.current);
+    timerRef.current = window.setTimeout(() => {
+      loadRecaps(supabase).then(onFresh).catch(() => {});
+    }, 800);
+  };
+}
+
 async function loadRecaps(supabase, gameId = null) {
   const { data, error } = await supabase.rpc(
     "get_protocol_recaps",
@@ -79,6 +110,10 @@ async function loadRecaps(supabase, gameId = null) {
 
 export function GameRecapHighlights({ supabase, gameId, finishedAt }) {
   const [recap, setRecap] = useState(null);
+  const [showCards, setShowCards] = useState(false);
+  const refresh = useRatingRefresh(supabase, (recaps) =>
+    setRecap((current) => recaps.find((item) => item.id === current?.id) || current)
+  );
 
   useEffect(() => {
     let active = true;
@@ -148,7 +183,28 @@ export function GameRecapHighlights({ supabase, gameId, finishedAt }) {
         </ul>
       )}
 
+      <button type="button" className="recap-cards-link" onClick={() => setShowCards(true)}>
+        Revoir les cartes et les noter →
+      </button>
+
       <p className="recap-note">Gardée dans Réglages → Nos soirées.</p>
+
+      {showCards && (
+        <SettingsSheet
+          eyebrow="VOTRE SOIRÉE"
+          title="Les cartes de ce soir."
+          onClose={() => setShowCards(false)}
+        >
+          <RecapDetail
+            recap={recap}
+            supabase={supabase}
+            onRated={(card, rating) => {
+              setRecap((current) => withRating(current, card, rating));
+              refresh();
+            }}
+          />
+        </SettingsSheet>
+      )}
     </section>
   );
 }
@@ -164,6 +220,10 @@ export default function RecapsScreen({ supabase, onBack }) {
   const [open, setOpen] = useState(null);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const refresh = useRatingRefresh(supabase, (rows) => {
+    setRecaps(rows);
+    setOpen((current) => rows.find((item) => item.id === current?.id) || current);
+  });
 
   useEffect(() => {
     let active = true;
@@ -275,7 +335,17 @@ export default function RecapsScreen({ supabase, onBack }) {
           title={formatDate(open.finished_at)}
           onClose={() => setOpen(null)}
         >
-          <RecapDetail recap={open} />
+          <RecapDetail
+            recap={open}
+            supabase={supabase}
+            onRated={(card, rating) => {
+              setOpen((current) => withRating(current, card, rating));
+              setRecaps((current) =>
+                current.map((item) => (item.id === open.id ? withRating(item, card, rating) : item))
+              );
+              refresh();
+            }}
+          />
 
           {confirming ? (
             <div className="recap-forget">
@@ -296,10 +366,41 @@ export default function RecapsScreen({ supabase, onBack }) {
   );
 }
 
-function RecapDetail({ recap }) {
+function RecapDetail({ recap, supabase, onRated }) {
   const duration = formatDuration(recap.started_at, recap.finished_at);
   const nameOf = (playerNo) =>
     playerNo === 1 ? recap.player_1_name : recap.player_2_name;
+
+  // appui long sur une carte : 🔥 👍 👎 (comme pendant la partie)
+  const [rating, setRating] = useState(null);
+  const pressRef = useRef({ timer: null, x: 0, y: 0 });
+
+  const cancelPress = () => window.clearTimeout(pressRef.current.timer);
+
+  const pressHandlers = (index) => ({
+    onPointerDown: (event) => {
+      cancelPress();
+      pressRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+        timer: window.setTimeout(() => {
+          navigator.vibrate?.(10);
+          setRating((current) => (current === index ? null : index));
+        }, 450),
+      };
+    },
+    onPointerMove: (event) => {
+      if (
+        Math.abs(event.clientX - pressRef.current.x) > 10 ||
+        Math.abs(event.clientY - pressRef.current.y) > 10
+      ) {
+        cancelPress();
+      }
+    },
+    onPointerUp: cancelPress,
+    onPointerCancel: cancelPress,
+    onContextMenu: (event) => event.preventDefault(),
+  });
 
   return (
     <div className="recap-detail">
@@ -312,11 +413,19 @@ function RecapDetail({ recap }) {
           .join(" · ")}
       </p>
 
+      <p className="recap-detail-hint">Appui long sur une carte pour la noter.</p>
+
       <ol className="recap-cards">
         {recap.cards.map((card, index) => (
           <li
             key={`${card.source}-${card.card_id}-${index}`}
-            className={card.outcome === "done" ? "is-done" : undefined}
+            className={[
+              card.outcome === "done" && "is-done",
+              rating === index && "is-rating",
+            ]
+              .filter(Boolean)
+              .join(" ") || undefined}
+            {...pressHandlers(index)}
           >
             <span className="recap-card-meta">
               {TYPE_LABELS[card.type] || card.type}
@@ -325,13 +434,26 @@ function RecapDetail({ recap }) {
             </span>
             <span className="recap-card-title">
               {card.title}
-              {(card.fire_both || card.my_rating === "fire") && (
-                <span className="recap-card-fire">{card.fire_both ? " 🔥🔥" : " 🔥"}</span>
+              {(card.fire_both || card.my_rating) && (
+                <span className="recap-card-fire">
+                  {card.fire_both ? " 🔥🔥" : ` ${RATING_ICONS[card.my_rating]}`}
+                </span>
               )}
             </span>
             <span className="recap-card-outcome">
               {OUTCOME_LABELS[card.outcome] || "—"}
             </span>
+
+            {rating === index && card.card_id && (
+              <CardRating
+                supabase={supabase}
+                cardSource={card.source}
+                cardId={card.card_id}
+                initialRating={card.my_rating ?? null}
+                onChange={(next) => onRated(card, next)}
+                className="recap-card-rating"
+              />
+            )}
           </li>
         ))}
       </ol>
