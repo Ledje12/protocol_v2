@@ -69,3 +69,67 @@ test("on ne réagit ni au message d'un autre duo, ni avec n'importe quoi", async
     /permission denied/
   );
 });
+
+test("notifications discrètes : chacun règle la sienne, pas celle de l'autre", async () => {
+  const { a, b } = await createCouple();
+
+  await asUser(a, "update public.protocol_profiles set discreet_notifications = true where user_id = $1", [a.id]);
+  // l'autre profil n'est pas modifiable (0 ligne touchée)
+  const other = await asUser(a, "update public.protocol_profiles set discreet_notifications = true where user_id = $1", [b.id]);
+  assert.equal(other.rowCount, 0);
+
+  const rows = await sql(
+    "select user_id, discreet_notifications from public.protocol_profiles where user_id in ($1, $2)",
+    [a.id, b.id]
+  );
+  const byUser = Object.fromEntries(rows.map((row) => [row.user_id, row.discreet_notifications]));
+  assert.deepEqual(byUser, { [a.id]: true, [b.id]: false });
+});
+
+test("message programmé : invisible pour l'autre, annulable, déposé une seule fois à l'heure", async () => {
+  const { a, b, coupleId } = await createCouple();
+  const inOneHour = new Date(Date.now() + 3600e3).toISOString();
+
+  const scheduled = await rpc(a, "schedule_protocol_message", {
+    p_body: "Ce soir, robe noire.",
+    p_send_at: inOneHour,
+  });
+  const other = await rpc(a, "schedule_protocol_message", {
+    p_body: "À annuler.",
+    p_send_at: inOneHour,
+  });
+
+  assert.equal((await rpc(a, "get_my_scheduled_messages")).length, 2);
+  assert.deepEqual(await rpc(b, "get_my_scheduled_messages"), [], "surprise : rien chez l'autre");
+  await rejects(asUser(b, "select * from public.protocol_scheduled_messages"), /permission denied/);
+  await rejects(rpc(b, "cancel_scheduled_message", { p_id: scheduled.id }), /not found/i);
+  assert.equal(await rpc(a, "cancel_scheduled_message", { p_id: other.id }), true);
+
+  // pas dans le passé, ni à plus de 7 jours
+  await rejects(
+    rpc(a, "schedule_protocol_message", { p_body: "x", p_send_at: new Date(Date.now() - 60e3).toISOString() }),
+    /invalid send time/i
+  );
+  await rejects(
+    rpc(a, "schedule_protocol_message", { p_body: "x", p_send_at: new Date(Date.now() + 8 * 86400e3).toISOString() }),
+    /invalid send time/i
+  );
+
+  // pas encore l'heure : rien
+  assert.equal((await sql("select * from public.protocol_deliver_scheduled_messages()")).length, 0);
+
+  // l'heure est venue
+  await sql("update public.protocol_scheduled_messages set send_at = now() - interval '1 second' where id = $1", [scheduled.id]);
+  const delivered = await sql("select * from public.protocol_deliver_scheduled_messages()");
+  assert.equal(delivered.length, 1);
+  assert.equal(delivered[0].recipient_user_id, b.id);
+  assert.equal(delivered[0].sender_name, "Alex");
+  assert.equal((await sql("select * from public.protocol_deliver_scheduled_messages()")).length, 0, "une seule fois");
+
+  const { rows } = await asUser(b, "select body, sender_user_id from public.protocol_messages where couple_id = $1", [coupleId]);
+  assert.deepEqual(rows, [{ body: "Ce soir, robe noire.", sender_user_id: a.id }]);
+  assert.deepEqual(await rpc(a, "get_my_scheduled_messages"), []);
+
+  // le serveur seul dépose les messages
+  await rejects(asUser(a, "select * from public.protocol_deliver_scheduled_messages()"), /permission denied/);
+});

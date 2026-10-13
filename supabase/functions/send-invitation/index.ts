@@ -425,6 +425,11 @@ Deno.serve(async (req)=>{
       pushUrl = `/card/${card.id}?invite=${invitation.id}`;
       pushTag = `protocol-card-${invitation.id}`;
     }
+    // notifications discrètes : rien de lisible sur l'écran verrouillé
+    const { data: recipientPrefs } = await supabase.from("protocol_profiles").select("discreet_notifications").eq("user_id", recipientUserId).maybeSingle();
+    if (recipientPrefs?.discreet_notifications === true) {
+      pushBody = "Nouvelle notification.";
+    }
     /* =====================================================
          VAPID
          ===================================================== */ const vapid = {

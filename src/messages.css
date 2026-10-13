@@ -1262,3 +1262,135 @@ body,
     animation: none;
   }
 }
+
+
+/* =========================================================
+   MESSAGES PROGRAMMÉS
+   ========================================================= */
+
+.messages-scheduled-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: var(--c-surface-2);
+  color: rgba(var(--c-text-rgb), 0.85);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.messages-scheduled-bar svg {
+  color: var(--c-accent);
+}
+
+.messages-scheduled-bar span:nth-of-type(1) {
+  flex: 1;
+}
+
+.schedule-preview {
+  margin: 0 0 8px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  color: var(--c-text);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.schedule-hint {
+  margin: 0 0 18px;
+  color: var(--c-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.schedule-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.schedule-options button {
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.schedule-options button:active {
+  border-color: rgba(var(--c-accent-rgb), 0.5);
+}
+
+.schedule-custom {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.schedule-custom input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 15px;
+  color-scheme: dark;
+}
+
+.scheduled-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scheduled-list li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--c-line);
+}
+
+.scheduled-when {
+  grid-column: 1 / -1;
+  color: var(--c-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.scheduled-list p {
+  margin: 4px 0 0;
+  color: var(--c-text);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.scheduled-list button {
+  align-self: center;
+  padding: 8px 14px;
+  border: 1px solid var(--c-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}

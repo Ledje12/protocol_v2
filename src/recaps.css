@@ -1,0 +1,277 @@
+/* =========================================================
+   NOS SOIRÉES : bloc de fin de partie et écran des souvenirs
+   ========================================================= */
+
+/* --- fin de partie : « Votre soirée » --- */
+
+.recap-highlights {
+  margin: 28px 0 0;
+  padding: 20px 20px 16px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-card);
+  background: var(--c-surface);
+  text-align: left;
+}
+
+.recap-kicker {
+  margin: 0 0 14px;
+  color: var(--c-accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+}
+
+.recap-figures {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.recap-figures div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.recap-figures strong {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--c-text);
+}
+
+.recap-figures span {
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.recap-favorites {
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--c-line);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recap-favorites li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--c-text);
+  font-size: 15px;
+}
+
+.recap-note {
+  margin: 14px 0 0;
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+/* --- écran « Nos soirées » --- */
+
+.recaps {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 7vh 0 5vh;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.recaps-status {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 14px;
+}
+
+.recaps-status.is-error {
+  color: var(--c-accent);
+}
+
+.recaps-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 28px 12px;
+  border: 1px dashed var(--c-line);
+  border-radius: var(--r-card);
+  text-align: center;
+}
+
+.recaps-empty p {
+  margin: 0;
+  max-width: 280px;
+  color: var(--c-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.recaps-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-card);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+
+.recap-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  margin: 0;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--c-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.recap-item + .recap-item {
+  border-top: 1px solid var(--c-line);
+}
+
+.recap-item:active {
+  background: rgba(var(--c-text-rgb), 0.04);
+}
+
+.recap-item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.recap-item-main strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.recap-item-main span {
+  color: var(--c-muted);
+  font-size: 13px;
+}
+
+.recap-item-arrow {
+  color: var(--c-muted);
+}
+
+/* --- détail d'une soirée --- */
+
+.recap-detail-summary {
+  margin: 0 0 16px;
+  color: var(--c-muted);
+  font-size: 14px;
+}
+
+.recap-cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.recap-cards li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  padding: 10px 0;
+  border-top: 1px solid var(--c-line);
+}
+
+.recap-card-meta {
+  grid-column: 1 / -1;
+  color: var(--c-muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.recap-card-title {
+  color: rgba(var(--c-text-rgb), 0.7);
+  font-size: 15px;
+}
+
+.recap-cards li.is-done .recap-card-title {
+  color: var(--c-text);
+}
+
+.recap-card-outcome {
+  align-self: center;
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.recap-cards li.is-done .recap-card-outcome {
+  color: var(--c-accent);
+}
+
+.recap-missions {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-line);
+}
+
+.recap-missions p:not(.recap-kicker) {
+  margin: 0 0 6px;
+  color: var(--c-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.recap-forget-link {
+  margin-top: 22px;
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--c-muted);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.recap-forget {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.recap-forget p {
+  width: 100%;
+  margin: 0;
+  color: var(--c-text);
+  font-size: 14px;
+}
+
+.recap-forget button {
+  padding: 10px 16px;
+  border: 1px solid var(--c-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.recap-forget .recap-forget-confirm {
+  border-color: rgba(var(--c-accent-rgb), 0.5);
+  color: var(--c-accent);
+}

@@ -765,6 +765,54 @@ export default function SettingsScreen({
       };
     }, [coupleId]);
 
+    /* Notifications discrètes (préférence du compte) :
+       null = inconnue (colonne absente ou chargement) */
+    const [discreet, setDiscreet] = useState(null);
+    const [discreetUserId, setDiscreetUserId] = useState(null);
+
+    useEffect(() => {
+      let active = true;
+
+      supabase.auth.getSession().then(async ({ data }) => {
+        const userId = data?.session?.user?.id;
+
+        if (!userId) {
+          return;
+        }
+
+        const { data: row, error: prefError } = await supabase
+          .from("protocol_profiles")
+          .select("discreet_notifications")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (active && !prefError && row) {
+          setDiscreetUserId(userId);
+          setDiscreet(Boolean(row.discreet_notifications));
+        }
+      });
+
+      return () => {
+        active = false;
+      };
+    }, []);
+
+    const toggleDiscreet =
+      async () => {
+        const next = !discreet;
+        setDiscreet(next);
+
+        const { error: updateError } = await supabase
+          .from("protocol_profiles")
+          .update({ discreet_notifications: next })
+          .eq("user_id", discreetUserId);
+
+        if (updateError) {
+          console.error("DISCREET NOTIFICATIONS ERROR:", updateError);
+          setDiscreet(!next);
+        }
+      };
+
     const forgetAlbumPhrase =
       async () => {
         await forgetKey(coupleId);
@@ -2076,6 +2124,12 @@ export default function SettingsScreen({
               label="Comment on joue"
               onClick={() => setShowHowTo(true)}
             />
+
+            <SettingsRow
+              label="Nos soirées"
+              hint="Le souvenir de vos parties terminées."
+              onClick={() => navigate("/soirees")}
+            />
           </SettingsGroup>
         )}
 
@@ -2090,6 +2144,16 @@ export default function SettingsScreen({
             tone={notificationTone}
             onClick={() => setSheet("notifications")}
           />
+
+          {discreet !== null && (
+            <SettingsRow
+              label="Notifications discrètes"
+              hint="« Nouveau message » sur l’écran verrouillé, sans nom ni détail."
+              value={discreet ? "Activées" : "Désactivées"}
+              tone={discreet ? "on" : undefined}
+              onClick={toggleDiscreet}
+            />
+          )}
 
           <SettingsRow
             label="Lovense"

@@ -147,9 +147,12 @@ Deno.serve(async (req)=>{
         publicKey: vapidPublicKey,
         privateKey: vapidPrivateKey
       };
+      // notifications discrètes : rien de lisible sur l'écran verrouillé
+      const { data: recipientPrefs } = await supabase.from("protocol_profiles").select("discreet_notifications").eq("user_id", recipientUserId).maybeSingle();
+      const discreet = recipientPrefs?.discreet_notifications === true;
       const message = {
         title: "PROTOCOL",
-        body: photoId ? `${senderName} t’a envoyé une photo.` : `${senderName} t’a laissé un message.`,
+        body: discreet ? "Nouveau message." : photoId ? `${senderName} t’a envoyé une photo.` : `${senderName} t’a laissé un message.`,
         url: `/messages?message=${createdMessage.id}`,
         tag: `protocol-message-${createdMessage.id}`
       };
