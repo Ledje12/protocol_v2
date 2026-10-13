@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import "./recaps.css";
+import CardPhotos, { PHOTO_COLUMNS, cardKey } from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 import { BackIcon } from "./ScreenHeader.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
@@ -384,6 +385,36 @@ function RecapDetail({ recap, supabase, onRated }) {
   const nameOf = (playerNo) =>
     playerNo === 1 ? recap.player_1_name : recap.player_2_name;
 
+  // photos des cartes (prises en jeu, quelle que soit la soirée) :
+  // une seule lecture pour toute la liste
+  const [photosByCard, setPhotosByCard] = useState({});
+  const [photosVersion, setPhotosVersion] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+
+    supabase
+      .from("protocol_photos")
+      .select(PHOTO_COLUMNS)
+      .not("card_id", "is", null)
+      .order("created_at", { ascending: true })
+      .then(({ data, error }) => {
+        if (!active || error) {
+          return;
+        }
+
+        const grouped = {};
+        for (const photo of data || []) {
+          (grouped[cardKey(photo.card_source, photo.card_id)] ||= []).push(photo);
+        }
+        setPhotosByCard(grouped);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [supabase, photosVersion]);
+
   // appui long sur une carte : 🔥 👍 👎 (comme pendant la partie)
   const [rating, setRating] = useState(null);
   const pressRef = useRef({ timer: null, x: 0, y: 0 });
@@ -454,6 +485,16 @@ function RecapDetail({ recap, supabase, onRated }) {
               )}
             </span>
             <span className="recap-card-outcome">
+              {photosByCard[cardKey(card.source, card.card_id)] && (
+                <CardPhotos
+                  supabase={supabase}
+                  cardSource={card.source}
+                  cardId={card.card_id}
+                  photos={photosByCard[cardKey(card.source, card.card_id)]}
+                  onChanged={() => setPhotosVersion((value) => value + 1)}
+                  className="recap-card-photos"
+                />
+              )}
               {OUTCOME_LABELS[card.outcome] || "—"}
             </span>
 

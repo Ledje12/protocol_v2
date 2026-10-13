@@ -115,3 +115,47 @@ test("garde-fous : taille d'une photo et place totale du duo", async () => {
   }
   await rejects(newPhoto(a, 30 * 1024 * 1024), /album full/i);
 });
+
+test("photo de carte : rattachée à la carte, visible des deux, carte perso du duo seulement", async () => {
+  const { a, b } = await createCouple();
+  const other = await createCouple();
+  const [{ id: cardId }] = await sql("select id from public.protocol_cards limit 1");
+
+  const photo = await rpc(a, "create_protocol_photo", {
+    p_mime: "image/jpeg",
+    p_byte_size: 1000,
+    p_thumb_size: 100,
+    p_width: 3024,
+    p_height: 4032,
+    p_card_source: "official",
+    p_card_id: cardId,
+  });
+  await rpc(a, "finish_protocol_photo", { p_photo_id: photo.id });
+
+  const seen = await asUser(
+    b,
+    "select card_source, card_id from public.protocol_photos where card_id = $1",
+    [cardId]
+  );
+  assert.deepEqual(seen.rows, [{ card_source: "official", card_id: String(cardId) }]);
+
+  // l'ancienne façon d'appeler (sans carte) marche toujours
+  assert.ok((await newPhoto(a)).id);
+
+  // carte inconnue, ou carte perso d'un autre duo : refusé
+  const [{ id: customId }] = await sql(
+    `insert into public.protocol_custom_cards (couple_id, created_by, type, title, prompt, intensity)
+     select couple_id, user_id, 'action', 'Perso', 'Consigne', 2
+     from public.protocol_couple_members where user_id = $1 returning id`,
+    [other.a.id]
+  );
+  for (const [source, id] of [["official", 999999999], ["custom", customId]]) {
+    await rejects(
+      rpc(a, "create_protocol_photo", {
+        p_mime: "image/jpeg", p_byte_size: 1000, p_thumb_size: 100,
+        p_width: 1, p_height: 1, p_card_source: source, p_card_id: id,
+      }),
+      /card not found/i
+    );
+  }
+});

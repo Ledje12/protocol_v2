@@ -5,6 +5,7 @@ import { getGameSession } from "./gameSession.js";
 import LoadingScreen from "./LoadingScreen.jsx";
 import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
+import CardPhotos from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 import PrivateStepReader from "./PrivateStepReader.jsx";
 import { EnvelopeWriter } from "./Envelope.jsx";
@@ -2952,14 +2953,25 @@ async function handleSceneRead() {
             names={{ 1: player1Name, 2: player2Name }}
           />
 
-          {/* avis facultatif et privé : n'influence pas le tirage */}
-          <CardRating
-            key={`${card.card_source || "official"}-${card.id}`}
-            supabase={supabase}
-            cardSource={card.card_source || "official"}
-            cardId={card.id}
-            className="card-rating-play"
-          />
+          {/* photo du moment (album) et avis facultatif et privé :
+              n'influencent pas le tirage */}
+          <div className="card-extras-play">
+            <CardPhotos
+              key={`photos-${card.card_source || "official"}-${card.id}`}
+              supabase={supabase}
+              cardSource={card.card_source || "official"}
+              cardId={card.id}
+              canTake
+            />
+
+            <CardRating
+              key={`${card.card_source || "official"}-${card.id}`}
+              supabase={supabase}
+              cardSource={card.card_source || "official"}
+              cardId={card.id}
+              className="card-rating-play"
+            />
+          </div>
 
 
         {/* ===================================
