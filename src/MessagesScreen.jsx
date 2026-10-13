@@ -17,6 +17,7 @@ import {
 } from "./PhotoAlbum.jsx";
 import { getSavedAlbumKey, uploadPhoto } from "./photoAlbum.js";
 import { PhotoDayBanner } from "./PhotoDay.jsx";
+import { ScheduleSheet, ScheduledList, useScheduledMessages } from "./ScheduledMessages.jsx";
 import CameraIcon from "./CameraIcon.jsx";
 
 // PROTOCOL private messaging
@@ -477,6 +478,10 @@ export default function MessagesScreen({
      SEND MESSAGE
      ========================================================= */
 
+  /* Messages programmés (les miens, en attente) */
+  const [scheduled, reloadScheduled] = useScheduledMessages(supabase);
+  const [scheduleSheet, setScheduleSheet] = useState(null);
+
   const sendMessage =
     async () => {
       const trimmed =
@@ -887,6 +892,23 @@ export default function MessagesScreen({
 
         {tab === "chat" && (
         <div className="messages-composer-wrap">
+          {scheduled?.length > 0 && (
+            <button
+              type="button"
+              className="messages-scheduled-bar"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => setScheduleSheet("list")}
+            >
+              <ClockIcon size={16} />
+              <span>
+                {scheduled.length === 1
+                  ? "1 message programmé"
+                  : `${scheduled.length} messages programmés`}
+              </span>
+              <span aria-hidden="true">→</span>
+            </button>
+          )}
+
           {replyTo && (
             <div className="messages-reply-bar">
               <div className="messages-reply-bar-text">
@@ -910,11 +932,20 @@ export default function MessagesScreen({
               type="button"
               className="messages-photo"
               onMouseDown={(event) => event.preventDefault()}
-              onClick={pickPhoto}
+              // texte en cours : programmer l'envoi ; sinon : photo
+              onClick={
+                draft.trim() && scheduled !== null
+                  ? () => setScheduleSheet("new")
+                  : pickPhoto
+              }
               disabled={uploading || !currentUserId || !coupleId}
-              aria-label="Envoyer une photo chiffrée"
+              aria-label={
+                draft.trim() && scheduled !== null
+                  ? "Programmer l’envoi"
+                  : "Envoyer une photo chiffrée"
+              }
             >
-              {uploading ? "…" : <CameraIcon />}
+              {uploading ? "…" : draft.trim() && scheduled !== null ? <ClockIcon /> : <CameraIcon />}
             </button>
 
             <input
@@ -1012,6 +1043,30 @@ export default function MessagesScreen({
             }
           }}
           onClose={() => setPicker(null)}
+        />
+      )}
+
+      {scheduleSheet === "new" && (
+        <ScheduleSheet
+          supabase={supabase}
+          body={draft.trim()}
+          partnerName={partnerName}
+          onScheduled={() => {
+            setDraft("");
+            setReplyTo(null);
+            setScheduleSheet(null);
+            reloadScheduled();
+          }}
+          onClose={() => setScheduleSheet(null)}
+        />
+      )}
+
+      {scheduleSheet === "list" && (
+        <ScheduledList
+          supabase={supabase}
+          items={scheduled || []}
+          onChanged={reloadScheduled}
+          onClose={() => setScheduleSheet(null)}
         />
       )}
 
@@ -1135,5 +1190,25 @@ function ReplyQuote({ original, currentUserId, partnerName }) {
       </span>
       <p>{snippet(original)}</p>
     </button>
+  );
+}
+
+function ClockIcon({ size = 22 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="13" r="8" />
+      <path d="M12 9v4l2.5 2" />
+      <path d="M9.5 2.5h5" />
+    </svg>
   );
 }
