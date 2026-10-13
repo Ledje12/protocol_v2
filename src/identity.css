@@ -3927,3 +3927,59 @@ button.envelope-card:not(:disabled) {
   inset: 0;
   z-index: 9999;
 }
+
+
+/* ---------------------------------------------------------
+   58. PHOTO DE CARTE : picto 📷 discret, à gauche des avis
+   --------------------------------------------------------- */
+
+.card-extras-play {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 2px 0;
+}
+
+.card-extras-play .card-rating-play {
+  margin: 0 0 0 auto;
+}
+
+.card-photos-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 40px;
+  height: 36px;
+  min-height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  box-shadow: none;
+  color: rgba(var(--c-text-rgb), 0.6);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.card-photos-button span {
+  color: var(--c-accent);
+  font-weight: 600;
+}
+
+.card-photos-hint {
+  margin: 0 0 16px;
+  color: var(--c-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.card-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 18px;
+}

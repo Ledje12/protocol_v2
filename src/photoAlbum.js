@@ -71,7 +71,8 @@ export async function unlockAlbum(supabase, coupleId, phrase) {
   return key;
 }
 
-export async function uploadPhoto(supabase, key, file) {
+// card : { source, id } pour une photo prise sur une carte en jeu
+export async function uploadPhoto(supabase, key, file, card = null) {
   const raw = new Uint8Array(await file.arrayBuffer());
   const isJpeg = raw[0] === 0xff && raw[1] === 0xd8;
   const thumb = await makeThumbnail(file);
@@ -87,6 +88,7 @@ export async function uploadPhoto(supabase, key, file) {
     p_thumb_size: lockedThumb.length,
     p_width: thumb.width,
     p_height: thumb.height,
+    ...(card ? { p_card_source: card.source, p_card_id: card.id } : {}),
   });
 
   if (error) {
