@@ -9,6 +9,7 @@ import CardRating from "./CardRating.jsx";
 import PrivateStepReader from "./PrivateStepReader.jsx";
 import { EnvelopeWriter } from "./Envelope.jsx";
 import { FinalReveals, SecretMission } from "./Missions.jsx";
+import { GameRecapHighlights } from "./Recaps.jsx";
 
 /* =========================================================
    PLAY
@@ -1949,6 +1950,17 @@ async function handleSceneRead() {
 
               </div>
             )}
+
+
+            {/* =====================================
+                VOTRE SOIRÉE (gardée dans Nos soirées)
+                ===================================== */}
+
+            <GameRecapHighlights
+              supabase={supabase}
+              gameId={game.id}
+              finishedAt={game.finished_at}
+            />
 
 
             {/* =====================================

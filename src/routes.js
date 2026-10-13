@@ -23,6 +23,13 @@ export function getRoute() {
     };
   }
 
+  if (path === "/soirees") {
+    return {
+      screen: "recaps",
+      code: null,
+    };
+  }
+
   if (path === "/privacy") {
     return {
       screen: "privacy",

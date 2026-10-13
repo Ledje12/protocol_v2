@@ -2124,6 +2124,12 @@ export default function SettingsScreen({
               label="Comment on joue"
               onClick={() => setShowHowTo(true)}
             />
+
+            <SettingsRow
+              label="Nos soirées"
+              hint="Le souvenir de vos parties terminées."
+              onClick={() => navigate("/soirees")}
+            />
           </SettingsGroup>
         )}
 

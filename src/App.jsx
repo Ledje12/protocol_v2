@@ -16,6 +16,7 @@ import LobbyScreen from "./LobbyScreen.jsx";
 import PlayScreen from "./PlayScreen.jsx";
 import PrivacyScreen from "./PrivacyScreen.jsx";
 import ProfileSetupScreen from "./ProfileSetupScreen.jsx";
+import RecapsScreen from "./Recaps.jsx";
 import { getRoute } from "./routes.js";
 import SettingsScreen from "./SettingsScreen.jsx";
 import { supabase } from "./supabaseClient.js";
@@ -590,6 +591,15 @@ function App() {
             (value) => value + 1
           )
         }
+      />
+    );
+  }
+
+  if (route.screen === "recaps") {
+    return (
+      <RecapsScreen
+        supabase={supabase}
+        onBack={() => navigate("/settings")}
       />
     );
   }
