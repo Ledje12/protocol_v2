@@ -69,3 +69,19 @@ test("on ne réagit ni au message d'un autre duo, ni avec n'importe quoi", async
     /permission denied/
   );
 });
+
+test("notifications discrètes : chacun règle la sienne, pas celle de l'autre", async () => {
+  const { a, b } = await createCouple();
+
+  await asUser(a, "update public.protocol_profiles set discreet_notifications = true where user_id = $1", [a.id]);
+  // l'autre profil n'est pas modifiable (0 ligne touchée)
+  const other = await asUser(a, "update public.protocol_profiles set discreet_notifications = true where user_id = $1", [b.id]);
+  assert.equal(other.rowCount, 0);
+
+  const rows = await sql(
+    "select user_id, discreet_notifications from public.protocol_profiles where user_id in ($1, $2)",
+    [a.id, b.id]
+  );
+  const byUser = Object.fromEntries(rows.map((row) => [row.user_id, row.discreet_notifications]));
+  assert.deepEqual(byUser, { [a.id]: true, [b.id]: false });
+});
