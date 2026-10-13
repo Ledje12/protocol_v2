@@ -2152,6 +2152,7 @@ export default function SettingsScreen({
               value={discreet ? "Activées" : "Désactivées"}
               tone={discreet ? "on" : undefined}
               onClick={toggleDiscreet}
+              toggle
             />
           )}
 
