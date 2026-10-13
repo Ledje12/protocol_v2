@@ -72,14 +72,10 @@
 
 /* --- écran « Nos soirées » --- */
 
-.recaps {
-  position: relative;
-  z-index: 1;
-  flex: 1;
-  padding: 7vh 0 5vh;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
+/* mise en page commune avec Réglages (protocol-settings) ;
+   seulement l'espace entre les blocs */
+.recaps > * + * {
+  margin-top: 24px;
 }
 
 .recaps-status {

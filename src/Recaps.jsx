@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import "./recaps.css";
 import CardRating from "./CardRating.jsx";
-import ScreenHeader from "./ScreenHeader.jsx";
+import { BackIcon } from "./ScreenHeader.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
 
 /* « Nos soirées » : le souvenir de chaque partie terminée.
@@ -264,13 +264,26 @@ export default function RecapsScreen({ supabase, onBack }) {
   };
 
   return (
-    <main className="app recaps-page">
-      <div className="glow glow-top" />
+    <main className="app protocol-settings-page recaps-page">
+      {/* même en-tête que Réglages et Mes cartes */}
+      <header className="header protocol-settings-header">
+        <button
+          type="button"
+          className="back protocol-settings-back"
+          onClick={onBack}
+          aria-label="Retour"
+        >
+          <BackIcon />
+        </button>
 
-      <ScreenHeader onBack={onBack} subtitle="Vos souvenirs" />
+        <div className="protocol-settings-heading">
+          <span className="logo protocol-settings-logo">PROTOCOL</span>
+          <span className="protocol-settings-subtitle">Vos souvenirs</span>
+        </div>
+      </header>
 
-      <section className="recaps">
-        <div>
+      <section className="protocol-settings recaps">
+        <section className="protocol-settings-intro">
           <p className="kicker">NOS SOIRÉES</p>
           <h1>
             Ce que vous
@@ -281,7 +294,7 @@ export default function RecapsScreen({ supabase, onBack }) {
             Chaque partie terminée laisse ici sa trace : la durée, les
             cartes tirées, vos coups de cœur.
           </p>
-        </div>
+        </section>
 
         {recaps === null && <p className="recaps-status">Chargement…</p>}
         {error && <p className="recaps-status is-error">{error}</p>}

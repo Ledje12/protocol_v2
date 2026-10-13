@@ -28,6 +28,8 @@ export function SettingsRow({
   onClick,
   disabled,
   danger,
+  // bascule : un toucher change la valeur, rien ne s'ouvre (pas de flèche)
+  toggle,
   children,
 }) {
   const content = (
@@ -48,7 +50,7 @@ export function SettingsRow({
         </span>
       )}
 
-      {onClick && !danger && (
+      {onClick && !danger && !toggle && (
         <span className="settings-row-arrow" aria-hidden="true">
           →
         </span>
