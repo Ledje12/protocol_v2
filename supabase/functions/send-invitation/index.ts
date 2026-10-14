@@ -266,18 +266,9 @@ Deno.serve(async (req)=>{
         loadedCard = officialCard;
       }
       card = loadedCard;
-      if (card.target_sex && card.target_sex !== recipientProfile.sex) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: "Cette carte n'est pas destinée à ce partenaire."
-        }), {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json"
-          }
-        });
-      }
+      // toute carte peut être proposée : si elle vise l'expéditeur,
+      // c'est lui qui la jouera (le texte le dit), l'autre la reçoit
+      // comme une proposition
       const { data: createdInvitation, error: invitationError } = await supabase.from("card_invitations").insert({
         request_key: requestKey,
         card_source: cardSource,

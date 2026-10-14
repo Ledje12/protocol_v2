@@ -750,9 +750,10 @@ export default function CardScreen({
           }
 
 
-          /* carte prévue pour l'autre sexe : visible (lecture),
-             mais pas envoyable. On la lit alors du point de vue
-             de celui qui la jouerait, donc les rôles s'inversent. */
+          /* carte prévue pour l'autre sexe : envoyable aussi (le
+             texte dit clairement qui fait quoi). On la lit alors du
+             point de vue de celui qui la jouera, l'expéditeur : les
+             rôles s'inversent. */
           const notForRecipient =
             Boolean(
               data.target_sex &&
@@ -2570,13 +2571,10 @@ export default function CardScreen({
 
             {card.notForRecipient && (
               <p className="card-send-message card-not-for">
-                Cette carte est prévue pour{" "}
-                {card.target_sex === "female"
-                  ? "une femme"
-                  : "un homme"}
-                {" "}: elle ne peut pas être proposée à{" "}
+                C’est toi qui joues cette carte :{" "}
                 {activePerson?.display_name ||
-                  "ton partenaire"}.
+                  "ton partenaire"}{" "}
+                la reçoit comme une proposition.
               </p>
             )}
 
@@ -2586,10 +2584,7 @@ export default function CardScreen({
               onClick={
                 sendCard
               }
-              disabled={
-                sending ||
-                card.notForRecipient
-              }
+              disabled={sending}
             >
               {
                 sending
@@ -2614,6 +2609,9 @@ export default function CardScreen({
                   ? `Proposé par ${senderPerson.display_name}.`
                   : "Proposé par ton partenaire."
               }
+
+              {card.notForRecipient &&
+                ` C’est ${senderPerson?.sex === "female" ? "elle" : "lui"} qui la jouera.`}
 
             </p>
 
