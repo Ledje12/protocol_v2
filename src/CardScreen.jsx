@@ -7,6 +7,7 @@ import {
 import "./card.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
+import CardEditSheet from "./CardEditSheet.jsx";
 import CardPhotos from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 
@@ -198,6 +199,25 @@ export default function CardScreen({
     setSendMessage,
   ] =
     useState("");
+
+  // modifier la carte (bibliothèque, comptes autorisés)
+  const [canEdit, setCanEdit] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+
+    supabase.rpc("protocol_is_admin").then(({ data, error: adminError }) => {
+      if (active && !adminError) {
+        setCanEdit(data === true);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [supabase]);
 
   const [
     trackedInvitationId,
@@ -911,6 +931,7 @@ export default function CardScreen({
     supabase,
     cardId,
     cardSource,
+    reloadKey,
     trackedInvitationId,
     invitation?.card_source,
     invitation?.effective_card_id,
@@ -2100,7 +2121,34 @@ export default function CardScreen({
             cardId={card.id}
             className="card-rating-detail"
           />
+
+          {/* bibliothèque seulement : pas depuis une invitation ou un défi */}
+          {canEdit &&
+            !trackedInvitationId &&
+            !challengeId &&
+            (cardSource || "official") === "official" && (
+              <button
+                type="button"
+                className="card-edit-button"
+                onClick={() => setEditing(true)}
+              >
+                Modifier
+              </button>
+            )}
         </div>
+
+        {editing && (
+          <CardEditSheet
+            supabase={supabase}
+            card={card}
+            intensityNames={INTENSITY_NAMES}
+            onSaved={() => {
+              setEditing(false);
+              setReloadKey((value) => value + 1);
+            }}
+            onClose={() => setEditing(false)}
+          />
+        )}
         {card.type === "scene" &&
           sceneSteps.length > 0 && (
 
