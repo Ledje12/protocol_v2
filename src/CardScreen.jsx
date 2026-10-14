@@ -8,6 +8,7 @@ import "./card.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
 import CardEditSheet from "./CardEditSheet.jsx";
+import { fillNames } from "./personalise.js";
 import CardPhotos from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 
@@ -772,37 +773,18 @@ export default function CardScreen({
               ? activePerson
               : senderPerson;
 
+          /* la carte s'adresse à la personne qui la jouera :
+             {{me}} = elle, {{other}} = celui qui la propose ;
+             élision comprise (« d’Audrey », « de Candy ») */
           const personaliseText = (
             value
           ) =>
-            String(value || "")
-              .replaceAll(
-                "{{active}}",
-                doer
-                  ?.display_name ||
-                  "ton partenaire"
-              )
-              .replaceAll(
-                "{{partner}}",
-                other
-                  ?.display_name ||
-                  "toi"
-              )
-              /* la carte s'adresse à la personne qui
-                 la jouera : {{me}} = elle, {{other}} =
-                 celui qui la propose */
-              .replaceAll(
-                "{{me}}",
-                doer
-                  ?.display_name ||
-                  "ton partenaire"
-              )
-              .replaceAll(
-                "{{other}}",
-                other
-                  ?.display_name ||
-                  "toi"
-              );
+            fillNames(value, {
+              active: doer?.display_name || "ton partenaire",
+              partner: other?.display_name || "toi",
+              me: doer?.display_name || "ton partenaire",
+              other: other?.display_name || "toi",
+            });
 
 
           const displayPrompt =

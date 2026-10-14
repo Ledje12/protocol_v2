@@ -13,6 +13,7 @@ import {
 
 import "./library.css";
 import { BackIcon } from "./ScreenHeader.jsx";
+import { fillNames } from "./personalise.js";
 
 
 /* =========================================================
@@ -663,14 +664,14 @@ export default function LibraryScreen({
               const other =
                 compatible ? myName : partnerName;
 
-              const displayPrompt =
-                String(card.prompt || "")
-                  .replaceAll("{{active}}", doer)
-                  .replaceAll("{{partner}}", other)
-                  /* la carte s'adresse à la personne qui la
-                     jouera : {{me}} = elle, {{other}} = l'autre */
-                  .replaceAll("{{me}}", doer)
-                  .replaceAll("{{other}}", other);
+              /* la carte s'adresse à la personne qui la jouera :
+                 {{me}} = elle, {{other}} = l'autre */
+              const displayPrompt = fillNames(card.prompt, {
+                active: doer,
+                partner: other,
+                me: doer,
+                other,
+              });
 
               return {
                 ...card,

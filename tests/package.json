@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test --test-concurrency=1 \"db/*.test.mjs\""
+    "test": "node --test --test-concurrency=1 \"db/*.test.mjs\" \"unit/*.test.mjs\""
   },
   "devDependencies": {
     "pg": "^8.16.0"

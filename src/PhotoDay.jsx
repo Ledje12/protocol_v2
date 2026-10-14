@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import CameraIcon from "./CameraIcon.jsx";
+import { deName, fillNames } from "./personalise.js";
 
 /* « À distance » : une journée de défis photo, à tour de rôle.
    Le bandeau vit dans Messages (là où arrivent les photos) ;
@@ -8,9 +9,6 @@ import CameraIcon from "./CameraIcon.jsx";
 
 const LEVELS = ["", "Suggestif", "Sensuel", "Osé", "Explicite"];
 
-// « de Jérôme », « d’Audrey »
-const deName = (name) =>
-  /^[aeiouyhàâäéèêëîïôöûüœ]/i.test(name || "") ? `d’${name}` : `de ${name}`;
 
 // dernière journée connue (session) : affichage immédiat au retour
 let cachedDay;
@@ -136,7 +134,7 @@ export function PhotoDayBanner({
   const onFile = (file) =>
     file &&
     run(async () => {
-      const caption = `Défi ${day.turn_no}/${day.total_turns} · ${day.challenge.title.replaceAll("{{partner}}", partnerName)}`;
+      const caption = `Défi ${day.turn_no}/${day.total_turns} · ${fillNames(day.challenge.title, { partner: partnerName })}`;
       const photo = await sendPhoto(file, caption);
       await call("complete_photo_turn", { p_day_id: day.id, p_photo_id: photo.id });
     });
@@ -198,7 +196,7 @@ export function PhotoDayBanner({
           <span className="photo-day-level">Niveau {day.level} · {LEVELS[day.level]}</span>
           <h2>{day.challenge.title}</h2>
           <p className="photo-day-prompt">
-            {day.challenge.prompt.replaceAll("{{partner}}", partnerName)}
+            {fillNames(day.challenge.prompt, { partner: partnerName })}
           </p>
           <div className="photo-day-actions">
             <button type="button" className="primary" disabled={busy} onClick={takePhoto}>

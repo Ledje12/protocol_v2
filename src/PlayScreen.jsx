@@ -11,6 +11,7 @@ import PrivateStepReader from "./PrivateStepReader.jsx";
 import { EnvelopeWriter } from "./Envelope.jsx";
 import { FinalReveals, SecretMission } from "./Missions.jsx";
 import { GameRecapHighlights } from "./Recaps.jsx";
+import { fillNames } from "./personalise.js";
 
 /* =========================================================
    PLAY
@@ -1741,24 +1742,14 @@ async function handleSceneRead() {
       ? player2Name
       : player1Name;
 
+  // prénoms, avec l'élision (« d’Audrey », « de Candy »)
   const renderProtocolText = (text) =>
-    (text || "")
-      .replaceAll(
-        "{{active}}",
-        activePlayerName
-      )
-      .replaceAll(
-        "{{partner}}",
-        cardPartnerName
-      )
-      .replaceAll(
-        "{{me}}",
-        myName
-      )
-      .replaceAll(
-        "{{other}}",
-        partnerName
-      );
+    fillNames(text, {
+      active: activePlayerName,
+      partner: cardPartnerName,
+      me: myName,
+      other: partnerName,
+    });
 
   const cardText =
     renderProtocolText(
