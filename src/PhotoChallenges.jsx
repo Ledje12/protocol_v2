@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import CameraIcon from "./CameraIcon.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
+import { fillNames } from "./personalise.js";
 
 /* Défis photo dans la bibliothèque : catégorie à part (ils ne
    sortent que dans le jeu « À distance »), à lire et à envoyer
@@ -59,7 +60,7 @@ export function PhotoChallengeList({ supabase, challenges, partnerName, partnerS
 
   // défis préparés pour l'autre : c'est lui ou elle qui le relève,
   // et « {{partner}} », c'est toi
-  const text = (value) => (value || "").replaceAll("{{partner}}", myName);
+  const text = (value) => fillNames(value, { partner: myName });
 
   const canSend = (challenge) =>
     !challenge.target_sex || !partnerSex || challenge.target_sex === partnerSex;
