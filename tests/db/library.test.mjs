@@ -129,3 +129,32 @@ test("nos favoris : seulement les cartes notées 🔥 par les deux", async () =>
   assert.deepEqual(await rpc(b, "get_couple_favorites"), favorites, "les mêmes pour les deux");
   assert.deepEqual(await rpc(other.a, "get_couple_favorites"), []);
 });
+
+test("modifier une carte : consigne et intensité, comptes autorisés seulement", async () => {
+  const { a, b } = await createCouple();
+  const [card] = await sql("select id, title from public.protocol_cards order by id limit 1");
+  const edit = (user, prompt, intensity) =>
+    rpc(user, "update_protocol_card", { p_card_id: card.id, p_prompt: prompt, p_intensity: intensity });
+
+  assert.equal(await rpc(a, "protocol_is_admin"), false);
+  await rejects(edit(a, "Nouvelle consigne.", 3), /not allowed/i);
+
+  await sql("insert into public.protocol_admins (user_id) values ($1)", [a.id]);
+  assert.equal(await rpc(a, "protocol_is_admin"), true);
+  assert.equal(await rpc(b, "protocol_is_admin"), false, "l'autre n'a pas le droit");
+  await rejects(edit(b, "Nouvelle consigne.", 3), /not allowed/i);
+
+  const saved = await edit(a, "  Nouvelle consigne pour {{partner}}.  ", 4);
+  assert.deepEqual(saved, { id: Number(card.id), prompt: "Nouvelle consigne pour {{partner}}.", intensity: 4 });
+  const [after] = await sql("select title, prompt, intensity from public.protocol_cards where id = $1", [card.id]);
+  assert.equal(after.title, card.title, "le titre ne change pas");
+  assert.equal(after.intensity, 4);
+
+  await rejects(edit(a, "   ", 3), /invalid prompt/i);
+  await rejects(edit(a, "Consigne.", 6), /invalid intensity/i);
+
+  // la table n'est pas modifiable directement, ni la liste lisible
+  await rejects(asUser(a, "select * from public.protocol_admins"), /permission denied/);
+  const direct = await asUser(b, "update public.protocol_cards set prompt = 'x' where id = $1", [card.id]);
+  assert.equal(direct.rowCount, 0);
+});
