@@ -543,7 +543,7 @@ export default function CalibrationScreen({
   }
 
   /* =========================================
-     1 / 5 - INTENSITE
+     INTENSITÉ : Taquin, Coquin ou Indécent
      ========================================= */
 
   if (stage === "intensity") {
@@ -598,7 +598,7 @@ export default function CalibrationScreen({
                   }}
                 >
                   <span className="option-number">
-                    0{level.value}
+                    0{level.rank}
                   </span>
 
                   <div>
