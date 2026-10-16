@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BackIcon } from "./ScreenHeader.jsx";
+import { INTENSITY_FOR_RANK, INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
 
 /* =========================================================
    CUSTOM LIBRARY
@@ -729,37 +730,41 @@ import { BackIcon } from "./ScreenHeader.jsx";
     </div>
 
 
+      {/* niveau visible (Taquin, Coquin, Indécent) ; une vérité
+          reste Taquin. Le niveau inchangé garde l'intensité
+          exacte déjà enregistrée. */}
       <label>
-        Intensité
+        Niveau
 
         <select
           value={
             form.type === "truth"
               ? 1
-              : form.intensity
+              : levelRank(form.intensity)
           }
           disabled={
             form.type === "truth"
           }
-          onChange={(event) =>
+          onChange={(event) => {
+            const rank = Number(event.target.value);
             setForm(
               (current) => ({
                 ...current,
                 intensity:
-                  Number(
-                    event.target.value
-                  ),
+                  rank === levelRank(current.intensity)
+                    ? current.intensity
+                    : INTENSITY_FOR_RANK[rank],
               })
-            )
-          }
+            );
+          }}
         >
-          {[1, 2, 3, 4, 5].map(
-            (value) => (
+          {INTENSITY_LEVELS.map(
+            (level) => (
               <option
-                key={value}
-                value={value}
+                key={level.rank}
+                value={level.rank}
               >
-                {value}
+                {level.title}
               </option>
             )
           )}
@@ -983,16 +988,13 @@ import { BackIcon } from "./ScreenHeader.jsx";
                   <div className="custom-manage-meta">
                     <span
                       className="type-intensity"
-                      aria-label={`Intensité ${card.intensity}`}
+                      aria-label={levelForIntensity(card.intensity).title}
                     >
-                      {Array.from({
-                        length: 5,
-                      }).map((_, index) => (
+                      {INTENSITY_LEVELS.map((level) => (
                         <i
-                          key={index}
+                          key={level.rank}
                           className={
-                            index <
-                            Number(card.intensity || 0)
+                            level.rank <= levelRank(card.intensity)
                               ? "is-active"
                               : ""
                           }

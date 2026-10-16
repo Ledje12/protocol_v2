@@ -5,6 +5,7 @@ import CardPhotos, { PHOTO_COLUMNS, cardKey } from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 import { BackIcon } from "./ScreenHeader.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
+import { levelForIntensity } from "./gameConstants.js";
 
 /* « Nos soirées » : le souvenir de chaque partie terminée.
    Le bloc « Votre soirée » en fin de partie, et l'écran qui les
@@ -473,7 +474,7 @@ function RecapDetail({ recap, supabase, onRated }) {
           >
             <span className="recap-card-meta">
               {TYPE_LABELS[card.type] || card.type}
-              {card.intensity ? ` · ${card.intensity}` : ""}
+              {card.intensity ? ` · ${levelForIntensity(card.intensity).title}` : ""}
               {nameOf(card.player_no) ? ` · ${nameOf(card.player_no)}` : ""}
             </span>
             <span className="recap-card-title">

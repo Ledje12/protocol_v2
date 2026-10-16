@@ -1,14 +1,17 @@
 import { useState } from "react";
 
 import { SettingsSheet } from "./SettingsParts.jsx";
+import { levelForIntensity } from "./gameConstants.js";
 
 /* Modifier une carte (bibliothèque, comptes autorisés) : la
-   consigne et l'intensité, écrites tout de suite dans la base. */
+   consigne et l'intensité, écrites tout de suite dans la base.
+   L'intensité reste précise (1 à 5, utile à la montée en jeu) ;
+   chaque valeur montre le niveau affiché : 1-3 Taquin, 4 Coquin,
+   5 Indécent. */
 
 export default function CardEditSheet({
   supabase,
   card,
-  intensityNames,
   onSaved,
   onClose,
 }) {
@@ -76,7 +79,7 @@ export default function CardEditSheet({
             onClick={() => setIntensity(level)}
           >
             <strong>{level}</strong>
-            <span>{intensityNames[level]}</span>
+            <span>{levelForIntensity(level).title}</span>
           </button>
         ))}
       </div>

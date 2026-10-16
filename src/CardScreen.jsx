@@ -11,6 +11,7 @@ import CardEditSheet from "./CardEditSheet.jsx";
 import { fillNames } from "./personalise.js";
 import CardPhotos from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
+import { INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
 
 
 function getTypeLabel(
@@ -144,14 +145,6 @@ const RESPONSE_LABELS = {
   love: "J’adore",
 };
 
-const INTENSITY_NAMES = [
-  null,
-  "Doux",
-  "Curieux",
-  "Joueur",
-  "Intense",
-  "Sans filtre",
-];
 
 
 export default function CardScreen({
@@ -2047,14 +2040,11 @@ export default function CardScreen({
             className="type-intensity"
             aria-hidden="true"
           >
-            {Array.from({
-              length: 5,
-            }).map((_, index) => (
+            {INTENSITY_LEVELS.map((level) => (
               <i
-                key={index}
+                key={level.rank}
                 className={
-                  index <
-                  Number(card.intensity || 0)
+                  level.rank <= levelRank(card.intensity)
                     ? "is-active"
                     : ""
                 }
@@ -2063,9 +2053,7 @@ export default function CardScreen({
           </span>
 
           <span>
-            {INTENSITY_NAMES[
-              Number(card.intensity || 0)
-            ] || "Intensité"}
+            {levelForIntensity(card.intensity).title}
           </span>
 
           {Number(card.timer_seconds) > 0 && (
@@ -2124,7 +2112,6 @@ export default function CardScreen({
           <CardEditSheet
             supabase={supabase}
             card={card}
-            intensityNames={INTENSITY_NAMES}
             onSaved={() => {
               setEditing(false);
               setReloadKey((value) => value + 1);

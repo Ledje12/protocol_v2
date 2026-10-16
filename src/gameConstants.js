@@ -33,3 +33,11 @@ export const INTENSITY_LEVELS = [
 export const levelForIntensity = (intensity) =>
   INTENSITY_LEVELS.find((level) => level.value >= Number(intensity || 0)) ||
   INTENSITY_LEVELS[INTENSITY_LEVELS.length - 1];
+
+// rang affiché (1 = Taquin, 2 = Coquin, 3 = Indécent) d'une carte
+// d'intensité 1 à 5
+export const levelRank = (intensity) => levelForIntensity(intensity).rank;
+
+// intensité enregistrée pour une carte perso choisie par niveau :
+// Taquin = 2 (peut sortir dès le début), Coquin = 4, Indécent = 5
+export const INTENSITY_FOR_RANK = { 1: 2, 2: 4, 3: 5 };
