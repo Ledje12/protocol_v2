@@ -7,6 +7,7 @@ import "./invitations.css";
 import { formatRelativeTime } from "./formatTime.js";
 import { markInboxSeen } from "./unread.js";
 import { BackIcon } from "./ScreenHeader.jsx";
+import { deName } from "./personalise.js";
 
 
 
@@ -792,7 +793,7 @@ export default function InvitationsScreen({
                       <span>
                         {isSent
                           ? `Proposée à ${otherName}`
-                          : `Reçue de ${otherName}`}
+                          : `Reçue ${deName(otherName)}`}
                       </span>
 
                     </div>

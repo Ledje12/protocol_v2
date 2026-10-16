@@ -37,3 +37,9 @@ test("plusieurs prénoms à la fois", () => {
     "Jérôme embrasse le cou d’Audrey."
   );
 });
+
+test("queName pour les phrases de l'app", async () => {
+  const { queName } = await import("../../src/personalise.js");
+  assert.equal(queName("Audrey"), "qu’Audrey");
+  assert.equal(queName("Jérôme"), "que Jérôme");
+});

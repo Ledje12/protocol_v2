@@ -12,7 +12,7 @@ import PrivateStepReader from "./PrivateStepReader.jsx";
 import { EnvelopeWriter } from "./Envelope.jsx";
 import { FinalReveals, SecretMission } from "./Missions.jsx";
 import { GameRecapHighlights } from "./Recaps.jsx";
-import { fillNames } from "./personalise.js";
+import { deName, fillNames } from "./personalise.js";
 
 /* =========================================================
    PLAY
@@ -2349,12 +2349,71 @@ async function handleSceneRead() {
             </strong>
           </button>
 
-          <div
+          <button
+            type="button"
             className={
               myBonuses.take_control ||
               myBonuses.take_control_armed
                 ? "bonus-button bonus-owned"
                 : "bonus-button"
+            }
+            onClick={async () => {
+              setShowBonuses(false);
+            try {
+              setNextLoading(true);
+              setError("");
+
+              const {
+                data,
+                error: bonusError,
+              } = await supabase.rpc(
+                "use_take_control_guarded",
+                {
+                  p_game_code:
+                    code,
+
+                  p_expected_turn_no:
+                    game?.turn_no,
+
+                  p_expected_card_id:
+                    card?.id,
+
+                  p_expected_card_source:
+                    card?.card_source ||
+                    "official",
+                }
+              );
+
+              if (bonusError) {
+                throw bonusError;
+              }
+
+              if (data?.stale) {
+                await loadState();
+                return;
+              }
+
+              await loadState();
+
+            } catch (err) {
+              console.error(
+                "TAKE CONTROL ERROR:",
+                err
+              );
+
+              setError(
+                err?.message ||
+                  "Impossible d'utiliser cet avantage."
+              );
+
+            } finally {
+              setNextLoading(false);
+            }
+          }}
+            disabled={
+              nextLoading ||
+              !isMyTurn ||
+              !myBonuses.take_control
             }
           >
             <span className="bonus-button-content">
@@ -2370,11 +2429,13 @@ async function handleSceneRead() {
             <strong>
               {myBonuses.take_control_armed
                 ? "ACTIF"
-                : myBonuses.take_control
-                  ? "EN MAIN"
-                  : "UTILISÉ"}
+                : !myBonuses.take_control
+                  ? "UTILISÉ"
+                  : isMyTurn
+                    ? "UTILISER"
+                    : "À TON TOUR"}
             </strong>
-          </div>
+          </button>
 
           <p className="bonus-note">
             Un duel gagné recharge un joker utilisé.
@@ -2497,66 +2558,7 @@ async function handleSceneRead() {
           TAKE CONTROL
           ===================================== */}
 
-      {myBonuses.take_control && isMyTurn && (
-        <button
-          className="activate-bonus"
-
-          onClick={async () => {
-            try {
-              setNextLoading(true);
-              setError("");
-
-              const {
-                data,
-                error: bonusError,
-              } = await supabase.rpc(
-                "use_take_control_guarded",
-                {
-                  p_game_code:
-                    code,
-
-                  p_expected_turn_no:
-                    game?.turn_no,
-
-                  p_expected_card_id:
-                    card?.id,
-
-                  p_expected_card_source:
-                    card?.card_source ||
-                    "official",
-                }
-              );
-
-              if (bonusError) {
-                throw bonusError;
-              }
-
-              if (data?.stale) {
-                await loadState();
-                return;
-              }
-
-              await loadState();
-
-            } catch (err) {
-              console.error(
-                "TAKE CONTROL ERROR:",
-                err
-              );
-
-              setError(
-                err?.message ||
-                  "Impossible d'utiliser cet avantage."
-              );
-
-            } finally {
-              setNextLoading(false);
-            }
-          }}
-        >
-          Utiliser « Prendre la main »
-        </button>
-      )}
+      {/* « Prendre la main » s'utilise depuis le panneau Jokers */}
 
 
       {/* =====================================
@@ -2674,7 +2676,7 @@ async function handleSceneRead() {
           <span className="play-meta-turn">
             {isMyTurn
               ? `À toi, ${myName}`
-              : `Au tour de ${activePlayerName}`}
+              : `Au tour ${deName(activePlayerName)}`}
           </span>
 
 

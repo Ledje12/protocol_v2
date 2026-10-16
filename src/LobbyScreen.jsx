@@ -4,6 +4,7 @@ import { getGameSession } from "./gameSession.js";
 import LoadingScreen from "./LoadingScreen.jsx";
 import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
+import { deName } from "./personalise.js";
 
 /* =========================================================
    LOBBY
@@ -255,6 +256,13 @@ export default function LobbyScreen({
   const connected =
     game.player_count === 2;
 
+  // « prêt » ou « prête » selon le profil
+  const mySex =
+    playerNumber === 1
+      ? game.player_1_sex
+      : game.player_2_sex;
+  const e = mySex === "female" ? "e" : "";
+
   const playerReady =
     playerNumber === 1
       ? game.player_1_ready
@@ -291,8 +299,10 @@ export default function LobbyScreen({
 
           <p className="small-text">
             {connected
-              ? `${partnerName || "Ton partenaire"} a rejoint la partie.`
-              : "Partage ce code avec ton partenaire."}
+              ? playerNumber === 1
+                ? `${partnerName || "Ton partenaire"} a rejoint la partie.`
+                : `Tu as rejoint la partie ${deName(partnerName || "ton partenaire")}.`
+              : "L’autre la voit sur son accueil : un toucher sur « Rejoindre » suffit. Sinon, ce code."}
           </p>
 
           <div
@@ -306,7 +316,7 @@ export default function LobbyScreen({
 
             {connected
               ? "Vous êtes connectés"
-              : "En attente de l'autre joueur"}
+              : "En attente de l’autre"}
           </div>
         </div>
 
@@ -317,15 +327,15 @@ export default function LobbyScreen({
             </p>
 
             <h1>
-              Prêt à
+              Prêt{e} à
               <br />
               jouer ?
             </h1>
 
             <p className="intro">
               La prochaine étape est
-              individuelle. Tes réponses
-              resteront privées.
+              individuelle. Ton choix
+              restera privé.
             </p>
 
             {!playerReady ? (
@@ -339,7 +349,7 @@ export default function LobbyScreen({
                 <span>
                   {readyLoading
                     ? "Un instant…"
-                    : "Je suis prêt"}
+                    : `Je suis prêt${e}`}
                 </span>
 
                 <span>→</span>
@@ -352,13 +362,13 @@ export default function LobbyScreen({
 
                 <div>
                   <strong>
-                    Tu es prêt.
+                    Tu es prêt{e}.
                   </strong>
 
                   <span>
                     {partnerReady
                       ? "La partie commence…"
-                      : "On attend encore l'autre."}
+                      : `On attend ${partnerName || "l’autre"}.`}
                   </span>
                 </div>
               </div>
