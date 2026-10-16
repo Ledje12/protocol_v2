@@ -14,6 +14,7 @@ import {
 import "./library.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 import { fillNames } from "./personalise.js";
+import { INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
 
 
 /* =========================================================
@@ -39,28 +40,11 @@ const TYPE_FILTERS = [
   },
 ];
 
-const INTENSITY_FILTERS = [
-  {
-    value: 1,
-    label: "1",
-  },
-  {
-    value: 2,
-    label: "2",
-  },
-  {
-    value: 3,
-    label: "3",
-  },
-  {
-    value: 4,
-    label: "4",
-  },
-  {
-    value: 5,
-    label: "5",
-  },
-];
+// filtre par niveau (Taquin, Coquin, Indécent) : valeur = rang
+const INTENSITY_FILTERS = INTENSITY_LEVELS.map((level) => ({
+  value: level.rank,
+  label: level.title,
+}));
 
 
 /* =========================================================
@@ -258,7 +242,10 @@ export default function LibraryScreen({
     selectedIntensities,
     setSelectedIntensities,
   ] = useState(
-    Array.isArray(savedView.intensities) ? savedView.intensities : []
+    // anciens filtres 1 à 5 : seuls les rangs 1 à 3 restent valables
+    Array.isArray(savedView.intensities)
+      ? savedView.intensities.filter((value) => value >= 1 && value <= 3)
+      : []
   );
 
   // vanilla / kinky (null = toutes)
@@ -765,7 +752,7 @@ export default function LibraryScreen({
           if (
             selectedIntensities.length > 0 &&
             !selectedIntensities.includes(
-              Number(card.intensity)
+              levelRank(card.intensity)
             )
           ) {
             return false;
@@ -1287,21 +1274,19 @@ export default function LibraryScreen({
 
                     <div className="library-card-footer">
 
-                      <div className="library-card-intensity">
+                      <div
+                        className="library-card-intensity"
+                        aria-label={levelForIntensity(card.intensity).title}
+                      >
 
-                        {Array.from({
-                          length: 5,
-                        }).map(
-                          (_, index) => (
+                        {INTENSITY_LEVELS.map(
+                          (level) => (
 
                             <span
-                              key={index}
+                              key={level.rank}
                               className={
-                                index <
-                                Number(
-                                  card.intensity ||
-                                  0
-                                )
+                                level.rank <=
+                                levelRank(card.intensity)
                                   ? "is-active"
                                   : ""
                               }
