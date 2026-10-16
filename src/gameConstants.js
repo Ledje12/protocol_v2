@@ -6,30 +6,30 @@ export const TYPE_LABELS = {
   scene: "Scène",
 };
 
+/* Calibration : 3 niveaux. value = plafond d'intensité des cartes
+   (la partie garde le plus bas des deux choix). */
 export const INTENSITY_LEVELS = [
   {
-    value: 1,
-    title: "Doux",
-    text: "Complice, léger, sans pression.",
-  },
-  {
-    value: 2,
-    title: "Curieux",
-    text: "On explore un peu plus loin.",
-  },
-  {
     value: 3,
-    title: "Joueur",
-    text: "On accepte d'être surpris.",
+    rank: 1,
+    title: "Taquin",
+    text: "On se cherche, on se frôle.",
   },
   {
     value: 4,
-    title: "Intense",
-    text: "On veut sentir la tension monter.",
+    rank: 2,
+    title: "Coquin",
+    text: "On ose davantage.",
   },
   {
     value: 5,
-    title: "Sans filtre",
-    text: "On ouvre franchement le terrain de jeu.",
+    rank: 3,
+    title: "Indécent",
+    text: "Plus aucune retenue.",
   },
 ];
+
+// niveau d'une partie (les anciennes calibrations 1 et 2 = Taquin)
+export const levelForIntensity = (intensity) =>
+  INTENSITY_LEVELS.find((level) => level.value >= Number(intensity || 0)) ||
+  INTENSITY_LEVELS[INTENSITY_LEVELS.length - 1];

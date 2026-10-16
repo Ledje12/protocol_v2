@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { INTENSITY_LEVELS } from "./gameConstants.js";
+import { INTENSITY_LEVELS, levelForIntensity } from "./gameConstants.js";
 import { clearGameSession, getGameSession, getLastSeenCard, saveGameSession, saveLastSeenCard, saveProfileAsGameIdentity } from "./gameSession.js";
 import { hasSeenHowToPlay } from "./howto.js";
 import HowToPlay from "./HowToPlay.jsx";
@@ -1007,16 +1007,14 @@ export default function HomeScreen({
                       className="type-intensity"
                       aria-hidden="true"
                     >
-                      {Array.from({
-                        length: 5,
-                      }).map((_, index) => (
+                      {INTENSITY_LEVELS.map((level) => (
                         <i
-                          key={index}
+                          key={level.value}
                           className={
-                            index <
-                            Number(
+                            level.rank <=
+                            levelForIntensity(
                               resumeGame.shared_profile.intensity
-                            )
+                            ).rank
                               ? "is-active"
                               : ""
                           }
@@ -1024,14 +1022,9 @@ export default function HomeScreen({
                       ))}
                     </span>
                     <strong>
-                      {INTENSITY_LEVELS.find(
-                        (level) =>
-                          level.value ===
-                          Number(
-                            resumeGame.shared_profile.intensity
-                          )
-                      )?.title ||
-                        `Niveau ${resumeGame.shared_profile.intensity}`}
+                      {levelForIntensity(
+                        resumeGame.shared_profile.intensity
+                      ).title}
                     </strong>
                   </div>
                 )}

@@ -78,7 +78,9 @@ const STEPS = [
         </p>
         <p>
           Une vingtaine de cartes, de plus en plus intenses, sans
-          jamais dépasser ce que vous avez choisi. Vers la fin, chacun
+          jamais dépasser ce que vous avez choisi : <strong>Taquin</strong>,{" "}
+          <strong>Coquin</strong> ou <strong>Indécent</strong>. Le plus
+          sage de vos deux choix l’emporte. Vers la fin, chacun
           glisse en secret une phrase dans <strong>l’enveloppe</strong> :
           elles s’ouvrent à la dernière carte.
         </p>
