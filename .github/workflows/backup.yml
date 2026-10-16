@@ -73,7 +73,7 @@ jobs:
           rm -rf dump "protocol-$stamp.tar.gz"
           ls -l protocol-*.gpg
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: sauvegarde-${{ env.STAMP }}
           path: protocol-${{ env.STAMP }}.tar.gz.gpg
