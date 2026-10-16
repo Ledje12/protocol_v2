@@ -1922,15 +1922,10 @@ async function handleSceneRead() {
               <div className="final-session-summary">
 
                 <span>
-                  {finalStats.total_cards} DÉFIS
-                </span>
-
-                <span className="final-session-dot">
-                  ·
-                </span>
-
-                <span>
-                  {finalStats.duels} DUELS
+                  {finalStats.duels}{" "}
+                  {finalStats.duels === 1
+                    ? "DUEL"
+                    : "DUELS"}
                 </span>
 
                 <span className="final-session-dot">

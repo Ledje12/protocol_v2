@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { getGameSession } from "./gameSession.js";
+
 /* L'enveloppe.
    Vers 60 % de la partie, chacun écrit en secret une phrase pour
    la fin de soirée, ou passe. Elle est scellée côté serveur et ne
@@ -215,7 +217,18 @@ export function EnvelopeReveal({ supabase, code, game }) {
       .rpc("open_protocol_envelopes", { p_game_code: code })
       .then(({ data, error }) => {
         if (active) {
-          setEnvelopes(!error && Array.isArray(data) ? data : []);
+          const list = !error && Array.isArray(data) ? data : [];
+          const { playerNumber, singleDevice } = getGameSession(code);
+
+          // chacun ouvre d'abord celle qui lui est adressée
+          setEnvelopes(
+            singleDevice
+              ? list
+              : [...list].sort(
+                  (a, b) =>
+                    (a.player_no === playerNumber) - (b.player_no === playerNumber)
+                )
+          );
         }
       });
 
@@ -239,6 +252,8 @@ export function EnvelopeReveal({ supabase, code, game }) {
   };
 
   const allOpen = opened >= envelopes.length;
+  const { playerNumber, singleDevice } = getGameSession(code);
+  const mine = (envelope) => !singleDevice && envelope.player_no === playerNumber;
 
   return createPortal(
     <div className="private-reader envelope-reveal">
@@ -260,7 +275,7 @@ export function EnvelopeReveal({ supabase, code, game }) {
             index < opened ? (
               <article key={envelope.player_no} className="envelope-card is-open">
                 <span className="envelope-from">
-                  De <em>{envelope.name}</em>
+                  {mine(envelope) ? "Ce que tu as écrit" : <>De <em>{envelope.name}</em>, pour toi</>}
                 </span>
                 <blockquote>{envelope.message}</blockquote>
               </article>
@@ -274,7 +289,7 @@ export function EnvelopeReveal({ supabase, code, game }) {
               >
                 <span className="envelope-seal" aria-hidden="true">✦</span>
                 <span className="envelope-from">
-                  Enveloppe de <em>{envelope.name}</em>
+                  {mine(envelope) ? "Ton enveloppe" : <>Enveloppe de <em>{envelope.name}</em></>}
                 </span>
                 {index === opened && (
                   <span className="envelope-tap">Toucher pour ouvrir</span>

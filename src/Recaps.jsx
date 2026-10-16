@@ -166,10 +166,12 @@ export function GameRecapHighlights({ supabase, gameId, finishedAt }) {
           <strong>{doneCount(recap)}</strong>
           <span>défis relevés</span>
         </div>
-        <div>
-          <strong>{favorites.length}</strong>
-          <span>coup{favorites.length > 1 ? "s" : ""} de cœur</span>
-        </div>
+        {favorites.length > 0 && (
+          <div>
+            <strong>{favorites.length}</strong>
+            <span>coup{favorites.length > 1 ? "s" : ""} de cœur</span>
+          </div>
+        )}
       </div>
 
       {favorites.length > 0 && (
