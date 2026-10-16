@@ -27,7 +27,8 @@ concurrency:
 
 jobs:
   backup:
-    runs-on: ubuntu-latest
+    # version fixée : pas de changement de machine sans l'avoir testé
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
 
     env:
@@ -42,12 +43,10 @@ jobs:
             exit 1
           fi
 
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
       - name: Exporter la base
         run: |
+          # l'outil Supabase lancé directement (plus d'action à part)
+          supabase() { npx --yes supabase@latest "$@"; }
           mkdir -p dump
           supabase db dump --db-url "$SUPABASE_DB_URL" -f dump/roles.sql --role-only
           supabase db dump --db-url "$SUPABASE_DB_URL" -f dump/schema.sql
@@ -74,7 +73,7 @@ jobs:
           rm -rf dump "protocol-$stamp.tar.gz"
           ls -l protocol-*.gpg
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: sauvegarde-${{ env.STAMP }}
           path: protocol-${{ env.STAMP }}.tar.gz.gpg
