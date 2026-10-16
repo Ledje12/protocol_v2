@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { EnvelopeReveal } from "./Envelope.jsx";
+import { queName } from "./personalise.js";
 
 /* Missions secrètes.
    Au lancement, chacun découvre en privé sa mission (une seule
@@ -277,9 +278,9 @@ export function SecretMission({ supabase, code, game, singleDevice, names }) {
               <p className="mission-prompt">{state.mission.prompt}</p>
               <p className="private-reader-note">
                 {open.mode === "briefing"
-                  ? `À réussir avant la fin de la partie, sans que ${
+                  ? `À réussir avant la fin de la partie, sans ${queName(
                       names[open.player === 1 ? 2 : 1]
-                    } le devine. Tu pourras la relire à tout moment.`
+                    )} le devine. Tu pourras la relire à tout moment.`
                   : "Personne ne voit ta mission avant la fin de la partie."}
               </p>
 

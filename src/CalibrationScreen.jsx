@@ -56,9 +56,6 @@ export default function CalibrationScreen({
   const currentName = names[turn] || "";
   const otherName = names[turn === 1 ? 2 : 1] || "";
 
-  const [stage, setStage] =
-    useState("intro");
-    
   const [submitted, setSubmitted] =
     useState(false);
 
@@ -71,6 +68,47 @@ export default function CalibrationScreen({
   const [error, setError] =
     useState("");
 
+
+  /* Écran rouvert : on reprend là où on en était (choix déjà fait,
+     partie prête ou déjà lancée) au lieu de redemander. */
+  const doneKey = `protocol-calibrated-${code}`;
+
+  useEffect(() => {
+    if (!hasGameSession) {
+      return undefined;
+    }
+
+    let active = true;
+
+    try {
+      if (!singleDevice && window.localStorage.getItem(doneKey)) {
+        setSubmitted(true);
+      }
+    } catch {
+      // stockage indisponible : on redemandera le choix
+    }
+
+    supabase
+      .rpc("get_protocol_game", { p_game_code: code })
+      .then(({ data }) => {
+        const gameData = Array.isArray(data) ? data[0] : data;
+
+        if (!active || !gameData) {
+          return;
+        }
+
+        if (gameData.status === "playing") {
+          navigate(`/game/${code}/play`);
+        } else if (gameData.status === "calibration_ready") {
+          setSubmitted(true);
+          setBothReady(true);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [hasGameSession, singleDevice, code, doneKey, navigate]);
 
   /* =========================================
      ATTENTE PARTENAIRE
@@ -200,6 +238,14 @@ export default function CalibrationScreen({
         if (singleDevice && turn === 1) {
           setHandoff(true);
           return;
+        }
+
+        if (!singleDevice) {
+          try {
+            window.localStorage.setItem(doneKey, "1");
+          } catch {
+            // sans stockage, l'écran redemandera simplement le choix
+          }
         }
 
         setSubmitted(true);
@@ -411,7 +457,7 @@ export default function CalibrationScreen({
   }
 
   /* =========================================
-     INTRO
+     UN SEUL TÉLÉPHONE : PASSER LA MAIN
      ========================================= */
 
   if (singleDevice && handoff) {
@@ -447,7 +493,6 @@ export default function CalibrationScreen({
             onClick={() => {
               setTurn(2);
               setHandoff(false);
-              setStage("intensity");
             }}
           >
             <span>
@@ -460,166 +505,89 @@ export default function CalibrationScreen({
     );
   }
 
-  if (stage === "intro") {
-    return (
-      <main className="app">
-        <div className="glow glow-bottom" />
-
-        <header className="header">
-          <span className="logo">
-            PROTOCOL
-          </span>
-
-          <span className="pill">
-            Privé
-          </span>
-        </header>
-
-        <section className="calibration">
-          <div>
-            <p className="kicker">
-              {singleDevice
-                ? "UN TÉLÉPHONE, DEUX CHOIX SECRETS"
-                : "JUSTE ENTRE NOUS"}
-            </p>
-
-            <h1>
-              {singleDevice ? (
-                <>
-                  Chacun
-                  <br />
-                  son tour.
-                </>
-              ) : (
-                <>
-                  Ce que
-                  <br />
-                  tu veux.
-                </>
-              )}
-            </h1>
-
-            <p className="intro">
-              {singleDevice
-                ? `${currentName || "Le premier"} commence. ${otherName || "L’autre"}, ne regarde pas l’écran : chacun répond pour soi.`
-                : "Un choix rapide. Réponds pour toi, pas pour deviner ce que l'autre veut."}
-            </p>
-
-            <div className="privacy">
-              <span className="privacy-dot">
-                ◦
-              </span>
-
-              <div>
-                <strong>
-                  Ton choix reste privé.
-                </strong>
-
-                <p>
-                      PROTOCOL combine vos réponses
-                      sans les révéler à l’autre.
-                      Votre terrain commun guidera
-                      ensuite la partie.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            className="primary"
-            onClick={() =>
-              setStage("intensity")
-            }
-          >
-            <span>
-              Commencer
-            </span>
-
-            <span>→</span>
-          </button>
-        </section>
-      </main>
-    );
-  }
-
   /* =========================================
      INTENSITÉ : Taquin, Coquin ou Indécent
      ========================================= */
 
-  if (stage === "intensity") {
-    return (
-      <main className="app">
-        <div className="glow glow-center" />
+  return (
+    <main className="app">
+      <div className="glow glow-center" />
 
-        <header className="header">
-          <span className="logo">
-            PROTOCOL
-          </span>
+      <header className="header">
+        <span className="logo">
+          PROTOCOL
+        </span>
 
+        {singleDevice ? (
           <span className="progress-label">
-            {singleDevice
-              ? `${turn} / 2`
-              : "01 / 01"}
+            {`${turn} / 2`}
           </span>
-        </header>
+        ) : (
+          <span className="pill">
+            Privé
+          </span>
+        )}
+      </header>
 
-        <section className="question-screen">
-          <div>
-            <p className="kicker">
-              {singleDevice && currentName
-                ? `${currentName.toUpperCase()}, À TOI`
-                : "INTENSITÉ"}
-            </p>
+      <section className="question-screen">
+        <div>
+          <p className="kicker">
+            {singleDevice && currentName
+              ? `${currentName.toUpperCase()}, À TOI`
+              : "INTENSITÉ"}
+          </p>
 
-            <h1>
-              Ce soir,
-              <br />
-              tu veux quoi ?
-            </h1>
+          <h1>
+            Ce soir,
+            <br />
+            tu veux quoi ?
+          </h1>
 
-            <p className="intro">
-              Ton humeur maintenant.
-              Pas un engagement pour
-              toute la partie.
-            </p>
-          </div>
+          <p className="intro">
+            {singleDevice && turn === 1
+              ? `${otherName || "L’autre"}, ne regarde pas l’écran. `
+              : ""}
+            Ton humeur maintenant, pas un engagement
+            pour toute la partie. Ton choix reste privé :
+            PROTOCOL garde votre terrain commun.
+          </p>
+        </div>
 
-          <div className="intensity-list">
-            {INTENSITY_LEVELS.map(
-              (level) => (
-                <button
-                  key={level.value}
-                  className="calibration-option"
-                  disabled={saving}
-                  onClick={() => {
-                    submitCalibration(
-                      level.value
-                    );
-                  }}
-                >
-                  <span className="option-number">
-                    0{level.rank}
-                  </span>
+        <div className="intensity-list">
+          {INTENSITY_LEVELS.map(
+            (level) => (
+              <button
+                key={level.value}
+                className="calibration-option"
+                disabled={saving}
+                onClick={() => {
+                  submitCalibration(
+                    level.value
+                  );
+                }}
+              >
+                <span className="option-number">
+                  0{level.rank}
+                </span>
 
-                  <div>
-                    <strong>
-                      {level.title}
-                    </strong>
+                <div>
+                  <strong>
+                    {level.title}
+                  </strong>
 
-                    <p>
-                      {level.text}
-                    </p>
-                  </div>
+                  <p>
+                    {level.text}
+                  </p>
+                </div>
 
-                  <span className="option-arrow">
-                    →
-                  </span>
-                </button>
-              )
-            )}
-          </div>
-        </section>
-      </main>
-    );
-  }
+                <span className="option-arrow">
+                  →
+                </span>
+              </button>
+            )
+          )}
+        </div>
+      </section>
+    </main>
+  );
 }

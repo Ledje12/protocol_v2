@@ -15,6 +15,10 @@ export const startsWithVowel = (name) => ELIDES.test(String(name || "").trim());
 export const deName = (name) =>
   startsWithVowel(name) ? `d’${name}` : `de ${name}`;
 
+// « que Jérôme », « qu’Audrey »
+export const queName = (name) =>
+  startsWithVowel(name) ? `qu’${name}` : `que ${name}`;
+
 const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export function fillNames(text, names) {
