@@ -43,3 +43,27 @@ test("queName pour les phrases de l'app", async () => {
   assert.equal(queName("Audrey"), "qu’Audrey");
   assert.equal(queName("Jérôme"), "que Jérôme");
 });
+
+test("pronoms selon le sexe : le / la, il / elle, lui / elle, accord", () => {
+  const she = (text) => fillNames(text, { partner: "Audrey" }, { partner: "female" });
+  const he = (text) => fillNames(text, { partner: "Jérôme" }, { partner: "male" });
+
+  assert.equal(she("Emmène {{partner}} ailleurs, plaque-{{partner_le}} contre le mur."),
+    "Emmène Audrey ailleurs, plaque-la contre le mur.");
+  assert.equal(he("plaque-{{partner_le}} contre le mur"), "plaque-le contre le mur");
+  assert.equal(she("tu {{partner_le}} regardes, tu {{partner_le}} embrasses"), "tu la regardes, tu l’embrasses");
+  assert.equal(he("tu {{partner_le}} embrasses"), "tu l’embrasses");
+  assert.equal(she("{{partner_il}} ferme les yeux. {{partner_il}} attend."), "Elle ferme les yeux. Elle attend.");
+  assert.equal(he("reste avec {{partner_lui}}, {{partner_il}} sait"), "reste avec lui, il sait");
+  assert.equal(she("allongé{{partner_e}} sur le dos"), "allongée sur le dos");
+  assert.equal(he("allongé{{partner_e}} sur le dos"), "allongé sur le dos");
+  assert.equal(she("C'est {{partner_lui}} qui {{partner_le}} guide."), "C'est elle qui la guide.");
+  assert.equal(she("Fais-{{partner_le}} attendre."), "Fais-la attendre.");
+});
+
+test("pronoms : sexe inconnu, le prénom à la place", () => {
+  const fill = (text) => fillNames(text, { partner: "Audrey" });
+  assert.equal(fill("plaque-{{partner_le}} contre le mur"), "plaque Audrey contre le mur");
+  assert.equal(fill("{{partner_il}} attend, avec {{partner_lui}}"), "Audrey attend, avec Audrey");
+  assert.equal(fill("allongé{{partner_e}}"), "allongé");
+});

@@ -403,6 +403,10 @@ export default function LibraryScreen({
     recipient?.sex ||
     null;
 
+  const mySex =
+    profile?.sex ||
+    null;
+
     /* =======================================================
      LOVENSE STATUS
      ======================================================= */
@@ -653,12 +657,24 @@ export default function LibraryScreen({
 
               /* la carte s'adresse à la personne qui la jouera :
                  {{me}} = elle, {{other}} = l'autre */
-              const displayPrompt = fillNames(card.prompt, {
-                active: doer,
-                partner: other,
-                me: doer,
-                other,
-              });
+              const doerSex = compatible ? partnerSex : mySex;
+              const otherSex = compatible ? mySex : partnerSex;
+
+              const displayPrompt = fillNames(
+                card.prompt,
+                {
+                  active: doer,
+                  partner: other,
+                  me: doer,
+                  other,
+                },
+                {
+                  active: doerSex,
+                  partner: otherSex,
+                  me: doerSex,
+                  other: otherSex,
+                }
+              );
 
               return {
                 ...card,
@@ -714,6 +730,7 @@ export default function LibraryScreen({
     partnerName,
     myName,
     partnerSex,
+    mySex,
     couple?.id,
     couple?.couple_id,
   ]);

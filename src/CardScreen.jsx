@@ -772,12 +772,21 @@ export default function CardScreen({
           const personaliseText = (
             value
           ) =>
-            fillNames(value, {
-              active: doer?.display_name || "ton partenaire",
-              partner: other?.display_name || "toi",
-              me: doer?.display_name || "ton partenaire",
-              other: other?.display_name || "toi",
-            });
+            fillNames(
+              value,
+              {
+                active: doer?.display_name || "ton partenaire",
+                partner: other?.display_name || "toi",
+                me: doer?.display_name || "ton partenaire",
+                other: other?.display_name || "toi",
+              },
+              {
+                active: doer?.sex,
+                partner: other?.sex,
+                me: doer?.sex,
+                other: other?.sex,
+              }
+            );
 
 
           const displayPrompt =

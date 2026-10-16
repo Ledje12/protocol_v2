@@ -1746,14 +1746,29 @@ async function handleSceneRead() {
       ? player2Name
       : player1Name;
 
+  const sexOf = (number) =>
+    number === 1
+      ? game?.player_1_sex
+      : game?.player_2_sex;
+
   // prénoms, avec l'élision (« d’Audrey », « de Candy »)
   const renderProtocolText = (text) =>
-    fillNames(text, {
-      active: activePlayerName,
-      partner: cardPartnerName,
-      me: myName,
-      other: partnerName,
-    });
+    fillNames(
+      text,
+      {
+        active: activePlayerName,
+        partner: cardPartnerName,
+        me: myName,
+        other: partnerName,
+      },
+      // pronoms : {{partner_le}} → le / la…
+      {
+        active: sexOf(game?.active_player),
+        partner: sexOf(game?.active_player === 1 ? 2 : 1),
+        me: sexOf(playerNumber),
+        other: sexOf(playerNumber === 1 ? 2 : 1),
+      }
+    );
 
   const cardText =
     renderProtocolText(
