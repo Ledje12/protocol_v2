@@ -6,6 +6,7 @@ import LoadingScreen from "./LoadingScreen.jsx";
 import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
 import CardPhotos from "./CardPhotos.jsx";
+import useWakeLock from "./useWakeLock.js";
 import CardRating from "./CardRating.jsx";
 import PrivateStepReader from "./PrivateStepReader.jsx";
 import { EnvelopeWriter } from "./Envelope.jsx";
@@ -45,6 +46,9 @@ export default function PlayScreen({
 
   const [game, setGame] =
     useState(null);
+
+  // écran allumé tant que la partie est en cours (pas en pause ni finie)
+  useWakeLock(game?.status === "playing");
 
   /* Un seul téléphone : il joue pour la personne dont c'est le
      tour (le serveur l'autorise pour ces parties seulement). */
