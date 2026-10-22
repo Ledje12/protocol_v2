@@ -4,7 +4,6 @@ import {
   useState,
 } from "react";
 
-import "./card.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 import StateScreen from "./StateScreen.jsx";
 import CardEditSheet from "./CardEditSheet.jsx";

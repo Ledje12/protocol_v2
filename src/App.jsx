@@ -1,25 +1,68 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, useEffect, useRef, useState } from "react";
+// tous les styles restent chargés au démarrage, dans cet ordre
+// (les écrans, eux, arrivent à la demande : voir plus bas)
 import "./notifications.css";
 import "./home-dashboard.css";
-import LibraryScreen from "./LibraryScreen.jsx";
-import CardScreen from "./CardScreen.jsx";
-import InvitationsScreen from "./InvitationsScreen.jsx";
-import MessagesScreen from "./MessagesScreen.jsx";
+import "./library.css";
+import "./card.css";
+import "./invitations.css";
+import "./messages.css";
+import "./recaps.css";
 import AuthScreen from "./AuthScreen.jsx";
 import BrandMark from "./BrandMark.jsx";
-import CalibrationScreen from "./CalibrationScreen.jsx";
-import CustomLibraryScreen from "./CustomLibraryScreen.jsx";
 import HomeScreen from "./HomeScreen.jsx";
-import JoinScreen from "./JoinScreen.jsx";
 import { AppLoadingScreen } from "./LoadingScreen.jsx";
-import LobbyScreen from "./LobbyScreen.jsx";
-import PlayScreen from "./PlayScreen.jsx";
-import PrivacyScreen from "./PrivacyScreen.jsx";
-import ProfileSetupScreen from "./ProfileSetupScreen.jsx";
-import RecapsScreen from "./Recaps.jsx";
 import { getRoute } from "./routes.js";
-import SettingsScreen from "./SettingsScreen.jsx";
+import { SCREENS } from "./screens.js";
 import { supabase } from "./supabaseClient.js";
+
+const LibraryScreen = lazy(SCREENS.LibraryScreen);
+const CardScreen = lazy(SCREENS.CardScreen);
+const InvitationsScreen = lazy(SCREENS.InvitationsScreen);
+const MessagesScreen = lazy(SCREENS.MessagesScreen);
+const CalibrationScreen = lazy(SCREENS.CalibrationScreen);
+const CustomLibraryScreen = lazy(SCREENS.CustomLibraryScreen);
+const JoinScreen = lazy(SCREENS.JoinScreen);
+const LobbyScreen = lazy(SCREENS.LobbyScreen);
+const PlayScreen = lazy(SCREENS.PlayScreen);
+const PrivacyScreen = lazy(SCREENS.PrivacyScreen);
+const ProfileSetupScreen = lazy(SCREENS.ProfileSetupScreen);
+const RecapsScreen = lazy(SCREENS.RecapsScreen);
+const SettingsScreen = lazy(SCREENS.SettingsScreen);
+
+/* Profil et couple gardés sur le téléphone : à l'ouverture,
+   l'accueil s'affiche tout de suite avec eux, puis ils sont
+   actualisés en silence. Effacés à la déconnexion. */
+const BOOT_CACHE_KEY = "protocol-boot-cache";
+
+function readBootCache(userId) {
+  try {
+    const cache = JSON.parse(localStorage.getItem(BOOT_CACHE_KEY) || "null");
+    return cache?.userId === userId && cache.profile && cache.couple
+      ? cache
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeBootCache(userId, patch) {
+  try {
+    const current = JSON.parse(localStorage.getItem(BOOT_CACHE_KEY) || "null");
+    const base = current?.userId === userId ? current : { userId };
+    localStorage.setItem(BOOT_CACHE_KEY, JSON.stringify({ ...base, ...patch }));
+  } catch {
+    // stockage indisponible : chargement normal à la prochaine ouverture
+  }
+}
+
+function clearBootCache() {
+  try {
+    localStorage.removeItem(BOOT_CACHE_KEY);
+  } catch {
+    // rien à effacer
+  }
+}
 
 /* =========================================================
    APP
@@ -68,6 +111,10 @@ function App() {
   const coupleLoadedRef =
     useRef(false);
 
+  // compte dont le profil est déjà à l'écran (actualisation silencieuse)
+  const profileShownRef =
+    useRef(null);
+
   useEffect(() => {
     let active = true;
 
@@ -104,6 +151,7 @@ function App() {
           );
 
           if (!session) {
+            clearBootCache();
             setProfile(null);
             setProfileLoading(false);
           }
@@ -127,6 +175,8 @@ function App() {
       async () => {
 
         if (!authSession?.user?.id) {
+          profileShownRef.current = null;
+
           if (active) {
             setProfile(null);
             setProfileLoading(false);
@@ -135,8 +185,24 @@ function App() {
           return;
         }
 
+        const userId = authSession.user.id;
+        const cached = readBootCache(userId);
+
+        // ouverture : l'accueil s'affiche avec le profil gardé
+        if (cached && profileShownRef.current !== userId) {
+          profileShownRef.current = userId;
+          setProfile(cached.profile);
+          setProfileUserId(userId);
+          setProfileLoading(false);
+        }
+
+        const silent = profileShownRef.current === userId;
+
         try {
-          setProfileLoading(true);
+          if (!silent) {
+            setProfileLoading(true);
+          }
+
           setProfileError("");
 
           const {
@@ -162,6 +228,10 @@ function App() {
             setProfile(
               data ?? null
             );
+
+            if (data) {
+              writeBootCache(userId, { profile: data });
+            }
           }
 
         } catch (err) {
@@ -170,7 +240,9 @@ function App() {
             err
           );
 
-          if (active) {
+          // déjà affiché depuis le téléphone (hors connexion…) :
+          // on garde l'accueil plutôt qu'un écran d'erreur
+          if (active && !silent) {
             setProfileError(
               "Impossible de charger ton profil."
             );
@@ -178,7 +250,8 @@ function App() {
 
         } finally {
           if (active) {
-            setProfileUserId(authSession.user.id);
+            profileShownRef.current = userId;
+            setProfileUserId(userId);
             setProfileLoading(false);
           }
         }
@@ -209,10 +282,23 @@ function App() {
           return;
         }
 
+        const userId = authSession.user.id;
+        const cached = readBootCache(userId);
+
+        // ouverture : l'accueil s'affiche avec le couple gardé
+        if (cached && !coupleLoadedRef.current) {
+          coupleLoadedRef.current = true;
+          setCouple(cached.couple);
+          setCoupleUserId(userId);
+          setCoupleLoading(false);
+        }
+
+        const silent = coupleLoadedRef.current;
+
         try {
           // actualisation (ex. ouverture des réglages) : en silence,
           // sans repasser par l'écran de chargement
-          if (!coupleLoadedRef.current) {
+          if (!silent) {
             setCoupleLoading(true);
           }
 
@@ -235,6 +321,10 @@ function App() {
             setCouple(
               data ?? null
             );
+
+            if (data) {
+              writeBootCache(userId, { couple: data });
+            }
           }
 
         } catch (err) {
@@ -243,7 +333,7 @@ function App() {
             err
           );
 
-          if (active) {
+          if (active && !silent) {
             setCoupleError(
               "Impossible de charger les données du couple."
             );
@@ -251,7 +341,7 @@ function App() {
 
         } finally {
           if (active) {
-            setCoupleUserId(authSession.user.id);
+            setCoupleUserId(userId);
             setCoupleLoading(false);
           }
         }

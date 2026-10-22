@@ -3,7 +3,6 @@ import {
   useState,
 } from "react";
 
-import "./invitations.css";
 import { formatRelativeTime } from "./formatTime.js";
 import { markInboxSeen } from "./unread.js";
 import { BackIcon } from "./ScreenHeader.jsx";

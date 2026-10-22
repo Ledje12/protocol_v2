@@ -1,7 +1,9 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import { preloadScreens } from "./screens.js";
 import ErrorBoundary from "./ErrorBoundary.jsx";
+import { AppLoadingScreen } from "./LoadingScreen.jsx";
 import { installErrorLog } from "./errorLog.js";
 import OfflineBanner from "./OfflineBanner.jsx";
 import "@fontsource-variable/bodoni-moda/opsz.css"; // sérif de l'app, hébergée avec elle
@@ -56,8 +58,12 @@ ReactDOM.createRoot(
 ).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      <Suspense fallback={<AppLoadingScreen />}>
+        <App />
+      </Suspense>
     </ErrorBoundary>
     <OfflineBanner />
   </React.StrictMode>
 );
+
+preloadScreens();
