@@ -1043,8 +1043,7 @@
     rgba(0, 0, 0, 0.17);
 }
 
-.director-profile-option,
-.director-duration-option {
+.director-profile-option {
   appearance: none;
   border: 1px solid rgba(255, 255, 255, 0.09);
   background: rgba(255, 255, 255, 0.035);
@@ -1059,8 +1058,7 @@
     opacity 160ms ease;
 }
 
-.director-profile-option:disabled,
-.director-duration-option:disabled {
+.director-profile-option:disabled {
   cursor: default;
   opacity: 0.55;
 }
@@ -1108,48 +1106,19 @@
 
 
 /* =========================================================
-   DURATION
-   ========================================================= */
-
-.director-duration-switch {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.director-duration-option {
-  min-height: 44px;
-  padding: 0 8px;
-  border-radius: 14px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.director-duration-option.is-active {
-  border-color: var(--c-accent);
-  background: rgba(var(--c-accent-rgb), 0.1);
-  color: var(--c-text);
-}
-
-
-/* =========================================================
    TOUCH
    ========================================================= */
 
 @media (hover: hover) {
 
-  .director-profile-option:not(:disabled):hover,
-.director-duration-option:not(:disabled):hover {
+  .director-profile-option:not(:disabled):hover {
     border-color: rgba(255, 255, 255, 0.18);
     background: rgba(255, 255, 255, 0.065);
   }
 
 }
 
-.director-profile-option:not(:disabled):active,
-.director-duration-option:not(:disabled):active {
+.director-profile-option:not(:disabled):active {
   transform: scale(0.985);
 }
 

@@ -19,7 +19,7 @@ const tomorrow = (date) => {
 };
 
 // « ce soir, 21:00 », « demain, 08:00 », « jeudi, 18:00 »
-export function formatSendAt(value) {
+function formatSendAt(value) {
   const date = new Date(value);
   const now = new Date();
   const time = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });

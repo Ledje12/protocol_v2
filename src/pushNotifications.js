@@ -128,7 +128,7 @@ function urlBase64ToUint8Array(
    SUPPORT
    ========================================================= */
 
-export function getPushSupport() {
+function getPushSupport() {
 
   if (
     !(
@@ -473,23 +473,4 @@ export async function registerPushNotifications({
 
     subscription,
   };
-}
-
-
-/* =========================================================
-   DEVICE ID - PUBLIC HELPER
-   ========================================================= */
-
-export function getPushDeviceId() {
-
-  try {
-
-    return getDeviceId();
-
-  } catch {
-
-    return null;
-
-  }
-
 }

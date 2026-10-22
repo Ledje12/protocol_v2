@@ -18,7 +18,7 @@
 
 const ELIDES = /^(?:[aeiouhàâäéèêëîïôöùûüœæ]|y[^aeiouyàâäéèêëîïôöùûü])/i;
 
-export const startsWithVowel = (name) => ELIDES.test(String(name || "").trim());
+const startsWithVowel = (name) => ELIDES.test(String(name || "").trim());
 
 // « de Jérôme », « d’Audrey »
 export const deName = (name) =>

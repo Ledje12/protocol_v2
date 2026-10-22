@@ -14,7 +14,7 @@ const WITNESS = "protocol-album-v1";
 
 const encoder = new TextEncoder();
 
-export const toBase64 = (bytes) => {
+const toBase64 = (bytes) => {
   let text = "";
   bytes.forEach((byte) => {
     text += String.fromCharCode(byte);
@@ -22,13 +22,13 @@ export const toBase64 = (bytes) => {
   return btoa(text);
 };
 
-export const fromBase64 = (text) =>
+const fromBase64 = (text) =>
   Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
 
 // L'iPhone met une majuscule au premier mot, ajoute parfois une
 // espace : on ignore casse et espaces pour que la même phrase
 // donne la même clé sur les deux téléphones.
-export const normalizePhrase = (phrase) =>
+const normalizePhrase = (phrase) =>
   phrase.normalize("NFC").trim().toLowerCase().replace(/\s+/g, " ");
 
 export const newSalt = () =>

@@ -95,9 +95,6 @@ export default function PlayScreen({
   const [timerRunning, setTimerRunning] =
     useState(false);
 
-  const [timerEndAt, setTimerEndAt] =
-    useState(null);
-
   const [timerUpdating, setTimerUpdating] =
     useState(false);
 
@@ -230,7 +227,6 @@ export default function PlayScreen({
     if (!timerInitialSeconds) {
       setTimerRemaining(null);
       setTimerRunning(false);
-      setTimerEndAt(null);
       return;
     }
 
@@ -252,15 +248,6 @@ export default function PlayScreen({
     setTimerRunning(
       sharedRunning
     );
-
-    if (sharedRunning) {
-      setTimerEndAt(
-        Date.now() +
-          remaining * 1000
-      );
-    } else {
-      setTimerEndAt(null);
-    }
   };
 
 
@@ -328,11 +315,6 @@ export default function PlayScreen({
 
       setTimerRunning(true);
 
-      setTimerEndAt(
-        Date.now() +
-          seconds * 1000
-      );
-
       await loadState();
 
     } catch (err) {
@@ -396,7 +378,6 @@ export default function PlayScreen({
       );
 
       setTimerRunning(false);
-      setTimerEndAt(null);
 
       await loadState();
 
@@ -458,7 +439,6 @@ export default function PlayScreen({
       );
 
       setTimerRunning(false);
-      setTimerEndAt(null);
 
       await loadState();
 
@@ -562,7 +542,6 @@ export default function PlayScreen({
 
           if (remaining <= 0) {
             setTimerRunning(false);
-            setTimerEndAt(null);
           }
         },
         250
@@ -1806,12 +1785,6 @@ async function handleSceneRead() {
     ) {
 
 
-
-
-      const maxIntensity =
-        finalStats?.max_intensity ||
-        game.shared_profile?.intensity ||
-        null;
 
 
       const startRematch =
