@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-import "./recaps.css";
 import CardPhotos, { PHOTO_COLUMNS, cardKey } from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 import { BackIcon } from "./ScreenHeader.jsx";

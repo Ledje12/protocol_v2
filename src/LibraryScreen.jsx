@@ -11,7 +11,6 @@ import {
   usePhotoChallenges,
 } from "./PhotoChallenges.jsx";
 
-import "./library.css";
 import { BackIcon } from "./ScreenHeader.jsx";
 import { fillNames } from "./personalise.js";
 import { INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";

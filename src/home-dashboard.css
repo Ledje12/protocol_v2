@@ -161,7 +161,7 @@
       rgba(var(--c-bg-rgb), 0.12) 49%,
       rgba(var(--c-bg-rgb), 0.03) 100%
     ),
-    url("/protocol-home-hero.png");
+    url("/protocol-home-hero.webp");
 
   background-repeat:
     no-repeat,

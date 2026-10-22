@@ -5,7 +5,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-import "./messages.css";
 import { formatRelativeTime } from "./formatTime.js";
 import { markMessagesSeen } from "./unread.js";
 import { BackIcon } from "./ScreenHeader.jsx";
