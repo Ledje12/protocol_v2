@@ -15,7 +15,7 @@ import {
    Les fichiers ne transitent que chiffrés (voir albumCrypto.js).
    ========================================================= */
 
-export const BUCKET = "protocol-photos";
+const BUCKET = "protocol-photos";
 
 const paths = (photo) => ({
   original: `${photo.couple_id}/${photo.id}/original`,

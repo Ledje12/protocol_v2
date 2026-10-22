@@ -31,7 +31,7 @@ const OUTCOME_LABELS = {
 };
 
 // « 1 h 12 », « 47 min »
-export function formatDuration(startedAt, finishedAt) {
+function formatDuration(startedAt, finishedAt) {
   if (!startedAt || !finishedAt) {
     return null;
   }

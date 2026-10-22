@@ -801,7 +801,6 @@ function App() {
     return (
       <JoinScreen
         navigate={navigate}
-        profile={profile}
       />
     );
   }

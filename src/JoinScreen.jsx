@@ -8,7 +8,7 @@ import { supabase } from "./supabaseClient.js";
    JOIN
    ========================================================= */
 
-export default function JoinScreen({ navigate, profile, }) {
+export default function JoinScreen({ navigate }) {
   const [code, setCode] =
     useState("");
 
