@@ -3,6 +3,7 @@ import Footer from "./Footer.jsx";
 import { INTENSITY_LEVELS } from "./gameConstants.js";
 import { getGameSession } from "./gameSession.js";
 import { supabase } from "./supabaseClient.js";
+import { humanError } from "./networkError.js";
 
 /* =========================================================
    CALIBRATION INTRO
@@ -260,8 +261,7 @@ export default function CalibrationScreen({
         );
 
         setError(
-          err?.message ||
-            "Impossible d'enregistrer tes réponses."
+          humanError(err, err?.message || "Impossible d'enregistrer tes réponses.")
         );
       } finally {
         setSaving(false);
@@ -428,8 +428,7 @@ export default function CalibrationScreen({
                     );
 
                     setError(
-                      err?.message ||
-                        "Impossible de démarrer la partie."
+                      humanError(err, err?.message || "Impossible de démarrer la partie.")
                     );
                   }
                 }}
