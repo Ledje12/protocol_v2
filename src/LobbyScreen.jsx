@@ -5,6 +5,7 @@ import LoadingScreen from "./LoadingScreen.jsx";
 import StateScreen from "./StateScreen.jsx";
 import { supabase } from "./supabaseClient.js";
 import { deName } from "./personalise.js";
+import { humanError } from "./networkError.js";
 
 /* =========================================================
    LOBBY
@@ -191,8 +192,7 @@ export default function LobbyScreen({
       );
 
       setError(
-        err?.message ||
-          "Impossible de continuer."
+        humanError(err, err?.message || "Impossible de continuer.")
       );
 
     } finally {

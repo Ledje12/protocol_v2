@@ -10,6 +10,7 @@ import { useUnreadCounts } from "./unread.js";
 import UnreadBadge from "./UnreadBadge.jsx";
 import { PhotoDayHomeNotice, usePhotoDay } from "./PhotoDay.jsx";
 import { AppLoadingScreen } from "./LoadingScreen.jsx";
+import { humanError } from "./networkError.js";
 
 /* Mémoire de l'accueil le temps de la session : au retour sur
    l'accueil, tout s'affiche d'un coup avec les dernières données
@@ -454,8 +455,7 @@ export default function HomeScreen({
           );
 
           setError(
-            err?.message ||
-            "Impossible de restaurer ton profil dans cette partie."
+            humanError(err, err?.message || "Impossible de restaurer ton profil dans cette partie.")
           );
 
           return;
@@ -785,8 +785,7 @@ export default function HomeScreen({
       );
 
       setError(
-        err?.message ||
-          "Impossible de créer la partie."
+        humanError(err, err?.message || "Impossible de créer la partie.")
       );
 
     } finally {

@@ -14,6 +14,7 @@ import {
 import { BackIcon } from "./ScreenHeader.jsx";
 import { fillNames } from "./personalise.js";
 import { INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
+import { humanError } from "./networkError.js";
 
 
 /* =========================================================
@@ -699,8 +700,7 @@ export default function LibraryScreen({
           if (active) {
 
             setError(
-              err?.message ||
-                "Impossible de charger la bibliothèque."
+              humanError(err, err?.message || "Impossible de charger la bibliothèque.")
             );
 
           }

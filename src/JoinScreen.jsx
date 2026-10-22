@@ -3,6 +3,7 @@ import Footer from "./Footer.jsx";
 import { saveGameSession, saveProfileAsGameIdentity } from "./gameSession.js";
 import ScreenHeader from "./ScreenHeader.jsx";
 import { supabase } from "./supabaseClient.js";
+import { humanError } from "./networkError.js";
 
 /* =========================================================
    JOIN
@@ -82,8 +83,7 @@ export default function JoinScreen({ navigate }) {
     );
 
     setError(
-      err?.message ||
-        "Impossible de rejoindre."
+      humanError(err, err?.message || "Impossible de rejoindre.")
     );
 
   } finally {

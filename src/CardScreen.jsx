@@ -11,6 +11,7 @@ import { fillNames } from "./personalise.js";
 import CardPhotos from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 import { INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
+import { humanError } from "./networkError.js";
 
 
 function getTypeLabel(
@@ -546,8 +547,7 @@ export default function CardScreen({
             );
 
             setError(
-              err?.message ||
-                "Impossible de charger cette invitation."
+              humanError(err, err?.message || "Impossible de charger cette invitation.")
             );
 
             setLoading(
@@ -877,8 +877,7 @@ export default function CardScreen({
           ) {
 
             setError(
-              err?.message ||
-                "Impossible de charger cette carte."
+              humanError(err, err?.message || "Impossible de charger cette carte.")
             );
 
           }

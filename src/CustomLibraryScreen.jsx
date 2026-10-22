@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BackIcon } from "./ScreenHeader.jsx";
 import { INTENSITY_FOR_RANK, INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
+import { humanError } from "./networkError.js";
 
 /* =========================================================
    CUSTOM LIBRARY
@@ -120,8 +121,7 @@ import { INTENSITY_FOR_RANK, INTENSITY_LEVELS, levelForIntensity, levelRank } fr
         setCards([]);
 
         setError(
-          err?.message ||
-          "Impossible de charger vos cartes."
+          humanError(err, err?.message || "Impossible de charger vos cartes.")
         );
 
       } finally {
@@ -414,8 +414,7 @@ import { INTENSITY_FOR_RANK, INTENSITY_LEVELS, levelForIntensity, levelRank } fr
             );
 
             setError(
-              err?.message ||
-              "Impossible de modifier le statut de la carte."
+              humanError(err, err?.message || "Impossible de modifier le statut de la carte.")
             );
 
           } finally {
@@ -496,8 +495,7 @@ import { INTENSITY_FOR_RANK, INTENSITY_LEVELS, levelForIntensity, levelRank } fr
             );
 
             setError(
-              err?.message ||
-              "Impossible de supprimer la carte."
+              humanError(err, err?.message || "Impossible de supprimer la carte.")
             );
 
           } finally {

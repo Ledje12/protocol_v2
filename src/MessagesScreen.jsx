@@ -18,6 +18,7 @@ import { getSavedAlbumKey, uploadPhoto } from "./photoAlbum.js";
 import { PhotoDayBanner } from "./PhotoDay.jsx";
 import { ScheduleSheet, ScheduledList, useScheduledMessages } from "./ScheduledMessages.jsx";
 import CameraIcon from "./CameraIcon.jsx";
+import { humanError } from "./networkError.js";
 
 // PROTOCOL private messaging
 
@@ -566,7 +567,7 @@ export default function MessagesScreen({
         );
 
         setError(
-          "Le message n’est pas parti. Réessaie dans un instant."
+          humanError(err, "Le message n’est pas parti. Réessaie dans un instant.")
         );
       } finally {
         setSending(false);

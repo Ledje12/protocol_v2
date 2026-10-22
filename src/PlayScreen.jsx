@@ -13,6 +13,7 @@ import { EnvelopeWriter } from "./Envelope.jsx";
 import { FinalReveals, SecretMission } from "./Missions.jsx";
 import { GameRecapHighlights } from "./Recaps.jsx";
 import { deName, fillNames } from "./personalise.js";
+import { NETWORK_MESSAGE, humanError } from "./networkError.js";
 
 /* =========================================================
    PLAY
@@ -324,8 +325,7 @@ export default function PlayScreen({
       );
 
       setError(
-        err?.message ||
-        "Impossible de démarrer le chrono."
+        humanError(err, err?.message || "Impossible de démarrer le chrono.")
       );
 
     } finally {
@@ -388,8 +388,7 @@ export default function PlayScreen({
       );
 
       setError(
-        err?.message ||
-        "Impossible de mettre le chrono en pause."
+        humanError(err, err?.message || "Impossible de mettre le chrono en pause.")
       );
 
     } finally {
@@ -449,8 +448,7 @@ export default function PlayScreen({
       );
 
       setError(
-        err?.message ||
-        "Impossible de réinitialiser le chrono."
+        humanError(err, err?.message || "Impossible de réinitialiser le chrono.")
       );
 
     } finally {
@@ -846,8 +844,7 @@ async function handleSceneRead() {
     );
 
     setError(
-      err?.message ||
-      "Impossible de confirmer la lecture."
+      humanError(err, err?.message || "Impossible de confirmer la lecture.")
     );
 
   } finally {
@@ -905,8 +902,7 @@ async function handleSceneRead() {
     );
 
     setError(
-      err.message ||
-      "Impossible de poursuivre la scène."
+      humanError(err, err?.message || "Impossible de poursuivre la scène.")
     );
 
   } finally {
@@ -1180,6 +1176,31 @@ async function handleSceneRead() {
   };
 
 
+  /* réseau revenu : le message de coupure s'efface et la
+     partie se remet à jour tout de suite */
+  useEffect(() => {
+    const handleOnline = () => {
+      setError((current) =>
+        current === NETWORK_MESSAGE ? "" : current
+      );
+    };
+
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
+  /* le tour a avancé (réponse perdue mais action bien reçue, ou
+     l'autre a joué) : un ancien message d'échec n'a plus lieu d'être */
+  useEffect(() => {
+    setError((current) =>
+      current && current !== "Partie introuvable." ? "" : current
+    );
+  }, [game?.turn_no]);
+
+
   /* =========================================
    REALTIME + POLLING
    ========================================= */
@@ -1447,8 +1468,7 @@ async function handleSceneRead() {
 
 
           setError(
-            err?.message ||
-              "Impossible de mettre la partie en pause."
+            humanError(err, err?.message || "Impossible de mettre la partie en pause.")
           );
 
         } finally {
@@ -1493,8 +1513,7 @@ async function handleSceneRead() {
           );
 
           setError(
-            err?.message ||
-              "Impossible de reprendre la partie."
+            humanError(err, err?.message || "Impossible de reprendre la partie.")
           );
 
         } finally {
@@ -1568,9 +1587,12 @@ async function handleSceneRead() {
 
         /* message humain : l'erreur technique reste en console */
         setError(
-          /not active player/i.test(err?.message || "")
-            ? "C'est à l'autre de valider ce tour."
-            : "Impossible de continuer. Réessaie dans un instant."
+          humanError(
+            err,
+            /not active player/i.test(err?.message || "")
+              ? "C'est à l'autre de valider ce tour."
+              : "Impossible de continuer. Réessaie dans un instant."
+          )
         );
 
       } finally {
@@ -1638,8 +1660,7 @@ async function handleSceneRead() {
         );
 
         setError(
-          err?.message ||
-            "Ce type de carte n'est pas disponible."
+          humanError(err, err?.message || "Ce type de carte n'est pas disponible.")
         );
 
       } finally {
@@ -2385,8 +2406,7 @@ async function handleSceneRead() {
               );
 
               setError(
-                err?.message ||
-                  "Impossible d'utiliser cet avantage."
+                humanError(err, err?.message || "Impossible d'utiliser cet avantage.")
               );
 
             } finally {
