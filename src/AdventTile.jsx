@@ -87,6 +87,8 @@ export function AdventHomeTile({ supabase, onOpen }) {
         : `Case ${today} à ouvrir aujourd’hui.`;
   } else if (today === 25) {
     text = "Revoir vos 24 défis.";
+  } else if (today === 0 && advent.days.some((door) => door.day === 0 && !door.opened)) {
+    text = "Une invitation vous attend.";
   } else if (until > 0 && until <= TEASER_DAYS) {
     text = until === 1 ? "Première case demain." : `Première case dans ${until} jours.`;
   } else if (advent.preview) {

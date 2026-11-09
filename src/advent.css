@@ -713,3 +713,29 @@
     animation: none;
   }
 }
+
+/* case 0, « L'invitation » : une grande porte au-dessus de la grille */
+.advent-door-wide {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 92px;
+  margin-bottom: 14px;
+}
+
+.advent-door-invite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.advent-door-invite small {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: var(--c-duel);
+}
