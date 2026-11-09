@@ -80,23 +80,51 @@
   gap: 10px;
 }
 
+/* la case : un fond (la lueur derrière) et une porte qui pivote */
 .advent-door {
   position: relative;
-  display: grid;
-  place-items: center;
+  display: block;
   aspect-ratio: 1;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--c-line-strong);
+  border: 0;
   border-radius: 16px;
-  background: var(--c-surface);
+  background: none;
   color: var(--c-text);
   font: inherit;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.2s ease;
+  perspective: 600px;
 }
 
-.advent-door:active {
+.advent-door-inside {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: radial-gradient(circle, rgba(var(--c-duel-rgb), 0.55), rgba(var(--c-duel-rgb), 0.08) 70%);
+  color: var(--c-bg);
+  font-size: 26px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.advent-door-leaf {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 16px;
+  background: var(--c-surface);
+  transform-origin: left center;
+  transition:
+    transform 0.85s cubic-bezier(0.35, 0.6, 0.25, 1),
+    border-color 0.2s ease;
+  backface-visibility: hidden;
+}
+
+.advent-door:active .advent-door-leaf {
   transform: scale(0.96);
 }
 
@@ -107,7 +135,7 @@
 }
 
 /* scellée : en retrait */
-.advent-door.is-locked {
+.advent-door.is-locked .advent-door-leaf {
   border-style: dashed;
   border-color: var(--c-line);
   background: rgba(var(--c-surface-rgb), 0.5);
@@ -115,13 +143,13 @@
 }
 
 /* ouvrable, pas encore ouverte : elle appelle */
-.advent-door.is-unlocked:not(.is-opened) {
+.advent-door.is-unlocked:not(.is-opened) .advent-door-leaf {
   border-color: rgba(var(--c-duel-rgb), 0.6);
   box-shadow: 0 0 18px rgba(var(--c-duel-rgb), 0.18);
 }
 
 /* celle du jour */
-.advent-door.is-today {
+.advent-door.is-today .advent-door-leaf {
   border-color: var(--c-duel);
   background:
     radial-gradient(circle at 50% 40%, rgba(var(--c-duel-rgb), 0.22), transparent 70%),
@@ -129,13 +157,17 @@
   color: var(--c-duel-soft);
 }
 
+.advent-door.is-today:not(.is-opened) .advent-door-leaf {
+  animation: advent-call 2.4s ease-in-out infinite;
+}
+
 /* ouverte */
-.advent-door.is-opened {
+.advent-door.is-opened .advent-door-leaf {
   background: var(--c-surface-2);
 }
 
 /* défi relevé */
-.advent-door.is-done {
+.advent-door.is-done .advent-door-leaf {
   border-color: rgba(var(--c-accent-rgb), 0.5);
 }
 
@@ -145,6 +177,48 @@
   right: 8px;
   color: var(--c-accent);
   font-size: 13px;
+}
+
+/* l'ouverture : la porte pivote sur sa charnière, la lueur paraît */
+.advent-door.is-opening {
+  z-index: 2;
+}
+
+.advent-door.is-opening .advent-door-inside {
+  opacity: 1;
+}
+
+.advent-door.is-opening .advent-door-leaf {
+  transform: rotateY(-105deg);
+  animation: none;
+}
+
+/* scellée : petite secousse */
+.advent-door.is-denied .advent-door-leaf {
+  animation: advent-deny 0.4s ease;
+}
+
+@keyframes advent-call {
+  0%, 100% { box-shadow: 0 0 14px rgba(var(--c-duel-rgb), 0.15); }
+  50% { box-shadow: 0 0 26px rgba(var(--c-duel-rgb), 0.4); }
+}
+
+@keyframes advent-deny {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .advent-door-leaf,
+  .advent-door-inside {
+    transition: none;
+  }
+
+  .advent-door.is-today:not(.is-opened) .advent-door-leaf,
+  .advent-door.is-denied .advent-door-leaf {
+    animation: none;
+  }
 }
 
 /* --- le défi du jour (feuille) --- */
