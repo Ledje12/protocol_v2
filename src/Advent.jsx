@@ -21,6 +21,9 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
   const [advent, reload, loadError] = useAdvent(supabase);
   const [open, setOpen] = useState(null);
   const [hint, setHint] = useState("");
+  // case en train de s'ouvrir (la porte pivote), case refusée (secousse)
+  const [opening, setOpening] = useState(null);
+  const [denied, setDenied] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -63,12 +66,29 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
   const openDoor = async (door) => {
     setError("");
 
+    if (opening) {
+      return;
+    }
+
     if (!door.unlocked) {
       setHint(`Patience : la case ${door.day} s’ouvre le ${door.day} décembre.`);
+      setDenied(door.day);
+      window.setTimeout(() => setDenied(null), 450);
       return;
     }
 
     setHint("");
+
+    // première ouverture : la porte pivote, la lueur apparaît, puis
+    // le défi monte (tout de suite si l'animation est désactivée)
+    const calm = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+    if (!door.opened && !calm) {
+      setOpening(door.day);
+      await new Promise((resolve) => window.setTimeout(resolve, 950));
+      setOpening(null);
+    }
+
     setOpen(door);
 
     // l'aperçu ne fait que lire
@@ -184,14 +204,19 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
                       door.opened ? "is-opened" : "",
                       door.done ? "is-done" : "",
                       isToday ? "is-today" : "",
+                      opening === day ? "is-opening" : "",
+                      denied === day ? "is-denied" : "",
                     ]
                       .filter(Boolean)
                       .join(" ")}
                     onClick={() => openDoor(door)}
                     aria-label={`Case ${day}${door.unlocked ? "" : ", scellée"}${door.done ? ", défi relevé" : ""}`}
                   >
-                    <span className="advent-door-number">{day}</span>
-                    {door.done && <span className="advent-door-mark" aria-hidden="true">✓</span>}
+                    <span className="advent-door-inside" aria-hidden="true">✦</span>
+                    <span className="advent-door-leaf">
+                      <span className="advent-door-number">{day}</span>
+                      {door.done && <span className="advent-door-mark" aria-hidden="true">✓</span>}
+                    </span>
                   </button>
                 );
               })}
