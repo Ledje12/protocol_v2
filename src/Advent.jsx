@@ -278,7 +278,8 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
       ? `${hours} h ${String(minutes % 60).padStart(2, "0")}`
       : `${minutes} min`;
   })();
-  const doneCount = doors.filter((door) => door.done).length;
+  const doneCount = doors.filter((door) => door.day >= 1 && door.done).length;
+  const invitation = byDay[0];
 
   return (
     <main className="app protocol-settings-page advent-page">
@@ -353,6 +354,39 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
               </p>
             )}
 
+            {invitation && (
+              <button
+                type="button"
+                className={[
+                  "advent-door",
+                  "advent-door-wide",
+                  "is-unlocked",
+                  invitation.opened ? "is-opened" : "is-today",
+                  invitation.done ? "is-done" : "",
+                  opening === 0 ? "is-opening" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                onClick={(event) => openDoor(invitation, event.currentTarget)}
+                aria-label="L’invitation"
+              >
+                <span className="advent-door-inside" aria-hidden="true">✦</span>
+                {opening === 0 && (
+                  <span className="advent-door-burst" aria-hidden="true">
+                    {BURST.map((angle) => (
+                      <i key={angle} style={{ "--angle": `${angle}deg` }} />
+                    ))}
+                  </span>
+                )}
+                <span className="advent-door-leaf">
+                  <span className="advent-door-invite">
+                    <small>CASE 0</small>
+                    L’invitation
+                  </span>
+                </span>
+              </button>
+            )}
+
             <div className="advent-grid">
               {DOOR_ORDER.filter((day) => byDay[day]).map((day) => {
                 const door = byDay[day];
@@ -405,7 +439,7 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
       {current && (
         <AdventReveal
           from={open.from}
-          kicker={`${current.day} DÉCEMBRE`}
+          kicker={current.day === 0 ? "L’INVITATION" : `${current.day} DÉCEMBRE`}
           variants={variants}
           initial={doneVariantOf(current)}
           image={image}

@@ -157,3 +157,29 @@ test("illustrations : lisibles seulement à partir de leur jour", async () => {
   await sql("insert into public.protocol_admins (user_id) values ($1)", [a.id]);
   assert.equal((await visible(a)).length, 24);
 });
+
+test("case 0 : l'invitation s'ouvre avant le 1er décembre", async () => {
+  await setToday(0);
+  await sql(`insert into public.protocol_advent_days (day, title, prompt)
+             values (0, 'Invitation', 'Les règles du jeu')
+             on conflict (day) do nothing`);
+  const { a, b } = await createCouple();
+
+  const advent = await rpc(a, "get_protocol_advent");
+  const invitation = advent.days.find((d) => d.day === 0);
+  assert.equal(invitation.unlocked, true);
+  assert.equal(invitation.prompt, "Les règles du jeu");
+  assert.ok(advent.days.filter((d) => d.day > 0).every((d) => !d.unlocked));
+
+  await rpc(a, "set_protocol_advent", { p_day: 0, p_done: true });
+  const seen = await rpc(b, "get_protocol_advent");
+  assert.equal(seen.days.find((d) => d.day === 0).done, true);
+
+  await sql("insert into storage.objects (bucket_id, name) values ('protocol-advent', 'jour-00.webp') on conflict do nothing");
+  const images = (
+    await asUser(a, "select name from storage.objects where bucket_id = 'protocol-advent'")
+  ).rows.map((row) => row.name);
+  assert.deepEqual(images, ["jour-00.webp"]);
+
+  await sql("delete from public.protocol_advent_days where day = 0");
+});
