@@ -11,6 +11,7 @@ import UnreadBadge from "./UnreadBadge.jsx";
 import { PhotoDayHomeNotice, usePhotoDay } from "./PhotoDay.jsx";
 import { AppLoadingScreen } from "./LoadingScreen.jsx";
 import { humanError } from "./networkError.js";
+import { AdventHomeTile } from "./AdventTile.jsx";
 
 /* Mémoire de l'accueil le temps de la session : au retour sur
    l'accueil, tout s'affiche d'un coup avec les dernières données
@@ -1254,6 +1255,14 @@ export default function HomeScreen({
         {/* =========================================
             SIGNAUX
             ========================================= */}
+
+        {/* calendrier de l'Avent : tuile de saison (décembre) */}
+        {hasPartner && (
+          <AdventHomeTile
+            supabase={supabase}
+            onOpen={() => navigate("/avent")}
+          />
+        )}
 
         {/* les signes supposent un partenaire associé */}
         {hasPartner && (

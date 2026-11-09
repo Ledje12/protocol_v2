@@ -23,6 +23,13 @@ export function getRoute() {
     };
   }
 
+  if (path === "/avent") {
+    return {
+      screen: "advent",
+      code: null,
+    };
+  }
+
   if (path === "/soirees") {
     return {
       screen: "recaps",

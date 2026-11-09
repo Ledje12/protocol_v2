@@ -48,6 +48,7 @@ const IMPORTERS = {
   ProfileSetupScreen: () => import("./ProfileSetupScreen.jsx"),
   RecapsScreen: () => import("./Recaps.jsx"),
   SettingsScreen: () => import("./SettingsScreen.jsx"),
+  AdventScreen: () => import("./Advent.jsx"),
 };
 
 export const SCREENS = Object.fromEntries(

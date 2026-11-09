@@ -8,6 +8,7 @@ import "./card.css";
 import "./invitations.css";
 import "./messages.css";
 import "./recaps.css";
+import "./advent.css";
 import AuthScreen from "./AuthScreen.jsx";
 import BrandMark from "./BrandMark.jsx";
 import HomeScreen from "./HomeScreen.jsx";
@@ -29,6 +30,7 @@ const PrivacyScreen = lazy(SCREENS.PrivacyScreen);
 const ProfileSetupScreen = lazy(SCREENS.ProfileSetupScreen);
 const RecapsScreen = lazy(SCREENS.RecapsScreen);
 const SettingsScreen = lazy(SCREENS.SettingsScreen);
+const AdventScreen = lazy(SCREENS.AdventScreen);
 
 /* Profil et couple gardés sur le téléphone : à l'ouverture,
    l'accueil s'affiche tout de suite avec eux, puis ils sont
@@ -681,6 +683,17 @@ function App() {
             (value) => value + 1
           )
         }
+      />
+    );
+  }
+
+  if (route.screen === "advent") {
+    return (
+      <AdventScreen
+        supabase={supabase}
+        profile={profile}
+        couple={couple}
+        onBack={() => navigate("/")}
       />
     );
   }

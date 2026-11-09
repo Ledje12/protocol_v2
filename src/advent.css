@@ -1,0 +1,174 @@
+/* =========================================================
+   CALENDRIER DE L'AVENT : tuile d'accueil et grille de cases
+   (champagne, comme les duels : la touche « fête »)
+   ========================================================= */
+
+/* --- tuile de saison sur l'accueil --- */
+
+.advent-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  border: 1px solid rgba(var(--c-duel-rgb), 0.45);
+  border-radius: var(--r-card);
+  background:
+    radial-gradient(circle at 12% 50%, rgba(var(--c-duel-rgb), 0.16), transparent 60%),
+    var(--c-surface);
+  color: var(--c-text);
+  text-align: left;
+}
+
+.advent-tile-icon {
+  display: grid;
+  place-items: center;
+  color: var(--c-duel);
+}
+
+.advent-tile-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.advent-tile-copy small {
+  color: var(--c-duel);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+.advent-tile-copy strong {
+  font-weight: 500;
+  font-size: var(--fs-body);
+}
+
+/* --- écran du calendrier --- */
+
+.advent > * + * {
+  margin-top: 20px;
+}
+
+.advent-preview {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px dashed rgba(var(--c-duel-rgb), 0.45);
+  border-radius: 14px;
+  color: var(--c-duel-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.advent-progress,
+.advent-hint {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 13px;
+}
+
+.advent-hint {
+  text-align: center;
+}
+
+.advent-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.advent-door {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 16px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.2s ease;
+}
+
+.advent-door:active {
+  transform: scale(0.96);
+}
+
+.advent-door-number {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  line-height: 1;
+}
+
+/* scellée : en retrait */
+.advent-door.is-locked {
+  border-style: dashed;
+  border-color: var(--c-line);
+  background: rgba(var(--c-surface-rgb), 0.5);
+  color: rgba(var(--c-text-rgb), 0.28);
+}
+
+/* ouvrable, pas encore ouverte : elle appelle */
+.advent-door.is-unlocked:not(.is-opened) {
+  border-color: rgba(var(--c-duel-rgb), 0.6);
+  box-shadow: 0 0 18px rgba(var(--c-duel-rgb), 0.18);
+}
+
+/* celle du jour */
+.advent-door.is-today {
+  border-color: var(--c-duel);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(var(--c-duel-rgb), 0.22), transparent 70%),
+    var(--c-surface);
+  color: var(--c-duel-soft);
+}
+
+/* ouverte */
+.advent-door.is-opened {
+  background: var(--c-surface-2);
+}
+
+/* défi relevé */
+.advent-door.is-done {
+  border-color: rgba(var(--c-accent-rgb), 0.5);
+}
+
+.advent-door-mark {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  color: var(--c-accent);
+  font-size: 13px;
+}
+
+/* --- le défi du jour (feuille) --- */
+
+.advent-prompt {
+  margin: 0 0 20px;
+  color: var(--c-text-soft);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.advent-done {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid rgba(var(--c-duel-rgb), 0.6);
+  border-radius: 999px;
+  background: none;
+  color: var(--c-duel-soft);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.advent-done.is-done {
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.12);
+  color: var(--c-text);
+}
