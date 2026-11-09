@@ -1063,6 +1063,13 @@ export default function HomeScreen({
             ) : (
             <div className="protocol-home-hero-actions">
 
+              {/* calendrier de l'Avent : pastille de saison posée sur la
+                  photo (l'accueil ne défile pas : rien ne doit l'allonger) */}
+              <AdventHomeTile
+                supabase={supabase}
+                onOpen={() => navigate("/avent")}
+              />
+
               {error && (
                 <p className="protocol-home-message is-error">
                   {error}
@@ -1255,14 +1262,6 @@ export default function HomeScreen({
         {/* =========================================
             SIGNAUX
             ========================================= */}
-
-        {/* calendrier de l'Avent : tuile de saison (décembre) */}
-        {hasPartner && (
-          <AdventHomeTile
-            supabase={supabase}
-            onOpen={() => navigate("/avent")}
-          />
-        )}
 
         {/* les signes supposent un partenaire associé */}
         {hasPartner && (
