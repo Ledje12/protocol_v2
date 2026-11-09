@@ -27,12 +27,35 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
   const partner = couple?.partner;
 
   // « {{partner}} » = l'autre, « {{me}} » = moi, avec les pronoms
-  const personalise = (text) =>
-    fillNames(
+  /* Rôles du jour, identiques sur les deux téléphones :
+     {{lead}} mène, {{follow}} suit (avec leurs pronoms, ex.
+     {{follow_le}}, {{lead_il}}, {{follow_e}}). Ils s'échangent d'un
+     jour à l'autre : ordre fixe des deux comptes, jours impairs pour
+     le premier. {{partner}} et {{me}} restent possibles. */
+  const me = {
+    id: profile?.user_id,
+    name: profile?.display_name || "toi",
+    sex: profile?.sex,
+  };
+  const other = {
+    id: partner?.user_id,
+    name: partner?.display_name || "l’autre",
+    sex: partner?.sex,
+  };
+  const [first, second] = [me, other].sort((a, b) =>
+    String(a.id || "").localeCompare(String(b.id || ""))
+  );
+
+  const personalise = (text, day) => {
+    const lead = day % 2 === 1 ? first : second;
+    const follow = lead === first ? second : first;
+
+    return fillNames(
       text,
-      { partner: partner?.display_name || "l’autre", me: profile?.display_name || "toi" },
-      { partner: partner?.sex, me: profile?.sex }
+      { lead: lead.name, follow: follow.name, partner: other.name, me: me.name },
+      { lead: lead.sex, follow: follow.sex, partner: other.sex, me: me.sex }
     );
+  };
 
   const doors = advent?.days || [];
   const byDay = Object.fromEntries(doors.map((door) => [door.day, door]));
@@ -182,10 +205,10 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
       {current && (
         <SettingsSheet
           eyebrow={`${current.day} DÉCEMBRE · DÉFI POUR VOUS DEUX`}
-          title={personalise(current.title)}
+          title={personalise(current.title, current.day)}
           onClose={() => setOpen(null)}
         >
-          <p className="advent-prompt">{personalise(current.prompt)}</p>
+          <p className="advent-prompt">{personalise(current.prompt, current.day)}</p>
 
           {!advent.preview && (
             <button
