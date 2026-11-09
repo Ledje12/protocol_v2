@@ -344,7 +344,8 @@
 .advent-reveal-face {
   display: flex;
   flex-direction: column;
-  min-height: min(520px, calc(100dvh - 48px));
+  /* même hauteur que l'illustration (format 2:3) */
+  min-height: min(540px, calc(100dvh - 48px));
   max-height: calc(100dvh - 48px);
   overflow: auto;
   padding: 26px 24px 22px;
@@ -500,4 +501,215 @@
 .advent-reveal-card.is-bold .advent-done {
   border-color: rgba(var(--c-accent-rgb), 0.6);
   color: var(--c-accent-soft);
+}
+
+/* =========================================================
+   DÉCEMBRE VIVANT : lueurs, éclats, compte à rebours
+   ========================================================= */
+
+/* lueurs néon floues qui dérivent lentement derrière la grille */
+.advent-page {
+  position: relative;
+  overflow-x: hidden;
+}
+
+.advent-page > *:not(.advent-bokeh) {
+  position: relative;
+  z-index: 1;
+}
+
+.advent-bokeh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.advent-bokeh span {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--tone), 0.55), rgba(var(--tone), 0) 70%);
+  filter: blur(6px);
+  opacity: 0.35;
+  animation: advent-drift 18s ease-in-out var(--delay) infinite;
+}
+
+@keyframes advent-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.25; }
+  50% { transform: translate(14px, -40px) scale(1.15); opacity: 0.5; }
+}
+
+.advent-countdown {
+  color: var(--c-duel);
+}
+
+/* éclats dorés et rouges quand une porte s'ouvre */
+.advent-door-burst {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.advent-door-burst i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--c-duel-soft);
+  box-shadow: 0 0 8px rgba(var(--c-duel-rgb), 0.9);
+  animation: advent-burst 0.8s ease-out forwards;
+}
+
+.advent-door-burst i:nth-child(even) {
+  background: var(--c-accent);
+  box-shadow: 0 0 8px rgba(var(--c-accent-rgb), 0.9);
+}
+
+@keyframes advent-burst {
+  from { transform: rotate(var(--angle)) translateY(0) scale(1); opacity: 1; }
+  to { transform: rotate(var(--angle)) translateY(-70px) scale(0.3); opacity: 0; }
+}
+
+/* case qui cache une carte noire : un petit losange rouge */
+.advent-door-black {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  background: #c41e3a;
+  box-shadow: 0 0 8px rgba(196, 30, 58, 0.8);
+  transform: rotate(45deg);
+}
+
+/* =========================================================
+   CARTE NOIRE
+   ========================================================= */
+
+.advent-reveal-card.is-black .advent-reveal-face {
+  border-color: rgba(196, 30, 58, 0.85);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(196, 30, 58, 0.18), transparent 60%),
+    #0b0608;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.7),
+    0 0 46px rgba(196, 30, 58, 0.28);
+}
+
+.advent-reveal-card.is-black .advent-reveal-head span,
+.advent-reveal-card.is-black .advent-variants button.is-active {
+  color: #ff5b73;
+}
+
+.advent-reveal-card.is-black .advent-variants button.is-active {
+  background: rgba(196, 30, 58, 0.22);
+}
+
+.advent-reveal-card.is-black h2 {
+  color: #ffffff;
+}
+
+.advent-reveal-card.is-black .advent-done {
+  border-color: rgba(196, 30, 58, 0.8);
+  color: #ff8a9b;
+}
+
+.advent-reveal-peek.is-black {
+  border-color: rgba(196, 30, 58, 0.75);
+  background: #0b0608;
+  box-shadow: 0 0 28px rgba(196, 30, 58, 0.25);
+}
+
+.advent-reveal-peek.is-black span {
+  color: #ff5b73;
+}
+
+/* =========================================================
+   ILLUSTRATION À GRATTER
+   ========================================================= */
+
+.advent-reveal-face.is-image {
+  position: relative;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  aspect-ratio: 2 / 3;
+  max-height: calc(100dvh - 48px);
+}
+
+.advent-reveal-face.is-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-user-drag: none;
+}
+
+.advent-reveal-face.is-image .advent-reveal-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 18px 20px 28px;
+  background: linear-gradient(rgba(8, 5, 10, 0.75), transparent);
+}
+
+.advent-image-turn {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 2;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border: 1px solid rgba(var(--c-duel-rgb), 0.7);
+  border-radius: 999px;
+  background: rgba(8, 5, 10, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--c-duel-soft);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.advent-foil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  transition: opacity 0.45s ease;
+}
+
+.advent-foil.is-clearing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* l'illustration se retourne sur le défi */
+.advent-reveal-card.is-settled .advent-reveal-inner.is-turning {
+  transform: rotateY(90deg);
+  transition-duration: 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .advent-bokeh span,
+  .advent-door-burst i {
+    animation: none;
+  }
 }
