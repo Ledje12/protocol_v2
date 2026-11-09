@@ -67,3 +67,16 @@ test("pronoms : sexe inconnu, le prénom à la place", () => {
   assert.equal(fill("{{partner_il}} attend, avec {{partner_lui}}"), "Audrey attend, avec Audrey");
   assert.equal(fill("allongé{{partner_e}}"), "allongé");
 });
+
+test("texte au choix selon le sexe : {{key?homme|femme}}", () => {
+  const text = "{{follow}} {{lead?le suce|la lèche}}, {{follow?il|elle}} attend.";
+  assert.equal(
+    fillNames(text, { lead: "Jérôme", follow: "Audrey" }, { lead: "male", follow: "female" }),
+    "Audrey le suce, elle attend."
+  );
+  assert.equal(
+    fillNames(text, { lead: "Audrey", follow: "Jérôme" }, { lead: "female", follow: "male" }),
+    "Jérôme la lèche, il attend."
+  );
+  assert.equal(fillNames("{{lead?a|b}}", { lead: "X" }), "a");
+});
