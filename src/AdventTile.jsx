@@ -100,7 +100,7 @@ export function AdventHomeTile({ supabase, onOpen }) {
   return (
     <button type="button" className="advent-tile" onClick={onOpen}>
       <span className="advent-tile-icon">
-        <GiftIcon size={26} />
+        <GiftIcon size={22} />
       </span>
       <span className="advent-tile-copy">
         <small>CALENDRIER DE L’AVENT</small>
