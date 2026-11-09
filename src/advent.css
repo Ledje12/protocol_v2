@@ -267,11 +267,43 @@
   animation: advent-fade-out 0.22s ease both;
 }
 
+/* la carte du dessus et, juste derrière, l'autre version */
+.advent-reveal-stack {
+  display: grid;
+  width: min(100%, 360px);
+}
+
+.advent-reveal-stack > * {
+  grid-area: 1 / 1;
+}
+
+.advent-reveal-peek {
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px 22px;
+  border: 1px solid rgba(var(--c-duel-rgb), 0.35);
+  border-radius: 24px;
+  background: var(--c-surface-2);
+  transform: translate(14px, 10px) rotate(4deg) scale(0.97);
+  animation: advent-fade 0.4s ease both;
+}
+
+.advent-reveal-peek span {
+  color: rgba(var(--c-duel-rgb), 0.8);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
 /* la carte vole (transform posé par le script), son intérieur se
    retourne : dos étoilé pendant le vol, puis face avec le défi */
 .advent-reveal-card {
   position: relative;
-  width: min(100%, 360px);
+  width: 100%;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
   outline: none;
   perspective: 1200px;
   transition: transform 1s cubic-bezier(0.5, 0, 0.15, 1);
@@ -397,4 +429,65 @@
 
 .advent-reveal-face .advent-done {
   margin-top: 16px;
+}
+
+/* Douce · Osée */
+.advent-variants {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 3px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+}
+
+.advent-variants button {
+  min-height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--c-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.advent-variants button.is-active {
+  background: rgba(var(--c-duel-rgb), 0.18);
+  color: var(--c-duel-soft);
+}
+
+.advent-swipe-hint {
+  margin: 12px 0 0;
+  color: var(--c-label);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* version Osée : le néon de l'app plutôt que le champagne */
+.advent-reveal-card.is-bold .advent-reveal-face {
+  border-color: rgba(var(--c-accent-rgb), 0.7);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--c-accent-rgb), 0.14), transparent 60%),
+    var(--c-surface);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(var(--c-accent-rgb), 0.2);
+}
+
+.advent-reveal-card.is-bold .advent-reveal-head span,
+.advent-reveal-card.is-bold .advent-variants button.is-active {
+  color: var(--c-accent-soft);
+}
+
+.advent-reveal-card.is-bold .advent-variants button.is-active {
+  background: rgba(var(--c-accent-rgb), 0.18);
+}
+
+.advent-reveal-card.is-bold .advent-done {
+  border-color: rgba(var(--c-accent-rgb), 0.6);
+  color: var(--c-accent-soft);
 }

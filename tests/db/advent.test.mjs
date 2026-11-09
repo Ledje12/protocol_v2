@@ -20,8 +20,9 @@ before(async () => {
   );
 
   await sql("delete from public.protocol_advent_days");
-  await sql(`insert into public.protocol_advent_days (day, title, prompt)
-             select d, 'Case ' || d, 'Défi synthétique ' || d
+  await sql(`insert into public.protocol_advent_days (day, title, prompt, soft_title, soft_prompt)
+             select d, 'Case ' || d, 'Défi synthétique ' || d,
+                    'Douce ' || d, 'Version douce ' || d
              from generate_series(1, 24) d`);
 });
 
@@ -37,7 +38,11 @@ test("avant décembre : toutes les cases scellées, texte jamais envoyé", async
 
   const advent = await rpc(a, "get_protocol_advent");
   assert.equal(advent.days.length, 24);
-  assert.ok(advent.days.every((d) => !d.unlocked && d.prompt === null && d.title === null));
+  assert.ok(
+    advent.days.every(
+      (d) => !d.unlocked && d.prompt === null && d.title === null && d.soft_prompt === null
+    )
+  );
 
   await rejects(rpc(a, "set_protocol_advent", { p_day: 1 }), /Not yet/);
 });
@@ -52,7 +57,9 @@ test("le 3 décembre : cases 1 à 3 ouvertes, la 4 reste scellée", async () => 
     [1, 2, 3]
   );
   assert.equal(advent.days[2].prompt, "Défi synthétique 3");
+  assert.equal(advent.days[2].soft_prompt, "Version douce 3");
   assert.equal(advent.days[3].prompt, null);
+  assert.equal(advent.days[3].soft_prompt, null);
 
   await rejects(rpc(a, "set_protocol_advent", { p_day: 4 }), /Not yet/);
 
@@ -63,6 +70,16 @@ test("le 3 décembre : cases 1 à 3 ouvertes, la 4 reste scellée", async () => 
   assert.equal(seen.days[0].opened, true);
   assert.equal(seen.days[0].opened_by, a.id);
   assert.equal(seen.days[0].done, true);
+  assert.equal(seen.days[0].done_variant, "bold");
+
+  // version douce relevée : c'est elle qui est retenue
+  await rpc(b, "set_protocol_advent", { p_day: 3, p_done: true, p_variant: "soft" });
+  const soft = await rpc(a, "get_protocol_advent");
+  assert.equal(soft.days[2].done_variant, "soft");
+  await rejects(
+    rpc(a, "set_protocol_advent", { p_day: 3, p_done: true, p_variant: "autre" }),
+    /Invalid variant/
+  );
 
   // un jour passé se rattrape, et « relevé » s'annule
   await rpc(b, "set_protocol_advent", { p_day: 2, p_done: true });
@@ -70,6 +87,7 @@ test("le 3 décembre : cases 1 à 3 ouvertes, la 4 reste scellée", async () => 
   const again = await rpc(a, "get_protocol_advent");
   assert.equal(again.days[1].opened, true);
   assert.equal(again.days[1].done, false);
+  assert.equal(again.days[1].done_variant, null);
 });
 
 test("un autre couple ne voit pas notre progression", async () => {

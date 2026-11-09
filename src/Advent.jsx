@@ -25,7 +25,8 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
   const [opening, setOpening] = useState(null);
   const [denied, setDenied] = useState(null);
   // aperçu : « Défi relevé » coché sur ce téléphone seulement
-  const [previewDone, setPreviewDone] = useState(() => new Set());
+  // (jour → version relevée)
+  const [previewDone, setPreviewDone] = useState(() => ({}));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -106,17 +107,14 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
     }
   };
 
-  const toggleDone = async () => {
+  // « Défi relevé » pour la version affichée ; la toucher à nouveau
+  // annule, choisir l'autre version la remplace
+  const toggleDone = async (variant) => {
+    const day = open.day;
+    const done = doneVariantOf(byDay[day]) === variant;
+
     if (advent.preview) {
-      setPreviewDone((done) => {
-        const next = new Set(done);
-        if (next.has(open.day)) {
-          next.delete(open.day);
-        } else {
-          next.add(open.day);
-        }
-        return next;
-      });
+      setPreviewDone((current) => ({ ...current, [day]: done ? null : variant }));
       return;
     }
 
@@ -124,8 +122,9 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
     setError("");
 
     const { error: rpcError } = await supabase.rpc("set_protocol_advent", {
-      p_day: open.day,
-      p_done: !byDay[open.day]?.done,
+      p_day: day,
+      p_done: !done,
+      p_variant: variant,
     });
 
     setBusy(false);
@@ -138,12 +137,35 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
     await reload();
   };
 
+  // version relevée d'une case (aperçu : ce téléphone seulement)
+  const doneVariantOf = (door) =>
+    !door
+      ? null
+      : advent?.preview
+        ? previewDone[door.day] || null
+        : door.done
+          ? door.done_variant || "bold"
+          : null;
+
   const current = open ? byDay[open.day] : null;
-  const currentDone = current
-    ? advent?.preview
-      ? previewDone.has(current.day)
-      : current.done
-    : false;
+
+  // les deux cartes du jour : Douce (si écrite) puis Osée
+  const variants = current
+    ? [
+        current.soft_prompt && {
+          key: "soft",
+          label: "Douce",
+          title: personalise(current.soft_title || current.title, current.day),
+          prompt: personalise(current.soft_prompt, current.day),
+        },
+        {
+          key: "bold",
+          label: "Osée",
+          title: personalise(current.title, current.day),
+          prompt: personalise(current.prompt, current.day),
+        },
+      ].filter(Boolean)
+    : [];
   const doneCount = doors.filter((door) => door.done).length;
 
   return (
@@ -252,26 +274,34 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
         <AdventReveal
           from={open.from}
           kicker={`${current.day} DÉCEMBRE`}
-          title={personalise(current.title, current.day)}
+          variants={variants}
+          initial={doneVariantOf(current)}
           onClose={() => setOpen(null)}
-        >
-          <p className="advent-prompt">{personalise(current.prompt, current.day)}</p>
+          renderBody={(variant) => {
+            const done = doneVariantOf(current) === variant.key;
 
-          <button
-            type="button"
-            className={currentDone ? "advent-done is-done" : "advent-done"}
-            disabled={busy}
-            onClick={toggleDone}
-          >
-            {currentDone ? "✓ Défi relevé" : "Défi relevé"}
-          </button>
+            return (
+              <>
+                <p className="advent-prompt">{variant.prompt}</p>
 
-          {advent.preview && (
-            <p className="advent-reveal-note">Aperçu : rien n’est enregistré.</p>
-          )}
+                <button
+                  type="button"
+                  className={done ? "advent-done is-done" : "advent-done"}
+                  disabled={busy}
+                  onClick={() => toggleDone(variant.key)}
+                >
+                  {done ? "✓ Défi relevé" : "Défi relevé"}
+                </button>
 
-          {error && <p className="settings-feedback">{error}</p>}
-        </AdventReveal>
+                {advent.preview && (
+                  <p className="advent-reveal-note">Aperçu : rien n’est enregistré.</p>
+                )}
+
+                {error && <p className="settings-feedback">{error}</p>}
+              </>
+            );
+          }}
+        />
       )}
     </main>
   );
@@ -279,16 +309,28 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
 
 /* La carte du jour sort de sa case et vient se poser au centre :
    elle part de la position de la case (dos champagne), grandit en
-   pivotant légèrement, puis le défi apparaît sur sa face. */
-function AdventReveal({ from, kicker, title, onClose, children }) {
+   pivotant légèrement, puis se retourne sur le défi.
+   Deux versions (Douce, Osée) : on fait glisser la carte à gauche ou
+   à droite (ou on touche l'étiquette) pour passer à l'autre, posée
+   juste derrière. */
+const SWIPE_THRESHOLD = 70;
+
+function AdventReveal({ from, kicker, variants, initial, onClose, renderBody }) {
   const cardRef = useRef(null);
+  const dragRef = useRef(null);
   const [settled, setSettled] = useState(!from);
   const [leaving, setLeaving] = useState(false);
+  const [index, setIndex] = useState(() =>
+    Math.max(0, variants.findIndex((variant) => variant.key === initial))
+  );
   const onCloseRef = useRef(onClose);
 
   useEffect(() => {
     onCloseRef.current = onClose;
   });
+
+  const variant = variants[Math.min(index, variants.length - 1)];
+  const other = variants.length > 1 ? variants[1 - index] : null;
 
   // départ : la carte est placée sur la case, puis relâchée
   useLayoutEffect(() => {
@@ -339,6 +381,64 @@ function AdventReveal({ from, kicker, title, onClose, children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // la carte part d'un côté, l'autre version arrive de l'autre
+  const swap = (direction) => {
+    const card = cardRef.current;
+
+    if (!card || !other) {
+      return;
+    }
+
+    card.style.transition = "transform 0.22s ease-in";
+    card.style.transform = `translateX(${direction * 120}%) rotate(${direction * 14}deg)`;
+
+    window.setTimeout(() => {
+      setIndex((value) => 1 - value);
+      card.style.transition = "none";
+      card.style.transform = `translateX(${-direction * 60}%) rotate(${-direction * 8}deg)`;
+      card.getBoundingClientRect();
+      card.style.transition = "transform 0.38s cubic-bezier(0.2, 0.85, 0.25, 1)";
+      card.style.transform = "";
+    }, 220);
+  };
+
+  const onPointerDown = (event) => {
+    if (!settled || !other || event.target.closest("button")) {
+      return;
+    }
+
+    dragRef.current = { x: event.clientX, dx: 0 };
+    cardRef.current.style.transition = "none";
+  };
+
+  const onPointerMove = (event) => {
+    const drag = dragRef.current;
+
+    if (!drag) {
+      return;
+    }
+
+    drag.dx = event.clientX - drag.x;
+    cardRef.current.style.transform = `translateX(${drag.dx}px) rotate(${drag.dx / 18}deg)`;
+  };
+
+  const onPointerUp = () => {
+    const drag = dragRef.current;
+    dragRef.current = null;
+
+    if (!drag) {
+      return;
+    }
+
+    if (Math.abs(drag.dx) > SWIPE_THRESHOLD) {
+      swap(drag.dx > 0 ? 1 : -1);
+      return;
+    }
+
+    cardRef.current.style.transition = "transform 0.3s ease";
+    cardRef.current.style.transform = "";
+  };
+
   return createPortal(
     <div
       className={leaving ? "advent-reveal is-leaving" : "advent-reveal"}
@@ -348,29 +448,70 @@ function AdventReveal({ from, kicker, title, onClose, children }) {
         }
       }}
     >
-      <section
-        ref={cardRef}
-        className={settled ? "advent-reveal-card is-settled" : "advent-reveal-card"}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        tabIndex={-1}
-      >
-        <div className="advent-reveal-inner">
-          <div className="advent-reveal-face">
-            <header className="advent-reveal-head">
-              <span>{kicker}</span>
-              <button type="button" onClick={close}>Fermer</button>
-            </header>
-
-            <h2>{title}</h2>
-
-            {children}
+      <div className="advent-reveal-stack">
+        {other && settled && (
+          <div className="advent-reveal-peek" aria-hidden="true">
+            <span>{other.label}</span>
           </div>
+        )}
 
-          <span className="advent-reveal-back" aria-hidden="true">✦</span>
-        </div>
-      </section>
+        <section
+          ref={cardRef}
+          className={[
+            "advent-reveal-card",
+            settled ? "is-settled" : "",
+            variant.key === "bold" ? "is-bold" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          role="dialog"
+          aria-modal="true"
+          aria-label={variant.title}
+          tabIndex={-1}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+        >
+          <div className="advent-reveal-inner">
+            <div className="advent-reveal-face">
+              <header className="advent-reveal-head">
+                <span>{kicker}</span>
+                <button type="button" onClick={close}>Fermer</button>
+              </header>
+
+              {other && (
+                <div className="advent-variants" role="tablist" aria-label="Version du défi">
+                  {variants.map((item, position) => (
+                    <button
+                      key={item.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={position === index}
+                      className={position === index ? "is-active" : ""}
+                      onClick={() => position !== index && swap(position > index ? -1 : 1)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <h2>{variant.title}</h2>
+
+              {renderBody(variant)}
+
+              {other && (
+                <p className="advent-swipe-hint">
+                  Glisse la carte pour la version {other.label.toLowerCase()}
+                </p>
+              )}
+            </div>
+
+            <span className="advent-reveal-back" aria-hidden="true">✦</span>
+          </div>
+        </section>
+      </div>
     </div>,
     document.body
   );
