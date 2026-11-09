@@ -14,7 +14,10 @@
      {{partner_lui}} → lui / elle, pronom tonique (« avec elle », « devant lui »)
      {{partner_e}}   → accord : « allongé{{partner_e}} » → allongé / allongée
    Majuscule en début de phrase. Sexe inconnu : le prénom à la place
-   (et rien pour {{partner_e}}). */
+   (et rien pour {{partner_e}}).
+
+   Texte au choix selon le sexe : {{partner?version homme|version femme}}
+   (« {{follow?le branle|la caresse}} »). Sexe inconnu : la première. */
 
 const ELIDES = /^(?:[aeiouhàâäéèêëîïôöùûüœæ]|y[^aeiouyàâäéèêëîïôöùûü])/i;
 
@@ -40,7 +43,14 @@ const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
 function fillPronouns(text, key, name, sex, apo) {
   const known = sex === "male" || sex === "female";
-  let out = text.replaceAll(`{{${key}_e}}`, sex === "female" ? "e" : "");
+
+  // {{key?homme|femme}}
+  let out = text.replace(
+    new RegExp(`\\{\\{${escape(key)}\\?([^|{}]*)\\|([^{}]*)\\}\\}`, "g"),
+    (_, male, female) => (sex === "female" ? female : male)
+  );
+
+  out = out.replaceAll(`{{${key}_e}}`, sex === "female" ? "e" : "");
 
   for (const [suffix, forms] of Object.entries(PRONOUNS)) {
     const tag = escape(`{{${key}_${suffix}}}`);
