@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 
-import { createCouple, pool, rejects, rpc, sql } from "./helpers.mjs";
+import { asUser, createCouple, pool, rejects, rpc, sql } from "./helpers.mjs";
 
 // le « jour de l'Avent » dépend de la date : on le fixe pour le test
 const setToday = (day) =>
@@ -20,15 +20,23 @@ before(async () => {
   );
 
   await sql("delete from public.protocol_advent_days");
-  await sql(`insert into public.protocol_advent_days (day, title, prompt, soft_title, soft_prompt)
+  await sql(`insert into public.protocol_advent_days
+               (day, title, prompt, soft_title, soft_prompt, black_title, black_prompt)
              select d, 'Case ' || d, 'Défi synthétique ' || d,
-                    'Douce ' || d, 'Version douce ' || d
+                    'Douce ' || d, 'Version douce ' || d,
+                    case when d in (3, 9) then 'Noire ' || d end,
+                    case when d in (3, 9) then 'Version noire ' || d end
              from generate_series(1, 24) d`);
+  await sql(`insert into storage.objects (bucket_id, name)
+             select 'protocol-advent', 'jour-' || lpad(d::text, 2, '0') || '.webp'
+             from generate_series(1, 24) d
+             on conflict do nothing`);
 });
 
 after(async () => {
   await sql(original);
   await sql("delete from public.protocol_advent_days");
+  await sql("delete from storage.objects where bucket_id = 'protocol-advent'");
   await pool.end();
 });
 
@@ -116,4 +124,36 @@ test("aperçu : réservé aux admins", async () => {
 
   // l'aperçu ne fait que lire : ouvrir avant le jour reste refusé
   await rejects(rpc(a, "set_protocol_advent", { p_day: 24 }), /Not yet/);
+});
+
+test("carte noire : annoncée sur la case, texte scellé jusqu'au jour", async () => {
+  await setToday(3);
+  const { a } = await createCouple();
+
+  const advent = await rpc(a, "get_protocol_advent");
+  assert.equal(advent.days[2].black_prompt, "Version noire 3");
+  assert.equal(advent.days[8].has_black, true);
+  assert.equal(advent.days[8].black_prompt, null);
+  assert.equal(advent.days[4].has_black, false);
+
+  await rpc(a, "set_protocol_advent", { p_day: 3, p_done: true, p_variant: "black" });
+  const done = await rpc(a, "get_protocol_advent");
+  assert.equal(done.days[2].done_variant, "black");
+});
+
+test("illustrations : lisibles seulement à partir de leur jour", async () => {
+  await setToday(3);
+  const { a } = await createCouple();
+  const visible = async (user) =>
+    (
+      await asUser(
+        user,
+        "select name from storage.objects where bucket_id = 'protocol-advent' order by name"
+      )
+    ).rows.map((row) => row.name);
+
+  assert.deepEqual(await visible(a), ["jour-01.webp", "jour-02.webp", "jour-03.webp"]);
+
+  await sql("insert into public.protocol_admins (user_id) values ($1)", [a.id]);
+  assert.equal((await visible(a)).length, 24);
 });
