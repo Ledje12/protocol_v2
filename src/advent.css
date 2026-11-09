@@ -247,3 +247,154 @@
   background: rgba(var(--c-accent-rgb), 0.12);
   color: var(--c-text);
 }
+
+/* --- la carte du jour : sort de sa case et se pose au centre --- */
+
+.advent-reveal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+  background: rgba(var(--c-bg-rgb), 0.72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: advent-fade 0.35s ease both;
+}
+
+.advent-reveal.is-leaving {
+  animation: advent-fade-out 0.22s ease both;
+}
+
+/* la carte vole (transform posé par le script), son intérieur se
+   retourne : dos étoilé pendant le vol, puis face avec le défi */
+.advent-reveal-card {
+  position: relative;
+  width: min(100%, 360px);
+  outline: none;
+  perspective: 1200px;
+  transition: transform 1s cubic-bezier(0.5, 0, 0.15, 1);
+}
+
+.advent-reveal-inner {
+  position: relative;
+  transform: rotateY(180deg);
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.3, 0.7, 0.25, 1);
+}
+
+.advent-reveal-card.is-settled .advent-reveal-inner {
+  transform: rotateY(0deg);
+}
+
+.advent-reveal-face,
+.advent-reveal-back {
+  border: 1px solid rgba(var(--c-duel-rgb), 0.7);
+  border-radius: 24px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(var(--c-duel-rgb), 0.18);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.advent-reveal-face {
+  display: flex;
+  flex-direction: column;
+  min-height: min(520px, calc(100dvh - 48px));
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  padding: 26px 24px 22px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--c-duel-rgb), 0.14), transparent 60%),
+    var(--c-surface);
+}
+
+.advent-reveal-back {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle, rgba(var(--c-duel-rgb), 0.5), var(--c-surface) 75%);
+  color: var(--c-duel-soft);
+  font-size: 64px;
+  transform: rotateY(180deg);
+  pointer-events: none;
+}
+
+.advent-reveal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.advent-reveal-head span {
+  color: var(--c-duel);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+}
+
+.advent-reveal-head button {
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--c-muted);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.advent-reveal-card h2 {
+  margin: 18px 0 16px;
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--c-text);
+}
+
+.advent-reveal-note {
+  margin: 12px 0 0;
+  color: var(--c-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+@keyframes advent-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes advent-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .advent-reveal,
+  .advent-reveal.is-leaving {
+    animation: none;
+  }
+
+  .advent-reveal-card,
+  .advent-reveal-inner {
+    transition: none;
+  }
+}
+
+/* sur la carte : le défi au centre, la validation en bas */
+.advent-reveal-face .advent-prompt {
+  flex: 1;
+}
+
+.advent-reveal-face > * {
+  flex-shrink: 0;
+}
+
+.advent-reveal-face .advent-done {
+  margin-top: 16px;
+}

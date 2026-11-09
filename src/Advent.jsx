@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { useAdvent } from "./AdventTile.jsx";
 import { humanError } from "./networkError.js";
 import { fillNames } from "./personalise.js";
 import { BackIcon } from "./ScreenHeader.jsx";
-import { SettingsSheet } from "./SettingsParts.jsx";
 
 /* Calendrier de l'Avent : un défi par jour, du 1er au 24 décembre.
    Les cases se dévoilent côté serveur (get_protocol_advent) : avant
@@ -24,6 +24,8 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
   // case en train de s'ouvrir (la porte pivote), case refusée (secousse)
   const [opening, setOpening] = useState(null);
   const [denied, setDenied] = useState(null);
+  // aperçu : « Défi relevé » coché sur ce téléphone seulement
+  const [previewDone, setPreviewDone] = useState(() => new Set());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -63,7 +65,7 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
   const doors = advent?.days || [];
   const byDay = Object.fromEntries(doors.map((door) => [door.day, door]));
 
-  const openDoor = async (door) => {
+  const openDoor = async (door, element) => {
     setError("");
 
     if (opening) {
@@ -85,11 +87,12 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
 
     if (!door.opened && !calm) {
       setOpening(door.day);
-      await new Promise((resolve) => window.setTimeout(resolve, 950));
-      setOpening(null);
+      // la carte sort quand la porte est grande ouverte
+      await new Promise((resolve) => window.setTimeout(resolve, 520));
+      window.setTimeout(() => setOpening(null), 600);
     }
 
-    setOpen(door);
+    setOpen({ day: door.day, from: calm ? null : element?.getBoundingClientRect() });
 
     // l'aperçu ne fait que lire
     if (!door.opened && !advent.preview) {
@@ -104,6 +107,19 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
   };
 
   const toggleDone = async () => {
+    if (advent.preview) {
+      setPreviewDone((done) => {
+        const next = new Set(done);
+        if (next.has(open.day)) {
+          next.delete(open.day);
+        } else {
+          next.add(open.day);
+        }
+        return next;
+      });
+      return;
+    }
+
     setBusy(true);
     setError("");
 
@@ -122,7 +138,12 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
     await reload();
   };
 
-  const current = open ? byDay[open.day] || open : null;
+  const current = open ? byDay[open.day] : null;
+  const currentDone = current
+    ? advent?.preview
+      ? previewDone.has(current.day)
+      : current.done
+    : false;
   const doneCount = doors.filter((door) => door.done).length;
 
   return (
@@ -209,7 +230,7 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
                     ]
                       .filter(Boolean)
                       .join(" ")}
-                    onClick={() => openDoor(door)}
+                    onClick={(event) => openDoor(door, event.currentTarget)}
                     aria-label={`Case ${day}${door.unlocked ? "" : ", scellée"}${door.done ? ", défi relevé" : ""}`}
                   >
                     <span className="advent-door-inside" aria-hidden="true">✦</span>
@@ -228,27 +249,129 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
       </section>
 
       {current && (
-        <SettingsSheet
-          eyebrow={`${current.day} DÉCEMBRE · DÉFI POUR VOUS DEUX`}
+        <AdventReveal
+          from={open.from}
+          kicker={`${current.day} DÉCEMBRE`}
           title={personalise(current.title, current.day)}
           onClose={() => setOpen(null)}
         >
           <p className="advent-prompt">{personalise(current.prompt, current.day)}</p>
 
-          {!advent.preview && (
-            <button
-              type="button"
-              className={current.done ? "advent-done is-done" : "advent-done"}
-              disabled={busy}
-              onClick={toggleDone}
-            >
-              {current.done ? "✓ Défi relevé" : "Défi relevé"}
-            </button>
+          <button
+            type="button"
+            className={currentDone ? "advent-done is-done" : "advent-done"}
+            disabled={busy}
+            onClick={toggleDone}
+          >
+            {currentDone ? "✓ Défi relevé" : "Défi relevé"}
+          </button>
+
+          {advent.preview && (
+            <p className="advent-reveal-note">Aperçu : rien n’est enregistré.</p>
           )}
 
           {error && <p className="settings-feedback">{error}</p>}
-        </SettingsSheet>
+        </AdventReveal>
       )}
     </main>
+  );
+}
+
+/* La carte du jour sort de sa case et vient se poser au centre :
+   elle part de la position de la case (dos champagne), grandit en
+   pivotant légèrement, puis le défi apparaît sur sa face. */
+function AdventReveal({ from, kicker, title, onClose, children }) {
+  const cardRef = useRef(null);
+  const [settled, setSettled] = useState(!from);
+  const [leaving, setLeaving] = useState(false);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
+  // départ : la carte est placée sur la case, puis relâchée
+  useLayoutEffect(() => {
+    const card = cardRef.current;
+
+    if (!card || !from) {
+      return undefined;
+    }
+
+    const to = card.getBoundingClientRect();
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2);
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+    const scale = Math.max(from.width / to.width, 0.1);
+
+    card.style.transition = "none";
+    card.style.transform = `translate(${dx}px, ${dy}px) scale(${scale}) rotate(-10deg)`;
+    card.getBoundingClientRect();
+
+    const frame = window.requestAnimationFrame(() => {
+      card.style.transition = "";
+      card.style.transform = "";
+    });
+    const done = window.setTimeout(() => setSettled(true), 820);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(done);
+    };
+  }, [from]);
+
+  const close = () => {
+    setLeaving(true);
+    window.setTimeout(() => onCloseRef.current(), 220);
+  };
+
+  useEffect(() => {
+    cardRef.current?.focus();
+
+    const onKey = (event) => {
+      if (event.key === "Escape") {
+        close();
+      }
+    };
+
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+    // close ne dépend que de refs et d'états stables
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return createPortal(
+    <div
+      className={leaving ? "advent-reveal is-leaving" : "advent-reveal"}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          close();
+        }
+      }}
+    >
+      <section
+        ref={cardRef}
+        className={settled ? "advent-reveal-card is-settled" : "advent-reveal-card"}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
+      >
+        <div className="advent-reveal-inner">
+          <div className="advent-reveal-face">
+            <header className="advent-reveal-head">
+              <span>{kicker}</span>
+              <button type="button" onClick={close}>Fermer</button>
+            </header>
+
+            <h2>{title}</h2>
+
+            {children}
+          </div>
+
+          <span className="advent-reveal-back" aria-hidden="true">✦</span>
+        </div>
+      </section>
+    </div>,
+    document.body
   );
 }
