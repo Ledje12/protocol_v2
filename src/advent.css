@@ -288,6 +288,16 @@
   animation: advent-fade 0.4s ease both;
 }
 
+/* la carte de derrière annonce sa version : néon pour Osée */
+.advent-reveal-peek.is-bold {
+  border-color: rgba(var(--c-accent-rgb), 0.7);
+  box-shadow: 0 0 28px rgba(var(--c-accent-rgb), 0.22);
+}
+
+.advent-reveal-peek.is-bold span {
+  color: var(--c-accent-soft);
+}
+
 .advent-reveal-peek span {
   color: rgba(var(--c-duel-rgb), 0.8);
   font-size: 10px;

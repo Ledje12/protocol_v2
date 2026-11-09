@@ -450,7 +450,10 @@ function AdventReveal({ from, kicker, variants, initial, onClose, renderBody }) 
     >
       <div className="advent-reveal-stack">
         {other && settled && (
-          <div className="advent-reveal-peek" aria-hidden="true">
+          <div
+            className={other.key === "bold" ? "advent-reveal-peek is-bold" : "advent-reveal-peek"}
+            aria-hidden="true"
+          >
             <span>{other.label}</span>
           </div>
         )}
