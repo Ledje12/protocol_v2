@@ -131,6 +131,13 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
 
         {doors.length > 0 && (
           <>
+            {advent.today === 0 && !advent.preview && (
+              <p className="advent-progress">
+                Toutes les cases sont encore scellées : la première s’ouvre
+                le 1er décembre.
+              </p>
+            )}
+
             {advent.today >= 1 && (
               <p className="advent-progress">
                 {doneCount === 0

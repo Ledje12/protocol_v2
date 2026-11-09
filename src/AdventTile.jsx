@@ -5,7 +5,8 @@ import { humanError } from "./networkError.js";
 /* Calendrier de l'Avent, côté accueil : la tuile de saison et le
    chargement du calendrier (partagé avec l'écran, Advent.jsx). */
 
-const TEASER_DAYS = 7;
+// compte à rebours affiché tout le mois de novembre (teasing)
+const TEASER_DAYS = 31;
 
 export function GiftIcon({ size = 24 }) {
   return (
@@ -62,8 +63,8 @@ export function useAdvent(supabase) {
   return [advent, reload, error];
 }
 
-/* Tuile de saison sur l'accueil : une semaine avant (compte à
-   rebours), puis tout décembre. Rien le reste de l'année, sauf en
+/* Tuile de saison sur l'accueil : compte à rebours en novembre,
+   puis tout décembre. Rien le reste de l'année, sauf en
    aperçu pour un admin. */
 export function AdventHomeTile({ supabase, onOpen }) {
   const [advent] = useAdvent(supabase);
