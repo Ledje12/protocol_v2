@@ -79,14 +79,14 @@ Deno.serve(async (req)=>{
       }, 403);
     }
     /* =====================================================
-       CONNEXION ACTIVE DU COUPLE
-
-       Important :
-       status = appareil disponible pour le duo,
-       pas uniquement pour le compte qui l'a associé.
+       JOUETS DU COUPLE
+       Toutes les connexions comptent : deux jouets sur un
+       téléphone, ou un jouet chacun sur le sien. Type déduit du
+       nom Lovense (Lush pour elle, Diamo pour lui).
        ===================================================== */ const { data: connections, error: connectionError } = await admin.from("protocol_lovense_connections").select(`
             id,
             user_id,
+            lovense_uid,
             toys,
             platform,
             app_version,
@@ -98,47 +98,56 @@ Deno.serve(async (req)=>{
     if (connectionError) {
       throw connectionError;
     }
-    /* =====================================================
-       TROUVER UNE CONNEXION AVEC UN JOUET ONLINE
-       ===================================================== */ let activeConnection = null;
-    let activeToys = [];
+    const toyType = (toy)=>{
+      const label = [
+        toy?.toyType,
+        toy?.name,
+        toy?.type
+      ].filter(Boolean).join(" ").toLowerCase();
+      if (label.includes("lush")) return "lush";
+      if (label.includes("diamo")) return "ring";
+      return "other";
+    };
+    const isOnline = (toy)=>toy?.connected === true || String(toy?.status ?? "") === "1" || toy?.status === true;
+    const seen = new Set();
+    const toys = [];
     for (const connection of connections || []){
+      if (!connection?.lovense_uid) {
+        continue;
+      }
       const rawToys = Array.isArray(connection?.toys) ? connection.toys : connection?.toys && typeof connection.toys === "object" ? Object.values(connection.toys) : [];
-      const toys = rawToys.map((toy)=>({
-          id: toy?.id || null,
-          name: toy?.name || toy?.toyName || null,
-          toyType: toy?.toyType || null,
+      for (const toy of rawToys){
+        const id = toy?.id ? String(toy.id) : null;
+        if (!id || seen.has(id) || !isOnline(toy)) {
+          continue;
+        }
+        seen.add(id);
+        toys.push({
+          id,
+          name: toy?.nickname || toy?.nickName || toy?.name || toy?.toyName || "Jouet Lovense",
+          type: toyType(toy),
           battery: Number.isFinite(Number(toy?.battery)) ? Number(toy.battery) : null,
-          connected: toy?.connected !== false
-        })).filter((toy)=>Boolean(toy.id || toy.name));
-      const onlineToys = toys.filter((toy)=>toy.connected);
-      if (onlineToys.length > 0) {
-        activeConnection = connection;
-        activeToys = onlineToys;
-        break;
+          connected: true,
+          // jouet relié depuis le téléphone de ce compte ou de l'autre
+          mine: connection.user_id === user.id
+        });
       }
     }
+    const latest = (connections || []).find((connection)=>connection?.lovense_uid) || null;
     /* =====================================================
        RESPONSE
-       ===================================================== */ if (!activeConnection) {
-      return json({
-        success: true,
-        connected: false,
-        toys: [],
-        platform: null,
-        appVersion: null,
-        connectedAt: null,
-        updatedAt: null
-      });
-    }
-    return json({
+       ===================================================== */ return json({
       success: true,
-      connected: true,
-      toys: activeToys,
-      platform: activeConnection.platform || null,
-      appVersion: activeConnection.app_version || null,
-      connectedAt: activeConnection.connected_at || null,
-      updatedAt: activeConnection.updated_at || null
+      connected: toys.length > 0,
+      toys,
+      has: {
+        lush: toys.some((toy)=>toy.type === "lush"),
+        ring: toys.some((toy)=>toy.type === "ring")
+      },
+      platform: latest?.platform || null,
+      appVersion: latest?.app_version || null,
+      connectedAt: latest?.connected_at || null,
+      updatedAt: latest?.updated_at || null
     });
   } catch (error) {
     console.error("LOVENSE STATUS ERROR:", error);

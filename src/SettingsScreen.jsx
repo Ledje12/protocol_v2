@@ -119,6 +119,10 @@ export default function SettingsScreen({
   const [lovenseTestLoading, setLovenseTestLoading] =
     useState(false);
 
+  // jouets connectés du couple (Lush, Diamo), tous téléphones confondus
+  const [lovenseToys, setLovenseToys] =
+    useState([]);
+
   const [lovenseTestMessage, setLovenseTestMessage] =
     useState("");
 
@@ -1647,6 +1651,12 @@ export default function SettingsScreen({
           ""
         );
 
+        setLovenseToys(
+          Array.isArray(data?.toys)
+            ? data.toys
+            : []
+        );
+
       } catch (err) {
         console.error(
           "LOVENSE STATUS ERROR:",
@@ -1655,6 +1665,7 @@ export default function SettingsScreen({
 
         setLovenseConnected(false);
         setLovenseToyName("");
+        setLovenseToys([]);
 
       } finally {
         setLovenseStatusLoading(false);
@@ -1740,9 +1751,11 @@ export default function SettingsScreen({
   }, []);
 
   const testLovense =
-    async () => {
+    async (toy) => {
+      const label = toy?.type === "ring" ? "Diamo" : toy?.type === "lush" ? "Lush" : "jouet";
+
       try {
-        setLovenseTestLoading(true);
+        setLovenseTestLoading(toy?.id || true);
         setLovenseTestMessage("");
 
         const {
@@ -1755,6 +1768,8 @@ export default function SettingsScreen({
               body: {
                 action:
                   "test",
+                toy_id:
+                  toy?.id || null,
               },
             }
           );
@@ -1771,7 +1786,7 @@ export default function SettingsScreen({
         }
 
         setLovenseTestMessage(
-          "Test envoyé au Lush."
+          `Test envoyé au ${label} : deux secondes de vibration.`
         );
 
       } catch (err) {
@@ -1782,7 +1797,7 @@ export default function SettingsScreen({
 
         setLovenseTestMessage(
           err?.message ||
-          "Impossible de tester le Lush."
+          `Impossible de tester le ${label}.`
         );
 
       } finally {
@@ -2162,7 +2177,13 @@ export default function SettingsScreen({
               lovenseStatusLoading
                 ? "Vérification…"
                 : lovenseConnected
-                  ? lovenseToyName || "Connecté"
+                  ? lovenseToys.length > 1
+                    ? "Lush et Diamo"
+                    : lovenseToys[0]?.type === "ring"
+                      ? "Diamo"
+                      : lovenseToys[0]?.type === "lush"
+                        ? "Lush"
+                        : lovenseToyName || "Connecté"
                   : "Non connecté"
             }
             tone={lovenseConnected ? "on" : undefined}
@@ -2695,8 +2716,10 @@ export default function SettingsScreen({
             eyebrow="LOVENSE"
             title={
               lovenseConnected
-                ? "Lush 4 prêt."
-                : "Connecter le Lush 4."
+                ? lovenseToys.length > 1
+                  ? "Vos jouets sont prêts."
+                  : "Jouet prêt."
+                : "Connecter vos jouets."
             }
             onClose={() => setSheet(null)}
           >
@@ -2734,42 +2757,67 @@ export default function SettingsScreen({
 
               <>
 
-                <p className="settings-connected-device">
-                  {lovenseToyName
-                    ? `${lovenseToyName} disponible`
-                    : "Jouet Lovense disponible"}
-                </p>
+                <ul className="settings-lovense-toys">
+                  {lovenseToys.map((toy) => {
+                    const wearer =
+                      toy.type === "lush"
+                        ? [profile, couple?.partner].find((person) => person?.sex === "female")
+                        : toy.type === "ring"
+                          ? [profile, couple?.partner].find((person) => person?.sex === "male")
+                          : null;
+
+                    return (
+                      <li key={toy.id}>
+                        <span className="settings-lovense-toy-main">
+                          <strong>
+                            {toy.type === "lush"
+                              ? "Lush"
+                              : toy.type === "ring"
+                                ? "Diamo"
+                                : toy.name}
+                            {wearer?.display_name
+                              ? ` · pour ${wearer.display_name}`
+                              : ""}
+                          </strong>
+                          <small>
+                            {[
+                              toy.type === "other" ? "Jouet non reconnu" : toy.name,
+                              toy.battery !== null && toy.battery !== undefined
+                                ? `batterie ${toy.battery} %`
+                                : null,
+                              toy.mine
+                                ? "sur ce téléphone"
+                                : `sur le téléphone ${
+                                    couple?.partner?.display_name
+                                      ? `de ${couple.partner.display_name}`
+                                      : "de l’autre"
+                                  }`,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </small>
+                        </span>
+
+                        <button
+                          type="button"
+                          className="settings-secondary-action settings-lovense-test"
+                          onClick={() => testLovense(toy)}
+                          disabled={Boolean(lovenseTestLoading)}
+                        >
+                          {lovenseTestLoading === toy.id ? "Envoi…" : "Tester"}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
 
 
                 <p className="settings-card-copy">
-                  Lovense Remote doit rester active
-                  en arrière-plan pour permettre
-                  à PROTOCOL de contrôler le jouet.
+                  Pendant les cartes, pilotez les jouets depuis
+                  Lovense Remote : intensité, rythme, à distance
+                  ou sur le même téléphone. PROTOCOL vérifie
+                  seulement qu’ils sont là.
                 </p>
-
-
-                <button
-                  type="button"
-                  className="settings-primary-action"
-                  onClick={testLovense}
-                  disabled={
-                    lovenseTestLoading
-                  }
-                >
-
-                  <span>
-                    {lovenseTestLoading
-                      ? "Envoi…"
-                      : "Tester le Lush"}
-                  </span>
-
-                  {!lovenseTestLoading && (
-                    <span className="settings-action-arrow">
-                      →
-                    </span>
-                  )}
-
-                </button>
 
 
                 {lovenseTestMessage && (
@@ -2809,14 +2857,14 @@ export default function SettingsScreen({
               ======================================= */}
 
           {!lovenseStatusLoading &&
-            !lovenseConnected && (
+            !lovenseToys.some((toy) => toy.mine) && (
 
               <>
 
                 <p className="settings-card-copy">
-                  Connecte Lovense Remote à PROTOCOL
-                  pour permettre au jeu de contrôler
-                  le jouet.
+                  {lovenseConnected
+                    ? "Ton jouet est sur ce téléphone ? Connecte aussi Lovense Remote d’ici : chacun peut relier le sien."
+                    : "Connecte Lovense Remote à PROTOCOL pour que le jeu sache quels jouets sont là : le Lush, le Diamo, ou les deux."}
                 </p>
 
 

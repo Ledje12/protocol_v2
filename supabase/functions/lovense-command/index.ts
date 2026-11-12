@@ -12,96 +12,33 @@ function json(body, status = 200) {
     }
   });
 }
-const CUSTOM_PATTERNS = {
-  pulse_slow: {
-    intervalMs: 1000,
-    strength: "5;12;5;12;5;12"
-  },
-  pulse_fast: {
-    intervalMs: 400,
-    strength: "5;14;5;14;5;14;5;14"
-  },
-  wave: {
-    intervalMs: 700,
-    strength: "4;6;8;10;12;14;12;10;8;6"
-  },
-  tease: {
-    intervalMs: 800,
-    strength: "3;3;5;4;7;3;9;4;11"
-  },
-  build_up: {
-    intervalMs: 900,
-    strength: "3;4;5;6;7;8;9;10;11;12;13;14;15"
-  },
-  rollercoaster: {
-    intervalMs: 700,
-    strength: "5;10;15;8;18;6;13;20;8"
+/* Protocol ne pilote plus les jouets en jeu (Lovense Remote s'en
+   charge). Il reste deux commandes :
+   - test : 2 s à intensité 5 sur UN jouet (le bon téléphone, le bon
+     jouet), pour savoir lequel est lequel dans les réglages ;
+   - stop : coupe tous les jouets du couple (STOP de la partie). */
+const LOVENSE_COMMAND_URL = "https://api.lovense-api.com/api/lan/v2/command";
+const isOnline = (toy)=>toy?.connected === true || String(toy?.status ?? "") === "1" || toy?.status === true;
+const toysOf = (connection)=>Array.isArray(connection?.toys) ? connection.toys : connection?.toys && typeof connection.toys === "object" ? Object.values(connection.toys) : [];
+async function sendCommand(commandBody) {
+  const response = await fetch(LOVENSE_COMMAND_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(commandBody)
+  });
+  const data = await response.json().catch(()=>null);
+  if (!response.ok || typeof data?.code === "number" && data.code >= 400) {
+    console.error("LOVENSE COMMAND API ERROR:", {
+      status: response.status,
+      code: data?.code,
+      message: data?.message || data?.type || null
+    });
+    return data?.message || data?.type || "Commande Lovense refusée.";
   }
-};
-const PRESET_PATTERNS = new Set([
-  "pulse",
-  "wave",
-  "fireworks",
-  "earthquake"
-]);
-const MANUAL_CONTROLS = {
-  tease: {
-    soft: {
-      intensity: 4
-    },
-    medium: {
-      intensity: 8
-    },
-    pulse: {
-      pattern: "pulse_slow"
-    }
-  },
-  play: {
-    soft: {
-      intensity: 5
-    },
-    medium: {
-      intensity: 10
-    },
-    strong: {
-      intensity: 15
-    },
-    wave: {
-      pattern: "wave"
-    }
-  },
-  intense: {
-    medium: {
-      intensity: 10
-    },
-    strong: {
-      intensity: 16
-    },
-    max: {
-      intensity: 20
-    },
-    fireworks: {
-      pattern: "fireworks"
-    }
-  },
-  control: {
-    level_3: {
-      intensity: 3
-    },
-    level_7: {
-      intensity: 7
-    },
-    level_12: {
-      intensity: 12
-    },
-    level_17: {
-      intensity: 17
-    },
-    level_20: {
-      intensity: 20
-    }
-  }
-};
+  return null;
+}
 Deno.serve(async (req)=>{
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -183,25 +120,8 @@ Deno.serve(async (req)=>{
     if (connectionError) {
       throw connectionError;
     }
-    /* =====================================================
-      CONNEXION ACTIVE AVEC JOUET ONLINE
-
-      Même règle de sélection que lovense-status.
-      ===================================================== */ let connection = null;
-    let availableToys = [];
-    for (const candidate of connections || []){
-      if (!candidate?.lovense_uid) {
-        continue;
-      }
-      const rawToys = Array.isArray(candidate?.toys) ? candidate.toys : candidate?.toys && typeof candidate.toys === "object" ? Object.values(candidate.toys) : [];
-      const onlineToys = rawToys.filter((toy)=>toy && typeof toy === "object" && toy.connected !== false);
-      if (onlineToys.length > 0) {
-        connection = candidate;
-        availableToys = onlineToys;
-        break;
-      }
-    }
-    if (!connection?.lovense_uid) {
+    const usable = (connections || []).filter((connection)=>connection?.lovense_uid && toysOf(connection).some(isOnline));
+    if (usable.length === 0) {
       return json({
         success: false,
         error: "Aucun jouet Lovense disponible pour ce couple."
@@ -212,7 +132,6 @@ Deno.serve(async (req)=>{
        ===================================================== */ const body = await req.json().catch(()=>({}));
     const action = String(body?.action || "").trim().toLowerCase();
     if (![
-      "play",
       "stop",
       "test"
     ].includes(action)) {
@@ -222,157 +141,70 @@ Deno.serve(async (req)=>{
       }, 400);
     }
     /* =====================================================
-       PARAMETRES AUTORITAIRES
-
-       Aucun intensity / duration / pattern
-       venant du navigateur n'est utilisé.
-       ===================================================== */ let intensity = 5;
-    let duration = 2;
-    let requestedPattern = "";
+       STOP : tous les jouets, sur toutes les connexions
+       ===================================================== */ if (action === "stop") {
+      const errors = [];
+      for (const connection of usable){
+        const failure = await sendCommand({
+          token: developerToken,
+          uid: connection.lovense_uid,
+          command: "Function",
+          action: "Stop",
+          timeSec: 0,
+          stopPrevious: 1,
+          apiVer: 1
+        });
+        if (failure) {
+          errors.push(failure);
+        }
+      }
+      if (errors.length === usable.length) {
+        return json({
+          success: false,
+          error: errors[0]
+        }, 502);
+      }
+      return json({
+        success: true,
+        action
+      });
+    }
     /* =====================================================
-       PLAY = CARTE DB
-       ===================================================== */ if (action === "play") {
-      const cardId = Number(body?.card_id);
-      if (!Number.isInteger(cardId) || cardId <= 0) {
+       TEST : un seul jouet, valeurs fixes côté serveur
+       ===================================================== */ const toyId = String(body?.toy_id || "").trim();
+    let connection = usable[0];
+    if (toyId) {
+      connection = usable.find((candidate)=>toysOf(candidate).some((toy)=>String(toy?.id) === toyId && isOnline(toy)));
+      if (!connection) {
         return json({
           success: false,
-          error: "Carte Lovense invalide."
-        }, 400);
-      }
-      const { data: card, error: cardError } = await admin.from("protocol_cards").select(`
-              id,
-              lovense_mode,
-              lovense_action,
-              lovense_intensity,
-              lovense_duration_sec,
-              lovense_pattern,
-              lovense_controls_profile
-            `).eq("id", cardId).eq("library_version", "v1").eq("active", true).maybeSingle();
-      if (cardError) {
-        throw cardError;
-      }
-      if (!card) {
-        return json({
-          success: false,
-          error: "Carte introuvable."
+          error: "Ce jouet n’est pas connecté."
         }, 404);
       }
-      if (![
-        "optional",
-        "required"
-      ].includes(String(card.lovense_mode || ""))) {
-        return json({
-          success: false,
-          error: "Cette carte n’utilise pas Lovense."
-        }, 400);
-      }
-      intensity = Math.max(0, Math.min(20, Math.round(Number(card.lovense_intensity) || 5)));
-      duration = Math.max(2, Math.min(600, Math.round(Number(card.lovense_duration_sec) || 2)));
-      requestedPattern = String(card.lovense_pattern || "").trim().toLowerCase();
-      const requestedControl = String(body?.control || "").trim().toLowerCase();
-      if (requestedControl) {
-        const controlsProfile = String(card.lovense_controls_profile || "").trim().toLowerCase();
-        const profileControls = MANUAL_CONTROLS[controlsProfile];
-        const manualControl = profileControls?.[requestedControl];
-        if (!manualControl) {
-          return json({
-            success: false,
-            error: "Commande Lovense non autorisée pour cette carte."
-          }, 400);
-        }
-        if (typeof manualControl.intensity === "number") {
-          intensity = manualControl.intensity;
-          requestedPattern = "";
-        }
-        if (manualControl.pattern) {
-          requestedPattern = manualControl.pattern;
-        }
-      }
     }
-    /* =====================================================
-       TEST
-
-       Valeurs fixes côté serveur.
-       Impossible de transformer le bouton test
-       en vibration 20 pendant dix minutes.
-       ===================================================== */ if (action === "test") {
-      intensity = 5;
-      duration = 2;
-      requestedPattern = "";
-    }
-    /* =====================================================
-       COMMAND BODY
-       ===================================================== */ let commandBody;
-    if (action === "stop") {
-      commandBody = {
-        token: developerToken,
-        uid: connection.lovense_uid,
-        command: "Function",
-        action: "Stop",
-        timeSec: 0,
-        stopPrevious: 1,
-        apiVer: 1
-      };
-    } else if (requestedPattern && CUSTOM_PATTERNS[requestedPattern]) {
-      const pattern = CUSTOM_PATTERNS[requestedPattern];
-      commandBody = {
-        token: developerToken,
-        uid: connection.lovense_uid,
-        command: "Pattern",
-        rule: `V:1;F:v;S:${pattern.intervalMs}#`,
-        strength: pattern.strength,
-        timeSec: duration,
-        apiVer: 2
-      };
-    } else if (requestedPattern && PRESET_PATTERNS.has(requestedPattern)) {
-      commandBody = {
-        token: developerToken,
-        uid: connection.lovense_uid,
-        command: "Preset",
-        name: requestedPattern,
-        timeSec: duration,
-        apiVer: 1
-      };
-    } else {
-      commandBody = {
-        token: developerToken,
-        uid: connection.lovense_uid,
-        command: "Function",
-        action: `Vibrate:${intensity}`,
-        timeSec: duration,
-        stopPrevious: 1,
-        apiVer: 1
-      };
-    }
-    /* =====================================================
-       LOVENSE API
-       ===================================================== */ const response = await fetch("https://api.lovense-api.com/api/lan/v2/command", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(commandBody)
+    const failure = await sendCommand({
+      token: developerToken,
+      uid: connection.lovense_uid,
+      ...toyId ? {
+        toy: toyId
+      } : {},
+      command: "Function",
+      action: "Vibrate:5",
+      timeSec: 2,
+      stopPrevious: 1,
+      apiVer: 1
     });
-    const data = await response.json().catch(()=>null);
-    if (!response.ok || typeof data?.code === "number" && data.code >= 400) {
-      console.error("LOVENSE COMMAND API ERROR:", {
-        status: response.status,
-        code: data?.code,
-        message: data?.message || data?.type || null
-      });
+    if (failure) {
       return json({
         success: false,
-        error: data?.message || data?.type || "Commande Lovense refusée."
+        error: failure
       }, 502);
     }
-    /* =====================================================
-       RESPONSE MINIMALE
-       ===================================================== */ return json({
+    return json({
       success: true,
       action,
-      intensity: action === "stop" ? null : intensity,
-      duration: action === "stop" ? 0 : duration,
-      pattern: requestedPattern || null
+      intensity: 5,
+      duration: 2
     });
   } catch (error) {
     console.error("LOVENSE COMMAND ERROR:", error);

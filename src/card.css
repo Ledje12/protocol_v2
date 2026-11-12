@@ -616,3 +616,104 @@
 .card-page .card-not-for {
   color: var(--c-muted);
 }
+
+/* =========================================================
+   LOVENSE : quel jouet sert à la carte (piloté depuis
+   Lovense Remote) et liste des jouets dans les réglages
+   ========================================================= */
+
+.lovense-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.35);
+  border-radius: 14px;
+  background: rgba(var(--c-accent-rgb), 0.07);
+  text-align: left;
+}
+
+.lovense-banner-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  box-shadow: 0 0 10px rgba(var(--c-accent-rgb), 0.8);
+  animation: lovense-pulse 2s ease-in-out infinite;
+}
+
+.lovense-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lovense-banner-text strong {
+  color: var(--c-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lovense-banner-text small {
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.active-rule .lovense-banner {
+  margin-top: 10px;
+}
+
+@keyframes lovense-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.settings-lovense-toys {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-lovense-toys li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: var(--c-surface);
+}
+
+.settings-lovense-toy-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.settings-lovense-toy-main strong {
+  color: var(--c-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.settings-lovense-toy-main small {
+  color: var(--c-muted);
+  font-size: 12px;
+}
+
+.settings-lovense-test {
+  flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lovense-banner-dot {
+    animation: none;
+  }
+}
