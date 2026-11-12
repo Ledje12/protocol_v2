@@ -9,6 +9,16 @@ import { forgetKey } from "./albumCrypto.js";
 import { getSavedAlbumKey } from "./photoAlbum.js";
 import { AlbumKeySheet } from "./PhotoAlbum.jsx";
 import { supabase } from "./supabaseClient.js";
+import { deName } from "./personalise.js";
+
+// type d'un jouet, même si le serveur ne l'a pas donné
+const toyKind = (toy) => {
+  if (toy?.type === "lush" || toy?.type === "ring") return toy.type;
+  const label = `${toy?.name || ""} ${toy?.toyType || ""}`.toLowerCase();
+  if (label.includes("lush")) return "lush";
+  if (label.includes("diamo")) return "ring";
+  return "other";
+};
 
 /* =========================================================
    SETTINGS
@@ -28,6 +38,7 @@ const DURATION_LABELS = {
 
 export default function SettingsScreen({
   navigate,
+  profile = null,
   couple,
   onCoupleChanged,
 }) {
@@ -122,6 +133,14 @@ export default function SettingsScreen({
   // jouets connectés du couple (Lush, Diamo), tous téléphones confondus
   const [lovenseToys, setLovenseToys] =
     useState([]);
+
+  // jouet qui manque encore (null si les deux sont là)
+  const toyKinds = lovenseToys.map(toyKind);
+  const missingToy = !toyKinds.includes("lush")
+    ? "Lush"
+    : !toyKinds.includes("ring")
+      ? "Diamo"
+      : null;
 
   const [lovenseTestMessage, setLovenseTestMessage] =
     useState("");
@@ -1752,7 +1771,8 @@ export default function SettingsScreen({
 
   const testLovense =
     async (toy) => {
-      const label = toy?.type === "ring" ? "Diamo" : toy?.type === "lush" ? "Lush" : "jouet";
+      const kind = toyKind(toy);
+      const label = kind === "ring" ? "Diamo" : kind === "lush" ? "Lush" : "jouet";
 
       try {
         setLovenseTestLoading(toy?.id || true);
@@ -2179,9 +2199,9 @@ export default function SettingsScreen({
                 : lovenseConnected
                   ? lovenseToys.length > 1
                     ? "Lush et Diamo"
-                    : lovenseToys[0]?.type === "ring"
+                    : toyKind(lovenseToys[0]) === "ring"
                       ? "Diamo"
-                      : lovenseToys[0]?.type === "lush"
+                      : toyKind(lovenseToys[0]) === "lush"
                         ? "Lush"
                         : lovenseToyName || "Connecté"
                   : "Non connecté"
@@ -2759,39 +2779,36 @@ export default function SettingsScreen({
 
                 <ul className="settings-lovense-toys">
                   {lovenseToys.map((toy) => {
+                    const kind = toyKind(toy);
                     const wearer =
-                      toy.type === "lush"
+                      kind === "lush"
                         ? [profile, couple?.partner].find((person) => person?.sex === "female")
-                        : toy.type === "ring"
+                        : kind === "ring"
                           ? [profile, couple?.partner].find((person) => person?.sex === "male")
+                          : null;
+                    const phone =
+                      toy.mine === true
+                        ? "ce téléphone"
+                        : toy.mine === false
+                          ? `téléphone ${deName(couple?.partner?.display_name || "l’autre")}`
                           : null;
 
                     return (
-                      <li key={toy.id}>
+                      <li key={toy.id} className={`is-${kind}`}>
+                        <span className="settings-lovense-toy-dot" aria-hidden="true" />
+
                         <span className="settings-lovense-toy-main">
                           <strong>
-                            {toy.type === "lush"
-                              ? "Lush"
-                              : toy.type === "ring"
-                                ? "Diamo"
-                                : toy.name}
-                            {wearer?.display_name
-                              ? ` · pour ${wearer.display_name}`
-                              : ""}
+                            {kind === "lush" ? "Lush" : kind === "ring" ? "Diamo" : toy.name || "Jouet"}
+                            {wearer?.display_name && (
+                              <em> · {wearer.display_name}</em>
+                            )}
                           </strong>
                           <small>
                             {[
-                              toy.type === "other" ? "Jouet non reconnu" : toy.name,
-                              toy.battery !== null && toy.battery !== undefined
-                                ? `batterie ${toy.battery} %`
-                                : null,
-                              toy.mine
-                                ? "sur ce téléphone"
-                                : `sur le téléphone ${
-                                    couple?.partner?.display_name
-                                      ? `de ${couple.partner.display_name}`
-                                      : "de l’autre"
-                                  }`,
+                              kind === "other" ? "jouet non reconnu" : null,
+                              typeof toy.battery === "number" ? `${toy.battery} %` : null,
+                              phone,
                             ]
                               .filter(Boolean)
                               .join(" · ")}
@@ -2800,16 +2817,56 @@ export default function SettingsScreen({
 
                         <button
                           type="button"
-                          className="settings-secondary-action settings-lovense-test"
+                          className="settings-lovense-test"
                           onClick={() => testLovense(toy)}
                           disabled={Boolean(lovenseTestLoading)}
                         >
-                          {lovenseTestLoading === toy.id ? "Envoi…" : "Tester"}
+                          {lovenseTestLoading === toy.id ? "…" : "Tester"}
                         </button>
                       </li>
                     );
                   })}
                 </ul>
+
+
+                {lovenseTestMessage && (
+                  <p className="settings-feedback">
+                    {lovenseTestMessage}
+                  </p>
+                )}
+
+
+                {lovenseToys.some((toy) => toy.mine) && missingToy && (
+                  <div className="settings-lovense-add">
+                    <strong>
+                      Ajouter le {missingToy}
+                    </strong>
+
+                    <p>
+                      Sur ce téléphone : allume le jouet, connecte-le dans
+                      Lovense Remote, puis mets à jour. Sur l’autre
+                      téléphone : ouvre ces réglages là-bas et connecte
+                      Lovense Remote.
+                    </p>
+
+                    <button
+                      type="button"
+                      className="settings-lovense-refresh"
+                      onClick={openLovenseRemote}
+                      disabled={lovenseOpening}
+                    >
+                      {lovenseOpening ? "Mise à jour…" : "Mettre à jour les jouets"}
+                    </button>
+
+                    {lovenseMessage && (
+                      <p className="settings-feedback">{lovenseMessage}</p>
+                    )}
+
+                    {lovenseSdkError && (
+                      <p className="settings-feedback">{lovenseSdkError}</p>
+                    )}
+                  </div>
+                )}
 
 
                 <p className="settings-card-copy">
@@ -2820,25 +2877,20 @@ export default function SettingsScreen({
                 </p>
 
 
-                {lovenseTestMessage && (
-                  <p className="settings-feedback">
-                    {lovenseTestMessage}
-                  </p>
+                {lovenseToys.some((toy) => toy.mine) && (
+                  <button
+                    type="button"
+                    className="settings-text-action"
+                    onClick={disconnectLovense}
+                    disabled={
+                      lovenseDisconnectLoading
+                    }
+                  >
+                    {lovenseDisconnectLoading
+                      ? "Déconnexion…"
+                      : "Déconnecter ce téléphone"}
+                  </button>
                 )}
-
-
-                <button
-                  type="button"
-                  className="settings-text-action"
-                  onClick={disconnectLovense}
-                  disabled={
-                    lovenseDisconnectLoading
-                  }
-                >
-                  {lovenseDisconnectLoading
-                    ? "Déconnexion…"
-                    : "Déconnecter le jouet"}
-                </button>
 
 
                 {lovenseDisconnectMessage && (
@@ -2857,13 +2909,14 @@ export default function SettingsScreen({
               ======================================= */}
 
           {!lovenseStatusLoading &&
-            !lovenseToys.some((toy) => toy.mine) && (
+            !lovenseToys.some((toy) => toy.mine) &&
+            (!lovenseConnected || missingToy) && (
 
               <>
 
                 <p className="settings-card-copy">
                   {lovenseConnected
-                    ? "Ton jouet est sur ce téléphone ? Connecte aussi Lovense Remote d’ici : chacun peut relier le sien."
+                    ? `Le ${missingToy} est sur ce téléphone ? Connecte Lovense Remote d’ici : il s’ajoutera à la liste.`
                     : "Connecte Lovense Remote à PROTOCOL pour que le jeu sache quels jouets sont là : le Lush, le Diamo, ou les deux."}
                 </p>
 

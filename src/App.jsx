@@ -677,6 +677,7 @@ function App() {
     return (
       <SettingsScreen
         navigate={navigate}
+        profile={profile}
         couple={couple}
         onCoupleChanged={() =>
           setCoupleRefreshKey(
