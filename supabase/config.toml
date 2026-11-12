@@ -399,6 +399,22 @@ verify_jwt = true
 [functions.lovense-callback]
 verify_jwt = false
 
+# appelées par l'app, avec la session de l'utilisateur
+[functions.lovense-disconnect]
+verify_jwt = true
+
+[functions.lovense-sync]
+verify_jwt = true
+
+[functions.send-invitation]
+verify_jwt = true
+
+[functions.send-message]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true
+
 [analytics]
 enabled = true
 port = 54327
