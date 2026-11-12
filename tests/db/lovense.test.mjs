@@ -23,15 +23,14 @@ before(async () => {
     cards[toy] = card.id;
   }
 
-  const [optional] = await sql(
+  const [plain] = await sql(
     `insert into public.protocol_cards
-       (type, title, prompt, intensity, active, library_version, library_key,
-        lovense_mode, lovense_toy)
-     values ('action', 'Lovense optionnelle', 'Carte de test', 3, true, 'v1',
-             'test_lovense_optional', 'optional', 'ring')
+       (type, title, prompt, intensity, active, library_version, library_key)
+     values ('action', 'Carte normale', 'Carte de test', 3, true, 'v1',
+             'test_lovense_plain')
      returning id`
   );
-  cards.optional = optional.id;
+  cards.plain = plain.id;
 });
 
 after(async () => {
@@ -68,14 +67,14 @@ async function allowed(couple) {
   return result;
 }
 
-test("aucun jouet : seules les cartes optionnelles sortent", async () => {
+test("aucun jouet : seules les cartes normales sortent", async () => {
   const couple = await createCouple();
   assert.deepEqual(await allowed(couple), {
     lush: false,
     ring: false,
     both: false,
     any: false,
-    optional: true,
+    plain: true,
   });
 });
 
@@ -87,7 +86,7 @@ test("Lush seul : aucune carte anneau ne sort", async () => {
     ring: false,
     both: false,
     any: true,
-    optional: true,
+    plain: true,
   });
 });
 
@@ -99,7 +98,7 @@ test("anneau seul (rappel du QR) : aucune carte Lush ne sort", async () => {
     ring: true,
     both: false,
     any: true,
-    optional: true,
+    plain: true,
   });
 });
 
@@ -111,7 +110,7 @@ test("les deux jouets sur un seul téléphone : tout sort, duel compris", async 
     ring: true,
     both: true,
     any: true,
-    optional: true,
+    plain: true,
   });
 });
 
@@ -135,4 +134,17 @@ test("un jouet hors ligne ne compte pas", async () => {
   const result = await allowed(couple);
   assert.equal(result.lush, false);
   assert.equal(result.ring, true);
+});
+
+test("une carte Lovense ne peut plus être « optional »", async () => {
+  await assert.rejects(
+    sql(
+      `insert into public.protocol_cards
+         (type, title, prompt, intensity, active, library_version, library_key,
+          lovense_mode, lovense_toy)
+       values ('action', 'Optionnelle', 'Carte de test', 3, true, 'v1',
+               'test_lovense_optional', 'optional', 'lush')`
+    ),
+    /protocol_cards_lovense_mode_check/
+  );
 });
