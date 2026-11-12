@@ -671,7 +671,7 @@
 }
 
 .settings-lovense-toys {
-  margin: 0;
+  margin: 4px 0 0;
   padding: 0;
   list-style: none;
   display: flex;
@@ -680,36 +680,111 @@
 }
 
 .settings-lovense-toys li {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--c-line);
-  border-radius: 14px;
-  background: var(--c-surface);
+  padding: 14px 14px 14px 16px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.18);
+  border-radius: 18px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.01)
+  );
+}
+
+.settings-lovense-toy-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c-accent);
+  box-shadow: 0 0 10px rgba(var(--c-accent-rgb), 0.6);
+}
+
+.settings-lovense-toys li.is-other .settings-lovense-toy-dot {
+  background: var(--c-muted);
+  box-shadow: none;
 }
 
 .settings-lovense-toy-main {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 
 .settings-lovense-toy-main strong {
   color: var(--c-text);
-  font-size: 15px;
+  font-size: 1rem;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.settings-lovense-toy-main strong em {
+  font-style: normal;
+  font-weight: 400;
+  color: rgba(var(--c-text-rgb), 0.7);
 }
 
 .settings-lovense-toy-main small {
   color: var(--c-muted);
-  font-size: 12px;
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
-.settings-lovense-test {
-  flex: none;
+.settings-lovense-test,
+.settings-lovense-refresh {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.32);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.settings-lovense-test:disabled,
+.settings-lovense-refresh:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.settings-lovense-test:active:not(:disabled),
+.settings-lovense-refresh:active:not(:disabled) {
+  background: rgba(var(--c-accent-rgb), 0.12);
+}
+
+.settings-lovense-add {
+  margin-top: 6px;
+  padding: 14px 16px;
+  border: 1px dashed rgba(var(--c-accent-rgb), 0.24);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.settings-lovense-add strong {
+  color: var(--c-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.settings-lovense-add p {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.settings-lovense-add .settings-feedback {
+  margin: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
