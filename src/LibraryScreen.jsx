@@ -15,6 +15,7 @@ import { BackIcon } from "./ScreenHeader.jsx";
 import { fillNames } from "./personalise.js";
 import { INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
 import { humanError } from "./networkError.js";
+import { cardToyBanner, toyAvailable, useLovenseToys } from "./lovense.jsx";
 
 
 /* =========================================================
@@ -369,15 +370,7 @@ export default function LibraryScreen({
     };
   }, [supabase]);
 
-    const [
-    lovenseConnected,
-    setLovenseConnected,
-  ] = useState(false);
-
-  const [
-    lovenseStatusLoading,
-    setLovenseStatusLoading,
-  ] = useState(true);
+  const lovense = useLovenseToys(supabase);
 
 
   /* =======================================================
@@ -407,124 +400,14 @@ export default function LibraryScreen({
     profile?.sex ||
     null;
 
-    /* =======================================================
-     LOVENSE STATUS
-     ======================================================= */
+  // bandeau Lovense : à qui sont le Lush et l'anneau
+  const lovenseNames = {
+    female:
+      mySex === "female" ? myName : partnerSex === "female" ? partnerName : null,
+    male:
+      mySex === "male" ? myName : partnerSex === "male" ? partnerName : null,
+  };
 
-  useEffect(() => {
-
-    let active = true;
-
-    const checkLovenseStatus =
-      async () => {
-
-        try {
-
-          setLovenseStatusLoading(
-            true
-          );
-
-          const {
-            data,
-            error:
-              functionError,
-          } =
-            await supabase
-              .functions
-              .invoke(
-                "lovense-status",
-                {
-                  body: {},
-                }
-              );
-
-          if (
-            functionError
-          ) {
-            throw functionError;
-          }
-
-          if (
-            !data?.success
-          ) {
-            throw new Error(
-              data?.error ||
-              "Impossible de vérifier Lovense."
-            );
-          }
-
-          if (
-            active
-          ) {
-            setLovenseConnected(
-              Boolean(
-                data.connected
-              )
-            );
-          }
-
-        } catch (err) {
-
-          console.error(
-            "LIBRARY LOVENSE STATUS ERROR:",
-            err
-          );
-
-          if (
-            active
-          ) {
-            setLovenseConnected(
-              false
-            );
-          }
-
-        } finally {
-
-          if (
-            active
-          ) {
-            setLovenseStatusLoading(
-              false
-            );
-          }
-
-        }
-
-      };
-
-    checkLovenseStatus();
-
-    const handleVisibilityChange =
-      () => {
-
-        if (
-          document.visibilityState ===
-          "visible"
-        ) {
-          checkLovenseStatus();
-        }
-
-      };
-
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibilityChange
-    );
-
-    return () => {
-
-      active = false;
-
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibilityChange
-      );
-
-    };
-
-  }, [
-    supabase,
-  ]);
 
   /* =======================================================
      LOAD CARDS
@@ -627,7 +510,7 @@ export default function LibraryScreen({
                 lovense_action:
                   null,
 
-                lovense_controls_profile:
+                lovense_toy:
                   null,
               })
             );
@@ -752,8 +635,11 @@ export default function LibraryScreen({
               card.lovense_mode ===
                 "required" &&
               (
-                lovenseStatusLoading ||
-                !lovenseConnected
+                lovense.loading ||
+                !toyAvailable(
+                  card.lovense_toy,
+                  lovense.has
+                )
               )
             ) {
               return false;
@@ -811,8 +697,8 @@ export default function LibraryScreen({
       selectedIntensities,
       selectedStyle,
       families,
-      lovenseConnected,
-      lovenseStatusLoading,
+      lovense.loading,
+      lovense.has,
     ]);
 
   /* =======================================================
@@ -1262,20 +1148,21 @@ export default function LibraryScreen({
 
 
                     {card.lovense_mode &&
-                      lovenseConnected && (
+                      toyAvailable(
+                        card.lovense_toy,
+                        lovense.has
+                      ) && (
 
                         <div className="library-card-lovense">
 
                           <span className="library-card-lovense-dot" />
 
                           <span>
-                            LUSH
-                            {card.lovense_pattern
-                              ? ` · ${card.lovense_pattern.replaceAll(
-                                  "_",
-                                  " "
-                                )}`
-                              : ""}
+                            {cardToyBanner(
+                              card.lovense_toy,
+                              lovense.has,
+                              lovenseNames
+                            )}
                           </span>
 
                         </div>

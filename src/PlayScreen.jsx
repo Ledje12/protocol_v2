@@ -14,6 +14,7 @@ import { FinalReveals, SecretMission } from "./Missions.jsx";
 import { GameRecapHighlights } from "./Recaps.jsx";
 import { deName, fillNames } from "./personalise.js";
 import { NETWORK_MESSAGE, humanError } from "./networkError.js";
+import { LovenseBanner, cardToyBanner, useLovenseToys } from "./lovense.jsx";
 
 /* =========================================================
    PLAY
@@ -85,6 +86,13 @@ export default function PlayScreen({
 
   const [activeRules, setActiveRules] =
     useState([]);
+
+  // jouets Lovense connectés : bandeau sur la carte et sur les règles
+  const lovense = useLovenseToys(
+    supabase,
+    Boolean(card?.lovense_mode) ||
+      activeRules.some((rule) => rule.lovense_toy)
+  );
 
   /* =========================================
      SHARED CARD TIMER
@@ -1726,6 +1734,22 @@ async function handleSceneRead() {
     game?.player_2_name ||
     "Joueur 2";
 
+  // à qui sont les jouets : le Lush à elle, le Diamo à lui
+  const lovenseNames = {
+    female:
+      game?.player_1_sex === "female"
+        ? player1Name
+        : game?.player_2_sex === "female"
+          ? player2Name
+          : null,
+    male:
+      game?.player_1_sex === "male"
+        ? player1Name
+        : game?.player_2_sex === "male"
+          ? player2Name
+          : null,
+  };
+
   const myName =
     playerNumber === 1
       ? player1Name
@@ -2745,6 +2769,16 @@ async function handleSceneRead() {
                     )}
                   </p>
 
+                  {rule.lovense_toy && (
+                    <LovenseBanner
+                      label={cardToyBanner(
+                        rule.lovense_toy,
+                        lovense.has,
+                        lovenseNames
+                      )}
+                    />
+                  )}
+
                 </div>
               ))}
 
@@ -2815,6 +2849,16 @@ async function handleSceneRead() {
         >
           {displayPrompt}
         </p>
+
+        {card.lovense_mode && (
+          <LovenseBanner
+            label={cardToyBanner(
+              card.lovense_toy,
+              lovense.has,
+              lovenseNames
+            )}
+          />
+        )}
 
 
         {timerInitialSeconds && (
