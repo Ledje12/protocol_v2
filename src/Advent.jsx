@@ -448,10 +448,16 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
           onClose={() => setOpen(null)}
           renderBody={(variant) => {
             const done = doneVariantOf(current) === variant.key;
+            // dernière ligne « Demain : … » : l'indice du lendemain
+            const [body, ...teaser] = String(variant.prompt || "").split(/\n+/);
 
             return (
               <>
-                <p className="advent-prompt">{variant.prompt}</p>
+                <p className="advent-prompt">{body}</p>
+
+                {teaser.length > 0 && (
+                  <p className="advent-teaser">{teaser.join(" ")}</p>
+                )}
 
                 <button
                   type="button"
