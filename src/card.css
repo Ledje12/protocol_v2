@@ -804,3 +804,161 @@
 .settings-lovense-steps li + li {
   margin-top: 6px;
 }
+
+/* =========================================================
+   Lovense : curseur et ambiances sous la carte
+   ========================================================= */
+
+.lovense-remote {
+  margin: 18px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+}
+
+.lovense-remote-kicker {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.lovense-toy {
+  padding: 14px 16px 16px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.24);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lovense-toy.is-live {
+  border-color: rgba(var(--c-accent-rgb), 0.6);
+  box-shadow: 0 0 24px rgba(var(--c-accent-rgb), 0.22);
+}
+
+.lovense-toy-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lovense-toy-head strong {
+  color: var(--c-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.lovense-toy-head span {
+  color: var(--c-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lovense-toy.is-live .lovense-toy-head span {
+  color: var(--c-accent);
+}
+
+/* le curseur : une piste qui se remplit, un bouton lumineux */
+.lovense-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.lovense-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--c-accent) 0%,
+    var(--c-accent) var(--level, 0%),
+    rgba(var(--c-accent-rgb), 0.16) var(--level, 0%)
+  );
+}
+
+.lovense-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(var(--c-accent-rgb), 0.16);
+}
+
+.lovense-slider::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--c-accent);
+}
+
+.lovense-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -10px;
+  border: 2px solid var(--c-text);
+  border-radius: 50%;
+  background: var(--c-accent);
+  box-shadow: 0 0 14px rgba(var(--c-accent-rgb), 0.7);
+}
+
+.lovense-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--c-text);
+  border-radius: 50%;
+  background: var(--c-accent);
+  box-shadow: 0 0 14px rgba(var(--c-accent-rgb), 0.7);
+}
+
+.lovense-slider:focus-visible {
+  outline: none;
+}
+
+.lovense-slider:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--c-text);
+  outline-offset: 3px;
+}
+
+.lovense-ambiances {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.lovense-ambiances button {
+  flex: 1;
+  min-height: 38px;
+  padding: 0 8px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.28);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-text-soft, var(--c-text));
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.lovense-ambiances button.is-on {
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.2);
+  color: var(--c-text);
+}
+
+.lovense-toy-error {
+  margin: 10px 0 0;
+  color: var(--c-muted);
+  font-size: 12px;
+}

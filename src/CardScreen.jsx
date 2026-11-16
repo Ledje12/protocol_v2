@@ -12,7 +12,7 @@ import CardPhotos from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 import { INTENSITY_LEVELS, levelForIntensity, levelRank } from "./gameConstants.js";
 import { humanError } from "./networkError.js";
-import { LovenseBanner, cardToyBanner, toyAvailable, useLovenseToys } from "./lovense.jsx";
+import { LovenseRemote, toyAvailable, useLovenseToys } from "./lovense.jsx";
 
 
 function getTypeLabel(
@@ -1598,17 +1598,16 @@ export default function CardScreen({
           )}
 
 
-        {/* Lovense : quel jouet sert à cette carte (piloté depuis Lovense Remote) */}
+        {/* Lovense : un curseur par jouet de la carte, s'il est connecté */}
         {card.lovense_mode && (
-          <LovenseBanner
-            label={cardToyBanner(
-              card.lovense_toy,
-              lovense.has,
-              {
-                female: [activePerson, senderPerson].find((person) => person?.sex === "female")?.display_name,
-                male: [activePerson, senderPerson].find((person) => person?.sex === "male")?.display_name,
-              }
-            )}
+          <LovenseRemote
+            supabase={supabase}
+            toys={lovense.toys}
+            cardToy={card.lovense_toy ?? null}
+            names={{
+              female: [activePerson, senderPerson].find((person) => person?.sex === "female")?.display_name,
+              male: [activePerson, senderPerson].find((person) => person?.sex === "male")?.display_name,
+            }}
           />
         )}
 
