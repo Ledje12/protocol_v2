@@ -14,6 +14,7 @@ import { FinalReveals, SecretMission } from "./Missions.jsx";
 import { GameRecapHighlights } from "./Recaps.jsx";
 import { deName, fillNames } from "./personalise.js";
 import { NETWORK_MESSAGE, humanError } from "./networkError.js";
+import CardChoice from "./CardChoice.jsx";
 import { LovenseBanner, LovenseRemote, cardToyBanner, mergeCardToys, useLovenseToys } from "./lovense.jsx";
 
 /* =========================================================
@@ -2849,6 +2850,15 @@ async function handleSceneRead() {
         >
           {displayPrompt}
         </p>
+
+        {/* dilemme : deux boutons, le choix s'affiche chez l'autre */}
+        <CardChoice
+          supabase={supabase}
+          code={code}
+          cardId={card.card_source === "custom" ? null : card.id}
+          turnNo={game.turn_no}
+          names={{ 1: game.player_1_name, 2: game.player_2_name }}
+        />
 
         {/* curseurs Lovense : jouets de la carte et des règles en cours.
             En pause (STOP), le panneau disparaît : plus rien ne peut
