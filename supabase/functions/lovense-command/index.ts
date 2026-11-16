@@ -12,11 +12,25 @@ function json(body, status = 200) {
     }
   });
 }
-/* Protocol ne pilote plus les jouets en jeu (Lovense Remote s'en
-   charge). Il reste deux commandes :
-   - test : 2 s à intensité 5 sur UN jouet (le bon téléphone, le bon
-     jouet), pour savoir lequel est lequel dans les réglages ;
-   - stop : coupe tous les jouets du couple (STOP de la partie). */
+/* Commandes Lovense du couple (Lovense Remote fait le pont Bluetooth) :
+   - test : 2 s à intensité 5 sur UN jouet, pour le reconnaître ;
+   - vibrate : intensité 0 à 20 sur UN jouet (curseur des cartes),
+     0 l'arrête ; coupure automatique si l'app ne renouvelle pas ;
+   - ambiance : vague, pulsation ou crescendo sur UN jouet ;
+   - stop : coupe tous les jouets du couple (STOP de la partie).
+   Toujours un jouet du couple, retrouvé sur le bon téléphone. */
+// sécurité : une commande non renouvelée s'arrête seule
+const HOLD_SECONDS = 30;
+const AMBIANCES = {
+  wave: { command: "Preset", name: "wave", apiVer: 1 },
+  pulse: { command: "Preset", name: "pulse", apiVer: 1 },
+  crescendo: {
+    command: "Pattern",
+    rule: "V:1;F:v;S:800#",
+    strength: "2;4;6;8;10;12;14;16;18;20;20;20",
+    apiVer: 2
+  }
+};
 const LOVENSE_COMMAND_URL = "https://api.lovense-api.com/api/lan/v2/command";
 const isOnline = (toy)=>toy?.connected === true || String(toy?.status ?? "") === "1" || toy?.status === true;
 const toysOf = (connection)=>Array.isArray(connection?.toys) ? connection.toys : connection?.toys && typeof connection.toys === "object" ? Object.values(connection.toys) : [];
@@ -133,7 +147,9 @@ Deno.serve(async (req)=>{
     const action = String(body?.action || "").trim().toLowerCase();
     if (![
       "stop",
-      "test"
+      "test",
+      "vibrate",
+      "ambiance"
     ].includes(action)) {
       return json({
         success: false,
@@ -170,8 +186,14 @@ Deno.serve(async (req)=>{
       });
     }
     /* =====================================================
-       TEST : un seul jouet, valeurs fixes côté serveur
+       UN SEUL JOUET : test, vibrate, ambiance
        ===================================================== */ const toyId = String(body?.toy_id || "").trim();
+    if (action !== "test" && !toyId) {
+      return json({
+        success: false,
+        error: "Jouet manquant."
+      }, 400);
+    }
     let connection = usable[0];
     if (toyId) {
       connection = usable.find((candidate)=>toysOf(candidate).some((toy)=>String(toy?.id) === toyId && isOnline(toy)));
@@ -182,17 +204,55 @@ Deno.serve(async (req)=>{
         }, 404);
       }
     }
+    let command;
+    if (action === "vibrate") {
+      const level = Math.round(Number(body?.level));
+      if (!Number.isFinite(level) || level < 0 || level > 20) {
+        return json({
+          success: false,
+          error: "Intensité invalide."
+        }, 400);
+      }
+      command = level === 0 ? {
+        command: "Function",
+        action: "Stop",
+        timeSec: 0,
+        apiVer: 1
+      } : {
+        command: "Function",
+        action: `Vibrate:${level}`,
+        timeSec: HOLD_SECONDS,
+        stopPrevious: 1,
+        apiVer: 1
+      };
+    } else if (action === "ambiance") {
+      const ambiance = AMBIANCES[String(body?.name || "")];
+      if (!ambiance) {
+        return json({
+          success: false,
+          error: "Ambiance inconnue."
+        }, 400);
+      }
+      command = {
+        ...ambiance,
+        timeSec: HOLD_SECONDS
+      };
+    } else {
+      command = {
+        command: "Function",
+        action: "Vibrate:5",
+        timeSec: 2,
+        stopPrevious: 1,
+        apiVer: 1
+      };
+    }
     const failure = await sendCommand({
       token: developerToken,
       uid: connection.lovense_uid,
       ...toyId ? {
         toy: toyId
       } : {},
-      command: "Function",
-      action: "Vibrate:5",
-      timeSec: 2,
-      stopPrevious: 1,
-      apiVer: 1
+      ...command
     });
     if (failure) {
       return json({
@@ -202,9 +262,7 @@ Deno.serve(async (req)=>{
     }
     return json({
       success: true,
-      action,
-      intensity: 5,
-      duration: 2
+      action
     });
   } catch (error) {
     console.error("LOVENSE COMMAND ERROR:", error);

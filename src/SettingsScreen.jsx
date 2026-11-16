@@ -2895,10 +2895,11 @@ export default function SettingsScreen({
 
 
                 <p className="settings-card-copy">
-                  Pendant les cartes, pilotez les jouets depuis
-                  Lovense Remote : intensité, rythme, à distance
-                  ou sur le même téléphone. PROTOCOL vérifie
-                  seulement qu’ils sont là.
+                  Pendant les cartes, un curseur et trois ambiances
+                  apparaissent sous la carte pour chaque jouet, sur
+                  vos deux téléphones. Laissez Lovense Remote ouvert
+                  sur le téléphone qui tient les jouets : c’est lui
+                  qui leur transmet les commandes.
                 </p>
 
 

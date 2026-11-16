@@ -14,7 +14,7 @@ import { FinalReveals, SecretMission } from "./Missions.jsx";
 import { GameRecapHighlights } from "./Recaps.jsx";
 import { deName, fillNames } from "./personalise.js";
 import { NETWORK_MESSAGE, humanError } from "./networkError.js";
-import { LovenseBanner, cardToyBanner, useLovenseToys } from "./lovense.jsx";
+import { LovenseBanner, LovenseRemote, cardToyBanner, mergeCardToys, useLovenseToys } from "./lovense.jsx";
 
 /* =========================================================
    PLAY
@@ -2850,15 +2850,19 @@ async function handleSceneRead() {
           {displayPrompt}
         </p>
 
-        {card.lovense_mode && (
-          <LovenseBanner
-            label={cardToyBanner(
-              card.lovense_toy,
-              lovense.has,
-              lovenseNames
-            )}
-          />
-        )}
+        {/* curseurs Lovense : jouets de la carte et des règles en cours */}
+        <LovenseRemote
+          key={card.id}
+          supabase={supabase}
+          toys={lovense.toys}
+          cardToy={mergeCardToys([
+            card.lovense_mode ? card.lovense_toy ?? null : undefined,
+            ...activeRules
+              .filter((rule) => rule.lovense_toy)
+              .map((rule) => rule.lovense_toy),
+          ])}
+          names={lovenseNames}
+        />
 
 
         {timerInitialSeconds && (
