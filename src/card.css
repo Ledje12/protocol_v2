@@ -792,3 +792,15 @@
     animation: none;
   }
 }
+
+.settings-lovense-steps {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  color: var(--c-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.settings-lovense-steps li + li {
+  margin-top: 6px;
+}

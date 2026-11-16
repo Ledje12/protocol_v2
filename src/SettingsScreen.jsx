@@ -169,6 +169,13 @@ export default function SettingsScreen({
   ] =
     useState("");
 
+  // le QR ne sert que si PROTOCOL tourne sur un ordinateur
+  const canUseLovenseQr =
+    !window.matchMedia?.("(pointer: coarse)")?.matches;
+
+  // recherche en cours au retour depuis Lovense Remote
+  const lovenseReturnBusyRef = useRef(false);
+
   const lovenseSdkRef =
     useRef(null);
   
@@ -1708,35 +1715,53 @@ export default function SettingsScreen({
         }
 
 
-        /*
-        * On laisse quelques centaines
-        * de ms au SDK pour restaurer
-        * sa connexion après le retour
-        * depuis Lovense Remote.
-        */
-
-        await new Promise(
-          (
-            resolve
-          ) =>
-            window.setTimeout(
-              resolve,
-              450
-            )
-        );
-
-
-        if (
-          lovenseSdkRef.current
-        ) {
-
-          await syncLovenseSdkState(
-            lovenseSdkRef.current
-          );
+        // une seule recherche à la fois
+        if (lovenseReturnBusyRef.current) {
+          return;
         }
 
+        const sdk = lovenseSdkRef.current;
 
-        await checkLovenseStatus();
+        if (!sdk) {
+          await checkLovenseStatus();
+          return;
+        }
+
+        /*
+        * Retour depuis Lovense Remote : le SDK met
+        * quelques secondes à retrouver l'app. On
+        * réessaie au lieu de demander à l'utilisateur
+        * de recommencer.
+        */
+        lovenseReturnBusyRef.current = true;
+        setLovenseSdkError("");
+        setLovenseMessage("Recherche de Lovense Remote…");
+
+        try {
+          let connected = false;
+
+          for (let attempt = 0; attempt < 8 && !connected; attempt += 1) {
+            await new Promise((resolve) =>
+              window.setTimeout(resolve, attempt === 0 ? 600 : 1500)
+            );
+
+            if (document.visibilityState !== "visible") {
+              break;
+            }
+
+            connected = await syncLovenseSdkState(lovenseSdkRef.current || sdk);
+          }
+
+          await checkLovenseStatus();
+
+          setLovenseMessage(
+            connected
+              ? "Jouets à jour."
+              : "Lovense Remote ne répond pas. Vérifie qu’il est ouvert, avec les jouets connectés, puis touche à nouveau « Relier Lovense Remote »."
+          );
+        } finally {
+          lovenseReturnBusyRef.current = false;
+        }
       };
 
 
@@ -2843,10 +2868,10 @@ export default function SettingsScreen({
                     </strong>
 
                     <p>
-                      Sur ce téléphone : allume le jouet, connecte-le dans
-                      Lovense Remote, puis mets à jour. Sur l’autre
-                      téléphone : ouvre ces réglages là-bas et connecte
-                      Lovense Remote.
+                      Allume-le, connecte-le dans Lovense Remote et laisse
+                      l’app ouverte, puis reviens ici et mets à jour. Peu
+                      importe le téléphone : chaque jouet reste celui de
+                      la personne qui le porte.
                     </p>
 
                     <button
@@ -2916,9 +2941,22 @@ export default function SettingsScreen({
 
                 <p className="settings-card-copy">
                   {lovenseConnected
-                    ? `Le ${missingToy} est sur ce téléphone ? Connecte Lovense Remote d’ici : il s’ajoutera à la liste.`
-                    : "Connecte Lovense Remote à PROTOCOL pour que le jeu sache quels jouets sont là : le Lush, le Diamo, ou les deux."}
+                    ? `Le ${missingToy} est sur ce téléphone ? Relie-le d’ici : il s’ajoutera à la liste.`
+                    : "Relie Lovense Remote à PROTOCOL pour que le jeu sache quels jouets sont là : le Lush, le Diamo, ou les deux. Un seul téléphone peut relier les deux jouets."}
                 </p>
+
+                <ol className="settings-lovense-steps">
+                  <li>
+                    Ouvre Lovense Remote et connecte{" "}
+                    {lovenseConnected ? `le ${missingToy}` : "les jouets"}.
+                    Laisse l’app ouverte.
+                  </li>
+                  <li>Reviens ici et touche « Relier Lovense Remote ».</li>
+                  <li>
+                    Si Lovense Remote te le demande, autorise PROTOCOL et
+                    reviens ici : la vérification se fait toute seule.
+                  </li>
+                </ol>
 
 
                 {!lovenseQr && (
@@ -2936,8 +2974,8 @@ export default function SettingsScreen({
 
                       <span>
                         {lovenseOpening
-                          ? "Ouverture…"
-                          : "Ouvrir Lovense Remote"}
+                          ? "Connexion…"
+                          : "Relier Lovense Remote"}
                       </span>
 
                       <span className="settings-action-arrow">
@@ -2954,6 +2992,7 @@ export default function SettingsScreen({
                     )}
 
 
+                    {canUseLovenseQr && (
                     <button
                       type="button"
                       className="settings-text-action"
@@ -2965,8 +3004,9 @@ export default function SettingsScreen({
                     >
                       {lovenseLoading
                         ? "Préparation du QR…"
-                        : "Utiliser le QR"}
+                        : "Sur un ordinateur ? Utiliser le QR"}
                     </button>
+                    )}
 
                   </>
 
