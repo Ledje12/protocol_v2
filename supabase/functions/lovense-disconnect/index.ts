@@ -84,10 +84,12 @@ Deno.serve(async (req)=>{
     /* =============================================
         HARD DISCONNECT
 
-        Supprime l'association serveur.
+        Supprime l'association serveur de CE compte :
+        les jouets reliés depuis le téléphone de
+        l'autre restent connectés.
         Un ancien callback Lovense ne peut donc
         plus réactiver cette connexion.
-        ============================================= */ const { error: deleteError } = await admin.from("protocol_lovense_connections").delete().eq("couple_id", membership.couple_id);
+        ============================================= */ const { error: deleteError } = await admin.from("protocol_lovense_connections").delete().eq("couple_id", membership.couple_id).eq("user_id", user.id);
     if (deleteError) {
       throw deleteError;
     }

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 
 import { useAdvent } from "./AdventTile.jsx";
 import { humanError } from "./networkError.js";
+import { LovenseRemote, useLovenseToys } from "./lovense.jsx";
 import { fillNames } from "./personalise.js";
 import { BackIcon } from "./ScreenHeader.jsx";
 
@@ -234,21 +235,38 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
           label: "Douce",
           title: personalise(current.soft_title || current.title, current.day),
           prompt: personalise(current.soft_prompt, current.day),
+          toy: current.soft_lovense_toy,
         },
         {
           key: "bold",
           label: "Osée",
           title: personalise(current.title, current.day),
           prompt: personalise(current.prompt, current.day),
+          toy: current.lovense_toy,
         },
         current.black_prompt && {
           key: "black",
           label: "Noire",
           title: personalise(current.black_title || current.title, current.day),
           prompt: personalise(current.black_prompt, current.day),
+          toy: current.black_lovense_toy,
         },
       ].filter(Boolean)
     : [];
+
+  // jouets Lovense : seulement si une version de la case en demande un
+  const lovense = useLovenseToys(
+    supabase,
+    variants.some((variant) => variant.toy)
+  );
+  const realNames = [
+    { sex: profile?.sex, name: profile?.display_name },
+    { sex: partner?.sex, name: partner?.display_name },
+  ];
+  const lovenseNames = {
+    female: realNames.find((person) => person.sex === "female")?.name,
+    male: realNames.find((person) => person.sex === "male")?.name,
+  };
 
   const scratchKey = current ? `${advent.year}-${current.day}` : "";
   const isScratched = advent?.preview
@@ -455,6 +473,17 @@ export default function AdventScreen({ supabase, profile, couple, onBack }) {
               <>
                 <p className="advent-prompt">{body}</p>
 
+                {/* mêmes curseurs que sous les cartes, si le jouet est là */}
+                {variant.toy && (
+                  <LovenseRemote
+                    key={variant.key}
+                    supabase={supabase}
+                    toys={lovense.toys}
+                    cardToy={variant.toy}
+                    names={lovenseNames}
+                  />
+                )}
+
                 {teaser.length > 0 && (
                   <p className="advent-teaser">{teaser.join(" ")}</p>
                 )}
@@ -634,7 +663,7 @@ function AdventReveal({
   };
 
   const onPointerDown = (event) => {
-    if (!settled || count < 2 || stage !== "text" || event.target.closest("button")) {
+    if (!settled || count < 2 || stage !== "text" || event.target.closest("button, .lovense-remote")) {
       return;
     }
 

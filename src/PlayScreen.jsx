@@ -2850,11 +2850,13 @@ async function handleSceneRead() {
           {displayPrompt}
         </p>
 
-        {/* curseurs Lovense : jouets de la carte et des règles en cours */}
+        {/* curseurs Lovense : jouets de la carte et des règles en cours.
+            En pause (STOP), le panneau disparaît : plus rien ne peut
+            relancer un jouet tant que la partie n'a pas repris. */}
         <LovenseRemote
           key={card.id}
           supabase={supabase}
-          toys={lovense.toys}
+          toys={game.status === "paused" ? [] : lovense.toys}
           cardToy={mergeCardToys([
             card.lovense_mode ? card.lovense_toy ?? null : undefined,
             ...activeRules

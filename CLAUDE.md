@@ -22,4 +22,6 @@ personnelles dans le dépôt (seeds synthétiques uniquement).
 
 ## Tests
 
-`cd tests && npm test` (unitaires + base locale, `TEST_DATABASE_URL`).
+`cd tests && npm test` (unitaires + base locale, `TEST_DATABASE_URL`, puis
+fonctions edge Lovense rejouées sous Node avec un faux Supabase et un faux
+Lovense : `npm run test:edge`).

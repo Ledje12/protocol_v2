@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 import { after, before, test } from "node:test";
 
-import { createCouple, pool, sql } from "./helpers.mjs";
+import { asUser, createCouple, pool, sql } from "./helpers.mjs";
 
 const cards = {};
 
@@ -146,5 +146,54 @@ test("une carte Lovense ne peut plus être « optional »", async () => {
                'test_lovense_optional', 'optional', 'lush')`
     ),
     /protocol_cards_lovense_mode_check/
+  );
+});
+
+test("jouet au tiroir : un état de plus de 24 h ne fait plus sortir les cartes", async () => {
+  const couple = await createCouple();
+  await connect(couple, couple.a, sdkToys("Lush", "Diamo"));
+
+  assert.equal((await allowed(couple)).both, true);
+
+  await sql(
+    `update public.protocol_lovense_connections
+        set updated_at = now() - interval '25 hours'
+      where couple_id = $1`,
+    [couple.coupleId]
+  );
+
+  assert.deepEqual(await allowed(couple), {
+    lush: false, ring: false, both: false, any: false, plain: true,
+  });
+});
+
+test("état partagé des jouets : lisible par le couple seulement, jamais modifiable depuis l'app", async () => {
+  const couple = await createCouple();
+  const strangers = await createCouple();
+
+  await sql(
+    `insert into public.protocol_lovense_toy_state (couple_id, toy_id, level, updated_by)
+     values ($1, 'toy-1', 12, $2)`,
+    [couple.coupleId, couple.a.id]
+  );
+
+  const read = (user) =>
+    asUser(user, "select toy_id, level from public.protocol_lovense_toy_state");
+
+  assert.deepEqual((await read(couple.a)).rows, [{ toy_id: "toy-1", level: 12 }]);
+  assert.deepEqual((await read(couple.b)).rows, [{ toy_id: "toy-1", level: 12 }]);
+  assert.deepEqual((await read(strangers.a)).rows, []);
+
+  await assert.rejects(
+    asUser(couple.a, "update public.protocol_lovense_toy_state set level = 20"),
+    /permission denied/
+  );
+  await assert.rejects(
+    asUser(
+      couple.a,
+      "insert into public.protocol_lovense_toy_state (couple_id, toy_id) values ($1, 'x')",
+      [couple.coupleId]
+    ),
+    /permission denied/
   );
 });
