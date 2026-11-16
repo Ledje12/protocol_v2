@@ -1394,3 +1394,14 @@ body,
   font-size: 13px;
   cursor: pointer;
 }
+
+
+/* une conversation existe : la place va aux messages, plus au titre */
+.messages-intro.is-compact {
+  margin-bottom: 10px;
+}
+
+.messages-intro.is-compact h1,
+.messages-intro.is-compact .messages-intro-text {
+  display: none;
+}

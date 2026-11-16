@@ -372,6 +372,11 @@ export default function LibraryScreen({
 
   const lovense = useLovenseToys(supabase);
 
+  // filtres repliés par défaut : les cartes d'abord
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const activeFilterCount =
+    (selectedStyle ? 1 : 0) + selectedTypes.length + selectedIntensities.length;
+
 
   /* =======================================================
     RECIPIENT
@@ -880,6 +885,18 @@ export default function LibraryScreen({
           </label>
 
 
+          <button
+            type="button"
+            className={filtersOpen ? "library-filters-toggle is-open" : "library-filters-toggle"}
+            aria-expanded={filtersOpen}
+            onClick={() => setFiltersOpen((open) => !open)}
+          >
+            Filtres
+            {activeFilterCount > 0 && <span>{activeFilterCount}</span>}
+          </button>
+
+          {filtersOpen && (
+          <>
           {families && (
             <FilterRow
               label="STYLE"
@@ -907,6 +924,8 @@ export default function LibraryScreen({
             selected={selectedIntensities}
             onChange={setSelectedIntensities}
           />
+          </>
+          )}
 
 
 
