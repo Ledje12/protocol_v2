@@ -829,25 +829,23 @@
   text-transform: uppercase;
 }
 
+/* un jouet : une ligne (nom, état), le curseur ; pas de cadre dans
+   le cadre de la carte, un simple filet entre deux jouets */
 .lovense-toy {
-  padding: 14px 16px 16px;
-  border: 1px solid rgba(var(--c-accent-rgb), 0.24);
-  border-radius: 18px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 4px 0 2px;
 }
 
-.lovense-toy.is-live {
-  border-color: rgba(var(--c-accent-rgb), 0.6);
-  box-shadow: 0 0 24px rgba(var(--c-accent-rgb), 0.22);
+.lovense-toy + .lovense-toy {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-line);
 }
 
 .lovense-toy-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 4px;
 }
 
 .lovense-toy-head strong {
@@ -856,14 +854,39 @@
   font-weight: 600;
 }
 
-.lovense-toy-head span {
+.lovense-toy-status {
+  flex: 1;
   color: var(--c-muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+  transition: color var(--dur-base) ease;
 }
 
-.lovense-toy.is-live .lovense-toy-head span {
+.lovense-toy.is-live .lovense-toy-status {
   color: var(--c-accent);
+}
+
+.lovense-toy-more {
+  min-height: 32px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--c-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--c-line-strong);
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.lovense-toy-more[aria-expanded="true"] {
+  color: var(--c-text);
+}
+
+.lovense-toy-more:disabled {
+  cursor: default;
 }
 
 /* le curseur : une piste qui se remplit, un bouton lumineux */
@@ -933,14 +956,14 @@
 .lovense-ambiances {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
+  margin: 6px 0 8px;
 }
 
 .lovense-ambiances button {
   flex: 1;
   min-height: 38px;
   padding: 0 8px;
-  border: 1px solid rgba(var(--c-accent-rgb), 0.28);
+  border: 1px solid var(--c-line-strong);
   border-radius: 999px;
   background: transparent;
   color: var(--c-text-soft, var(--c-text));

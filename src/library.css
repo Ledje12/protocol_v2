@@ -1472,3 +1472,46 @@ span.is-active {
   font-size: var(--fs-label);
   letter-spacing: 0.06em;
 }
+
+
+/* =========================================================
+   FILTRES REPLIÉS : les cartes d'abord, les filtres au toucher
+   ========================================================= */
+
+.library-filters-toggle {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--c-muted);
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-decoration-color: var(--c-line-strong);
+  text-underline-offset: 5px;
+  cursor: pointer;
+}
+
+.library-filters-toggle.is-open {
+  color: var(--c-text);
+}
+
+.library-filters-toggle span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+}

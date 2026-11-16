@@ -693,7 +693,13 @@ export default function MessagesScreen({
       </header>
 
       <section className="messages-content">
-        <div className="messages-intro">
+        <div
+          className={
+            messages.length > 0
+              ? "messages-intro is-compact"
+              : "messages-intro"
+          }
+        >
           <p className="messages-kicker">
             MESSAGES
           </p>

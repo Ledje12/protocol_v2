@@ -1,0 +1,94 @@
+/* =========================================================
+   PROTOCOL — FINITIONS (passe 3)
+   Matière et retenue : un grain léger et une lueur chaude sur
+   tous les écrans, le champagne pour les détails, le néon gardé
+   pour l'action, et le texte des cartes en sérif.
+   Chargée après les autres feuilles ; les sélecteurs commencent
+   par « body » pour passer devant sans !important.
+   ========================================================= */
+
+:root {
+  /* détails décoratifs (icônes de navigation, filets) : champagne */
+  --c-detail: #e3c08f;
+  --c-detail-rgb: 227, 192, 143;
+}
+
+/* ---------- Matière : lueur de bougie en haut de l'écran ----------
+   Derrière tout le contenu (z-index négatif), sans toucher à la
+   mise en page des écrans. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 34% at 50% -6%, rgba(var(--c-detail-rgb), 0.07), transparent 70%),
+    radial-gradient(60% 40% at 100% 100%, rgba(var(--c-accent-deep-rgb), 0.1), transparent 70%);
+}
+
+/* ---------- Matière : grain argentique, à peine visible ---------- */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* ---------- Accueil : le néon reste au bouton principal ----------
+   Navigation et signes : filet neutre, icônes champagne. */
+body .protocol-home-nav button,
+body .protocol-home-signal-grid button {
+  border-color: var(--c-line-strong);
+}
+
+body .protocol-home-nav button svg,
+body .protocol-home-nav-icon,
+body .protocol-home-icon-pink {
+  color: var(--c-detail);
+}
+
+/* ---------- Le texte de la carte : sérif, plus théâtral ----------
+   Bodoni Moda à axe optique : les déliés tiennent à cette taille. */
+body .game-card .card-prompt,
+body .card-page .card-prompt,
+body .advent-prompt {
+  font-family: var(--font-serif);
+  font-optical-sizing: auto;
+  font-weight: 400;
+  letter-spacing: 0.005em !important;
+  color: var(--c-text);
+}
+
+body .game-card .card-prompt {
+  font-size: 21px !important;
+  line-height: 1.42 !important;
+}
+
+body .game-card .card-prompt-short {
+  font-size: 24px !important;
+}
+
+body .game-card .card-prompt-long {
+  font-size: 19px !important;
+}
+
+body .card-page .card-prompt {
+  font-size: 21px;
+  line-height: 1.45;
+}
+
+body .advent-prompt {
+  font-size: 19.5px;
+  line-height: 1.5;
+}
+
+/* ---------- Calendrier : les curseurs Lovense sous le défi ---------- */
+body .advent-reveal-face .lovense-remote {
+  margin: 0 0 22px;
+}

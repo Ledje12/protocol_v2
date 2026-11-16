@@ -9,6 +9,7 @@ import "./invitations.css";
 import "./messages.css";
 import "./recaps.css";
 import "./advent.css";
+import "./finish.css"; // passe 3 : matière, champagne, sérif des cartes
 import AuthScreen from "./AuthScreen.jsx";
 import BrandMark from "./BrandMark.jsx";
 import HomeScreen from "./HomeScreen.jsx";

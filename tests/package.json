@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test --test-concurrency=1 \"db/*.test.mjs\" \"unit/*.test.mjs\""
+    "test": "node --test --test-concurrency=1 \"db/*.test.mjs\" \"unit/*.test.mjs\" && npm run test:edge",
+    "test:edge": "node --import ./edge/loader.mjs --test \"edge/*.test.mjs\""
   },
   "devDependencies": {
     "pg": "^8.16.0"

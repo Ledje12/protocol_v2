@@ -183,3 +183,27 @@ test("case 0 : l'invitation s'ouvre avant le 1er décembre", async () => {
 
   await sql("delete from public.protocol_advent_days where day = 0");
 });
+
+test("jouet Lovense d'une case : envoyé seulement une fois la case ouverte", async () => {
+  await setToday(3);
+  const { a } = await createCouple();
+
+  await sql(`update public.protocol_advent_days
+                set lovense_toy = 'ring', black_lovense_toy = 'both'
+              where day = 3`);
+  await sql("update public.protocol_advent_days set lovense_toy = 'lush' where day = 9");
+
+  const { days } = await rpc(a, "get_protocol_advent");
+  const day = (n) => days.find((d) => d.day === n);
+
+  assert.equal(day(3).lovense_toy, "ring");
+  assert.equal(day(3).black_lovense_toy, "both");
+  assert.equal(day(3).soft_lovense_toy, null);
+  assert.equal(day(2).lovense_toy, null);
+  assert.equal("lovense_toy" in day(9), false, "case scellée : pas d'indice sur le jouet");
+
+  await rejects(
+    sql("update public.protocol_advent_days set lovense_toy = 'autre' where day = 1"),
+    /protocol_advent_days_lovense_toy_check/
+  );
+});

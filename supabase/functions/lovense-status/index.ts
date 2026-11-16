@@ -109,6 +109,13 @@ Deno.serve(async (req)=>{
       return "other";
     };
     const isOnline = (toy)=>toy?.connected === true || String(toy?.status ?? "") === "1" || toy?.status === true;
+    // un état qui n'a pas bougé depuis 24 h n'est plus cru (jouet au
+    // tiroir) : même règle que protocol_lovense_has_toy
+    const isFresh = (connection)=>{
+      const at = Date.parse(connection?.updated_at || connection?.connected_at || "");
+      return Number.isFinite(at) && Date.now() - at < 24 * 3600 * 1000;
+    };
+    let stale = false;
     const seen = new Set();
     const toys = [];
     for (const connection of connections || []){
@@ -116,6 +123,10 @@ Deno.serve(async (req)=>{
         continue;
       }
       const rawToys = Array.isArray(connection?.toys) ? connection.toys : connection?.toys && typeof connection.toys === "object" ? Object.values(connection.toys) : [];
+      if (!isFresh(connection)) {
+        stale = stale || rawToys.some(isOnline);
+        continue;
+      }
       for (const toy of rawToys){
         const id = toy?.id ? String(toy.id) : null;
         if (!id || seen.has(id) || !isOnline(toy)) {
@@ -139,6 +150,8 @@ Deno.serve(async (req)=>{
        ===================================================== */ return json({
       success: true,
       connected: toys.length > 0,
+      // des jouets étaient reliés, mais l'état est trop vieux
+      stale: toys.length === 0 && stale,
       toys,
       has: {
         lush: toys.some((toy)=>toy.type === "lush"),

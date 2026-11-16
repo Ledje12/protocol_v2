@@ -107,9 +107,21 @@ Deno.serve(async (req)=>{
               lovense_uid
             `).single();
       if (createError) {
-        throw createError;
+        // deux appels en même temps : l'autre vient de créer la ligne
+        if (createError.code !== "23505") {
+          throw createError;
+        }
+        const { data: raced, error: racedError } = await admin.from("protocol_lovense_connections").select(`
+              id,
+              lovense_uid
+            `).eq("user_id", user.id).eq("couple_id", membership.couple_id).maybeSingle();
+        if (racedError) {
+          throw racedError;
+        }
+        connection = raced;
+      } else {
+        connection = createdConnection;
       }
-      connection = createdConnection;
     }
     if (!connection?.lovense_uid) {
       throw new Error("Identifiant Lovense indisponible.");

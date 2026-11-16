@@ -10,6 +10,7 @@ import { getSavedAlbumKey } from "./photoAlbum.js";
 import { AlbumKeySheet } from "./PhotoAlbum.jsx";
 import { supabase } from "./supabaseClient.js";
 import { deName } from "./personalise.js";
+import { loadLovenseSdk } from "./lovenseSdk.js";
 
 // type d'un jouet, même si le serveur ne l'a pas donné
 const toyKind = (toy) => {
@@ -144,6 +145,10 @@ export default function SettingsScreen({
 
   const [lovenseTestMessage, setLovenseTestMessage] =
     useState("");
+
+  // jouets reliés, mais pas vus depuis plus de 24 h
+  const [lovenseStale, setLovenseStale] =
+    useState(false);
 
   const [lovenseConnected, setLovenseConnected] =
     useState(false);
@@ -1177,17 +1182,6 @@ export default function SettingsScreen({
               : {};
 
 
-          console.log(
-            "LOVENSE SDK STATE:",
-            {
-              appStatus,
-              toyCount:
-                onlineToys.length,
-
-              deviceInfo,
-            }
-          );
-
 
           const {
             data,
@@ -1273,13 +1267,8 @@ export default function SettingsScreen({
           );
 
 
-          if (
-            !window.LovenseBasicSdk
-          ) {
-            throw new Error(
-              "Le SDK Lovense n’est pas chargé."
-            );
-          }
+          // script tiers : chargé ici seulement, à la demande
+          await loadLovenseSdk();
 
 
           /*
@@ -1339,7 +1328,7 @@ export default function SettingsScreen({
                 * pas Lovense Connect.
                 */
                 debug:
-                  true,
+                  false,
               });
 
 
@@ -1683,6 +1672,10 @@ export default function SettingsScreen({
             : []
         );
 
+        setLovenseStale(
+          Boolean(data?.stale)
+        );
+
       } catch (err) {
         console.error(
           "LOVENSE STATUS ERROR:",
@@ -1855,7 +1848,7 @@ export default function SettingsScreen({
 
       const confirmed =
         window.confirm(
-          "Déconnecter le jouet Lovense de PROTOCOL ?"
+          "Déconnecter de PROTOCOL les jouets reliés depuis ce téléphone ?"
         );
 
       if (
@@ -1961,8 +1954,11 @@ export default function SettingsScreen({
 
 
         setLovenseDisconnectMessage(
-          "Le jouet a été déconnecté de PROTOCOL."
+          "Ce téléphone n’est plus relié à Lovense."
         );
+
+        // les jouets reliés depuis l'autre téléphone restent là
+        await checkLovenseStatus();
 
 
       } catch (
@@ -2943,6 +2939,8 @@ export default function SettingsScreen({
                 <p className="settings-card-copy">
                   {lovenseConnected
                     ? `Le ${missingToy} est sur ce téléphone ? Relie-le d’ici : il s’ajoutera à la liste.`
+                    : lovenseStale
+                      ? "Vos jouets n’ont plus donné signe de vie depuis hier : le jeu les laisse de côté. Relie Lovense Remote à nouveau, c’est l’affaire d’un instant."
                     : "Relie Lovense Remote à PROTOCOL pour que le jeu sache quels jouets sont là : le Lush, le Diamo, ou les deux. Un seul téléphone peut relier les deux jouets."}
                 </p>
 

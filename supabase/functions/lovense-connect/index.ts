@@ -18,6 +18,12 @@ Deno.serve(async (req)=>{
       headers: corsHeaders
     });
   }
+  if (req.method !== "POST") {
+    return json({
+      success: false,
+      error: "Méthode non autorisée."
+    }, 405);
+  }
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -75,20 +81,18 @@ Deno.serve(async (req)=>{
     }
     const coupleId = membership.couple_id;
     /* =====================================================
-       NOM D'AFFICHAGE
-       ===================================================== */ const { data: profile } = await admin.from("protocol_profiles").select("display_name").eq("user_id", user.id).maybeSingle();
-    const displayName = String(profile?.display_name || "PROTOCOL").trim().slice(0, 80);
-    /* =====================================================
        IDENTIFIANTS LOVENSE OPAQUES
 
        Jamais de prénom, email ou user_id Supabase envoyé
        comme uid Lovense.
-       ===================================================== */ const { data: existingConnection, error: existingConnectionError } = await admin.from("protocol_lovense_connections").select("lovense_uid").eq("user_id", user.id).eq("couple_id", coupleId).maybeSingle();
+       ===================================================== */ const { data: existingConnection, error: existingConnectionError } = await admin.from("protocol_lovense_connections").select("lovense_uid, utoken").eq("user_id", user.id).eq("couple_id", coupleId).maybeSingle();
     if (existingConnectionError) {
       throw existingConnectionError;
     }
     const lovenseUid = existingConnection?.lovense_uid || crypto.randomUUID();
-    const userToken = crypto.randomUUID();
+    /* Une connexion existe déjà : on garde son utoken. Afficher un
+       QR ne coupe donc rien ; les rappels Lovense de la connexion en
+       cours restent acceptés tant qu'aucun nouveau scan n'a lieu. */ const userToken = existingConnection?.utoken || crypto.randomUUID();
     /* =====================================================
        GENERATION QR LOVENSE
        ===================================================== */ const lovenseResponse = await fetch("https://api.lovense-api.com/api/lan/getQrCode", {
@@ -99,7 +103,8 @@ Deno.serve(async (req)=>{
       body: JSON.stringify({
         token: developerToken,
         uid: lovenseUid,
-        uname: displayName,
+        // jamais de prénom ni d'autre donnée personnelle
+        uname: "PROTOCOL",
         utoken: userToken,
         v: 2
       })
@@ -129,24 +134,22 @@ Deno.serve(async (req)=>{
        au navigateur.
 
        Le callback pourra donc être authentifié.
-       ===================================================== */ const now = new Date().toISOString();
-    const { error: connectionError } = await admin.from("protocol_lovense_connections").upsert({
+
+       Une connexion existante n'est pas remise à zéro :
+       ses jouets restent utilisables jusqu'au scan, et
+       c'est le callback qui la met à jour.
+       ===================================================== */ const { error: connectionError } = existingConnection ? existingConnection.utoken ? {
+      error: null
+    } : await admin.from("protocol_lovense_connections").update({
+      utoken: userToken
+    }).eq("user_id", user.id).eq("couple_id", coupleId) : await admin.from("protocol_lovense_connections").insert({
       user_id: user.id,
       couple_id: coupleId,
       lovense_uid: lovenseUid,
       utoken: userToken,
-      domain: null,
-      http_port: null,
-      https_port: null,
-      ws_port: null,
-      wss_port: null,
-      platform: null,
-      app_version: null,
       toys: {},
       connected_at: null,
-      updated_at: now
-    }, {
-      onConflict: "couple_id,user_id"
+      updated_at: new Date().toISOString()
     });
     if (connectionError) {
       console.error("LOVENSE CONNECTION DB ERROR:", connectionError);
@@ -170,7 +173,7 @@ Deno.serve(async (req)=>{
     console.error("LOVENSE CONNECT ERROR:", error);
     return json({
       success: false,
-      error: error?.message || "Erreur serveur Lovense."
+      error: "Erreur serveur Lovense."
     }, 500);
   }
 });
