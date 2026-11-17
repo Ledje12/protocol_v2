@@ -11,6 +11,7 @@ import { AlbumKeySheet } from "./PhotoAlbum.jsx";
 import { supabase } from "./supabaseClient.js";
 import { deName } from "./personalise.js";
 import { loadLovenseSdk } from "./lovenseSdk.js";
+import { lovenseErrorText } from "./lovense.jsx";
 
 // type d'un jouet, même si le serveur ne l'a pas donné
 const toyKind = (toy) => {
@@ -1486,10 +1487,36 @@ export default function SettingsScreen({
                 * inutile d'ouvrir l'app.
                 */
 
-                const alreadyConnected =
-                  await syncLovenseSdkState(
-                    instance
-                  );
+                /*
+                * Lovense Remote déjà ouvert : le SDK met parfois
+                * une ou deux secondes à le trouver. On lui laisse
+                * trois essais avant de passer par le lien Lovense
+                * (page web, App Store…), qui ne sert que si l'app
+                * n'est pas encore reliée.
+                */
+
+                setLovenseMessage(
+                  "Recherche de Lovense Remote…"
+                );
+
+                let alreadyConnected = false;
+
+                for (
+                  let attempt = 0;
+                  attempt < 3 && !alreadyConnected;
+                  attempt += 1
+                ) {
+                  if (attempt > 0) {
+                    await new Promise((resolve) =>
+                      window.setTimeout(resolve, 1000)
+                    );
+                  }
+
+                  alreadyConnected =
+                    await syncLovenseSdkState(
+                      instance
+                    );
+                }
 
 
                 if (
@@ -1812,15 +1839,8 @@ export default function SettingsScreen({
             }
           );
 
-        if (error) {
-          throw error;
-        }
-
-        if (!data?.success) {
-          throw new Error(
-            data?.error ||
-            "La commande Lovense a échoué."
-          );
+        if (error || !data?.success) {
+          throw new Error(await lovenseErrorText(error, data));
         }
 
         setLovenseTestMessage(

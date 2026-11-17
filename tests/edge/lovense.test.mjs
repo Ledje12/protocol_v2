@@ -114,7 +114,20 @@ test("Lovense ne répond pas : erreur, et aucun état « en marche » enregistr�
 
   assert.equal(res.success, false);
   assert.equal(res.status, 502);
+  // message clair pour l'écran : Lovense Remote doit être ouvert
+  assert.equal(res.code, "remote_offline");
+  assert.match(res.error, /Lovense Remote ne répond pas/);
   assert.equal(stateOf("me-lush"), undefined);
+});
+
+test("Lovense ne répond pas au test ni au STOP : même message clair", async () => {
+  lovense.fail = true;
+
+  const testRes = await call("lovense-command", { action: "test", toy_id: "me-lush" });
+  assert.equal(testRes.code, "remote_offline");
+
+  const stopRes = await call("lovense-command", { action: "stop" });
+  assert.equal(stopRes.code, "remote_offline");
 });
 
 test("sans la table d'état (migration pas lancée) : les commandes passent quand même", async () => {
