@@ -129,6 +129,40 @@ const toyKindOf = (toy) => {
 };
 
 // jouets utiles à plusieurs cartes ou règles : 'both', 'lush', 'ring' ou null (tous)
+/* Message clair d'une commande Lovense refusée. supabase-js ne donne
+   qu'un « non-2xx » générique : la vraie réponse est dans error.context. */
+export const REMOTE_OFFLINE_TEXT =
+  "Lovense Remote ne répond pas. Ouvre l’app sur le téléphone qui tient le jouet (elle peut rester en arrière-plan), puis réessaie.";
+
+export async function lovenseErrorText(error, data) {
+  let body = data && data.success === false ? data : null;
+  const response = error?.context;
+
+  if (!body && response && typeof response.json === "function") {
+    try {
+      body = await response.clone().json();
+    } catch {
+      body = null;
+    }
+  }
+
+  const status = response?.status;
+
+  if (body?.code === "remote_offline" || status === 502) {
+    return REMOTE_OFFLINE_TEXT;
+  }
+
+  if (body?.error) {
+    return body.error;
+  }
+
+  if (status === 404 || status === 409) {
+    return "Ce jouet n’est plus connecté. Relie-le depuis Réglages → Lovense.";
+  }
+
+  return "La commande n’est pas passée. Vérifie ta connexion, puis réessaie.";
+}
+
 export function mergeCardToys(list) {
   const wanted = list.filter((toy) => toy !== undefined);
   if (wanted.length === 0) return undefined;
@@ -237,7 +271,9 @@ function ToyControl({ supabase, toy, label, remote }) {
         { body: { ...body, toy_id: toy.id } }
       );
       if (invokeError || !data?.success) {
-        throw invokeError || new Error(data?.error);
+        const failure = new Error(await lovenseErrorText(invokeError, data));
+        failure.cause = invokeError;
+        throw failure;
       }
       return data;
     },
@@ -271,7 +307,7 @@ function ToyControl({ supabase, toy, label, remote }) {
           if (mounted.current && !pending.current) {
             mine.current = false;
             apply({ level: 0, ambiance: null });
-            setError("Le jouet ne répond pas. Lovense Remote est-il ouvert ?");
+            setError(err?.message || REMOTE_OFFLINE_TEXT);
           }
         }
       }

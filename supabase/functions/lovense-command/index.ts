@@ -41,6 +41,16 @@ const AMBIANCES = {
     apiVer: 2
   }
 };
+// Lovense refuse la commande : le plus souvent, Lovense Remote est fermé
+// sur le téléphone qui tient le jouet (c'est lui qui relaie en Bluetooth)
+const REMOTE_OFFLINE = "Lovense Remote ne répond pas. Ouvre l’app sur le téléphone qui tient le jouet (elle peut rester en arrière-plan), puis réessaie.";
+const remoteFailure = (detail, extra = {})=>json({
+    success: false,
+    code: "remote_offline",
+    error: REMOTE_OFFLINE,
+    detail,
+    ...extra
+  }, 502);
 const LOVENSE_COMMAND_URL = "https://api.lovense-api.com/api/lan/v2/command";
 const isOnline = (toy)=>toy?.connected === true || String(toy?.status ?? "") === "1" || toy?.status === true;
 const toysOf = (connection)=>Array.isArray(connection?.toys) ? connection.toys : connection?.toys && typeof connection.toys === "object" ? Object.values(connection.toys) : [];
@@ -246,10 +256,7 @@ Deno.serve(async (req)=>{
         }).catch((error)=>String(error?.message || error))));
       const errors = failures.filter(Boolean);
       if (linked.length > 0 && errors.length === linked.length) {
-        return json({
-          success: false,
-          error: errors[0]
-        }, 502);
+        return remoteFailure(errors[0]);
       }
       return json({
         success: true,
@@ -338,10 +345,7 @@ Deno.serve(async (req)=>{
       }
       const failure = await send(commandOf(state.level, state.ambiance));
       if (failure) {
-        return json({
-          success: false,
-          error: failure
-        }, 502);
+        return remoteFailure(failure);
       }
       await admin.from("protocol_lovense_toy_state").update({
         renewed_at: new Date().toISOString()
@@ -392,11 +396,9 @@ Deno.serve(async (req)=>{
     }
     const failure = await send(command);
     if (failure) {
-      return json({
-        success: false,
-        error: failure,
+      return remoteFailure(failure, {
         state
-      }, 502);
+      });
     }
     if (action !== "test") {
       if (!stopping) {
