@@ -985,3 +985,63 @@
   color: var(--c-muted);
   font-size: 12px;
 }
+
+/* =========================================================
+   Dilemme : deux boutons sous la carte
+   ========================================================= */
+
+.card-choice {
+  margin: 20px 0 0;
+  text-align: left;
+}
+
+.card-choice-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.card-choice-option {
+  min-height: 58px;
+  padding: 10px 12px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out);
+}
+
+.card-choice-option:active:not(:disabled) {
+  background: rgba(var(--c-accent-rgb), 0.12);
+}
+
+.card-choice-option:disabled {
+  cursor: default;
+}
+
+/* choisi : le bouton retenu s'allume, l'autre s'efface */
+.card-choice.is-chosen .card-choice-option {
+  opacity: 0.35;
+}
+
+.card-choice.is-chosen .card-choice-option.is-picked {
+  opacity: 1;
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.16);
+  box-shadow: 0 0 22px rgba(var(--c-accent-rgb), 0.2);
+}
+
+.card-choice-status,
+.card-choice-error {
+  margin: 10px 0 0;
+  color: var(--c-muted);
+  font-size: 12px;
+}
