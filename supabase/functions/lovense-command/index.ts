@@ -41,16 +41,23 @@ const AMBIANCES = {
     apiVer: 2
   }
 };
-// Lovense refuse la commande : le plus souvent, Lovense Remote est fermé
-// sur le téléphone qui tient le jouet (c'est lui qui relaie en Bluetooth)
+// Lovense refuse la commande. Codes du Server API : 507 = Lovense Remote
+// hors ligne (fermé sur le téléphone qui tient le jouet) ; 401/402 = le
+// jouet n'est pas connecté à Lovense Remote (éteint, hors Bluetooth).
 const REMOTE_OFFLINE = "Lovense Remote ne répond pas. Ouvre l’app sur le téléphone qui tient le jouet (elle peut rester en arrière-plan), puis réessaie.";
-const remoteFailure = (detail, extra = {})=>json({
+const TOY_OFFLINE = "Lovense Remote est ouvert, mais le jouet n’y est pas connecté. Allume-le et vérifie qu’il apparaît dans Lovense Remote, puis réessaie.";
+const remoteFailure = (failure, extra = {})=>{
+  const code = Number(failure?.code);
+  const toyOffline = code === 401 || code === 402;
+  return json({
     success: false,
-    code: "remote_offline",
-    error: REMOTE_OFFLINE,
-    detail,
+    code: toyOffline ? "toy_offline" : "remote_offline",
+    error: toyOffline ? TOY_OFFLINE : REMOTE_OFFLINE,
+    detail: failure?.message ?? String(failure ?? ""),
+    lovense_code: Number.isFinite(code) ? code : null,
     ...extra
   }, 502);
+};
 const LOVENSE_COMMAND_URL = "https://api.lovense-api.com/api/lan/v2/command";
 const isOnline = (toy)=>toy?.connected === true || String(toy?.status ?? "") === "1" || toy?.status === true;
 const toysOf = (connection)=>Array.isArray(connection?.toys) ? connection.toys : connection?.toys && typeof connection.toys === "object" ? Object.values(connection.toys) : [];
@@ -73,7 +80,10 @@ async function sendCommand(commandBody) {
       code: data?.code,
       message: data?.message || data?.type || null
     });
-    return data?.message || data?.type || "Commande Lovense refusée.";
+    return {
+      code: typeof data?.code === "number" ? data.code : response.status,
+      message: data?.message || data?.type || "Commande Lovense refusée."
+    };
   }
   return null;
 }

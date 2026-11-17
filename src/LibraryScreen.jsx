@@ -146,6 +146,9 @@ const OWN_CATEGORY = "Vos cartes";
 // cartes notées 🔥 par vous deux (en plus de leur catégorie)
 const FAVORITES_CATEGORY = "Nos favoris";
 
+// cartes que j'ai notées 🔥, moi seul (mes avis restent privés)
+const MY_FIRE_CATEGORY = "Mes 🔥";
+
 const RATING_ICONS = {
   fire: "🔥",
   like: "👍",
@@ -311,6 +314,9 @@ export default function LibraryScreen({
 
   const isFavorite = (card) =>
     Boolean(favorites?.has(`${card.card_source || "official"}-${card.id}`));
+
+  const isMyFire = (card) =>
+    ratings[`${card.card_source || "official"}-${card.id}`] === "fire";
 
   // familles -> catégorie (null tant que la table n'existe pas :
   // la bibliothèque reste alors une simple liste)
@@ -751,6 +757,11 @@ export default function LibraryScreen({
         });
       }
 
+      byName.set(MY_FIRE_CATEGORY, {
+        name: MY_FIRE_CATEGORY,
+        count: filteredCards.filter(isMyFire).length,
+      });
+
       // toutes les catégories de A à Z
       return [...byName.values()].sort(
         (a, b) =>
@@ -758,7 +769,7 @@ export default function LibraryScreen({
       );
     // categoryOf ne dépend que de families
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filteredCards, families, favorites]);
+    }, [filteredCards, families, favorites, ratings]);
 
   // défis photo (jeu « À distance ») : catégorie à part
   const photoChallenges = usePhotoChallenges(supabase);
@@ -774,7 +785,9 @@ export default function LibraryScreen({
         ? filteredCards.filter((card) =>
             selectedCategory === FAVORITES_CATEGORY
               ? isFavorite(card)
-              : categoryOf(card).name === selectedCategory
+              : selectedCategory === MY_FIRE_CATEGORY
+                ? isMyFire(card)
+                : categoryOf(card).name === selectedCategory
           )
         : [...filteredCards]
     ).sort(byTitle);
@@ -971,7 +984,7 @@ export default function LibraryScreen({
             {loading
               ? "Chargement…"
               : showCategories
-                ? `${filteredCards.length} cartes · ${categories.filter((category) => category.name !== FAVORITES_CATEGORY).length} catégories`
+                ? `${filteredCards.length} cartes · ${categories.filter((category) => category.name !== FAVORITES_CATEGORY && category.name !== MY_FIRE_CATEGORY).length} catégories`
                 : `${visibleCards.length} carte${
                     visibleCards.length > 1
                       ? "s"
@@ -1017,7 +1030,11 @@ export default function LibraryScreen({
                 !isSearching &&
                 favorites?.size === 0
                   ? "Pas encore de favoris. Une carte notée 🔥 par vous deux pendant une partie viendra se ranger ici."
-                  : "Aucune carte ne correspond à ces filtres."}
+                  : selectedCategory === MY_FIRE_CATEGORY &&
+                    !isSearching &&
+                    !Object.values(ratings).includes("fire")
+                    ? "Pas encore de 🔥. Les cartes que tu notes 🔥, en partie ou depuis la bibliothèque, viendront se ranger ici. Personne d’autre ne les voit."
+                    : "Aucune carte ne correspond à ces filtres."}
               </p>
 
             </div>

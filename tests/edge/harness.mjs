@@ -17,7 +17,9 @@ globalThis.fetch = async (url, init) => {
   const body = JSON.parse(init.body);
   lovense.calls.push({ url: String(url), ...body });
   if (lovense.fail) {
-    return new Response(JSON.stringify({ code: 507, message: "Lovense APP is offline" }), { status: 200 });
+    // fail = true : app hors ligne (507) ; fail = 402 : jouet non connecté
+    const code = typeof lovense.fail === "number" ? lovense.fail : 507;
+    return new Response(JSON.stringify({ code, message: code === 507 ? "Lovense APP is offline" : "Toy Not Connected" }), { status: 200 });
   }
   return new Response(
     JSON.stringify({ code: 0, result: true, data: { qr: "https://qr.test/x.png", code: "ABC123", authToken: "t" } }),
