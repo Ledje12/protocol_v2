@@ -129,6 +129,13 @@ export default function SettingsScreen({
   const [lovenseOpening, setLovenseOpening] =
     useState(false);
 
+  /* SDK prêt, Lovense Remote pas encore relié : l'app s'ouvre
+     sur un second toucher. Sur iPhone, un lien d'app lancé
+     plusieurs secondes après le toucher n'ouvre plus l'app,
+     il part sur l'App Store. */
+  const [lovenseAppReady, setLovenseAppReady] =
+    useState(false);
+
   const [lovenseTestLoading, setLovenseTestLoading] =
     useState(false);
 
@@ -1259,6 +1266,10 @@ export default function SettingsScreen({
             true
           );
 
+          setLovenseAppReady(
+            false
+          );
+
           setLovenseSdkError(
             ""
           );
@@ -1541,12 +1552,13 @@ export default function SettingsScreen({
                 * pour le flux mobile sans scan QR.
                 */
 
-                instance
-                  .connectLovenseAPP();
+                setLovenseAppReady(
+                  true
+                );
 
 
                 setLovenseMessage(
-                  "Autorise PROTOCOL dans Lovense Remote, puis reviens dans PROTOCOL."
+                  "Touche « Ouvrir Lovense Remote », autorise PROTOCOL, puis reviens ici."
                 );
 
               } catch (
@@ -1596,6 +1608,35 @@ export default function SettingsScreen({
           );
         }
       };
+
+  // appelé directement par le toucher : iOS ouvre alors l'app
+  const openLovenseApp =
+    () => {
+      const sdk =
+        lovenseSdkRef.current;
+
+      if (!sdk) {
+        return;
+      }
+
+      try {
+        sdk.connectLovenseAPP();
+
+        setLovenseMessage(
+          "Autorise PROTOCOL dans Lovense Remote, puis reviens dans PROTOCOL."
+        );
+      } catch (err) {
+        console.error(
+          "LOVENSE OPEN APP ERROR:",
+          err
+        );
+
+        setLovenseSdkError(
+          err?.message ||
+          "Impossible d’ouvrir Lovense Remote."
+        );
+      }
+    };
 
   const connectLovense =
     async () => {
@@ -2985,7 +3026,11 @@ export default function SettingsScreen({
                     <button
                       type="button"
                       className="settings-primary-action settings-lovense-open"
-                      onClick={openLovenseRemote}
+                      onClick={
+                        lovenseAppReady
+                          ? openLovenseApp
+                          : openLovenseRemote
+                      }
                       disabled={
                         lovenseOpening
                       }
@@ -2994,7 +3039,9 @@ export default function SettingsScreen({
                       <span>
                         {lovenseOpening
                           ? "Connexion…"
-                          : "Relier Lovense Remote"}
+                          : lovenseAppReady
+                            ? "Ouvrir Lovense Remote"
+                            : "Relier Lovense Remote"}
                       </span>
 
                       <span className="settings-action-arrow">
