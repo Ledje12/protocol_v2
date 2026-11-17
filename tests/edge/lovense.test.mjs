@@ -120,6 +120,16 @@ test("Lovense ne répond pas : erreur, et aucun état « en marche » enregistr�
   assert.equal(stateOf("me-lush"), undefined);
 });
 
+test("jouet éteint (Lovense Remote ouvert) : message différent", async () => {
+  lovense.fail = 402;
+
+  const res = await call("lovense-command", { action: "test", toy_id: "me-lush" });
+
+  assert.equal(res.status, 502);
+  assert.equal(res.code, "toy_offline");
+  assert.match(res.error, /le jouet n’y est pas connecté/);
+});
+
 test("Lovense ne répond pas au test ni au STOP : même message clair", async () => {
   lovense.fail = true;
 

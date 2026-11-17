@@ -148,12 +148,13 @@ export async function lovenseErrorText(error, data) {
 
   const status = response?.status;
 
-  if (body?.code === "remote_offline" || status === 502) {
-    return REMOTE_OFFLINE_TEXT;
-  }
-
+  // message du serveur (Lovense Remote fermé, jouet éteint…) d'abord
   if (body?.error) {
     return body.error;
+  }
+
+  if (status === 502) {
+    return REMOTE_OFFLINE_TEXT;
   }
 
   if (status === 404 || status === 409) {
