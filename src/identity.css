@@ -2980,6 +2980,98 @@ button.secondary {
   margin: 18px 0 0 22px;
 }
 
+/* signaler une carte : petit panneau sous les avis */
+.card-report {
+  flex: 1 0 100%;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 10px 2px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+  background: var(--c-surface-2);
+}
+
+.card-report-title,
+.card-report-thanks {
+  margin: 0 0 8px;
+  color: var(--c-muted);
+  font-size: 14px;
+}
+
+.card-report-thanks {
+  margin: 0;
+}
+
+.card-report-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.card-report .card-report-reason {
+  width: auto;
+  min-height: 32px;
+  margin: 0;
+  padding: 4px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  box-shadow: none;
+  color: var(--c-muted);
+  font-size: 13px;
+}
+
+.card-report .card-report-reason.is-active {
+  border-color: rgba(var(--c-accent-rgb), 0.55);
+  color: var(--c-accent);
+}
+
+.card-report .card-report-comment {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-control);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.4;
+  resize: none;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.card-report .card-report-comment::placeholder {
+  color: rgba(var(--c-muted-rgb), 0.55);
+}
+
+.card-report .card-report-comment:focus {
+  border-color: rgba(var(--c-accent-rgb), 0.5);
+}
+
+.card-report .card-report-send {
+  width: auto;
+  min-height: 36px;
+  margin: 0;
+  padding: 6px 18px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.55);
+  border-radius: var(--r-pill);
+  background: transparent;
+  box-shadow: none;
+  color: var(--c-accent);
+  font: inherit;
+  font-size: 14px;
+}
+
+.card-report .card-report-send:disabled {
+  border-color: var(--c-line);
+  color: var(--c-muted);
+}
+
 /* bibliothèque : ma marque à côté du numéro */
 .library-card-rating {
   margin-right: 8px;
@@ -3832,6 +3924,7 @@ button.envelope-card:not(:disabled) {
 
 .card-extras-play {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -3884,6 +3977,7 @@ button.envelope-card:not(:disabled) {
 /* fiche carte (bibliothèque) : 📷 puis les avis, sous les repères */
 .card-extras-detail {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin: 18px 0 0 22px;
