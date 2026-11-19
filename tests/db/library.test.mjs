@@ -158,3 +158,47 @@ test("modifier une carte : consigne et intensité, comptes autorisés seulement"
   const direct = await asUser(b, "update public.protocol_cards set prompt = 'x' where id = $1", [card.id]);
   assert.equal(direct.rowCount, 0);
 });
+
+test("signaler une carte : réservé aux joueurs connectés, motifs contrôlés, invisible depuis l'app", async () => {
+  const { a, b } = await createCouple();
+  const [{ id }] = await sql("select id from public.protocol_cards limit 1");
+
+  assert.equal(
+    await rpc(a, "report_protocol_card", {
+      p_card_source: "official",
+      p_card_id: id,
+      p_reason: "flop",
+      p_comment: "  On a passé la carte  ",
+    }),
+    true
+  );
+
+  const [row] = await sql(
+    "select reason, comment from public.protocol_card_reports where card_id = $1",
+    [id]
+  );
+  assert.deepEqual(row, { reason: "flop", comment: "On a passé la carte" });
+
+  await rejects(
+    rpc(a, "report_protocol_card", { p_card_source: "official", p_card_id: id, p_reason: "nul" }),
+    /invalid reason/i
+  );
+
+  // la table ne se lit pas depuis l'app, même par celui qui a signalé
+  await rejects(
+    asUser(b, "select * from public.protocol_card_reports"),
+    /permission denied/i
+  );
+});
+
+test("les fonctions internes du Director ne s'appellent plus directement", async () => {
+  const { a } = await createCouple();
+  await rejects(
+    asUser(a, "select public.protocol_last_intensity_v2(gen_random_uuid())"),
+    /permission denied/i
+  );
+  await rejects(
+    asUser(a, "select public.protocol_select_card_v2_unified(gen_random_uuid(), 1, 1, null)"),
+    /permission denied/i
+  );
+});
