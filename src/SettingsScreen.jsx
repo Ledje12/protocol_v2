@@ -2320,7 +2320,16 @@ export default function SettingsScreen({
         <SettingsGroup title="Compte">
           <SettingsRow
             label="Confidentialité"
+            hint="Données intimes, photos chiffrées, majorité et tes droits."
             onClick={() => navigate("/privacy")}
+          />
+
+          <SettingsRow
+            label="Nous écrire"
+            hint="Une question, un souci, une demande sur tes données."
+            onClick={() => {
+              window.location.href = "mailto:protocol.auth@gmail.com?subject=PROTOCOL";
+            }}
           />
 
           <SettingsRow
@@ -2358,7 +2367,7 @@ export default function SettingsScreen({
                 ? "Suppression…"
                 : "Supprimer mon compte"
             }
-            hint="Définitif : ton compte et les données qui lui sont associées."
+            hint="Définitif : ton compte et les données qui lui sont associées. C’est aussi ainsi que tu retires ton consentement."
             onClick={deleteAccount}
             disabled={deleteAccountLoading}
             danger

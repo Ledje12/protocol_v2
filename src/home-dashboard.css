@@ -1613,6 +1613,34 @@
   box-shadow: 0 0 0 4px rgba(var(--c-accent-rgb), 0.10);
 }
 
+/* majorité et consentement : une case, pas un formulaire */
+.protocol-auth-form label.protocol-auth-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 6px 2px 4px;
+  font-size: var(--fs-small);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.45;
+  color: var(--c-muted);
+  cursor: pointer;
+}
+
+.protocol-auth-form .protocol-auth-consent input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  padding: 0;
+  accent-color: var(--c-accent);
+}
+
+.protocol-auth-consent a {
+  color: var(--c-text);
+}
+
 .protocol-auth-form input.protocol-auth-code {
   font-family: var(--font-serif);
   font-size: 30px;

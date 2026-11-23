@@ -18,9 +18,29 @@ export default function AuthScreen({ onAuthenticated }) {
   const [message, setMessage] =
     useState("");
 
+  // majorité et consentement aux données intimes : obligatoires
+  const [consent, setConsent] =
+    useState(false);
+
+  // enregistrés sur le compte à sa création (pas à chaque connexion)
+  const consentData = () => {
+    const now = new Date().toISOString();
+    return {
+      adult_confirmed_at: now,
+      intimate_data_consent_at: now,
+    };
+  };
+
   const sendCode =
     async (event) => {
       event.preventDefault();
+
+      if (!consent) {
+        setMessage(
+          "Coche la case pour continuer : PROTOCOL est réservé aux adultes."
+        );
+        return;
+      }
 
       try {
         setLoading(true);
@@ -34,6 +54,7 @@ export default function AuthScreen({ onAuthenticated }) {
             email: normalizedEmail,
             options: {
               shouldCreateUser: true,
+              data: consentData(),
             },
           });
 
@@ -71,6 +92,7 @@ export default function AuthScreen({ onAuthenticated }) {
           email: normalizedEmail,
           options: {
             shouldCreateUser: true,
+            data: consentData(),
           },
         });
 
@@ -201,9 +223,29 @@ export default function AuthScreen({ onAuthenticated }) {
                   placeholder="vous@exemple.com"
                 />
 
+                <label
+                  className="protocol-auth-consent"
+                  htmlFor="protocol-auth-consent"
+                >
+                  <input
+                    id="protocol-auth-consent"
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(event) =>
+                      setConsent(event.target.checked)
+                    }
+                  />
+                  <span>
+                    J’ai 18 ans ou plus. J’accepte que PROTOCOL conserve des
+                    données sur ma vie intime (cartes, avis, messages) pour
+                    faire fonctionner le jeu.{" "}
+                    <a href="/privacy">En savoir plus</a>
+                  </span>
+                </label>
+
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !consent}
                 >
                   <span>
                     {loading
