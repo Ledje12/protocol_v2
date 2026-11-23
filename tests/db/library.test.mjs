@@ -202,3 +202,14 @@ test("les fonctions internes du Director ne s'appellent plus directement", async
     /permission denied/i
   );
 });
+
+test("sans compte (rôle anon), les fonctions du jeu sont fermées ; seul le journal d'erreurs reste ouvert", async () => {
+  const [row] = await sql(
+    `select
+       has_function_privilege('anon', 'public.get_protocol_scene_preview(bigint)', 'execute') as scene,
+       has_function_privilege('anon', 'public.advance_protocol_guarded(text, text, integer, integer, bigint, text)', 'execute') as jeu,
+       has_function_privilege('authenticated', 'public.get_protocol_scene_preview(bigint)', 'execute') as scene_connecte,
+       has_function_privilege('anon', 'public.log_client_error(text, text, text, text, text, jsonb)', 'execute') as journal`
+  );
+  assert.deepEqual(row, { scene: false, jeu: false, scene_connecte: true, journal: true });
+});
