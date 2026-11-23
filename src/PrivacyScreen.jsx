@@ -34,7 +34,7 @@ export default function PrivacyScreen({
 
             <p>
               Dernière mise à jour :
-              24 septembre 2026
+              23 novembre 2026
             </p>
 
           </header>
@@ -46,6 +46,21 @@ export default function PrivacyScreen({
             </span>
 
             <ul>
+              <li>
+                <strong>Réservé aux adultes.</strong>{" "}
+                PROTOCOL est un jeu sexuel pour adultes consentants, réservé aux personnes de 18 ans ou plus.
+              </li>
+
+              <li>
+                <strong>Données intimes, protégées.</strong>{" "}
+                Ce que vous faites dans PROTOCOL en dit long sur votre vie intime : ces données ne sont visibles que par votre couple, jamais vendues, et supprimées avec le compte.
+              </li>
+
+              <li>
+                <strong>Photos chiffrées.</strong>{" "}
+                Les photos de l’album sont chiffrées sur votre téléphone avant l’envoi : même le service ne peut pas les voir.
+              </li>
+
               <li>
                 <strong>Notifications discrètes.</strong>{" "}
                 Le contenu sensible des cartes n’est jamais affiché dans les notifications.
@@ -126,6 +141,22 @@ export default function PrivacyScreen({
               </li>
 
               <li>
+                les cartes personnelles créées par le
+                couple, les avis donnés sur les cartes
+                (🔥 👍 👎) et les signalements envoyés ;
+              </li>
+
+              <li>
+                les photos de l’album, chiffrées sur
+                l’appareil avant l’envoi ;
+              </li>
+
+              <li>
+                les rapports d’erreurs techniques, sans
+                le contenu des cartes ;
+              </li>
+
+              <li>
                 les informations techniques nécessaires
                 aux notifications push ;
               </li>
@@ -199,6 +230,19 @@ export default function PrivacyScreen({
               fonctionnement de PROTOCOL sont réalisés
               afin de fournir le service demandé par
               l’utilisateur.
+            </p>
+
+            <p>
+              Parce que PROTOCOL est un jeu sexuel, une
+              partie de ces données révèle des
+              informations sur la vie sexuelle (données
+              dites sensibles, article 9 du RGPD). Elles
+              ne sont traitées qu’avec votre consentement
+              explicite, donné à l’inscription en même
+              temps que la confirmation de votre
+              majorité. Vous pouvez le retirer à tout
+              moment en supprimant votre compte depuis
+              les réglages.
             </p>
 
             <p>
@@ -355,6 +399,15 @@ export default function PrivacyScreen({
               Le contenu sensible des cartes n’est pas
               repris dans les notifications envoyées par
               l’application.
+            </p>
+
+            <p>
+              Les données d’un couple ne sont accessibles
+              qu’à ses deux membres. Les photos de
+              l’album sont chiffrées avec une phrase
+              secrète que seul le couple connaît : sans
+              elle, elles sont illisibles, y compris pour
+              l’éditeur du service.
             </p>
 
           </section>
