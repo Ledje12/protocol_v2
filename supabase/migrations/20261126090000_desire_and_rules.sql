@@ -76,10 +76,25 @@ do $$
 declare
   v_def text;
   v_count integer;
-  v_filter text := E'and c.intensity <=\n              v_max_intensity';
-  v_theme text := E'and c.intensity <=\n              v_max_intensity\n\n          -- L''envie : thème choisi (réglage de session)\n          and (\n              nullif(current_setting(''protocol.desire_category'', true), '''') is null\n              or exists (\n                  select 1 from public.protocol_card_families f\n                  where f.family_key = c.family_key\n                    and f.category = current_setting(''protocol.desire_category'', true)\n              )\n          )';
-  v_max text := E'v_max_intensity :=\n        public.protocol_max_intensity(v_profile_intensity, p_next_turn, v_game.target_turns);';
-  v_bonus text := E'v_max_intensity :=\n        public.protocol_max_intensity(v_profile_intensity, p_next_turn, v_game.target_turns);\n\n    -- carte scellée : un niveau de plus, jamais au-delà du choix du couple\n    v_max_intensity :=\n        least(\n            v_profile_intensity,\n            v_max_intensity\n            + coalesce(nullif(current_setting(''protocol.intensity_bonus'', true), '''')::integer, 0)\n        );';
+  -- espaces et fins de ligne quelconques (le texte peut venir de Windows)
+  v_pattern text := 'and\s+c\.intensity\s*<=\s*v_max_intensity';
+  v_new text := 'and c.intensity <=
+              least(
+                  v_profile_intensity,
+                  v_max_intensity
+                  -- carte scellée : un niveau de plus, jamais au-delà du choix du couple
+                  + coalesce(nullif(current_setting(''protocol.intensity_bonus'', true), '''')::integer, 0)
+              )
+
+          -- L''envie : thème choisi (réglage de session)
+          and (
+              nullif(current_setting(''protocol.desire_category'', true), '''') is null
+              or exists (
+                  select 1 from public.protocol_card_families f
+                  where f.family_key = c.family_key
+                    and f.category = current_setting(''protocol.desire_category'', true)
+              )
+          )';
 begin
   v_def := pg_get_functiondef('public.protocol_select_card_v2_base(uuid, integer, integer, text)'::regprocedure);
 
@@ -87,17 +102,16 @@ begin
     return;
   end if;
 
-  v_count := (length(v_def) - length(replace(v_def, v_filter, ''))) / length(v_filter);
+  select count(*) into v_count from regexp_matches(v_def, v_pattern, 'g');
   if v_count <> 3 then
     raise exception 'Tirage : % filtres d''intensité trouvés au lieu de 3, rien n''est modifié', v_count;
   end if;
 
-  if position(v_max in v_def) = 0 then
-    raise exception 'Tirage : calcul du plafond introuvable, rien n''est modifié';
+  if position('v_profile_intensity' in v_def) = 0 then
+    raise exception 'Tirage : plafond du couple (v_profile_intensity) introuvable, rien n''est modifié';
   end if;
 
-  v_def := replace(v_def, v_filter, v_theme);
-  v_def := replace(v_def, v_max, v_bonus);
+  v_def := regexp_replace(v_def, v_pattern, v_new, 'g');
   execute v_def;
 end $$;
 
@@ -388,7 +402,13 @@ begin
 
   v_next := case when v_game.active_player = 1 then 2 else 1 end;
   v_sex := case when v_next = 1 then v_game.player_1_sex else v_game.player_2_sex end;
-  v_ceiling := greatest(1, least(5, coalesce((v_game.shared_profile ->> 'intensity')::integer, 1)));
+  -- plafond de la prochaine carte : la montée du moment, dans le
+  -- choix du couple (le thème proposé a forcément des cartes jouables)
+  v_ceiling := public.protocol_max_intensity(
+    greatest(1, least(5, coalesce((v_game.shared_profile ->> 'intensity')::integer, 1))),
+    coalesce(v_game.turn_no, 0) + 1,
+    v_game.target_turns
+  );
 
   return coalesce((
     select jsonb_agg(jsonb_build_object('category', x.category, 'count', x.n) order by x.pos, x.category)
