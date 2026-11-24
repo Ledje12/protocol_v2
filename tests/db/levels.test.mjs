@@ -48,11 +48,8 @@ for (const [name, levels, cap] of [
       if (g.status !== "playing") break;
       const card = await currentCard(code);
       if (card) {
-        // carte scellée : un niveau de plus que la montée, jamais au-delà
-        // du choix du couple
-        const limit = g.sealed_status
-          ? Math.min(cap, (await ceiling(cap, g.turn_no, g.target_turns)) + 1)
-          : await ceiling(cap, g.turn_no, g.target_turns);
+        // cartes scellées comprises : jamais au-dessus de la montée
+        const limit = await ceiling(cap, g.turn_no, g.target_turns);
         assert.ok(
           card.intensity <= limit,
           `carte ${card.intensity} au tour ${g.turn_no} (${name}${g.sealed_status ? ", scellée" : ""})`
