@@ -3,7 +3,6 @@ import { INTENSITY_LEVELS, levelForIntensity } from "./gameConstants.js";
 import { clearGameSession, getGameSession, getLastSeenCard, saveGameSession, saveLastSeenCard, saveProfileAsGameIdentity } from "./gameSession.js";
 import { hasSeenHowToPlay } from "./howto.js";
 import HowToPlay from "./HowToPlay.jsx";
-import WhatsNew, { hasSeenRelease, markReleaseSeen } from "./WhatsNew.jsx";
 import PairingPanel from "./PairingPanel.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
 import { supabase } from "./supabaseClient.js";
@@ -147,10 +146,6 @@ export default function HomeScreen({
   // « Comment on joue » : une fois, quand le duo est formé
   const [showHowTo, setShowHowTo] =
     useState(() => !hasSeenHowToPlay());
-
-  // nouveautés de la version : seulement pour ceux qui jouaient déjà
-  const [showWhatsNew, setShowWhatsNew] =
-    useState(() => hasSeenHowToPlay() && !hasSeenRelease());
 
   /*
    * Partie créée par le partenaire et qui l'attend :
@@ -900,16 +895,10 @@ export default function HomeScreen({
       )}
       {hasPartner && showHowTo && (
         <HowToPlay
-          onClose={() => {
-            // le guide couvre déjà les nouveautés
-            markReleaseSeen();
-            setShowHowTo(false);
-          }}
+          onClose={() =>
+            setShowHowTo(false)
+          }
         />
-      )}
-
-      {hasPartner && !showHowTo && showWhatsNew && (
-        <WhatsNew onClose={() => setShowWhatsNew(false)} />
       )}
 
       {/* =========================================
