@@ -1054,7 +1054,9 @@ export default function LibraryScreen({
             <div className="library-categories">
               {[
                 ...categories,
-                ...(photoChallenges?.length > 0
+                // les défis photo n'ont ni style, ni type, ni intensité :
+                // ils disparaissent dès qu'un filtre est actif
+                ...(photoChallenges?.length > 0 && activeFilterCount === 0
                   ? [{ name: PHOTO_CATEGORY, count: photoChallenges.length, photo: true }]
                   : []),
               ]
