@@ -1,6 +1,27 @@
 import { useState } from "react";
 import BrandMark from "./BrandMark.jsx";
 import { supabase } from "./supabaseClient.js";
+import { isNetworkError, NETWORK_MESSAGE } from "./networkError.js";
+
+/* Messages de Supabase Auth (en anglais) traduits : mauvais code, trop
+   de demandes, adresse refusée. Le reste garde le message par défaut. */
+const authMessage = (err, fallback) => {
+  if (isNetworkError(err)) return NETWORK_MESSAGE;
+  const text = `${err?.message || ""} ${err?.code || ""}`;
+  if (/expired|invalid.*(token|otp)|otp_expired|token.*invalid/i.test(text)) {
+    return "Code incorrect ou expiré. Vérifie les chiffres, ou demande un nouveau code.";
+  }
+  if (/rate limit|only request this after|too many|over_email_send_rate_limit/i.test(text)) {
+    return "Trop de demandes d’affilée. Attends une minute, puis réessaie.";
+  }
+  if (/invalid.*email|email.*invalid|validation_failed/i.test(text)) {
+    return "Cette adresse email ne semble pas valide.";
+  }
+  if (/signups? not allowed|signup_disabled/i.test(text)) {
+    return "Les inscriptions sont fermées pour le moment.";
+  }
+  return fallback;
+};
 
 export default function AuthScreen({ onAuthenticated }) {
   const [email, setEmail] =
@@ -70,8 +91,7 @@ export default function AuthScreen({ onAuthenticated }) {
 
       } catch (err) {
         setMessage(
-          err?.message ||
-          "Impossible d’envoyer le code."
+          authMessage(err, "Impossible d’envoyer le code. Réessaie dans un instant.")
         );
 
       } finally {
@@ -108,8 +128,7 @@ export default function AuthScreen({ onAuthenticated }) {
 
     } catch (err) {
       setMessage(
-        err?.message ||
-        "Impossible de renvoyer le code."
+        authMessage(err, "Impossible de renvoyer le code. Réessaie dans un instant.")
       );
 
     } finally {
@@ -151,8 +170,7 @@ export default function AuthScreen({ onAuthenticated }) {
 
       } catch (err) {
         setMessage(
-          err?.message ||
-          "Code incorrect ou expiré."
+          authMessage(err, "Code incorrect ou expiré.")
         );
 
       } finally {

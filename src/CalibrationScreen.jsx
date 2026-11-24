@@ -261,7 +261,7 @@ export default function CalibrationScreen({
         );
 
         setError(
-          humanError(err, err?.message || "Impossible d'enregistrer tes réponses.")
+          humanError(err, err?.message || "Impossible d’enregistrer tes réponses.")
         );
       } finally {
         setSaving(false);
@@ -292,11 +292,11 @@ export default function CalibrationScreen({
             <>
               <div>
                 <p className="kicker">
-                  C'EST FAIT
+                  C’EST FAIT
                 </p>
 
                 <h1>
-                  C'est
+                  C’est
                   <br />
                   enregistré.
                 </h1>
@@ -304,7 +304,7 @@ export default function CalibrationScreen({
                 <p className="intro">
                   Tes choix restent privés.
                   On attend simplement que
-                  l'autre termine.
+                  l’autre termine.
                 </p>
               </div>
 
@@ -313,7 +313,7 @@ export default function CalibrationScreen({
 
                 <div>
                   <strong>
-                    On attend l'autre.
+                    On attend l’autre.
                   </strong>
 
                   <p>

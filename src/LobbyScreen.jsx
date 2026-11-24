@@ -49,9 +49,22 @@ export default function LobbyScreen({
 
     if (
       updatedGame.status ===
-      "calibrating"
+        "calibrating" ||
+      updatedGame.status ===
+        "calibration_ready"
     ) {
       goCalibration();
+      return;
+    }
+
+    // partie déjà lancée (téléphone rouvert sur le salon, retour
+    // arrière) : on rejoint la carte en cours au lieu d'attendre
+    if (
+      ["playing", "paused", "finished"].includes(
+        updatedGame.status
+      )
+    ) {
+      navigate(`/game/${code}/play`);
     }
   };
 
@@ -319,6 +332,16 @@ export default function LobbyScreen({
               : "En attente de l’autre"}
           </div>
         </div>
+
+        {!connected && (
+          <button
+            type="button"
+            className="secondary lobby-leave"
+            onClick={() => navigate("/")}
+          >
+            Retour à l’accueil
+          </button>
+        )}
 
         {connected && (
           <div className="ready-area">

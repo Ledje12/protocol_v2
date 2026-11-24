@@ -3,6 +3,29 @@ import {
   useState,
 } from "react";
 
+/* lien partagé (…/?pair=CODE) : retenu dès le chargement, avant même
+   la connexion, pour pré-remplir la saisie une fois sur l'accueil */
+const PAIR_KEY = "protocol_pair_code";
+try {
+  const fromUrl = new URLSearchParams(window.location.search).get("pair");
+  if (fromUrl && /^[A-Z0-9]{4,16}$/i.test(fromUrl)) {
+    localStorage.setItem(PAIR_KEY, fromUrl.toUpperCase());
+    const clean = new URL(window.location.href);
+    clean.searchParams.delete("pair");
+    window.history.replaceState(window.history.state, "", clean.pathname + clean.search + clean.hash);
+  }
+} catch {
+  // stockage indisponible : il faudra saisir le code
+}
+
+const storedPairCode = () => {
+  try {
+    return localStorage.getItem(PAIR_KEY) || "";
+  } catch {
+    return "";
+  }
+};
+
 /*
  * Premier lancement : tant que le duo n'est pas associé,
  * l'accueil propose de le faire ici (créer un code ou saisir
@@ -14,13 +37,16 @@ export default function PairingPanel({
   onPaired,
 }) {
   const [mode, setMode] =
-    useState(null); // null | "create" | "join"
+    useState(() => (storedPairCode() ? "join" : null)); // null | "create" | "join"
 
   const [code, setCode] =
     useState("");
 
   const [joinCode, setJoinCode] =
-    useState("");
+    useState(storedPairCode);
+
+  const [copied, setCopied] =
+    useState(false);
 
   const [loading, setLoading] =
     useState(false);
@@ -106,7 +132,30 @@ export default function PairingPanel({
       return;
     }
 
+    try {
+      localStorage.removeItem(PAIR_KEY);
+    } catch {
+      // rien à nettoyer
+    }
+
     onPaired?.();
+  };
+
+  const shareCode = async () => {
+    const url = `${window.location.origin}/?pair=${code}`;
+    const text = `Mon code PROTOCOL : ${code}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // partage annulé : le code reste affiché
+    }
   };
 
   return (
@@ -135,9 +184,19 @@ export default function PairingPanel({
           </strong>
 
           <small>
-            Saisis-le sur l’autre téléphone, à l’accueil.
-            Valable 24 heures.
+            Envoie-le à l’autre, ou saisis-le sur son téléphone,
+            à l’accueil. Valable 24 heures.
           </small>
+
+          {code && !loading && (
+            <button
+              type="button"
+              className="secondary pairing-share"
+              onClick={shareCode}
+            >
+              {copied ? "Lien copié" : "Envoyer le code"}
+            </button>
+          )}
         </div>
       ) : mode === "join" ? (
         <form
