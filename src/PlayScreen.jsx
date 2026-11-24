@@ -2280,6 +2280,8 @@ async function handleSceneRead() {
 
           <div className="protocol-stop-panel">
 
+            <span className="protocol-stop-breath" aria-hidden="true" />
+
             <span className="protocol-stop-label">
               PROTOCOL EN PAUSE
             </span>
@@ -2295,6 +2297,11 @@ async function handleSceneRead() {
             <p className="protocol-stop-copy">
               Prenez le temps nécessaire.
               Rien ne reprend automatiquement.
+            </p>
+
+            <p className="protocol-stop-care">
+              Un verre d’eau, un câlin, quelques mots :
+              ce qu’il vous faut. Respirez au rythme du halo.
             </p>
 
             <button
@@ -2809,6 +2816,17 @@ async function handleSceneRead() {
               {game.target_turns}
             </strong>
           </span>
+
+          {/* jauge de chaleur : se remplit et rougeoie au fil de la soirée */}
+          <div
+            className="heat-gauge"
+            style={{
+              "--heat": Math.min(1, Math.max(0.04, (game.turn_no || 0) / (game.target_turns || 20))),
+            }}
+            aria-hidden="true"
+          >
+            <span className="heat-gauge-fill" key={game.phase} />
+          </div>
 
         </div>
 
