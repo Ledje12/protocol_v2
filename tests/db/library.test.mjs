@@ -201,6 +201,16 @@ test("les fonctions internes du Director ne s'appellent plus directement", async
     asUser(a, "select public.protocol_select_card_v2_unified(gen_random_uuid(), 1, 1, null)"),
     /permission denied/i
   );
+  // celles qui prennent l'identifiant d'un couple : jamais en direct
+  const [other] = await sql("select id from public.protocol_couples limit 1");
+  for (const call of [
+    "public.protocol_lovense_connected($1)",
+    "public.protocol_lovense_has_toy($1, 'lush')",
+    "public.protocol_card_style_allowed($1, 1)",
+    "public.protocol_lovense_card_allowed($1, 1)",
+  ]) {
+    await rejects(asUser(a, `select ${call}`, [other.id]), /permission denied/i);
+  }
 });
 
 test("sans compte (rôle anon), les fonctions du jeu sont fermées ; seul le journal d'erreurs reste ouvert", async () => {
