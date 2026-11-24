@@ -16,6 +16,7 @@ import { deName, fillNames } from "./personalise.js";
 import { NETWORK_MESSAGE, humanError } from "./networkError.js";
 import CardChoice from "./CardChoice.jsx";
 import { playSound } from "./sounds.js";
+import { useDimLight } from "./dimLight.js";
 import { LovenseBanner, LovenseRemote, cardToyBanner, mergeCardToys, useLovenseToys } from "./lovense.jsx";
 
 /* =========================================================
@@ -725,6 +726,9 @@ export default function PlayScreen({
 
   const [duelWin, setDuelWin] =
     useState(null);
+
+  const [dimLight, setDimLight] =
+    useDimLight();
 
   useEffect(() => {
     if (!duelWin) return undefined;
@@ -2321,6 +2325,16 @@ async function handleSceneRead() {
           PROTOCOL
         </span>
 
+
+        <button
+          type="button"
+          className="dim-toggle"
+          onClick={() => setDimLight(!dimLight)}
+          aria-pressed={dimLight}
+          aria-label={dimLight ? "Rallumer la lumière" : "Tamiser la lumière"}
+        >
+          {dimLight ? "☀︎" : "☾"}
+        </button>
 
         {game.status !== "paused" && (
           <button

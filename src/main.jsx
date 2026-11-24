@@ -11,6 +11,7 @@ import "@fontsource-variable/bodoni-moda/opsz-italic.css";
 import "./tokens.css"; // passe 2 : couleurs et polices (source unique)
 import "./index.css";
 import "./identity.css"; // passe 2 : identité visuelle, chargée en dernier
+import "./dimLight.js"; // lumière tamisée appliquée dès le chargement
 
 
 // erreurs de l'app notées dans Supabase (voir errorLog.js)

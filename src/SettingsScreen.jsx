@@ -13,6 +13,7 @@ import { deName } from "./personalise.js";
 import { loadLovenseSdk } from "./lovenseSdk.js";
 import { lovenseErrorText } from "./lovense.jsx";
 import { playSound, setSoundsEnabled, soundsEnabled } from "./sounds.js";
+import { useDimLight } from "./dimLight.js";
 
 // type d'un jouet, même si le serveur ne l'a pas donné
 const toyKind = (toy) => {
@@ -685,6 +686,9 @@ export default function SettingsScreen({
        null tant que la migration n'est pas appliquée. */
     const [soundsOn, setSoundsOn] =
       useState(soundsEnabled);
+
+    const [dimLight, setDimLight] =
+      useDimLight();
 
     const [envelopeEnabled, setEnvelopeEnabled] =
       useState(null);
@@ -2695,6 +2699,38 @@ export default function SettingsScreen({
                   </p>
                 </section>
               )}
+
+              <section className="mode-sheet-section">
+                <h3>Lumière tamisée</h3>
+
+                <div
+                  className="settings-segmented"
+                  role="group"
+                  aria-label="Lumière tamisée"
+                >
+                  {[
+                    [true, "Oui"],
+                    [false, "Non"],
+                  ].map(([value, label]) => (
+                    <button
+                      key={label}
+                      type="button"
+                      aria-pressed={dimLight === value}
+                      className={dimLight === value ? "is-active" : undefined}
+                      onClick={() => setDimLight(value)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="mode-sheet-hint">
+                  Pour jouer dans le noir : l’écran vire à l’ambre et au
+                  rouge sombre, sans blanc qui éblouit. Aussi d’un toucher
+                  sur la lune ☾ en pleine partie. Réglage propre à ce
+                  téléphone.
+                </p>
+              </section>
 
               <section className="mode-sheet-section">
                 <h3>Sons</h3>

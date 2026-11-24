@@ -118,3 +118,20 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- Lumière tamisée (réglage, voir dimLight.js) ----------
+   Voile chaud en multiply au-dessus de tout : blanc → ambre,
+   néon → rouge sombre, lilas → mauve. Ne capte aucun toucher. */
+html[data-light="dim"]::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  background: rgb(205, 138, 98);
+  mix-blend-mode: multiply;
+}
+
+html[data-light="dim"] {
+  background: #000;
+}
