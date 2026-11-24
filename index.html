@@ -41,115 +41,185 @@
 
     <title>Protocol</title>
 
-    <!-- Néon d'ouverture : affiché dès la première image, avant l'app,
-         et retiré par l'app quand l'accueil est prêt (voir splash.js).
-         Un seul démarrage visible, mise à jour comprise. -->
+    <!-- L'enseigne d'ouverture : affichée dès la première image, avant
+         l'app. Les tubes grésillent pendant que tout se prépare (données,
+         mise à jour éventuelle), se figent allumés quand c'est prêt, puis
+         « ENTRER ». Ouverture par un lien (notification…) : on entre seul. -->
     <style>
       html, body { background: #08050a; margin: 0; }
       #protocol-splash {
-        position: fixed; inset: 0; z-index: 3000;
+        position: fixed; inset: 0; z-index: 3000; box-sizing: border-box;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        background: radial-gradient(circle at 50% 46%, rgba(255, 77, 151, 0.10), transparent 58%), #08050a;
+        padding: 0 24px 40px;
+        background:
+          radial-gradient(ellipse at 50% 42%, rgba(255, 77, 151, 0.09), transparent 60%),
+          radial-gradient(ellipse at 50% 120%, rgba(227, 192, 143, 0.06), transparent 55%),
+          #08050a;
         color: #f7eef2; text-align: center;
-        /* même hauteur que l'écran des nouveautés (phrase et bouton en dessous) */
-        padding-bottom: 146px; box-sizing: border-box;
         font-family: "Bodoni Moda Variable", "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
-        transition: opacity 0.45s ease; -webkit-tap-highlight-color: transparent;
+        transition: opacity 0.5s ease; -webkit-tap-highlight-color: transparent;
       }
       #protocol-splash.is-leaving { opacity: 0; pointer-events: none; }
+
+      /* tubes éteints : on devine le contour */
+      #protocol-splash .sp-word, #protocol-splash .sp-neon, #protocol-splash .sp-tag {
+        margin: 0; color: transparent; -webkit-text-stroke: 1px rgba(255, 77, 151, 0.22);
+      }
       #protocol-splash .sp-word {
-        margin: 0; padding-left: 0.42em; font-size: 22px; letter-spacing: 0.42em;
-        color: rgba(247, 238, 242, 0.85);
+        padding-left: 0.4em; font-size: 24px; letter-spacing: 0.4em;
+        animation: sp-buzz-a 2.6s 0.3s linear infinite;
       }
       #protocol-splash .sp-neon {
-        margin: 6px 0 0; font-style: italic; font-weight: 500; line-height: 1;
+        margin-top: 4px; font-style: italic; font-weight: 500; line-height: 1;
         font-size: min(150px, 36vw);
-        /* tube éteint : on devine le contour */
-        color: transparent; -webkit-text-stroke: 1.5px rgba(255, 77, 151, 0.22);
-        text-shadow: none;
-        animation: sp-ignite 1.9s 0.35s linear forwards;
+        animation: sp-buzz-b 2.3s 0.5s linear infinite;
       }
-      #protocol-splash.is-lit .sp-neon { animation: none; color: #ff4d97; -webkit-text-stroke: 0;
-        text-shadow: 0 0 14px rgba(255, 77, 151, 0.55), 0 0 46px rgba(255, 77, 151, 0.3); }
-      @keyframes sp-ignite {
-        0%, 14% { color: transparent; -webkit-text-stroke-color: rgba(255, 77, 151, 0.22); text-shadow: none; }
-        15%, 17% { color: #ff4d97; -webkit-text-stroke-color: transparent; text-shadow: 0 0 12px rgba(255, 77, 151, 0.6); }
-        18%, 26% { color: transparent; -webkit-text-stroke-color: rgba(255, 77, 151, 0.3); text-shadow: none; }
-        27%, 28% { color: #ff4d97; -webkit-text-stroke-color: transparent; text-shadow: 0 0 12px rgba(255, 77, 151, 0.6); }
-        29%, 31% { color: rgba(255, 77, 151, 0.35); text-shadow: none; }
-        32%, 35% { color: #ff4d97; text-shadow: 0 0 16px rgba(255, 77, 151, 0.7); }
-        36%, 50% { color: transparent; -webkit-text-stroke-color: rgba(255, 77, 151, 0.3); text-shadow: none; }
-        51%, 53% { color: #ff4d97; -webkit-text-stroke-color: transparent; text-shadow: 0 0 20px rgba(255, 77, 151, 0.8); }
-        54%, 56% { color: rgba(255, 77, 151, 0.5); text-shadow: 0 0 8px rgba(255, 77, 151, 0.3); }
-        57%, 100% { color: #ff4d97; -webkit-text-stroke-color: transparent;
-          text-shadow: 0 0 14px rgba(255, 77, 151, 0.55), 0 0 46px rgba(255, 77, 151, 0.3); }
+      #protocol-splash .sp-tag {
+        margin-top: 26px; padding-left: 0.3em; font-family: -apple-system, "SF Pro Text", system-ui, sans-serif;
+        font-size: 11px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase;
+        -webkit-text-stroke: 0; color: rgba(227, 192, 143, 0.16);
+        animation: sp-buzz-c 3.1s 0.9s linear infinite;
       }
-      #protocol-splash .sp-line {
-        width: min(240px, 64vw); height: 1px; margin-bottom: 26px;
-        background: linear-gradient(90deg, transparent, rgba(255, 77, 151, 0.7), transparent);
-        opacity: 0.6;
+
+      /* allumé fixe, quand tout est prêt */
+      #protocol-splash.is-ready .sp-word, #protocol-splash.is-ready .sp-neon {
+        animation: none; color: #ff4d97; -webkit-text-stroke: 0;
+        text-shadow: 0 0 12px rgba(255, 77, 151, 0.55), 0 0 44px rgba(255, 77, 151, 0.28);
       }
+      #protocol-splash.is-ready .sp-word { color: #ffd6e7; text-shadow: 0 0 8px rgba(255, 77, 151, 0.7), 0 0 26px rgba(255, 77, 151, 0.35); }
+      #protocol-splash.is-ready .sp-tag {
+        animation: none; color: #e3c08f;
+        text-shadow: 0 0 8px rgba(227, 192, 143, 0.55), 0 0 22px rgba(227, 192, 143, 0.25);
+      }
+
+      @keyframes sp-buzz-a {
+        0%, 12% { color: transparent; text-shadow: none; }
+        13%, 15% { color: #ffd6e7; text-shadow: 0 0 8px rgba(255, 77, 151, 0.7); }
+        16%, 40% { color: transparent; text-shadow: none; }
+        41%, 70% { color: rgba(255, 214, 231, 0.75); text-shadow: 0 0 6px rgba(255, 77, 151, 0.5); }
+        71%, 72% { color: transparent; text-shadow: none; }
+        73%, 100% { color: rgba(255, 214, 231, 0.75); text-shadow: 0 0 6px rgba(255, 77, 151, 0.5); }
+      }
+      @keyframes sp-buzz-b {
+        0%, 18% { color: transparent; text-shadow: none; }
+        19%, 21% { color: #ff4d97; text-shadow: 0 0 12px rgba(255, 77, 151, 0.6); }
+        22%, 30% { color: transparent; text-shadow: none; }
+        31%, 33% { color: #ff4d97; text-shadow: 0 0 14px rgba(255, 77, 151, 0.7); }
+        34%, 36% { color: rgba(255, 77, 151, 0.35); text-shadow: none; }
+        37%, 62% { color: #ff4d97; text-shadow: 0 0 14px rgba(255, 77, 151, 0.55), 0 0 40px rgba(255, 77, 151, 0.25); }
+        63%, 66% { color: transparent; text-shadow: none; }
+        67%, 100% { color: #ff4d97; text-shadow: 0 0 14px rgba(255, 77, 151, 0.55), 0 0 40px rgba(255, 77, 151, 0.25); }
+      }
+      @keyframes sp-buzz-c {
+        0%, 30% { color: rgba(227, 192, 143, 0.16); text-shadow: none; }
+        31%, 33% { color: #e3c08f; text-shadow: 0 0 8px rgba(227, 192, 143, 0.5); }
+        34%, 55% { color: rgba(227, 192, 143, 0.16); text-shadow: none; }
+        56%, 100% { color: rgba(227, 192, 143, 0.85); text-shadow: 0 0 6px rgba(227, 192, 143, 0.35); }
+      }
+
+      /* la porte */
+      #protocol-splash .sp-enter {
+        margin-top: 54px; min-width: 190px; min-height: 54px; padding: 0 30px;
+        border: 1px solid rgba(227, 192, 143, 0.55); border-radius: 999px;
+        background: rgba(227, 192, 143, 0.06); color: #f7eef2;
+        font: 600 14px/1 -apple-system, "SF Pro Text", system-ui, sans-serif; letter-spacing: 0.34em; padding-left: calc(30px + 0.34em);
+        box-shadow: 0 0 24px rgba(227, 192, 143, 0.14), inset 0 0 18px rgba(227, 192, 143, 0.06);
+        opacity: 0; transform: translateY(8px); pointer-events: none;
+        transition: opacity 0.6s ease 0.25s, transform 0.6s ease 0.25s;
+        cursor: pointer; -webkit-appearance: none; appearance: none;
+      }
+      #protocol-splash.is-ready.is-door .sp-enter { opacity: 1; transform: none; pointer-events: auto; }
+      #protocol-splash .sp-enter:active { transform: scale(0.97); }
       @media (prefers-reduced-motion: reduce) {
-        #protocol-splash .sp-neon { animation: none; color: #ff4d97; -webkit-text-stroke: 0; }
+        #protocol-splash .sp-word, #protocol-splash .sp-neon, #protocol-splash .sp-tag { animation: none; }
       }
     </style>
   </head>
 
   
   <body>
-    <div id="protocol-splash" aria-hidden="true">
-      <div class="sp-line"></div>
-      <p class="sp-word">PROTOCOL</p>
-      <p class="sp-neon">2.0</p>
+    <div id="protocol-splash">
+      <p class="sp-word" aria-hidden="true">PROTOCOL</p>
+      <p class="sp-neon" aria-hidden="true">2.0</p>
+      <p class="sp-tag">Club privé · Adultes consentants</p>
+      <button type="button" class="sp-enter">ENTRER</button>
     </div>
     <script>
-      /* Le néon reste au moins le temps de s'allumer, et jusqu'à ce que
-         l'app soit prête (accueil chargé, mise à jour vérifiée). Après un
-         rechargement de mise à jour, il est déjà allumé. Un toucher passe. */
+      /* Les tubes grésillent tant que l'app se prépare : premier vrai
+         écran affiché, mise à jour éventuelle vérifiée (une nouvelle
+         version recharge la page derrière l'enseigne). Puis allumage fixe
+         et « ENTRER ». Par un lien direct (notification), on entre seul.
+         Sécurité : prêt au bout de 10 s quoi qu'il arrive. */
       (function () {
         var el = document.getElementById("protocol-splash");
-        var lit = false;
-        try { lit = sessionStorage.getItem("protocol_splash_lit") === "1"; sessionStorage.removeItem("protocol_splash_lit"); } catch (e) {}
-        if (lit) el.className = "is-lit";
+        var door = el.querySelector(".sp-enter");
+        var direct = location.pathname !== "/";
+        var again = false;
+        try { again = sessionStorage.getItem("protocol_splash_lit") === "1"; sessionStorage.removeItem("protocol_splash_lit"); } catch (e) {}
         var start = Date.now();
-        var minimum = lit ? 500 : 2300;
-        var appReady = false, updateChecked = false, skipped = false, gone = false;
+        var minimum = again ? 0 : 1300; // le temps de voir les tubes chauffer
+        var appReady = false, updateChecked = false, lit = false, gone = false;
+
         function leave() {
           if (gone) return;
           gone = true;
           el.className += " is-leaving";
-          setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 500);
+          setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 550);
         }
-        function tryLeave() {
-          if (gone || !appReady || !updateChecked) return;
-          var wait = skipped ? 0 : Math.max(0, minimum - (Date.now() - start));
-          setTimeout(leave, wait);
+        function light() {
+          if (lit) return;
+          lit = true;
+          el.className += " is-ready";
+          if (direct) { setTimeout(leave, again ? 0 : 450); return; }
+          el.className += " is-door";
+          try { door.focus({ preventScroll: true }); } catch (e) {}
         }
+        function check() {
+          if (lit || !appReady || !updateChecked) return;
+          setTimeout(light, Math.max(0, minimum - (Date.now() - start)));
+        }
+        // un son discret en entrant (le toucher l'autorise), sauf si coupé
+        function chime() {
+          try {
+            if (localStorage.getItem("protocol_sounds") === "off") return;
+            var A = window.AudioContext || window.webkitAudioContext; if (!A) return;
+            if (navigator.audioSession) navigator.audioSession.type = "ambient";
+            var c = new A(), t = c.currentTime + 0.02;
+            [196, 293.66, 392].forEach(function (f, i) {
+              var g = c.createGain(), o = c.createOscillator();
+              o.type = "sine"; o.frequency.value = f;
+              g.gain.setValueAtTime(0.0001, t + i * 0.07);
+              g.gain.exponentialRampToValueAtTime(0.06, t + i * 0.07 + 0.03);
+              g.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.07 + 1.6);
+              o.connect(g).connect(c.destination); o.start(t + i * 0.07); o.stop(t + i * 0.07 + 1.7);
+            });
+          } catch (e) {}
+        }
+        door.addEventListener("click", function () { chime(); leave(); });
+
         window.__protocolSplash = {
-          ready: function () { appReady = true; tryLeave(); },
-          updateChecked: function () { updateChecked = true; tryLeave(); },
+          ready: function () { appReady = true; check(); },
+          updateChecked: function () { updateChecked = true; check(); },
           isGone: function () { return gone; }
         };
-        el.addEventListener("click", function () { skipped = true; tryLeave(); });
-        // l'app est prête dès qu'un vrai écran remplace les écrans
-        // de chargement (« Un instant », « Préparation… »)
-        function check() {
+
+        // l'app est prête dès qu'un vrai écran remplace les chargements
+        function watch() {
           var main = document.querySelector("#root main");
           if (main && main.getAttribute("aria-busy") !== "true") {
-            appReady = true; tryLeave();
+            appReady = true; check();
             if (observer) observer.disconnect();
           }
         }
         var observer = null;
         document.addEventListener("DOMContentLoaded", function () {
           var root = document.getElementById("root");
-          if (!root || !window.MutationObserver) { appReady = true; tryLeave(); return; }
-          observer = new MutationObserver(check);
+          if (!root || !window.MutationObserver) { appReady = true; check(); return; }
+          observer = new MutationObserver(watch);
           observer.observe(root, { childList: true, subtree: true });
-          check();
+          watch();
         });
-        // secours : jamais bloqué
-        setTimeout(leave, 8000);
+        setTimeout(function () { appReady = true; updateChecked = true; check(); }, 10000);
       })();
     </script>
     <div id="root"></div>

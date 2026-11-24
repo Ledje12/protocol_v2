@@ -62,9 +62,9 @@ if ("serviceWorker" in navigator) {
   );
 
   /* À l'ouverture, on vérifie s'il existe une version plus récente
-     pendant que le néon est affiché : si oui, elle s'installe et la
-     page se recharge derrière lui. Plus d'ancienne version entrevue
-     avant la nouvelle. 3,5 s au plus. */
+     pendant que l'enseigne grésille : si oui, elle s'installe et la
+     page se recharge derrière elle. « ENTRER » n'apparaît qu'ensuite :
+     plus d'ancienne version entrevue avant la nouvelle. 9 s au plus. */
   const checkForUpdate = async () => {
     const registration =
       await navigator.serviceWorker.getRegistration();
@@ -85,14 +85,14 @@ if ("serviceWorker" in navigator) {
             resolve();
           }
         });
-        window.setTimeout(resolve, 3000);
+        window.setTimeout(resolve, 8000);
       });
     }
   };
 
   Promise.race([
     checkForUpdate().catch(() => {}),
-    new Promise((resolve) => window.setTimeout(resolve, 3500)),
+    new Promise((resolve) => window.setTimeout(resolve, 9000)),
   ]).finally(splashUpdateChecked);
 
 } else {

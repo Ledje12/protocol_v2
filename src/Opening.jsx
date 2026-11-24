@@ -12,7 +12,9 @@ import { RELEASE, markReleaseSeen } from "./release.js";
 const FEATURES = 4;
 
 export default function Opening({ partnerName, onClose }) {
-  const [scene, setScene] = useState(0);
+  // l'enseigne d'ouverture vient d'allumer le « 2.0 » : on commence
+  // directement par les nouveautés
+  const [scene, setScene] = useState(1);
 
   // braises de l'ouverture : positions tirées une fois
   const embers = useMemo(
@@ -80,6 +82,10 @@ export default function Opening({ partnerName, onClose }) {
 
       {scene >= 1 && scene <= FEATURES && (
         <section className="opening-scene opening-feature" key={scene}>
+          <button type="button" className="opening-skip" onClick={close}>
+            Passer
+          </button>
+
           <span className="opening-count">Nouveau · {scene} / {FEATURES}</span>
 
           {scene === 1 && (
