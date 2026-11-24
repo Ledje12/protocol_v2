@@ -75,16 +75,18 @@ async function setCardStyle(user, style) {
   await rpc(user, "set_protocol_card_style", { p_style: style });
 }
 
+// Impose le type de la prochaine carte (mécanisme interne du tirage,
+// l'ancien joker « Imposer le type » n'existe plus dans l'app).
 async function imposeType(couple, code, type) {
   const g = await game(code);
+  const column = `bonus_player_${g.active_player}`;
 
-  await rpc(playerOf(couple, g), "use_choose_type_guarded", {
-    p_game_code: code,
-    p_card_type: type,
-    p_expected_turn_no: g.turn_no,
-    p_expected_card_id: g.current_card_id,
-    p_expected_card_source: g.current_card_source,
-  });
+  await sql(
+    `update public.games
+     set ${column} = coalesce(${column}, '{}'::jsonb) || jsonb_build_object('choose_type_armed', $2::text)
+     where code = $1`,
+    [code, type]
+  );
 
   return g.active_player;
 }
@@ -103,10 +105,11 @@ test("association et lancement d'une partie à deux téléphones", async () => {
     ["Alex", "male", "Bea", "female"]
   );
 
-  // deux jokers chacun au départ, plus de points
+  // une envie chacun au départ, plus de points ni d'anciens jokers
   for (const bonus of [g.bonus_player_1, g.bonus_player_2]) {
-    assert.equal(bonus.choose_type, true);
-    assert.equal(bonus.take_control, true);
+    assert.equal(bonus.desire, 1);
+    assert.equal(bonus.choose_type, undefined);
+    assert.equal(bonus.take_control, undefined);
   }
 });
 
@@ -161,90 +164,6 @@ test("style Kinky : seulement des cartes kinky, sauf vérités, duels et niveaux
       `carte vanilla ${card.type} niveau ${card.intensity} en mode Kinky`
     );
   }
-});
-
-test("joker « Imposer le type » puis duel gagné : le joker est rechargé", async () => {
-  const couple = await createCouple();
-  let code = await startTwoPhoneGame(couple);
-
-  // pas deux duels de suite : partir d'une première carte qui n'en est pas un
-  while ((await currentCard(code)).type === "duel") {
-    code = await startTwoPhoneGame(couple);
-  }
-
-  const jokerPlayer = await imposeType(couple, code, "duel");
-  const bonusKey = `bonus_player_${jokerPlayer}`;
-
-  let g = await game(code);
-  assert.equal(g[bonusKey].choose_type, undefined, "le joker est consommé");
-  assert.equal(g[bonusKey].choose_type_armed, "duel");
-
-  await playTurn(couple, code);
-  g = await game(code);
-  assert.equal((await currentCard(code)).type, "duel", "la carte suivante est un duel");
-
-  await play(playerOf(couple, g), code, "duel", jokerPlayer);
-  g = await game(code);
-  assert.equal(g[bonusKey].choose_type, true, "le duel gagné recharge le joker");
-});
-
-test("joker « Prendre la main » : le même joueur rejoue", async () => {
-  const couple = await createCouple();
-  const code = await startTwoPhoneGame(couple);
-  let g = await game(code);
-  const player = g.active_player;
-
-  await rpc(playerOf(couple, g), "use_take_control_guarded", {
-    p_game_code: code,
-    p_expected_turn_no: g.turn_no,
-    p_expected_card_id: g.current_card_id,
-    p_expected_card_source: g.current_card_source,
-  });
-
-  // un duel gagné rechargerait le joker : c'est l'autre qui gagne
-  await playTurn(couple, code, player === 1 ? 2 : 1);
-  g = await game(code);
-  assert.equal(g.active_player, player, "le joueur garde la main");
-  assert.notEqual(g[`bonus_player_${player}`].take_control, true);
-});
-
-test("STOP puis reprise : la partie continue, sans redonner de jokers", async () => {
-  const couple = await createCouple();
-  const code = await startTwoPhoneGame(couple);
-  let g = await game(code);
-  const user = playerOf(couple, g);
-  const bonusKey = `bonus_player_${g.active_player}`;
-
-  await rpc(user, "use_take_control_guarded", {
-    p_game_code: code,
-    p_expected_turn_no: g.turn_no,
-    p_expected_card_id: g.current_card_id,
-    p_expected_card_source: g.current_card_source,
-  });
-
-  await rpc(couple.a, "stop_protocol_game", { p_game_code: code });
-  assert.equal((await game(code)).status, "paused");
-  await rejects(play(user, code, "pass"), /./);
-
-  await rpc(couple.b, "resume_protocol_game", { p_game_code: code });
-  g = await game(code);
-  assert.equal(g.status, "playing");
-  assert.notEqual(g[bonusKey].take_control, true, "la reprise ne recharge pas les jokers");
-});
-
-test("type imposé indisponible (scène en début de partie) : tirage normal et joker rendu", async () => {
-  const couple = await createCouple();
-  const code = await startTwoPhoneGame(couple);
-
-  // pas de scène avant 20 % de la partie
-  const player = await imposeType(couple, code, "scene");
-  await playTurn(couple, code);
-
-  const g = await game(code);
-  assert.equal(g.turn_no, 2, "la partie avance");
-  assert.notEqual((await currentCard(code)).type, "scene");
-  assert.equal(g[`bonus_player_${player}`].choose_type, true, "le joker est rendu");
-  assert.equal(g[`bonus_player_${player}`].choose_type_armed, undefined);
 });
 
 test("scène : l'étape privée montre à chacun son propre texte", async () => {

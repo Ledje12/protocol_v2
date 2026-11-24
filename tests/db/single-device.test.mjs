@@ -12,6 +12,7 @@ import {
   pool,
   rejects,
   rpc,
+  sql,
   startTwoPhoneGame,
 } from "./helpers.mjs";
 
@@ -73,13 +74,12 @@ test("un seul téléphone : chaque joueur lit son texte privé", async () => {
   }
 
   let g = await game(code);
-  await rpc(couple.a, "use_choose_type_guarded", {
-    p_game_code: code,
-    p_card_type: "scene",
-    p_expected_turn_no: g.turn_no,
-    p_expected_card_id: g.current_card_id,
-    p_expected_card_source: g.current_card_source,
-  });
+  // type imposé (mécanisme interne ; l'ancien joker n'existe plus)
+  const column = `bonus_player_${g.active_player}`;
+  await sql(
+    `update public.games set ${column} = coalesce(${column}, '{}'::jsonb) || '{"choose_type_armed": "scene"}'::jsonb where code = $1`,
+    [code]
+  );
   const before = await currentCard(code);
   await play(couple.a, code, before.type === "duel" ? "duel" : "pass", 1);
 

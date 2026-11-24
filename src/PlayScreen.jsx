@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import Footer from "./Footer.jsx";
-import { TYPE_LABELS } from "./gameConstants.js";
 import { getGameSession } from "./gameSession.js";
 import LoadingScreen from "./LoadingScreen.jsx";
 import StateScreen from "./StateScreen.jsx";
@@ -77,10 +76,9 @@ export default function PlayScreen({
   const [stopLoading, setStopLoading] =
     useState(false);
 
-  const [
-    showTypePicker,
-    setShowTypePicker,
-  ] = useState(false);
+  /* L'envie : thèmes possibles pour la prochaine carte */
+  const [desireCategories, setDesireCategories] =
+    useState(null);
 
   const [
     showBonuses,
@@ -1199,7 +1197,7 @@ async function handleSceneRead() {
       const activeBonus =
         (gameData.active_player === 1 ? gameData.bonus_player_1 : gameData.bonus_player_2) || {};
       const activeJokers =
-        (activeBonus.choose_type ? 1 : 0) + (activeBonus.take_control ? 1 : 0);
+        Number(activeBonus.desire || 0);
       if (
         seen.id === cardData?.id &&
         seen.state === "pending" &&
@@ -1209,7 +1207,7 @@ async function handleSceneRead() {
         setSealedToast(
           gameData.active_player === playerNumber
             ? activeJokers > seen.jokers
-              ? "✦ Carte acceptée, joker rechargé"
+              ? "✦ Carte acceptée : une envie de plus"
               : "✦ Carte acceptée"
             : `✦ ${gameData.active_player === 1 ? gameData.player_1_name : gameData.player_2_name} a accepté la carte scellée`
         );
@@ -1736,71 +1734,50 @@ async function handleSceneRead() {
 
 
   /* =========================================
-     CHOOSE NEXT TYPE
+     L'ENVIE : thème de la prochaine carte
      ========================================= */
 
-  const chooseNextType =
-    async (cardType) => {
+  const chooseDesire =
+    async (category) => {
       try {
         setNextLoading(true);
         setError("");
 
-        const {
-          data,
-          error: rpcError,
-        } = await supabase.rpc(
-          "use_choose_type_guarded",
-          {
-            p_game_code:
-              code,
+        const { error: desireError } =
+          await supabase.rpc("use_desire", {
+            p_game_code: code,
+            p_category: category,
+          });
 
-            p_card_type:
-              cardType,
-
-            p_expected_turn_no:
-              game?.turn_no,
-
-            p_expected_card_id:
-              card?.id,
-
-            p_expected_card_source:
-              card?.card_source ||
-              "official",
-          }
-        );
-
-        if (data?.stale) {
-          await loadState();
-          return;
+        if (desireError) {
+          throw desireError;
         }
 
-        if (rpcError) {
-          throw rpcError;
-        }
-
-        console.log(
-          "TYPE CHOSEN:",
-          data
-        );
-
-        setShowTypePicker(false);
-
+        setShowBonuses(false);
         await loadState();
-
       } catch (err) {
-        console.error(
-          "CHOOSE TYPE ERROR:",
-          err
-        );
-
+        console.error("DESIRE ERROR:", err);
         setError(
-          humanError(err, err?.message || "Ce type de carte n’est pas disponible.")
+          humanError(err, "Impossible de choisir ce thème. Réessaie dans un instant.")
         );
-
       } finally {
         setNextLoading(false);
       }
     };
+
+  useEffect(() => {
+    if (!showBonuses) return undefined;
+    let active = true;
+    setDesireCategories(null);
+    supabase
+      .rpc("get_desire_categories", { p_game_code: code })
+      .then(({ data, error: categoriesError }) => {
+        if (active) setDesireCategories(categoriesError ? [] : data || []);
+      });
+    return () => {
+      active = false;
+    };
+  }, [showBonuses, code, game?.turn_no]);
 
 
   /* =========================================
@@ -2274,9 +2251,11 @@ async function handleSceneRead() {
       : game.bonus_player_2 || {};
 
   // jokers encore en main (les points ont disparu)
-  const jokersLeft =
-    (myBonuses.choose_type ? 1 : 0) +
-    (myBonuses.take_control ? 1 : 0);
+  const desireLeft =
+    Number(myBonuses.desire || 0);
+
+  const desireArmed =
+    myBonuses.desire_armed || null;
   const isMyTurn =
     game.active_player ===
     playerNumber;
@@ -2453,7 +2432,7 @@ async function handleSceneRead() {
 
 
     {/* =====================================
-        BONUS
+        L'ENVIE (le joker)
         ===================================== */}
 
     <div
@@ -2474,19 +2453,17 @@ async function handleSceneRead() {
         }
       >
         <span className="bonus-toggle-label">
-          JOKERS
+          L’ENVIE
         </span>
 
         <span className="bonus-toggle-meta">
-          {myBonuses.choose_type_armed ? (
+          {desireArmed ? (
             <span className="bonus-toggle-armed">
-              Prochaine : {TYPE_LABELS[myBonuses.choose_type_armed] || myBonuses.choose_type_armed}
+              Prochaine : {desireArmed}
             </span>
           ) : (
             <>
-              {jokersLeft === 0
-                ? "Aucun"
-                : jokersLeft}
+              {desireLeft === 0 ? "Aucune" : desireLeft}
               {" "}en main
             </>
           )}
@@ -2502,252 +2479,62 @@ async function handleSceneRead() {
       </button>
 
       {showBonuses && (
-        <div className="bonus-bar">
-          <button
-            type="button"
-            className={
-              myBonuses.choose_type ||
-              myBonuses.choose_type_armed
-                ? "bonus-button bonus-owned"
-                : "bonus-button"
-            }
-            onClick={() => {
-              setShowBonuses(false);
-              setShowTypePicker(true);
-            }}
-            disabled={
-              nextLoading ||
-              !isMyTurn ||
-              (
-                !myBonuses.choose_type &&
-                !myBonuses.choose_type_armed
-              )
-            }
-          >
-            <span className="bonus-button-content">
-              <span className="bonus-button-title">
-                Imposer le type
-              </span>
+        <div className="bonus-bar desire-bar">
+          <p className="desire-intro">
+            Choisis le thème de la prochaine carte, celle de {partnerName}.
+            {(playerNumber === 1 ? game.player_2_sex : game.player_1_sex) === "female" ? " Elle" : " Il"}{" "}
+            saura que c’était ton envie.
+          </p>
 
-              <small>
-                Choisis le type de la prochaine carte.
-              </small>
-            </span>
+          {!isMyTurn ? (
+            <p className="bonus-note">
+              Tu pourras t’en servir à ton tour.
+            </p>
+          ) : desireLeft === 0 && !desireArmed ? (
+            <p className="bonus-note">
+              Plus d’envie en main pour l’instant.
+            </p>
+          ) : desireCategories === null ? (
+            <p className="bonus-note">Un instant…</p>
+          ) : desireCategories.length === 0 ? (
+            <p className="bonus-note">
+              Aucun thème possible pour la prochaine carte.
+            </p>
+          ) : (
+            <div className="desire-grid">
+              {desireCategories.map((option) => (
+                <button
+                  key={option.category}
+                  type="button"
+                  className={desireArmed === option.category ? "is-active" : undefined}
+                  aria-pressed={desireArmed === option.category}
+                  onClick={() => chooseDesire(option.category)}
+                  disabled={nextLoading}
+                >
+                  {option.category}
+                </button>
+              ))}
+            </div>
+          )}
 
-            <strong>
-              {myBonuses.choose_type_armed
-                ? (TYPE_LABELS[myBonuses.choose_type_armed] || myBonuses.choose_type_armed)
-                    .toUpperCase()
-                : !myBonuses.choose_type
-                  ? "UTILISÉ"
-                  : isMyTurn
-                    ? "UTILISER"
-                    : "À TON TOUR"}
-            </strong>
-          </button>
-
-          <button
-            type="button"
-            className={
-              myBonuses.take_control ||
-              myBonuses.take_control_armed
-                ? "bonus-button bonus-owned"
-                : "bonus-button"
-            }
-            onClick={async () => {
-              setShowBonuses(false);
-            try {
-              setNextLoading(true);
-              setError("");
-
-              const {
-                data,
-                error: bonusError,
-              } = await supabase.rpc(
-                "use_take_control_guarded",
-                {
-                  p_game_code:
-                    code,
-
-                  p_expected_turn_no:
-                    game?.turn_no,
-
-                  p_expected_card_id:
-                    card?.id,
-
-                  p_expected_card_source:
-                    card?.card_source ||
-                    "official",
-                }
-              );
-
-              if (bonusError) {
-                throw bonusError;
-              }
-
-              if (data?.stale) {
-                await loadState();
-                return;
-              }
-
-              await loadState();
-
-            } catch (err) {
-              console.error(
-                "TAKE CONTROL ERROR:",
-                err
-              );
-
-              setError(
-                humanError(err, err?.message || "Impossible d’utiliser cet avantage.")
-              );
-
-            } finally {
-              setNextLoading(false);
-            }
-          }}
-            disabled={
-              nextLoading ||
-              !isMyTurn ||
-              !myBonuses.take_control
-            }
-          >
-            <span className="bonus-button-content">
-              <span className="bonus-button-title">
-                Prendre la main
-              </span>
-
-              <small>
-                Joue aussi le prochain tour, à la place de l’autre.
-              </small>
-            </span>
-
-            <strong>
-              {myBonuses.take_control_armed
-                ? "ACTIF"
-                : !myBonuses.take_control
-                  ? "UTILISÉ"
-                  : isMyTurn
-                    ? "UTILISER"
-                    : "À TON TOUR"}
-            </strong>
-          </button>
+          {desireArmed && isMyTurn && (
+            <button
+              type="button"
+              className="text-action desire-cancel"
+              onClick={() => chooseDesire(null)}
+              disabled={nextLoading}
+            >
+              Annuler, garder mon envie
+            </button>
+          )}
 
           <p className="bonus-note">
-            Un duel gagné recharge un joker utilisé.
+            Un duel gagné ou une carte scellée acceptée t’en redonne une.
+            Deux au plus.
           </p>
         </div>
       )}
     </div>
-
-      {/* =====================================
-          TYPE PICKER
-          ===================================== */}
-
-      {showTypePicker && (
-        <div className="type-picker">
-
-          <div className="type-picker-header">
-
-            <div>
-              <strong>
-                Prochaine carte
-              </strong>
-
-              <span>
-                Choisis son type.
-              </span>
-            </div>
-
-
-            <button
-              className="type-picker-close"
-              onClick={() =>
-                setShowTypePicker(
-                  false
-                )
-              }
-            >
-              ×
-            </button>
-
-          </div>
-
-
-          <div className="type-picker-grid">
-
-            <button
-              onClick={() =>
-                chooseNextType(
-                  "truth"
-                )
-              }
-              disabled={nextLoading}
-            >
-              <span>?</span>
-              Vérité
-            </button>
-
-
-            <button
-              onClick={() =>
-                chooseNextType(
-                  "action"
-                )
-              }
-              disabled={nextLoading}
-            >
-              <span>→</span>
-              Action
-            </button>
-
-
-            <button
-              onClick={() =>
-                chooseNextType(
-                  "duel"
-                )
-              }
-              disabled={nextLoading}
-            >
-              <span>×</span>
-              Duel
-            </button>
-
-
-            <button
-              onClick={() =>
-                chooseNextType(
-                  "scene"
-                )
-              }
-              disabled={nextLoading}
-            >
-              <span>◇</span>
-              Scène
-            </button>
-
-            
-            {myBonuses.choose_type_armed && (
-
-              <button
-                onClick={() =>
-                  chooseNextType(
-                    "auto"
-                  )
-                }
-                disabled={nextLoading}
-              >
-                <span>↺</span>
-                Automatique
-              </button>
-
-            )}
-
-          </div>
-
-        </div>
-      )}
 
 
       {/* =====================================
@@ -2991,6 +2778,14 @@ async function handleSceneRead() {
               if (event.animationName === "sealedUnseal") setSealedFlip(false);
             }}
           >
+
+          {card.desire?.category && !sealedPending && (
+            <p className="desire-ribbon">
+              <i aria-hidden="true">✦</i>
+              L’envie {deName(card.desire.by === 1 ? player1Name : player2Name)} :{" "}
+              <strong>{card.desire.category}</strong>
+            </p>
+          )}
 
           {sealedPending ? (
             <div className="sealed-back">
@@ -3286,8 +3081,8 @@ async function handleSceneRead() {
                 </button>
 
                 <p className="sealed-note">
-                  Accepter recharge un joker. Une fois retournée, elle se
-                  joue telle quelle, ou tu passes et l’autre gagne le joker.
+                  Accepter te donne une envie. Une fois retournée, elle se
+                  joue telle quelle, ou tu passes et l’envie va à l’autre.
                 </p>
               </div>
             ) : (
@@ -3370,7 +3165,7 @@ async function handleSceneRead() {
 
               {/* plus de points : le duel recharge un joker */}
               <p className="duel-note">
-                Le gagnant recharge un joker utilisé.
+                Le gagnant gagne une envie.
               </p>
               {isMyTurn && (
               <button
@@ -3541,45 +3336,21 @@ async function handleSceneRead() {
                   onClick={() => sealedAction("pass_sealed_card")}
                   disabled={nextLoading}
                 >
-                  Passer et offrir un joker à {cardPartnerName}
+                  Passer et offrir une envie à {cardPartnerName}
                 </button>
               </div>
               ) : (
               <div className="alternative-actions">
-
-                <button
-                  className="text-action"
-
-                  onClick={() =>
-                    advanceGame(
-                      "alternative"
-                    )
-                  }
-
-                  disabled={
-                    nextLoading
-                  }
-                >
-                  Autre proposition
-                </button>
-
-
+                {/* une seule autre proposition par tour, ensuite on passe */}
                 <button
                   className="text-action pass-action"
-
                   onClick={() =>
-                    advanceGame(
-                      "pass"
-                    )
+                    advanceGame(card.alternative_used ? "pass" : "alternative")
                   }
-
-                  disabled={
-                    nextLoading
-                  }
+                  disabled={nextLoading}
                 >
-                  Passer
+                  {card.alternative_used ? "Passer mon tour" : "Autre proposition"}
                 </button>
-
               </div>
               )}
 
