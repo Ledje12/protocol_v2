@@ -4196,3 +4196,66 @@ button.envelope-card:not(:disabled) {
   line-height: 1.45;
   color: var(--c-text-soft) !important;
 }
+
+/* ---------------------------------------------------------
+   VERSION 1.0 : nouveautés (une fois) et mention en Réglages
+   --------------------------------------------------------- */
+
+.whatsnew-title {
+  font-family: var(--font-serif);
+  letter-spacing: 0.12em;
+}
+
+.whatsnew-title span {
+  margin-left: 6px;
+  letter-spacing: 0;
+  font-style: italic;
+  color: var(--c-accent);
+}
+
+.whatsnew-list {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.whatsnew-list li {
+  display: grid;
+  gap: 3px;
+  padding-left: 16px;
+  border-left: 2px solid rgba(var(--c-accent-rgb), 0.55);
+}
+
+.whatsnew-list strong {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+.whatsnew-list span {
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--c-text-soft);
+}
+
+.whatsnew-foot {
+  justify-content: flex-end;
+}
+
+.settings-version {
+  margin: 28px 0 8px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  color: var(--c-label);
+}
+
+.settings-version span {
+  letter-spacing: 0.06em;
+  font-style: italic;
+  color: var(--c-muted);
+}
