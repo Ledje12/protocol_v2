@@ -4074,3 +4074,24 @@ button.envelope-card:not(:disabled) {
 .card-edit-intensity button.is-active span {
   color: var(--c-accent);
 }
+
+/* lune : tamiser la lumière en pleine partie, juste avant STOP */
+.play-page .dim-toggle {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  margin: 0 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--c-muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.play-page .dim-toggle[aria-pressed="true"] {
+  color: var(--c-duel);
+  border-color: rgba(var(--c-duel-rgb), 0.4);
+}
