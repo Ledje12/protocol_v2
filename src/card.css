@@ -1324,3 +1324,73 @@
   grid-column: 1 / -1;
   width: 100%;
 }
+
+/* =========================================================
+   L'ENVIE : le joker qui choisit le thème de la prochaine carte
+   ========================================================= */
+
+.play-page .desire-bar {
+  display: grid;
+  gap: 12px;
+}
+
+.desire-intro {
+  margin: 0;
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--c-text-soft);
+}
+
+.desire-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.desire-grid button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: rgba(var(--c-bg-rgb), 0.5);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desire-grid button.is-active {
+  border-color: var(--c-accent);
+  background: rgba(var(--c-accent-rgb), 0.14);
+  color: var(--c-accent-soft);
+}
+
+.desire-grid button:disabled {
+  opacity: 0.5;
+}
+
+.play-page .desire-cancel {
+  justify-self: start;
+}
+
+/* sur la carte : « L'envie d'Audrey : Hors piste » */
+.desire-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--c-duel);
+}
+
+.desire-ribbon i {
+  font-style: normal;
+}
+
+.desire-ribbon strong {
+  color: var(--c-text);
+  font-weight: 700;
+}

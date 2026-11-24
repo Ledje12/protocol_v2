@@ -49,19 +49,24 @@ const STEPS = [
     ),
   },
   {
-    kicker: "LES JOKERS",
-    title: "Pas de score. Des jokers.",
+    kicker: "L’ENVIE",
+    title: "Pas de score. Des envies.",
     body: (
       <>
         <p>
           Personne ne compte les points : on ne joue pas l’un
-          contre l’autre. Passer ne coûte rien.
+          contre l’autre.
         </p>
         <p>
-          Chacun commence avec deux jokers :{" "}
-          <strong>imposer le type</strong> de la prochaine carte,
-          et <strong>prendre la main</strong> pour jouer deux fois
-          de suite. <em>Un duel gagné, ou une carte scellée acceptée, recharge un joker utilisé.</em>
+          Chacun a une <strong>envie</strong> en main : à ton tour, tu
+          choisis le thème de la prochaine carte de l’autre, et il
+          saura que c’était la tienne.{" "}
+          <em>Un duel gagné ou une carte scellée acceptée t’en redonne une.</em>
+        </p>
+        <p>
+          Quatre fois par partie, une <strong>carte scellée</strong>{" "}
+          arrive retournée, un cran plus chaude : tu l’acceptes sans la
+          lire, ou tu prends une carte normale.
         </p>
       </>
     ),

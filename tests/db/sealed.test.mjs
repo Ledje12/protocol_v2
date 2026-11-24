@@ -119,14 +119,14 @@ test("tant qu'elle n'est pas acceptée, la carte est cachée aux deux joueurs et
   assert.ok(summary.offered >= 1);
 });
 
-test("accepter : la carte se retourne, recharge un joker, ne peut plus être changée", async () => {
+test("accepter : la carte se retourne, donne une envie, ne peut plus être changée", async () => {
   const { couple, code, g } = await sealedGame();
   const user = playerOf(couple, g);
   const bonusKey = g.active_player === 1 ? "bonus_player_1" : "bonus_player_2";
 
-  // un joker déjà utilisé, pour voir la recharge
+  // envie déjà utilisée, pour voir le gain
   await pool.query(
-    `update public.games set ${bonusKey} = ${bonusKey} - 'choose_type' where code = $1`,
+    `update public.games set ${bonusKey} = jsonb_set(coalesce(${bonusKey}, '{}'::jsonb), '{desire}', '0') where code = $1`,
     [code]
   );
 
@@ -134,7 +134,7 @@ test("accepter : la carte se retourne, recharge un joker, ne peut plus être cha
 
   const after = await game(code);
   assert.equal(after.sealed_status, "accepted");
-  assert.equal(after[bonusKey].choose_type, true, "joker rechargé");
+  assert.equal(after[bonusKey].desire, 1, "une envie de gagnée");
 
   const shown = await rpc(user, "get_protocol_current_card", { p_game_code: code });
   assert.equal(shown.sealed, "accepted");
@@ -148,12 +148,12 @@ test("accepter : la carte se retourne, recharge un joker, ne peut plus être cha
   assert.notEqual(next.sealed_status, "accepted");
 });
 
-test("passer après avoir accepté : le joker va à l'autre", async () => {
+test("passer après avoir accepté : l'envie va à l'autre", async () => {
   const { couple, code, g } = await sealedGame();
   const otherKey = g.active_player === 1 ? "bonus_player_2" : "bonus_player_1";
 
   await pool.query(
-    `update public.games set ${otherKey} = ${otherKey} - 'take_control' - 'choose_type' where code = $1`,
+    `update public.games set ${otherKey} = jsonb_set(coalesce(${otherKey}, '{}'::jsonb), '{desire}', '0') where code = $1`,
     [code]
   );
 
@@ -162,7 +162,16 @@ test("passer après avoir accepté : le joker va à l'autre", async () => {
 
   const next = await game(code);
   assert.equal(next.turn_no, g.turn_no + 1);
-  assert.equal(next[otherKey].choose_type, true, "l'autre récupère un joker");
+  assert.equal(next[otherKey].desire, 1, "l'autre gagne une envie");
+});
+
+test("refuser compte comme l'autre proposition du tour", async () => {
+  const { couple, code, g } = await sealedGame();
+
+  await rpc(playerOf(couple, g), "refuse_sealed_card", { p_game_code: code, p_expected_card_id: g.current_card_id });
+  const after = await rpc(playerOf(couple, g), "get_protocol_current_card", { p_game_code: code });
+  assert.equal(after.alternative_used, true);
+  await rejects(advance(couple, code, "alternative"), /one alternative per turn/i);
 });
 
 test("refuser : une carte normale la remplace, au même tour, sans joker", async () => {

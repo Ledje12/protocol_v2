@@ -2285,6 +2285,23 @@ export default function SettingsScreen({
             />
 
             <SettingsRow
+              label="Règles de la partie"
+              hint={
+                [
+                  envelopeEnabled && "Enveloppe",
+                  sealedEnabled && "Cartes scellées",
+                  missionsEnabled && "Missions secrètes",
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || "Rien de plus que les cartes."
+              }
+              onClick={() => {
+                setDirectorMessage("");
+                setSheet("rules");
+              }}
+            />
+
+            <SettingsRow
               label="Mes cartes"
               hint="Vos actions, vérités et duels, privés à votre duo."
               onClick={() =>
@@ -2327,6 +2344,29 @@ export default function SettingsScreen({
               toggle
             />
           )}
+
+          <SettingsRow
+            label="Sons"
+            hint="Un son discret à chaque carte, à la fin du minuteur, quand un duel est gagné. Rien en mode silence."
+            value={soundsOn ? "Activés" : "Désactivés"}
+            tone={soundsOn ? "on" : undefined}
+            onClick={() => {
+              const next = !soundsOn;
+              setSoundsEnabled(next);
+              setSoundsOn(next);
+              if (next) playSound("card");
+            }}
+            toggle
+          />
+
+          <SettingsRow
+            label="Lumière tamisée"
+            hint="Pour jouer dans le noir : ambre et rouge sombre, sans blanc qui éblouit. Aussi d’un toucher sur la lune ☾ en partie."
+            value={dimLight ? "Activée" : "Désactivée"}
+            tone={dimLight ? "on" : undefined}
+            onClick={() => setDimLight(!dimLight)}
+            toggle
+          />
 
           <SettingsRow
             label="Lovense"
@@ -2681,6 +2721,22 @@ export default function SettingsScreen({
                 </>
               )}
 
+              {directorMessage && (
+                <p className="mode-sheet-hint mode-sheet-feedback">
+                  {directorMessage}
+                </p>
+              )}
+            </div>
+          </SettingsSheet>
+        )}
+
+        {sheet === "rules" && (
+          <SettingsSheet
+            eyebrow="LE JEU"
+            title="Règles de la partie."
+            onClose={() => setSheet(null)}
+          >
+            <div className="mode-sheet">
               {envelopeEnabled !== null && (
                 <section className="mode-sheet-section">
                   <h3>L’enveloppe</h3>
@@ -2742,7 +2798,7 @@ export default function SettingsScreen({
                   <p className="mode-sheet-hint">
                     Deux fois chacun par partie, une carte arrive
                     retournée, un cran plus chaude. Tu l’acceptes sans la
-                    lire et tu gagnes un joker, ou tu prends une carte
+                    lire et tu gagnes une envie, ou tu prends une carte
                     normale.
                   </p>
                 </section>
@@ -2780,73 +2836,6 @@ export default function SettingsScreen({
                   </p>
                 </section>
               )}
-
-              <section className="mode-sheet-section">
-                <h3>Lumière tamisée</h3>
-
-                <div
-                  className="settings-segmented"
-                  role="group"
-                  aria-label="Lumière tamisée"
-                >
-                  {[
-                    [true, "Oui"],
-                    [false, "Non"],
-                  ].map(([value, label]) => (
-                    <button
-                      key={label}
-                      type="button"
-                      aria-pressed={dimLight === value}
-                      className={dimLight === value ? "is-active" : undefined}
-                      onClick={() => setDimLight(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-
-                <p className="mode-sheet-hint">
-                  Pour jouer dans le noir : l’écran vire à l’ambre et au
-                  rouge sombre, sans blanc qui éblouit. Aussi d’un toucher
-                  sur la lune ☾ en pleine partie. Réglage propre à ce
-                  téléphone.
-                </p>
-              </section>
-
-              <section className="mode-sheet-section">
-                <h3>Sons</h3>
-
-                <div
-                  className="settings-segmented"
-                  role="group"
-                  aria-label="Sons"
-                >
-                  {[
-                    [true, "Oui"],
-                    [false, "Non"],
-                  ].map(([value, label]) => (
-                    <button
-                      key={label}
-                      type="button"
-                      aria-pressed={soundsOn === value}
-                      className={soundsOn === value ? "is-active" : undefined}
-                      onClick={() => {
-                        setSoundsEnabled(value);
-                        setSoundsOn(value);
-                        if (value) playSound("card");
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-
-                <p className="mode-sheet-hint">
-                  Un son discret à chaque carte, à la fin du minuteur et
-                  quand un duel est gagné. Rien en mode silence. Réglage
-                  propre à ce téléphone.
-                </p>
-              </section>
 
               {directorMessage && (
                 <p className="mode-sheet-hint mode-sheet-feedback">
