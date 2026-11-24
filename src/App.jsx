@@ -945,6 +945,7 @@ function App() {
       navigate={navigate}
       profile={profile}
       hasPartner={Boolean(couple?.partner)}
+      partnerName={couple?.partner?.display_name || null}
       onPaired={() =>
         setCoupleRefreshKey(
           (value) => value + 1

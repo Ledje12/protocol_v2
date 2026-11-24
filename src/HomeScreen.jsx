@@ -3,6 +3,8 @@ import { INTENSITY_LEVELS, levelForIntensity } from "./gameConstants.js";
 import { clearGameSession, getGameSession, getLastSeenCard, saveGameSession, saveLastSeenCard, saveProfileAsGameIdentity } from "./gameSession.js";
 import { hasSeenHowToPlay } from "./howto.js";
 import HowToPlay from "./HowToPlay.jsx";
+import Opening from "./Opening.jsx";
+import { hasSeenRelease, markReleaseSeen } from "./release.js";
 import PairingPanel from "./PairingPanel.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
 import { supabase } from "./supabaseClient.js";
@@ -135,6 +137,7 @@ export default function HomeScreen({
   navigate,
   profile,
   hasPartner = true,
+  partnerName = null,
   onPaired,
 }) {
   const unread =
@@ -146,6 +149,10 @@ export default function HomeScreen({
   // « Comment on joue » : une fois, quand le duo est formé
   const [showHowTo, setShowHowTo] =
     useState(() => !hasSeenHowToPlay());
+
+  // ouverture de version : seulement pour ceux qui jouaient déjà
+  const [showOpening, setShowOpening] =
+    useState(() => hasSeenHowToPlay() && !hasSeenRelease());
 
   /*
    * Partie créée par le partenaire et qui l'attend :
@@ -895,9 +902,18 @@ export default function HomeScreen({
       )}
       {hasPartner && showHowTo && (
         <HowToPlay
-          onClose={() =>
-            setShowHowTo(false)
-          }
+          onClose={() => {
+            // le guide présente déjà tout : pas d'ouverture de version ensuite
+            markReleaseSeen();
+            setShowHowTo(false);
+          }}
+        />
+      )}
+
+      {hasPartner && !showHowTo && showOpening && (
+        <Opening
+          partnerName={partnerName}
+          onClose={() => setShowOpening(false)}
         />
       )}
 

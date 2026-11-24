@@ -4196,3 +4196,19 @@ button.envelope-card:not(:disabled) {
   line-height: 1.45;
   color: var(--c-text-soft) !important;
 }
+
+/* numéro de version, en bas des Réglages */
+.settings-version {
+  margin: 28px 0 8px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 0.32em;
+  color: var(--c-label);
+}
+
+.settings-version span {
+  letter-spacing: 0.06em;
+  font-style: italic;
+  color: var(--c-muted);
+}
