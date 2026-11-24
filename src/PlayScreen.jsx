@@ -730,6 +730,16 @@ export default function PlayScreen({
   const [dimLight, setDimLight] =
     useDimLight();
 
+  /* Cartes scellées : toast après acceptation, retournement animé */
+  const [sealedToast, setSealedToast] =
+    useState(null);
+
+  const sealedSeenRef =
+    useRef({ id: null, state: null, jokers: 0 });
+
+  const [sealedFlip, setSealedFlip] =
+    useState(false);
+
   useEffect(() => {
     if (!duelWin) return undefined;
     const timer = window.setTimeout(() => setDuelWin(null), 3200);
@@ -1185,6 +1195,31 @@ async function handleSceneRead() {
         s2: gameData.score_player_2 ?? 0,
       };
 
+      const seen = sealedSeenRef.current;
+      const activeBonus =
+        (gameData.active_player === 1 ? gameData.bonus_player_1 : gameData.bonus_player_2) || {};
+      const activeJokers =
+        (activeBonus.choose_type ? 1 : 0) + (activeBonus.take_control ? 1 : 0);
+      if (
+        seen.id === cardData?.id &&
+        seen.state === "pending" &&
+        cardData?.sealed === "accepted"
+      ) {
+        setSealedFlip(true);
+        setSealedToast(
+          gameData.active_player === playerNumber
+            ? activeJokers > seen.jokers
+              ? "✦ Carte acceptée, joker rechargé"
+              : "✦ Carte acceptée"
+            : `✦ ${gameData.active_player === 1 ? gameData.player_1_name : gameData.player_2_name} a accepté la carte scellée`
+        );
+      }
+      sealedSeenRef.current = {
+        id: cardData?.id,
+        state: cardData?.sealed || null,
+        jokers: activeJokers,
+      };
+
       setGame(gameData);
       setCard(cardData);
 
@@ -1582,6 +1617,44 @@ async function handleSceneRead() {
         }
       };
 
+
+
+  /* =========================================
+     CARTES SCELLÉES
+     ========================================= */
+
+  const sealedAction =
+    async (fn) => {
+      try {
+        setNextLoading(true);
+        setError("");
+
+        const { error: rpcError } =
+          await supabase.rpc(fn, {
+            p_game_code: code,
+            p_expected_card_id: card?.id ?? null,
+          });
+
+        if (rpcError) {
+          throw rpcError;
+        }
+
+        await loadState();
+      } catch (err) {
+        console.error("SEALED ERROR:", err);
+        setError(
+          humanError(err, "Impossible de continuer. Réessaie dans un instant.")
+        );
+      } finally {
+        setNextLoading(false);
+      }
+    };
+
+  useEffect(() => {
+    if (!sealedToast) return undefined;
+    const timer = window.setTimeout(() => setSealedToast(null), 3200);
+    return () => window.clearTimeout(timer);
+  }, [sealedToast]);
 
 
   /* =========================================
@@ -2056,6 +2129,8 @@ async function handleSceneRead() {
               finishedAt={game.finished_at}
             />
 
+            <SealedSummary supabase={supabase} code={code} />
+
 
             {/* =====================================
                 CARTE DE FIN
@@ -2205,6 +2280,12 @@ async function handleSceneRead() {
   const isMyTurn =
     game.active_player ===
     playerNumber;
+
+  const sealedPending =
+    card?.sealed === "pending";
+
+  const sealedAccepted =
+    card?.sealed === "accepted";
 
   const mySceneStepRead =
     playerNumber === 1
@@ -2757,7 +2838,7 @@ async function handleSceneRead() {
               </span>
 
               <strong className="card-reveal-type">
-                {typeLabels[card.type]}
+                {sealedPending ? "Scellée" : typeLabels[card.type]}
               </strong>
 
               {revealPhase.isNew &&
@@ -2786,12 +2867,16 @@ async function handleSceneRead() {
 
           <span
             className={
-              `card-type card-type-${card.type}`
+              sealedPending || sealedAccepted
+                ? "card-type card-type-sealed"
+                : `card-type card-type-${card.type}`
             }
           >
-            {typeLabels[
-              card.type
-            ]}
+            {sealedPending
+              ? "Scellée"
+              : sealedAccepted
+                ? "Scellée ✦"
+                : typeLabels[card.type]}
           </span>
 
 
@@ -2898,9 +2983,22 @@ async function handleSceneRead() {
                 card.intensity >= 5
                   ? "game-card-intensity-max"
                   : ""
+              }${sealedPending ? " game-card-sealed" : ""}${
+                sealedAccepted && sealedFlip ? " game-card-unsealed" : ""
               }`
             }
+            onAnimationEnd={(event) => {
+              if (event.animationName === "sealedUnseal") setSealedFlip(false);
+            }}
           >
+
+          {sealedPending ? (
+            <div className="sealed-back">
+              <span className="sealed-seal" aria-hidden="true">✦</span>
+              <strong>Carte scellée</strong>
+              <span>Son contenu est caché, pour vous deux.</span>
+            </div>
+          ) : (<>
 
           {card.title && (
             <p className="kicker">
@@ -2964,6 +3062,7 @@ async function handleSceneRead() {
           turnNo={game.turn_no}
           names={{ 1: game.player_1_name, 2: game.player_2_name }}
         />
+          </>)}
 
         {/* curseurs Lovense : jouets de la carte et des règles en cours.
             En pause (STOP), le panneau disparaît : plus rien ne peut
@@ -3120,6 +3219,7 @@ async function handleSceneRead() {
 
           {/* photo du moment (album) et avis facultatif et privé :
               n'influencent pas le tirage */}
+          {!sealedPending && (
           <div className="card-extras-play">
             <CardPhotos
               key={`photos-${card.card_source || "official"}-${card.id}`}
@@ -3137,6 +3237,13 @@ async function handleSceneRead() {
               className="card-rating-play"
             />
           </div>
+          )}
+
+          {sealedToast && (
+            <p className="sealed-toast" role="status">
+              {sealedToast}
+            </p>
+          )}
 
 
         {/* ===================================
@@ -3149,9 +3256,49 @@ async function handleSceneRead() {
         >
 
 
-          {/* DUEL */}
+          {/* CARTE SCELLÉE : accepter sans lire, ou une carte normale */}
 
-          {card.type === "duel" ? (
+          {sealedPending ? (
+
+            isMyTurn ? (
+              <div className="sealed-actions">
+                <p className="sealed-question">
+                  Tu l’acceptes avant de la lire ?
+                </p>
+
+                <button
+                  className="primary"
+                  onClick={() => sealedAction("accept_sealed_card")}
+                  disabled={nextLoading}
+                >
+                  <span>
+                    {nextLoading ? "Un instant…" : "Je l’accepte sans la lire"}
+                  </span>
+                  <span>✦</span>
+                </button>
+
+                <button
+                  className="secondary"
+                  onClick={() => sealedAction("refuse_sealed_card")}
+                  disabled={nextLoading}
+                >
+                  Non, une carte normale
+                </button>
+
+                <p className="sealed-note">
+                  Accepter recharge un joker. Une fois retournée, elle se
+                  joue telle quelle, ou tu passes et l’autre gagne le joker.
+                </p>
+              </div>
+            ) : (
+              <div className="waiting-turn sealed-waiting">
+                <p>
+                  {activePlayerName} hésite devant une carte scellée…
+                </p>
+              </div>
+            )
+
+          ) : card.type === "duel" ? (
 
             <div className="duel-actions">
 
@@ -3387,6 +3534,17 @@ async function handleSceneRead() {
           )}
 
 
+              {sealedAccepted ? (
+              <div className="alternative-actions">
+                <button
+                  className="text-action pass-action"
+                  onClick={() => sealedAction("pass_sealed_card")}
+                  disabled={nextLoading}
+                >
+                  Passer et offrir un joker à {cardPartnerName}
+                </button>
+              </div>
+              ) : (
               <div className="alternative-actions">
 
                 <button
@@ -3423,6 +3581,7 @@ async function handleSceneRead() {
                 </button>
 
               </div>
+              )}
 
             </div>
 
@@ -3528,5 +3687,37 @@ async function handleSceneRead() {
       <Footer />
 
     </main>
+  );
+}
+
+
+/* Fin de partie : combien de cartes scellées acceptées */
+function SealedSummary({ supabase, code }) {
+  const [summary, setSummary] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .rpc("get_protocol_sealed_summary", { p_game_code: code })
+      .then(({ data }) => {
+        if (active) setSummary(data || null);
+      })
+      .catch(() => {
+        // sans la migration : pas de ligne
+      });
+    return () => {
+      active = false;
+    };
+  }, [supabase, code]);
+
+  if (!summary?.offered) {
+    return null;
+  }
+
+  return (
+    <p className="sealed-summary">
+      <strong>{summary.accepted} sur {summary.offered}</strong>
+      cartes scellées acceptées
+    </p>
   );
 }

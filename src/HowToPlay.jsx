@@ -61,7 +61,7 @@ const STEPS = [
           Chacun commence avec deux jokers :{" "}
           <strong>imposer le type</strong> de la prochaine carte,
           et <strong>prendre la main</strong> pour jouer deux fois
-          de suite. <em>Un duel gagné recharge un joker utilisé.</em>
+          de suite. <em>Un duel gagné, ou une carte scellée acceptée, recharge un joker utilisé.</em>
         </p>
       </>
     ),

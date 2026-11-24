@@ -134,7 +134,16 @@ export async function startTwoPhoneGame({ a, b }, intensity = [5, 5]) {
 
 // Joue le tour en cours avec l'action donnée, comme le bouton de l'app.
 export async function play(user, code, action, duelWinner = null) {
-  const g = await game(code);
+  let g = await game(code);
+
+  // carte scellée : comme le joueur, on l'accepte (ou on la refuse
+  // si on voulait une autre proposition) avant de jouer le tour
+  if (g.sealed_status === "pending") {
+    const fn = action === "alternative" ? "refuse_sealed_card" : "accept_sealed_card";
+    await rpc(user, fn, { p_game_code: code, p_expected_card_id: g.current_card_id });
+    if (action === "alternative") return { refused: true };
+    g = await game(code);
+  }
 
   return rpc(user, "advance_protocol_guarded", {
     p_game_code: code,

@@ -693,6 +693,53 @@ export default function SettingsScreen({
     const [envelopeEnabled, setEnvelopeEnabled] =
       useState(null);
 
+    /* Cartes scellées (réglage du couple, actif par défaut) */
+    const [sealedEnabled, setSealedEnabled] =
+      useState(null);
+
+    useEffect(() => {
+      let active = true;
+
+      if (!coupleId) {
+        return undefined;
+      }
+
+      supabase
+        .rpc("get_protocol_sealed_enabled")
+        .then(({ data, error }) => {
+          if (active && !error && typeof data === "boolean") {
+            setSealedEnabled(data);
+          }
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [coupleId]);
+
+    const saveSealed =
+      async (value) => {
+        const previous = sealedEnabled;
+
+        setSealedEnabled(value);
+        setDirectorMessage("");
+
+        const { error } =
+          await supabase.rpc(
+            "set_protocol_sealed_enabled",
+            { p_enabled: value }
+          );
+
+        if (error) {
+          console.error("SEALED SETTING ERROR:", error);
+          setSealedEnabled(previous);
+          setDirectorMessage("Impossible d’enregistrer ce réglage.");
+          return;
+        }
+
+        setDirectorMessage("Réglage enregistré.");
+      };
+
     useEffect(() => {
       let active = true;
 
@@ -2663,6 +2710,40 @@ export default function SettingsScreen({
                     Vers la fin de la partie, chacun écrit en secret ce
                     qu’il veut pour la fin de soirée. Les enveloppes
                     s’ouvrent à la dernière carte.
+                  </p>
+                </section>
+              )}
+
+              {sealedEnabled !== null && (
+                <section className="mode-sheet-section">
+                  <h3>Cartes scellées</h3>
+
+                  <div
+                    className="settings-segmented"
+                    role="group"
+                    aria-label="Cartes scellées"
+                  >
+                    {[
+                      [true, "Oui"],
+                      [false, "Non"],
+                    ].map(([value, label]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-pressed={sealedEnabled === value}
+                        className={sealedEnabled === value ? "is-active" : undefined}
+                        onClick={() => saveSealed(value)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="mode-sheet-hint">
+                    Deux fois chacun par partie, une carte arrive
+                    retournée, un cran plus chaude. Tu l’acceptes sans la
+                    lire et tu gagnes un joker, ou tu prends une carte
+                    normale.
                   </p>
                 </section>
               )}
