@@ -43,7 +43,7 @@ export default function Opening({ partnerName, onClose }) {
   return createPortal(
     <div className="opening" role="dialog" aria-modal="true" aria-label={`PROTOCOL ${RELEASE}`}>
       {scene === 0 && (
-        <section className="opening-scene opening-intro">
+        <section className="opening-scene opening-intro is-lit">
           {embers.map((e, i) => (
             <span
               key={i}
@@ -70,7 +70,7 @@ export default function Opening({ partnerName, onClose }) {
               setScene(1);
             }}
           >
-            Découvrir
+            Découvrir les nouveautés
           </button>
           <button type="button" className="opening-skip" onClick={close}>
             Passer
