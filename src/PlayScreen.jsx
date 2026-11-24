@@ -15,6 +15,7 @@ import { GameRecapHighlights } from "./Recaps.jsx";
 import { deName, fillNames } from "./personalise.js";
 import { NETWORK_MESSAGE, humanError } from "./networkError.js";
 import CardChoice from "./CardChoice.jsx";
+import { playSound } from "./sounds.js";
 import { LovenseBanner, LovenseRemote, cardToyBanner, mergeCardToys, useLovenseToys } from "./lovense.jsx";
 
 /* =========================================================
@@ -549,6 +550,8 @@ export default function PlayScreen({
 
           if (remaining <= 0) {
             setTimerRunning(false);
+            window.clearInterval(interval);
+            playSound("timer");
           }
         },
         250
@@ -714,6 +717,20 @@ export default function PlayScreen({
 
   const currentCardRef =
     useRef(null);
+
+  /* Victoire de duel, vue sur les deux téléphones : le serveur
+     compte encore des points cachés, seul le gagnant en reçoit. */
+  const duelWatchRef =
+    useRef(null);
+
+  const [duelWin, setDuelWin] =
+    useState(null);
+
+  useEffect(() => {
+    if (!duelWin) return undefined;
+    const timer = window.setTimeout(() => setDuelWin(null), 3200);
+    return () => window.clearTimeout(timer);
+  }, [duelWin]);
 
   useEffect(() => {
     currentCardRef.current =
@@ -1132,6 +1149,37 @@ async function handleSceneRead() {
         throw cardError;
       }
 
+
+      const watched = duelWatchRef.current;
+      if (
+        watched?.type === "duel" &&
+        watched.turnNo !== gameData.turn_no
+      ) {
+        const winner =
+          (gameData.score_player_1 ?? 0) > watched.s1 ? 1
+          : (gameData.score_player_2 ?? 0) > watched.s2 ? 2
+          : null;
+        if (winner) {
+          setDuelWin({
+            name: winner === 1 ? gameData.player_1_name : gameData.player_2_name,
+            key: Date.now(),
+          });
+          playSound("win");
+        } else {
+          playSound("card");
+        }
+      } else if (
+        watched &&
+        watched.turnNo !== gameData.turn_no
+      ) {
+        playSound("card");
+      }
+      duelWatchRef.current = {
+        type: cardData?.type,
+        turnNo: gameData.turn_no,
+        s1: gameData.score_player_1 ?? 0,
+        s2: gameData.score_player_2 ?? 0,
+      };
 
       setGame(gameData);
       setCard(cardData);
@@ -1693,6 +1741,22 @@ async function handleSceneRead() {
      LOAD ERROR
      ========================================= */
 
+  /* victoire du dernier duel : l'écran de fin n'a pas de rideau */
+  const duelWinOverlay = duelWin && (
+    <button
+      type="button"
+      key={duelWin.key}
+      className="duel-win"
+      onClick={() => setDuelWin(null)}
+      aria-live="polite"
+    >
+      <span className="duel-win-kicker">Duel</span>
+      <span className="duel-win-star" aria-hidden="true">✦</span>
+      <strong className="duel-win-name">{duelWin.name}</strong>
+      <span className="duel-win-text">remporte le duel.</span>
+    </button>
+  );
+
   if (
     error &&
     !game
@@ -1899,6 +1963,7 @@ async function handleSceneRead() {
       return (
 
         <main className="app final-page final-wow-page">
+          {duelWinOverlay}
 
           {/* missions secrètes puis enveloppes, avant l'écran de fin */}
           <FinalReveals
@@ -2198,6 +2263,7 @@ async function handleSceneRead() {
     <main className="app play-page">
 
       <div className="glow glow-center" />
+
 
 
       {/* =====================================
@@ -2621,6 +2687,13 @@ async function handleSceneRead() {
           }
           aria-hidden="true"
         >
+
+          {duelWin && (
+            <span className="card-reveal-victory">
+              <i aria-hidden="true">✦</i>
+              {duelWin.name} remporte le duel
+            </span>
+          )}
 
           {card.type === "duel" ? (
 
