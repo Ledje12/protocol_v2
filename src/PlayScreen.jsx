@@ -1198,6 +1198,11 @@ async function handleSceneRead() {
         (gameData.active_player === 1 ? gameData.bonus_player_1 : gameData.bonus_player_2) || {};
       const activeJokers =
         Number(activeBonus.desire || 0);
+      // nouvelle carte : le retournement de la précédente est oublié
+      // (le garder jusque-là évite que l'animation d'arrivée ne rejoue)
+      if (seen.id !== cardData?.id) {
+        setSealedFlip(false);
+      }
       if (
         seen.id === cardData?.id &&
         seen.state === "pending" &&
@@ -2774,9 +2779,6 @@ async function handleSceneRead() {
                 sealedAccepted && sealedFlip ? " game-card-unsealed" : ""
               }`
             }
-            onAnimationEnd={(event) => {
-              if (event.animationName === "sealedUnseal") setSealedFlip(false);
-            }}
           >
 
           {card.desire?.category && !sealedPending && (
