@@ -1163,3 +1163,164 @@
   font-size: 22px;
   animation: duelWinStar 1.2s ease-out both;
 }
+
+/* =========================================================
+   CARTES SCELLÉES : dos rayé champagne et sceau néon tant
+   qu'elle n'est pas acceptée, puis retournement
+   ========================================================= */
+
+.card-type-sealed {
+  color: var(--c-duel) !important;
+  border-color: rgba(var(--c-duel-rgb), 0.55) !important;
+}
+
+.game-card.game-card-sealed {
+  min-height: 250px;
+  display: grid;
+  place-items: center;
+  border-color: rgba(var(--c-duel-rgb), 0.45) !important;
+  background:
+    repeating-linear-gradient(45deg, rgba(var(--c-duel-rgb), 0.05) 0 2px, transparent 2px 14px),
+    radial-gradient(circle at 50% 45%, rgba(var(--c-duel-rgb), 0.18), transparent 62%),
+    var(--c-surface) !important;
+}
+
+.sealed-back {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.sealed-seal {
+  width: 82px;
+  height: 82px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  color: var(--c-on-accent);
+  background: radial-gradient(circle at 35% 30%, #ff9cc4, var(--c-accent) 55%, var(--c-accent-deep));
+  box-shadow: 0 0 30px rgba(var(--c-accent-rgb), 0.45), inset 0 -4px 10px rgba(0, 0, 0, 0.35);
+  animation: sealedPulse 2.8s ease-in-out infinite;
+}
+
+.sealed-back strong {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+.sealed-back span:last-child {
+  font-size: var(--fs-small);
+  color: var(--c-muted);
+}
+
+@keyframes sealedPulse {
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 44px rgba(var(--c-accent-rgb), 0.6), inset 0 -4px 10px rgba(0, 0, 0, 0.35);
+  }
+}
+
+.game-card.game-card-unsealed {
+  animation: sealedUnseal 0.9s cubic-bezier(0.22, 0.8, 0.24, 1) both;
+}
+
+@keyframes sealedUnseal {
+  0% { transform: perspective(1200px) rotateY(90deg); opacity: 0.2; }
+  100% { transform: perspective(1200px) rotateY(0); opacity: 1; }
+}
+
+.sealed-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.sealed-question {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 21px;
+  text-align: center;
+  color: var(--c-text);
+}
+
+.sealed-actions .secondary {
+  justify-content: center;
+}
+
+.sealed-note {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--c-muted);
+}
+
+.sealed-waiting p {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 19px;
+  text-align: center;
+  color: var(--c-text-soft);
+}
+
+.sealed-toast {
+  justify-self: center;
+  width: fit-content;
+  margin: 4px auto 0;
+  padding: 7px 14px;
+  border: 1px solid rgba(var(--c-duel-rgb), 0.5);
+  border-radius: var(--r-pill);
+  background: rgba(var(--c-duel-rgb), 0.08);
+  color: var(--c-duel);
+  font-size: 13px;
+  font-weight: 600;
+  animation: duelWinName 0.5s ease-out both;
+}
+
+.sealed-summary {
+  display: grid;
+  gap: 2px;
+  margin: 14px auto 0;
+  max-width: 320px;
+  padding: 14px;
+  border: 1px solid rgba(var(--c-duel-rgb), 0.45);
+  border-radius: 18px;
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--c-duel);
+}
+
+.sealed-summary strong {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sealed-seal,
+  .game-card.game-card-unsealed {
+    animation: none;
+  }
+}
+
+/* attente devant une carte scellée : lisible, comme une annonce */
+.play-page .sealed-waiting p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.35;
+  color: var(--c-text-soft);
+}
+
+/* carte scellée acceptée : « Passer et offrir un joker » seul, pleine largeur */
+.play-page .alternative-actions .pass-action:only-child {
+  grid-column: 1 / -1;
+  width: 100%;
+}
