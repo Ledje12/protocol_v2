@@ -2380,6 +2380,11 @@ button.secondary {
   color: var(--c-muted);
 }
 
+.pairing-code .pairing-share {
+  align-self: stretch;
+  margin-top: 8px;
+}
+
 .pairing-switch {
   min-height: 40px;
   border: 0;

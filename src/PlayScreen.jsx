@@ -1599,7 +1599,7 @@ async function handleSceneRead() {
           humanError(
             err,
             /not active player/i.test(err?.message || "")
-              ? "C'est à l'autre de valider ce tour."
+              ? "C’est à l’autre de valider ce tour."
               : "Impossible de continuer. Réessaie dans un instant."
           )
         );
@@ -1669,7 +1669,7 @@ async function handleSceneRead() {
         );
 
         setError(
-          humanError(err, err?.message || "Ce type de carte n'est pas disponible.")
+          humanError(err, err?.message || "Ce type de carte n’est pas disponible.")
         );
 
       } finally {
@@ -1942,7 +1942,7 @@ async function handleSceneRead() {
               <h1 className="final-winner-title">
                 Vous êtes allés
                 <br />
-                jusqu'au bout.
+                jusqu’au bout.
               </h1>
 
             </div>
@@ -2020,7 +2020,7 @@ async function handleSceneRead() {
               <div className="final-afterglow-copy">
 
                 <p className="final-afterglow-lead">
-                  Le jeu s'arrête ici.
+                  Le jeu s’arrête ici.
                   <br />
                   <strong>
                     Pas forcément la soirée.
@@ -2030,7 +2030,7 @@ async function handleSceneRead() {
                 <p className="final-afterglow-text">
                   Vous connaissez maintenant un peu mieux
                   <br />
-                  les envies et les réactions de l'autre.
+                  les envies et les réactions de l’autre.
                   <br />
                   <span>
                     À vous de décider ce que vous en faites.
@@ -2431,7 +2431,7 @@ async function handleSceneRead() {
               );
 
               setError(
-                humanError(err, err?.message || "Impossible d'utiliser cet avantage.")
+                humanError(err, err?.message || "Impossible d’utiliser cet avantage.")
               );
 
             } finally {
@@ -3161,7 +3161,7 @@ async function handleSceneRead() {
                   <span>
                     {nextLoading
                       ? "Un instant…"
-                      : "J'ai lu"}
+                      : "J’ai lu"}
                   </span>
 
                   <span>✓</span>
@@ -3180,7 +3180,7 @@ async function handleSceneRead() {
                     </strong>
 
                     <span>
-                      On attend l'autre.
+                      On attend l’autre.
                     </span>
                   </div>
                 </div>
@@ -3273,7 +3273,7 @@ async function handleSceneRead() {
               <span>
                 {nextLoading
                   ? "Un instant…"
-                  : "C'est fait"}
+                  : "C’est fait"}
               </span>
 
               <span>→</span>
@@ -3341,7 +3341,7 @@ async function handleSceneRead() {
                     <span>
                       {nextLoading
                         ? "Un instant…"
-                        : "J'ai lu"}
+                        : "J’ai lu"}
                     </span>
 
                     <span>✓</span>
@@ -3360,7 +3360,7 @@ async function handleSceneRead() {
                       </strong>
 
                       <span>
-                        On attend l'autre.
+                        On attend l’autre.
                       </span>
                     </div>
                   </div>
