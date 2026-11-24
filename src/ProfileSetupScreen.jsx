@@ -97,7 +97,7 @@ export default function ProfileSetupScreen({
           <div className="protocol-auth-copy">
 
             <span className="protocol-auth-eyebrow">
-              VOTRE PROFIL
+              TON PROFIL
             </span>
 
             <h1>
@@ -105,7 +105,7 @@ export default function ProfileSetupScreen({
             </h1>
 
             <p>
-              Ces informations seront mémorisées
+              On s’en souviendra
               pour les prochaines parties.
               Le sexe permet à PROTOCOL
               d’adapter certaines cartes à chacun.
@@ -132,7 +132,7 @@ export default function ProfileSetupScreen({
                   event.target.value
                 )
               }
-              placeholder="Votre prénom"
+              placeholder="Ton prénom"
               autoComplete="given-name"
               maxLength={40}
               required

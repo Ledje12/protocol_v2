@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 
 import { markHowToPlaySeen } from "./howto.js";
 
-// « Comment on joue » : quatre étapes, montrées une fois au
+// « Comment on joue » : cinq étapes, montrées une fois au
 // premier lancement (après l'association du duo), puis à la
 // demande depuis les réglages.
 
@@ -79,10 +79,23 @@ const STEPS = [
         <p>
           Une vingtaine de cartes, de plus en plus intenses, sans
           jamais dépasser ce que vous avez choisi : <strong>Taquin</strong>,{" "}
-          <strong>Coquin</strong> ou <strong>Indécent</strong>. Le plus
-          sage de vos deux choix l’emporte. Vers la fin, chacun
-          glisse en secret une phrase dans <strong>l’enveloppe</strong> :
-          elles s’ouvrent à la dernière carte.
+          <strong>Coquin</strong> ou <strong>Indécent</strong>.
+        </p>
+        <p>
+          <em>Le plus sage de vos deux choix l’emporte.</em>
+        </p>
+      </>
+    ),
+  },
+  {
+    kicker: "L’ENVELOPPE ET LE STOP",
+    title: "Vous gardez la main.",
+    body: (
+      <>
+        <p>
+          Vers la fin, chacun glisse en secret une phrase dans{" "}
+          <strong>l’enveloppe</strong> : elles s’ouvrent ensemble à
+          la dernière carte.
         </p>
         <p>
           <em>Passer, changer de carte ou STOP : à tout moment, sans

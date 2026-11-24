@@ -209,11 +209,11 @@ export default function AuthScreen({ onAuthenticated }) {
                 </span>
 
                 <h1>
-                  Votre espace.
+                  Ton espace.
                 </h1>
 
                 <p>
-                  Recevez un code par email pour accéder à PROTOCOL.
+                  Reçois un code par email pour entrer dans PROTOCOL.
                 </p>
 
               </div>
@@ -238,7 +238,7 @@ export default function AuthScreen({ onAuthenticated }) {
                   }
                   required
                   autoComplete="email"
-                  placeholder="vous@exemple.com"
+                  placeholder="toi@exemple.com"
                 />
 
                 <label

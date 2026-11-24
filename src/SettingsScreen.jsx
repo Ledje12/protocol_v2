@@ -12,6 +12,7 @@ import { supabase } from "./supabaseClient.js";
 import { deName } from "./personalise.js";
 import { loadLovenseSdk } from "./lovenseSdk.js";
 import { lovenseErrorText } from "./lovense.jsx";
+import { playSound, setSoundsEnabled, soundsEnabled } from "./sounds.js";
 
 // type d'un jouet, même si le serveur ne l'a pas donné
 const toyKind = (toy) => {
@@ -682,6 +683,9 @@ export default function SettingsScreen({
 
     /* L'enveloppe (écrite à 60 % de la partie, ouverte à la fin).
        null tant que la migration n'est pas appliquée. */
+    const [soundsOn, setSoundsOn] =
+      useState(soundsEnabled);
+
     const [envelopeEnabled, setEnvelopeEnabled] =
       useState(null);
 
@@ -2691,6 +2695,41 @@ export default function SettingsScreen({
                   </p>
                 </section>
               )}
+
+              <section className="mode-sheet-section">
+                <h3>Sons</h3>
+
+                <div
+                  className="settings-segmented"
+                  role="group"
+                  aria-label="Sons"
+                >
+                  {[
+                    [true, "Oui"],
+                    [false, "Non"],
+                  ].map(([value, label]) => (
+                    <button
+                      key={label}
+                      type="button"
+                      aria-pressed={soundsOn === value}
+                      className={soundsOn === value ? "is-active" : undefined}
+                      onClick={() => {
+                        setSoundsEnabled(value);
+                        setSoundsOn(value);
+                        if (value) playSound("card");
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="mode-sheet-hint">
+                  Un son discret à chaque carte, à la fin du minuteur et
+                  quand un duel est gagné. Rien en mode silence. Réglage
+                  propre à ce téléphone.
+                </p>
+              </section>
 
               {directorMessage && (
                 <p className="mode-sheet-hint mode-sheet-feedback">
