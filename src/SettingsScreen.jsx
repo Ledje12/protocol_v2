@@ -14,6 +14,7 @@ import { loadLovenseSdk } from "./lovenseSdk.js";
 import { lovenseErrorText } from "./lovense.jsx";
 import { playSound, setSoundsEnabled, soundsEnabled } from "./sounds.js";
 import { useDimLight } from "./dimLight.js";
+import { RELEASE } from "./release.js";
 
 // type d'un jouet, même si le serveur ne l'a pas donné
 const toyKind = (toy) => {
@@ -2468,6 +2469,10 @@ export default function SettingsScreen({
             danger
           />
         </div>
+
+        <p className="settings-version">
+          PROTOCOL <span>{RELEASE}</span>
+        </p>
 
         {showHowTo && (
           <HowToPlay
