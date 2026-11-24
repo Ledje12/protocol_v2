@@ -565,3 +565,27 @@
     animation-delay: 0s !important;
   }
 }
+
+/* après le néon d'ouverture : le « 2.0 » est déjà allumé, rien ne
+   se rejoue, on arrive directement sur l'invitation */
+.opening-intro.is-lit .opening-line {
+  width: min(260px, 70vw);
+  animation: none;
+}
+
+.opening-intro.is-lit .opening-word span {
+  opacity: 1;
+  filter: none;
+  animation: none;
+}
+
+.opening-intro.is-lit .opening-number {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+.opening-intro.is-lit .opening-tag,
+.opening-intro.is-lit .opening-cta {
+  animation-delay: 0.2s;
+}

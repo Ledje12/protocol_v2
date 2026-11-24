@@ -40,10 +40,118 @@
     />
 
     <title>Protocol</title>
+
+    <!-- Néon d'ouverture : affiché dès la première image, avant l'app,
+         et retiré par l'app quand l'accueil est prêt (voir splash.js).
+         Un seul démarrage visible, mise à jour comprise. -->
+    <style>
+      html, body { background: #08050a; margin: 0; }
+      #protocol-splash {
+        position: fixed; inset: 0; z-index: 3000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        background: radial-gradient(circle at 50% 46%, rgba(255, 77, 151, 0.10), transparent 58%), #08050a;
+        color: #f7eef2; text-align: center;
+        /* même hauteur que l'écran des nouveautés (phrase et bouton en dessous) */
+        padding-bottom: 146px; box-sizing: border-box;
+        font-family: "Bodoni Moda Variable", "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
+        transition: opacity 0.45s ease; -webkit-tap-highlight-color: transparent;
+      }
+      #protocol-splash.is-leaving { opacity: 0; pointer-events: none; }
+      #protocol-splash .sp-word {
+        margin: 0; padding-left: 0.42em; font-size: 22px; letter-spacing: 0.42em;
+        color: rgba(247, 238, 242, 0.85);
+      }
+      #protocol-splash .sp-neon {
+        margin: 6px 0 0; font-style: italic; font-weight: 500; line-height: 1;
+        font-size: min(150px, 36vw);
+        /* tube éteint : on devine le contour */
+        color: transparent; -webkit-text-stroke: 1.5px rgba(255, 77, 151, 0.22);
+        text-shadow: none;
+        animation: sp-ignite 1.9s 0.35s linear forwards;
+      }
+      #protocol-splash.is-lit .sp-neon { animation: none; color: #ff4d97; -webkit-text-stroke: 0;
+        text-shadow: 0 0 14px rgba(255, 77, 151, 0.55), 0 0 46px rgba(255, 77, 151, 0.3); }
+      @keyframes sp-ignite {
+        0%, 14% { color: transparent; -webkit-text-stroke-color: rgba(255, 77, 151, 0.22); text-shadow: none; }
+        15%, 17% { color: #ff4d97; -webkit-text-stroke-color: transparent; text-shadow: 0 0 12px rgba(255, 77, 151, 0.6); }
+        18%, 26% { color: transparent; -webkit-text-stroke-color: rgba(255, 77, 151, 0.3); text-shadow: none; }
+        27%, 28% { color: #ff4d97; -webkit-text-stroke-color: transparent; text-shadow: 0 0 12px rgba(255, 77, 151, 0.6); }
+        29%, 31% { color: rgba(255, 77, 151, 0.35); text-shadow: none; }
+        32%, 35% { color: #ff4d97; text-shadow: 0 0 16px rgba(255, 77, 151, 0.7); }
+        36%, 50% { color: transparent; -webkit-text-stroke-color: rgba(255, 77, 151, 0.3); text-shadow: none; }
+        51%, 53% { color: #ff4d97; -webkit-text-stroke-color: transparent; text-shadow: 0 0 20px rgba(255, 77, 151, 0.8); }
+        54%, 56% { color: rgba(255, 77, 151, 0.5); text-shadow: 0 0 8px rgba(255, 77, 151, 0.3); }
+        57%, 100% { color: #ff4d97; -webkit-text-stroke-color: transparent;
+          text-shadow: 0 0 14px rgba(255, 77, 151, 0.55), 0 0 46px rgba(255, 77, 151, 0.3); }
+      }
+      #protocol-splash .sp-line {
+        width: min(240px, 64vw); height: 1px; margin-bottom: 26px;
+        background: linear-gradient(90deg, transparent, rgba(255, 77, 151, 0.7), transparent);
+        opacity: 0.6;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #protocol-splash .sp-neon { animation: none; color: #ff4d97; -webkit-text-stroke: 0; }
+      }
+    </style>
   </head>
 
   
   <body>
+    <div id="protocol-splash" aria-hidden="true">
+      <div class="sp-line"></div>
+      <p class="sp-word">PROTOCOL</p>
+      <p class="sp-neon">2.0</p>
+    </div>
+    <script>
+      /* Le néon reste au moins le temps de s'allumer, et jusqu'à ce que
+         l'app soit prête (accueil chargé, mise à jour vérifiée). Après un
+         rechargement de mise à jour, il est déjà allumé. Un toucher passe. */
+      (function () {
+        var el = document.getElementById("protocol-splash");
+        var lit = false;
+        try { lit = sessionStorage.getItem("protocol_splash_lit") === "1"; sessionStorage.removeItem("protocol_splash_lit"); } catch (e) {}
+        if (lit) el.className = "is-lit";
+        var start = Date.now();
+        var minimum = lit ? 500 : 2300;
+        var appReady = false, updateChecked = false, skipped = false, gone = false;
+        function leave() {
+          if (gone) return;
+          gone = true;
+          el.className += " is-leaving";
+          setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 500);
+        }
+        function tryLeave() {
+          if (gone || !appReady || !updateChecked) return;
+          var wait = skipped ? 0 : Math.max(0, minimum - (Date.now() - start));
+          setTimeout(leave, wait);
+        }
+        window.__protocolSplash = {
+          ready: function () { appReady = true; tryLeave(); },
+          updateChecked: function () { updateChecked = true; tryLeave(); },
+          isGone: function () { return gone; }
+        };
+        el.addEventListener("click", function () { skipped = true; tryLeave(); });
+        // l'app est prête dès qu'un vrai écran remplace les écrans
+        // de chargement (« Un instant », « Préparation… »)
+        function check() {
+          var main = document.querySelector("#root main");
+          if (main && main.getAttribute("aria-busy") !== "true") {
+            appReady = true; tryLeave();
+            if (observer) observer.disconnect();
+          }
+        }
+        var observer = null;
+        document.addEventListener("DOMContentLoaded", function () {
+          var root = document.getElementById("root");
+          if (!root || !window.MutationObserver) { appReady = true; tryLeave(); return; }
+          observer = new MutationObserver(check);
+          observer.observe(root, { childList: true, subtree: true });
+          check();
+        });
+        // secours : jamais bloqué
+        setTimeout(leave, 8000);
+      })();
+    </script>
     <div id="root"></div>
 
     <script
