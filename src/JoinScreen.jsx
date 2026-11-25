@@ -3,7 +3,7 @@ import Footer from "./Footer.jsx";
 import { saveGameSession, saveProfileAsGameIdentity } from "./gameSession.js";
 import ScreenHeader from "./ScreenHeader.jsx";
 import { supabase } from "./supabaseClient.js";
-import { humanError } from "./networkError.js";
+import { isAlreadyInGame, joinGameMessage } from "./joinErrors.js";
 
 /* =========================================================
    JOIN
@@ -77,14 +77,19 @@ export default function JoinScreen({ navigate }) {
     );
 
   } catch (err) {
+    // sa propre partie : on l'y emmène au lieu d'une erreur
+    if (isAlreadyInGame(err)) {
+      saveGameSession(code.toUpperCase(), 1);
+      navigate(`/game/${code.toUpperCase()}`);
+      return;
+    }
+
     console.error(
       "JOIN ERROR:",
       err
     );
 
-    setError(
-      humanError(err, err?.message || "Impossible de rejoindre.")
-    );
+    setError(joinGameMessage(err));
 
   } finally {
     setLoading(false);

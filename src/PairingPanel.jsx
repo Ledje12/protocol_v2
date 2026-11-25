@@ -3,13 +3,15 @@ import {
   useState,
 } from "react";
 
+import { cleanPairCode, groupPairCode, pairMessage } from "./joinErrors.js";
+
 /* lien partagé (…/?pair=CODE) : retenu dès le chargement, avant même
    la connexion, pour pré-remplir la saisie une fois sur l'accueil */
 const PAIR_KEY = "protocol_pair_code";
 try {
   const fromUrl = new URLSearchParams(window.location.search).get("pair");
   if (fromUrl && /^[A-Z0-9]{4,16}$/i.test(fromUrl)) {
-    localStorage.setItem(PAIR_KEY, fromUrl.toUpperCase());
+    localStorage.setItem(PAIR_KEY, cleanPairCode(fromUrl));
     const clean = new URL(window.location.href);
     clean.searchParams.delete("pair");
     window.history.replaceState(window.history.state, "", clean.pathname + clean.search + clean.hash);
@@ -107,9 +109,10 @@ export default function PairingPanel({
     event.preventDefault();
 
     const clean =
-      joinCode.trim().toUpperCase();
+      cleanPairCode(joinCode);
 
-    if (!clean) {
+    if (clean.length !== 10) {
+      setMessage("Le code fait 10 caractères (chiffres et lettres de A à F).");
       return;
     }
 
@@ -128,7 +131,7 @@ export default function PairingPanel({
 
     if (error || !data?.success) {
       console.error("PAIRING JOIN ERROR:", error);
-      setMessage("Code incorrect ou expiré.");
+      setMessage(pairMessage(error));
       return;
     }
 
@@ -143,7 +146,9 @@ export default function PairingPanel({
 
   const shareCode = async () => {
     const url = `${window.location.origin}/?pair=${code}`;
-    const text = `Mon code PROTOCOL : ${code}`;
+    const text =
+      "Rejoins-moi sur PROTOCOL : ouvre ce lien, crée ton compte, " +
+      `et nos deux téléphones seront associés. Code : ${groupPairCode(code)}`;
 
     try {
       if (navigator.share) {
@@ -180,7 +185,7 @@ export default function PairingPanel({
           </span>
 
           <strong>
-            {loading ? "······" : code || "—"}
+            {loading ? "······" : groupPairCode(code) || "—"}
           </strong>
 
           <small>
@@ -204,10 +209,10 @@ export default function PairingPanel({
           onSubmit={join}
         >
           <input
-            value={joinCode}
+            value={groupPairCode(joinCode)}
             onChange={(event) =>
               setJoinCode(
-                event.target.value.toUpperCase()
+                cleanPairCode(event.target.value)
               )
             }
             placeholder="Code de l’autre"
@@ -219,7 +224,7 @@ export default function PairingPanel({
           <button
             type="submit"
             className="primary"
-            disabled={loading || !joinCode.trim()}
+            disabled={loading || cleanPairCode(joinCode).length !== 10}
           >
             <span>
               {loading ? "Association…" : "Associer"}

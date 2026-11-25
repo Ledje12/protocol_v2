@@ -14,6 +14,8 @@ import { humanError } from "./networkError.js";
 export default function LobbyScreen({
   code,
   navigate,
+  // prénom du partenaire du couple : connu avant même qu'il rejoigne
+  couplePartnerName = null,
 }) {
   const [game, setGame] =
     useState(null);
@@ -262,9 +264,9 @@ export default function LobbyScreen({
       : game.player_2_name;
 
   const partnerName =
-    playerNumber === 1
+    (playerNumber === 1
       ? game.player_2_name
-      : game.player_1_name;
+      : game.player_1_name) || couplePartnerName;
 
   const connected =
     game.player_count === 2;
@@ -313,7 +315,7 @@ export default function LobbyScreen({
               ? playerNumber === 1
                 ? `${partnerName || "Ton partenaire"} a rejoint la partie.`
                 : `Tu as rejoint la partie ${deName(partnerName || "ton partenaire")}.`
-              : "L’autre la voit sur son accueil."}
+              : `${partnerName || "L’autre"} la voit sur son accueil.`}
           </p>
 
           {!connected && (

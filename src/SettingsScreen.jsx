@@ -16,6 +16,7 @@ import { playSound, setSoundsEnabled, soundsEnabled } from "./sounds.js";
 import { useDimLight } from "./dimLight.js";
 import { RELEASE } from "./release.js";
 import FeedbackSheet from "./FeedbackSheet.jsx";
+import { cleanPairCode, groupPairCode, pairMessage } from "./joinErrors.js";
 
 // type d'un jouet, même si le serveur ne l'a pas donné
 const toyKind = (toy) => {
@@ -1050,11 +1051,10 @@ export default function SettingsScreen({
     async () => {
 
       const cleanCode =
-        coupleJoinCode
-          .trim()
-          .toUpperCase();
+        cleanPairCode(coupleJoinCode);
 
-      if (!cleanCode) {
+      if (cleanCode.length !== 10) {
+        setCoupleMessage("Le code fait 10 caractères (chiffres et lettres de A à F).");
         return;
       }
 
@@ -1097,10 +1097,7 @@ export default function SettingsScreen({
           err
         );
 
-        setCoupleMessage(
-          err?.message ||
-          "Code incorrect ou expiré."
-        );
+        setCoupleMessage(pairMessage(err));
 
       } finally {
         setCoupleActionLoading(false);
@@ -2539,7 +2536,7 @@ export default function SettingsScreen({
                   </span>
 
                   <strong>
-                    {coupleInviteCode}
+                    {groupPairCode(coupleInviteCode)}
                   </strong>
 
                   <small>
@@ -2560,19 +2557,13 @@ export default function SettingsScreen({
                 <input
                   className="settings-code-input"
                   type="text"
-                  value={coupleJoinCode}
+                  value={groupPairCode(coupleJoinCode)}
                   onChange={(event) =>
                     setCoupleJoinCode(
-                      event.target.value
-                        .replace(
-                          /[^a-fA-F0-9]/g,
-                          ""
-                        )
-                        .toUpperCase()
-                        .slice(0, 10)
+                      cleanPairCode(event.target.value)
                     )
                   }
-                  maxLength={10}
+                  maxLength={11}
                   autoComplete="off"
                   placeholder="CODE PARTENAIRE"
                 />

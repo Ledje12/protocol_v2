@@ -14,6 +14,7 @@ import UnreadBadge from "./UnreadBadge.jsx";
 import { PhotoDayHomeNotice, usePhotoDay } from "./PhotoDay.jsx";
 import { AppLoadingScreen } from "./LoadingScreen.jsx";
 import { humanError } from "./networkError.js";
+import { isAlreadyInGame, joinGameMessage } from "./joinErrors.js";
 import { AdventHomeTile } from "./AdventTile.jsx";
 
 /* Mémoire de l'accueil le temps de la session : au retour sur
@@ -236,6 +237,20 @@ export default function HomeScreen({
 
   const [resumeHasUpdate, setResumeHasUpdate] =
     useState(homeCache.resume?.hasUpdate ?? false);
+
+  /* association qui vient de se faire (pendant cette visite) : un
+     bandeau confirme avec qui, pour qu'aucune erreur ne passe inaperçue */
+  const [pairedSeen, setPairedSeen] =
+    useState(hasPartner);
+  const [justPaired, setJustPaired] =
+    useState(false);
+
+  if (pairedSeen !== hasPartner) {
+    setPairedSeen(hasPartner);
+    if (hasPartner) {
+      setJustPaired(true);
+    }
+  }
 
   const [joinOpen, setJoinOpen] =
     useState(false);
@@ -630,15 +645,20 @@ export default function HomeScreen({
       );
 
     } catch (err) {
+      // sa propre partie : on l'y emmène au lieu d'une erreur
+      if (isAlreadyInGame(err)) {
+        saveGameSession(codeToJoin.toUpperCase(), 1);
+        setJoinOpen(false);
+        navigate(`/game/${codeToJoin.toUpperCase()}`);
+        return;
+      }
+
       console.error(
         "JOIN FROM HOME ERROR:",
         err
       );
 
-      setJoinError(
-        err?.message ||
-          "Impossible de rejoindre cette partie."
-      );
+      setJoinError(joinGameMessage(err));
 
     } finally {
       setJoinLoading(false);
@@ -936,6 +956,42 @@ export default function HomeScreen({
 
 
       <section className="protocol-home-dashboard">
+
+        {justPaired && hasPartner && (
+          <section
+            className="protocol-home-waiting protocol-home-paired"
+            aria-live="polite"
+          >
+            <div className="protocol-home-waiting-copy">
+              <span
+                className="protocol-diamond"
+                aria-hidden="true"
+              />
+
+              <p>
+                {partnerName ? (
+                  <>
+                    <em>{partnerName}</em> et toi, associés.
+                  </>
+                ) : (
+                  "Vous êtes associés."
+                )}
+              </p>
+
+              <small>
+                Parties, messages et signes passent maintenant de l’un à l’autre.
+              </small>
+            </div>
+
+            <button
+              type="button"
+              className="protocol-home-waiting-join"
+              onClick={() => setJustPaired(false)}
+            >
+              OK
+            </button>
+          </section>
+        )}
 
         {/* « Ce soir ? » reçu : petite enseigne et deux réponses */}
         {hasPartner && <TonightSign supabase={supabase} />}
