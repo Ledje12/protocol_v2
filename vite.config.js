@@ -68,6 +68,9 @@ export default defineConfig({
         globPatterns: [
           '**/*.{js,css,html,ico,png,svg,webp}',
         ],
+        // écrans de lancement iOS : un seul par appareil, lu par iOS
+        // à l'installation ; inutile de tous les mettre en cache
+        globIgnores: ['splash/**'],
       },
     }),
   ],
