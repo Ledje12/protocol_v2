@@ -9,3 +9,9 @@ export function splashUpdateChecked() {
 export function splashGone() {
   return !window.__protocolSplash || window.__protocolSplash.isGone();
 }
+
+// Une nouvelle version arrive : l'enseigne se fige allumée (sans
+// « ENTRER ») jusqu'au rechargement, qui la retrouve déjà allumée.
+export function splashHold() {
+  window.__protocolSplash?.hold?.();
+}
