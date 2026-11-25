@@ -3953,18 +3953,6 @@ button.envelope-card:not(:disabled) {
 
 
 /* ---------------------------------------------------------
-   56. MISE À JOUR DE L'APP : écran de chargement le temps du
-   rechargement (au lieu d'un saut visible)
-   --------------------------------------------------------- */
-
-.protocol-update-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
-
-
-/* ---------------------------------------------------------
    58. PHOTO DE CARTE : picto 📷 discret, à gauche des avis
    --------------------------------------------------------- */
 

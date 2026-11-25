@@ -22,45 +22,104 @@ installErrorLog();
 let refreshing = false;
 
 
+/* Une nouvelle version est prête pendant qu'on joue : on ne recharge
+   pas sous les yeux des joueurs. Elle s'applique quand l'app passe en
+   arrière-plan (écran caché), ou au retour après une longue absence. */
+let pendingReload = false;
+let hiddenAt = 0;
+
+const LONG_ABSENCE = 10 * 60 * 1000;
+
+// un texte en cours d'écriture, ou le retour attendu de Lovense
+// Remote (Réglages) : on ne recharge pas en arrière-plan
+const busyElsewhere = () =>
+  window.location.pathname.startsWith("/settings") ||
+  [...document.querySelectorAll("textarea, input[type=text]")].some(
+    (field) => field.value.trim() !== ""
+  );
+
+const reloadNow = (withLitSign) => {
+  if (refreshing) {
+    return;
+  }
+
+  refreshing = true;
+
+  if (withLitSign) {
+    // le néon de la page rechargée sera déjà allumé
+    splashHold();
+    try {
+      sessionStorage.setItem("protocol_splash_lit", "1");
+    } catch {
+      // sans stockage : le néon se rallume, sans gravité
+    }
+  }
+
+  window.setTimeout(() => window.location.reload(), 60);
+};
+
+
 if ("serviceWorker" in navigator) {
+
+  // toute première visite : le service worker prend la main sur une
+  // page déjà à jour, inutile de la recharger
+  let hadController = Boolean(navigator.serviceWorker.controller);
 
   navigator.serviceWorker.addEventListener(
     "controllerchange",
     () => {
 
-      if (refreshing) {
+      if (!hadController) {
+        hadController = true;
         return;
       }
 
-      refreshing = true;
-
-      // le néon de la page rechargée sera déjà allumé
-      splashHold();
-      try {
-        sessionStorage.setItem("protocol_splash_lit", "1");
-      } catch {
-        // sans stockage : le néon se rallume, sans gravité
+      // pendant le néon d'ouverture : rechargement derrière l'enseigne
+      if (!splashGone()) {
+        reloadNow(true);
+        return;
       }
 
-      // pendant le néon d'ouverture : rechargement invisible ; plus
-      // tard, on recharge derrière l'écran de chargement de l'app
-      if (splashGone()) {
-        const overlay = document.createElement("div");
-        overlay.className =
-          "protocol-auth-page protocol-loading-page protocol-update-overlay";
-        overlay.innerHTML =
-          '<div class="protocol-auth-glow"></div>' +
-          '<section class="protocol-loading">' +
-          '<span class="protocol-diamond protocol-loading-diamond" aria-hidden="true"></span>' +
-          "<p>Mise à jour…</p>" +
-          "</section>";
-        document.body.appendChild(overlay);
+      if (document.visibilityState === "hidden" && !busyElsewhere()) {
+        reloadNow(false);
+        return;
       }
 
-      window.setTimeout(() => window.location.reload(), 60);
+      pendingReload = true;
 
     }
   );
+
+  // au retour dans l'app (iOS la garde ouverte des jours) : on regarde
+  // s'il existe une version plus récente, sans rien montrer
+  let lastCheck = Date.now();
+
+  document.addEventListener("visibilitychange", () => {
+
+    if (document.visibilityState === "hidden") {
+      hiddenAt = Date.now();
+
+      if (pendingReload && !busyElsewhere()) {
+        reloadNow(false);
+      }
+
+      return;
+    }
+
+    if (pendingReload && hiddenAt && Date.now() - hiddenAt > LONG_ABSENCE) {
+      reloadNow(false);
+      return;
+    }
+
+    if (Date.now() - lastCheck > 5 * 60 * 1000) {
+      lastCheck = Date.now();
+      navigator.serviceWorker
+        .getRegistration()
+        .then((registration) => registration?.update())
+        .catch(() => {});
+    }
+
+  });
 
   /* À l'ouverture, on vérifie s'il existe une version plus récente
      pendant que l'enseigne grésille : si oui, elle s'installe et la
