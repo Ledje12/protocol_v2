@@ -4331,3 +4331,66 @@ button.envelope-card:disabled .envelope-wax {
     animation-duration: 0.01s;
   }
 }
+
+
+/* ---------------------------------------------------------
+   « Une idée, un souci ? » (FeedbackSheet)
+   --------------------------------------------------------- */
+
+.feedback-kinds {
+  display: flex;
+  gap: 8px;
+}
+
+.feedback-kinds button {
+  flex: 1 1 0;
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-text-soft);
+  font: inherit;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.feedback-kinds button.is-picked {
+  border-color: rgba(var(--c-accent-rgb), 0.7);
+  background: rgba(var(--c-accent-rgb), 0.12);
+  color: var(--c-text);
+}
+
+.feedback-field {
+  display: block;
+}
+
+.feedback-field textarea {
+  width: 100%;
+  min-height: 128px;
+  resize: none;
+  padding: 14px 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-control);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--c-text);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.feedback-field textarea::placeholder {
+  color: rgba(var(--c-text-rgb), 0.32);
+}
+
+.feedback-field textarea:focus {
+  border-color: rgba(var(--c-accent-rgb), 0.45);
+}
+
+.feedback-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--c-muted);
+}

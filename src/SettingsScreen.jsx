@@ -15,6 +15,7 @@ import { lovenseErrorText } from "./lovense.jsx";
 import { playSound, setSoundsEnabled, soundsEnabled } from "./sounds.js";
 import { useDimLight } from "./dimLight.js";
 import { RELEASE } from "./release.js";
+import FeedbackSheet from "./FeedbackSheet.jsx";
 
 // type d'un jouet, même si le serveur ne l'a pas donné
 const toyKind = (toy) => {
@@ -2415,6 +2416,12 @@ export default function SettingsScreen({
 
         <SettingsGroup title="Compte">
           <SettingsRow
+            label="Une idée, un souci ?"
+            hint="Écris-le ici : c’est lu, et ça fait avancer PROTOCOL."
+            onClick={() => setSheet("feedback")}
+          />
+
+          <SettingsRow
             label="Confidentialité"
             hint="Données intimes, photos chiffrées, majorité et tes droits."
             onClick={() => navigate("/privacy")}
@@ -2422,7 +2429,7 @@ export default function SettingsScreen({
 
           <SettingsRow
             label="Nous écrire"
-            hint="Une question, un souci, une demande sur tes données."
+            hint="Par email : une question ou une demande sur tes données."
             onClick={() => {
               window.location.href = "mailto:protocol.auth@gmail.com?subject=PROTOCOL";
             }}
@@ -2479,6 +2486,13 @@ export default function SettingsScreen({
             onClose={() =>
               setShowHowTo(false)
             }
+          />
+        )}
+
+        {sheet === "feedback" && (
+          <FeedbackSheet
+            supabase={supabase}
+            onClose={() => setSheet(null)}
           />
         )}
 

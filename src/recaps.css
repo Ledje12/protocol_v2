@@ -321,3 +321,10 @@
   min-height: 30px;
   padding: 0 8px;
 }
+
+/* « Une idée après cette soirée ? » : plus discret que le lien des cartes */
+.recap-feedback-link {
+  margin-top: 10px;
+  color: var(--c-text-soft);
+  font-size: 13px;
+}

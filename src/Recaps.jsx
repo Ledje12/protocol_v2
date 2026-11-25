@@ -4,6 +4,7 @@ import CardPhotos, { PHOTO_COLUMNS, cardKey } from "./CardPhotos.jsx";
 import CardRating from "./CardRating.jsx";
 import { BackIcon } from "./ScreenHeader.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
+import FeedbackSheet from "./FeedbackSheet.jsx";
 import { levelForIntensity } from "./gameConstants.js";
 
 /* « Nos soirées » : le souvenir de chaque partie terminée.
@@ -112,6 +113,7 @@ async function loadRecaps(supabase, gameId = null) {
 export function GameRecapHighlights({ supabase, gameId, finishedAt }) {
   const [recap, setRecap] = useState(null);
   const [showCards, setShowCards] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const refresh = useRatingRefresh(supabase, (recaps) =>
     setRecap((current) => recaps.find((item) => item.id === current?.id) || current)
   );
@@ -190,7 +192,15 @@ export function GameRecapHighlights({ supabase, gameId, finishedAt }) {
         Revoir les cartes et les noter →
       </button>
 
+      <button type="button" className="recap-cards-link recap-feedback-link" onClick={() => setShowFeedback(true)}>
+        Une idée après cette soirée ? Dis-le-moi →
+      </button>
+
       <p className="recap-note">Gardée dans Réglages → Nos soirées.</p>
+
+      {showFeedback && (
+        <FeedbackSheet supabase={supabase} gameId={gameId} onClose={() => setShowFeedback(false)} />
+      )}
 
       {showCards && (
         <SettingsSheet
