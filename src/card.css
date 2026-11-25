@@ -1394,3 +1394,40 @@
   color: var(--c-text);
   font-weight: 700;
 }
+
+/* =========================================================
+   INTENSITÉ MAX : tube néon rouge dans l'annonce d'une carte
+   de niveau 5 (éteint, il grésille, puis reste allumé)
+   ========================================================= */
+
+.card-reveal-max {
+  margin-top: 18px;
+  padding-left: 0.3em;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 59, 79, 0.3);
+  animation: revealMaxBuzz 1.5s 0.45s linear forwards;
+}
+
+@keyframes revealMaxBuzz {
+  0%, 10% { color: transparent; text-shadow: none; }
+  12%, 17% { color: #ff3b4f; -webkit-text-stroke-color: transparent; text-shadow: 0 0 10px rgba(255, 59, 79, 0.8); }
+  19%, 30% { color: transparent; -webkit-text-stroke-color: rgba(255, 59, 79, 0.3); text-shadow: none; }
+  32%, 36% { color: #ff3b4f; -webkit-text-stroke-color: transparent; }
+  38%, 44% { color: rgba(255, 59, 79, 0.4); text-shadow: none; }
+  46%, 100% {
+    color: #ff3b4f;
+    -webkit-text-stroke-color: transparent;
+    text-shadow: 0 0 10px rgba(255, 59, 79, 0.8), 0 0 30px rgba(255, 59, 79, 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-reveal-max {
+    animation: none;
+    color: #ff3b4f;
+    -webkit-text-stroke: 0;
+  }
+}
