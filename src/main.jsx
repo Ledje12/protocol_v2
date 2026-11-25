@@ -80,7 +80,6 @@ if ("serviceWorker" in navigator) {
       registration.installing || registration.waiting;
 
     if (incoming) {
-      splashHold();
       await new Promise((resolve) => {
         incoming.addEventListener("statechange", () => {
           if (incoming.state === "activated" || incoming.state === "redundant") {
