@@ -1132,7 +1132,15 @@ export default function HomeScreen({
               <button
                 type="button"
                 className="protocol-home-join-main"
+                disabled={joinLoading}
                 onClick={() => {
+                  // l'autre a déjà lancé une partie : on la rejoint
+                  // directement, sans redemander son code
+                  if (partnerGame) {
+                    joinGameFromHome(null, partnerGame.code);
+                    return;
+                  }
+
                   setJoinCode("");
                   setJoinError("");
                   setJoinOpen(true);
