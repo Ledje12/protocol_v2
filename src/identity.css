@@ -2397,6 +2397,47 @@ button.secondary {
   cursor: pointer;
 }
 
+/* code créé ou à saisir : l'accueil ne défile pas, on retire
+   l'explication déjà lue pour que tout tienne sous la photo */
+.pairing-panel.is-step {
+  gap: 10px;
+}
+
+.pairing-panel.is-step .pairing-copy,
+.pairing-panel.is-step h2 {
+  display: none;
+}
+
+.pairing-panel.is-step .pairing-code {
+  gap: 4px;
+  padding: 12px 14px;
+}
+
+.pairing-panel.is-step .pairing-code strong {
+  font-size: 30px;
+}
+
+.pairing-panel.is-step .pairing-code .pairing-share {
+  margin-top: 6px;
+}
+
+.pairing-panel.is-step .pairing-switch {
+  min-height: 34px;
+}
+
+/* petits écrans (iPhone SE dans Safari) : l'essentiel seulement */
+@media (max-height: 620px) {
+  .pairing-copy,
+  .pairing-panel.is-step .pairing-code small {
+    display: none;
+  }
+
+  .pairing-panel .primary,
+  .pairing-panel .secondary {
+    min-height: 46px;
+  }
+}
+
 .pairing-panel .error {
   margin: 0;
   text-align: center;

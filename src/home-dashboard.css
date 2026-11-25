@@ -1898,3 +1898,27 @@
     -webkit-text-stroke: 0;
   }
 }
+
+
+/* ---------- ÉCRANS BAS ----------
+   Dans Safari (barres visibles) ou sur un petit iPhone, tout ne tient
+   pas sous la photo : l'accueil défile plutôt que de couper
+   « Lui faire signe ». */
+
+@media (max-height: 760px) {
+  .protocol-home-page {
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .protocol-home-dashboard {
+    height: auto;
+    min-height:
+      calc(
+        100dvh -
+        66px -
+        env(safe-area-inset-bottom, 0px)
+      );
+  }
+}

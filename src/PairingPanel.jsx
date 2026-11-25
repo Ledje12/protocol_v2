@@ -159,7 +159,7 @@ export default function PairingPanel({
   };
 
   return (
-    <section className="pairing-panel">
+    <section className={`pairing-panel${mode ? " is-step" : ""}`}>
       <p className="pairing-kicker">
         AVANT DE JOUER
       </p>
