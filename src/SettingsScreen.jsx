@@ -2477,7 +2477,7 @@ export default function SettingsScreen({
           />
         </div>
 
-        <p className="settings-version">
+        <p className="settings-version" title="Version du 25 novembre">
           PROTOCOL <span>{RELEASE}</span>
         </p>
 
