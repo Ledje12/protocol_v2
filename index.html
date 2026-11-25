@@ -82,6 +82,12 @@
         animation: sp-buzz-c 3.1s 0.9s linear infinite;
       }
 
+      /* après le rechargement d'une mise à jour : le grésillement
+         continue là où il était, phase allumée */
+      #protocol-splash.is-again .sp-word { animation-delay: -1.6s; }
+      #protocol-splash.is-again .sp-neon { animation-delay: -1.7s; }
+      #protocol-splash.is-again .sp-tag { animation-delay: -1.9s; }
+
       /* allumé fixe, quand tout est prêt */
       #protocol-splash.is-ready .sp-word, #protocol-splash.is-ready .sp-neon {
         animation: none; color: #ff4d97; -webkit-text-stroke: 0;
@@ -159,9 +165,10 @@
         try { again = sessionStorage.getItem("protocol_splash_lit") === "1"; sessionStorage.removeItem("protocol_splash_lit"); } catch (e) {}
         var start = Date.now();
         var minimum = again ? 0 : 1300; // le temps de voir les tubes chauffer
-        // rechargée pour une mise à jour : l'enseigne était déjà allumée,
-        // elle le reste dès la première image (une seule enseigne à l'écran)
-        if (again) el.className += " is-ready";
+        // rechargée pour une mise à jour : les tubes reprennent leur
+        // grésillement en plein milieu, allumés, au lieu de repartir du
+        // noir (on ne voit pas l'enseigne se rallumer une seconde fois)
+        if (again) el.className += " is-again";
         var appReady = false, updateChecked = false, lit = false, gone = false;
 
         function leave() {
