@@ -127,14 +127,14 @@ export default function Opening({ partnerName, onClose }) {
                   <div className="opening-cats" aria-hidden="true">
                     <span>Bouche</span>
                     <span>Jouets</span>
-                    <span className="is-picked">Hors piste</span>
-                    <span>Dehors</span>
+                    <span className="is-picked">Anal</span>
+                    <span>Ailleurs</span>
                     <span>Liens</span>
-                    <span>Jeux de rôle</span>
+                    <span>Scénarios</span>
                   </div>
                   <div className="opening-card opening-desire">
                     <p className="opening-ribbon">
-                      ✦ Ton envie : <strong>Hors piste</strong>
+                      ✦ Ton envie : <strong>Anal</strong>
                     </p>
                     <h3>La carte qui suit</h3>
                     <p>Tirée dans le thème choisi, et {other} le sait.</p>
