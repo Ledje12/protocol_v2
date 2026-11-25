@@ -915,6 +915,7 @@ function App() {
       <LobbyScreen
         code={route.code}
         navigate={navigate}
+        couplePartnerName={couple?.partner?.display_name || null}
       />
     );
   }
