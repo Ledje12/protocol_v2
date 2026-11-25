@@ -304,7 +304,8 @@ export default function AuthScreen({ onAuthenticated }) {
                     {" "}
                     {email.trim().toLowerCase()}
                   </strong>.
-                  Il peut mettre quelques secondes à arriver.
+                  Il peut mettre quelques secondes à arriver : pense
+                  à regarder dans les indésirables.
                 </p>
 
               </div>
