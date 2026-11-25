@@ -129,7 +129,7 @@ export default function Opening({ partnerName, onClose }) {
                     <span>Jouets</span>
                     <span className="is-picked">Anal</span>
                     <span>Ailleurs</span>
-                    <span>Liens</span>
+                    <span>Sensations</span>
                     <span>Scénarios</span>
                   </div>
                   <div className="opening-card opening-desire">
