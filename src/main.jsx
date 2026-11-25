@@ -12,7 +12,7 @@ import "./tokens.css"; // passe 2 : couleurs et polices (source unique)
 import "./index.css";
 import "./identity.css"; // passe 2 : identité visuelle, chargée en dernier
 import "./dimLight.js"; // lumière tamisée appliquée dès le chargement
-import { splashGone, splashUpdateChecked } from "./splash.js";
+import { splashGone, splashHold, splashUpdateChecked } from "./splash.js";
 
 
 // erreurs de l'app notées dans Supabase (voir errorLog.js)
@@ -35,6 +35,7 @@ if ("serviceWorker" in navigator) {
       refreshing = true;
 
       // le néon de la page rechargée sera déjà allumé
+      splashHold();
       try {
         sessionStorage.setItem("protocol_splash_lit", "1");
       } catch {
@@ -79,6 +80,7 @@ if ("serviceWorker" in navigator) {
       registration.installing || registration.waiting;
 
     if (incoming) {
+      splashHold();
       await new Promise((resolve) => {
         incoming.addEventListener("statechange", () => {
           if (incoming.state === "activated" || incoming.state === "redundant") {

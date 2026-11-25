@@ -159,6 +159,9 @@
         try { again = sessionStorage.getItem("protocol_splash_lit") === "1"; sessionStorage.removeItem("protocol_splash_lit"); } catch (e) {}
         var start = Date.now();
         var minimum = again ? 0 : 1300; // le temps de voir les tubes chauffer
+        // rechargée pour une mise à jour : l'enseigne était déjà allumée,
+        // elle le reste dès la première image (une seule enseigne à l'écran)
+        if (again) el.className += " is-ready";
         var appReady = false, updateChecked = false, lit = false, gone = false;
 
         function leave() {
@@ -201,6 +204,9 @@
         window.__protocolSplash = {
           ready: function () { appReady = true; check(); },
           updateChecked: function () { updateChecked = true; check(); },
+          // mise à jour repérée : les tubes se figent allumés pendant
+          // qu'elle s'installe et que la page se recharge derrière
+          hold: function () { if (!gone && el.className.indexOf("is-ready") < 0) el.className += " is-ready"; },
           isGone: function () { return gone; }
         };
 
