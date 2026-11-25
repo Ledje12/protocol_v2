@@ -302,21 +302,25 @@ export default function LobbyScreen({
 
       <section className="lobby">
         <div className="code-card">
+          {/* les téléphones sont associés : l'autre voit la partie sur son
+              accueil. Le code ne sert plus qu'en secours, en petit. */}
           <p className="kicker">
-            VOTRE CODE
+            {connected ? "VOUS ÊTES DEUX" : "LA PARTIE EST LANCÉE"}
           </p>
 
-          <div className="game-code">
-            {code}
-          </div>
-
-          <p className="small-text">
+          <p className="lobby-headline">
             {connected
               ? playerNumber === 1
                 ? `${partnerName || "Ton partenaire"} a rejoint la partie.`
                 : `Tu as rejoint la partie ${deName(partnerName || "ton partenaire")}.`
-              : "L’autre la voit sur son accueil : un toucher sur « Rejoindre » suffit. Sinon, ce code."}
+              : "L’autre la voit sur son accueil."}
           </p>
+
+          {!connected && (
+            <p className="small-text">
+              Un toucher sur « Rejoindre » suffit.
+            </p>
+          )}
 
           <div
             className={
@@ -331,6 +335,12 @@ export default function LobbyScreen({
               ? "Vous êtes connectés"
               : "En attente de l’autre"}
           </div>
+
+          {!connected && (
+            <p className="lobby-fallback-code">
+              Si besoin, le code : <strong>{code}</strong>
+            </p>
+          )}
         </div>
 
         {!connected && (
