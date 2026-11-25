@@ -91,6 +91,12 @@ const SOUNDS = {
     note(c, 659.25, t + 0.12, { length: 0.9, volume: 0.07 });
     note(c, 783.99, t + 0.24, { length: 1.5, volume: 0.08 });
   },
+  // fin de partie : l'enseigne s'éteint, trois notes qui descendent
+  close: (c, t) => {
+    note(c, 392, t, { length: 1.2, volume: 0.06 });
+    note(c, 293.66, t + 0.5, { length: 1.4, volume: 0.06 });
+    note(c, 196, t + 1.1, { length: 2.2, volume: 0.07 });
+  },
   // fin du minuteur : cloche douce, deux fois
   timer: (c, t) => {
     note(c, 587.33, t, { length: 1.6, volume: 0.1, type: "triangle" });

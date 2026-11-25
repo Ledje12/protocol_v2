@@ -4,6 +4,7 @@ import { clearGameSession, getGameSession, getLastSeenCard, saveGameSession, sav
 import { hasSeenHowToPlay } from "./howto.js";
 import HowToPlay from "./HowToPlay.jsx";
 import Opening from "./Opening.jsx";
+import TonightSign from "./TonightSign.jsx";
 import { hasSeenRelease, markReleaseSeen } from "./release.js";
 import PairingPanel from "./PairingPanel.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
@@ -935,6 +936,9 @@ export default function HomeScreen({
 
 
       <section className="protocol-home-dashboard">
+
+        {/* « Ce soir ? » reçu : petite enseigne et deux réponses */}
+        {hasPartner && <TonightSign supabase={supabase} />}
 
         {/* =========================================
             LE PARTENAIRE ATTEND

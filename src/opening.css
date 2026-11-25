@@ -589,3 +589,120 @@
 .opening-intro.is-lit .opening-cta {
   animation-delay: 0.2s;
 }
+
+/* =========================================================
+   FERMETURE DU CLUB (ClubClosing.jsx) : l'enseigne allumée
+   s'éteint tube par tube, puis le mot de fin
+   ========================================================= */
+
+.club-closing {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px 40px;
+  background:
+    radial-gradient(ellipse at 50% 42%, rgba(var(--c-accent-rgb), 0.08), transparent 60%),
+    var(--c-bg);
+  color: var(--c-text);
+  text-align: center;
+  font-family: var(--font-serif);
+  transition: opacity 0.6s ease;
+  cursor: pointer;
+}
+
+.club-closing.is-leaving {
+  opacity: 0;
+}
+
+.club-word,
+.club-number,
+.club-tag {
+  margin: 0;
+}
+
+.club-word {
+  padding-left: 0.4em;
+  font-size: 24px;
+  letter-spacing: 0.4em;
+  color: #ffd6e7;
+  text-shadow: 0 0 8px rgba(var(--c-accent-rgb), 0.7), 0 0 26px rgba(var(--c-accent-rgb), 0.35);
+  animation: clubOffWord 1.3s 3.1s linear forwards;
+}
+
+.club-number {
+  margin-top: 4px;
+  font-size: min(150px, 36vw);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--c-accent);
+  text-shadow: 0 0 12px rgba(var(--c-accent-rgb), 0.55), 0 0 44px rgba(var(--c-accent-rgb), 0.28);
+  animation: clubOffNumber 1.5s 1.7s linear forwards;
+}
+
+.club-tag {
+  margin-top: 26px;
+  padding-left: 0.3em;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--c-duel);
+  text-shadow: 0 0 8px rgba(var(--c-duel-rgb), 0.55);
+  animation: clubOffTag 1.2s 0.7s linear forwards;
+}
+
+.club-bye {
+  margin: 40px 0 0;
+  font-size: 24px;
+  font-style: italic;
+  color: var(--c-text-soft);
+  opacity: 0;
+  animation: openingShow 1s 4.3s forwards;
+}
+
+.club-bye small {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-style: normal;
+  color: var(--c-muted);
+}
+
+@keyframes clubOffTag {
+  0%, 20% { color: var(--c-duel); text-shadow: 0 0 8px rgba(var(--c-duel-rgb), 0.55); }
+  22%, 30% { color: rgba(var(--c-duel-rgb), 0.2); text-shadow: none; }
+  32%, 40% { color: var(--c-duel); }
+  42%, 100% { color: rgba(var(--c-duel-rgb), 0.14); text-shadow: none; }
+}
+
+@keyframes clubOffNumber {
+  0%, 15% { }
+  17%, 24% { color: transparent; -webkit-text-stroke: 1px rgba(var(--c-accent-rgb), 0.3); text-shadow: none; }
+  26%, 40% { color: var(--c-accent); -webkit-text-stroke: 0; text-shadow: 0 0 12px rgba(var(--c-accent-rgb), 0.55); }
+  42%, 48% { color: rgba(var(--c-accent-rgb), 0.4); text-shadow: none; }
+  50%, 100% { color: transparent; -webkit-text-stroke: 1px rgba(var(--c-accent-rgb), 0.22); text-shadow: none; }
+}
+
+@keyframes clubOffWord {
+  0%, 25% { }
+  27%, 32% { color: transparent; -webkit-text-stroke: 1px rgba(var(--c-accent-rgb), 0.3); text-shadow: none; }
+  34%, 44% { color: #ffd6e7; -webkit-text-stroke: 0; }
+  46%, 100% { color: transparent; -webkit-text-stroke: 1px rgba(var(--c-accent-rgb), 0.22); text-shadow: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .club-word,
+  .club-number,
+  .club-tag,
+  .club-bye {
+    animation-duration: 0.01s;
+    animation-delay: 0s;
+  }
+}

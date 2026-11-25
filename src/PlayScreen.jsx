@@ -15,6 +15,7 @@ import { deName, fillNames } from "./personalise.js";
 import { NETWORK_MESSAGE, humanError } from "./networkError.js";
 import CardChoice from "./CardChoice.jsx";
 import { playSound } from "./sounds.js";
+import ClubClosing from "./ClubClosing.jsx";
 import { useDimLight } from "./dimLight.js";
 import { LovenseBanner, LovenseRemote, cardToyBanner, mergeCardToys, useLovenseToys } from "./lovense.jsx";
 
@@ -2113,6 +2114,8 @@ async function handleSceneRead() {
 
             <SealedSummary supabase={supabase} code={code} />
 
+            <ClubClosing gameId={game.id} />
+
 
             {/* =====================================
                 CARTE DE FIN
@@ -2642,9 +2645,14 @@ async function handleSceneRead() {
                 </span>
               ) : (
                 <span className="card-reveal-whisper">
-                  {card.intensity >= 5
-                    ? "INTENSITÉ MAX"
-                    : phaseLabels[game.phase]}
+                  {phaseLabels[game.phase]}
+                </span>
+              )}
+
+              {/* niveau 5 : un tube rouge qui grésille avant la carte */}
+              {card.intensity >= 5 && (
+                <span className="card-reveal-max">
+                  INTENSITÉ MAX
                 </span>
               )}
 

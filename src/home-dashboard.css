@@ -1811,3 +1811,90 @@
 .protocol-legal-section ul {
   padding-left: 20px;
 }
+/* =========================================================
+   « CE SOIR ? » REÇU : petite enseigne néon sur l'accueil
+   ========================================================= */
+
+.tonight-sign {
+  margin: 0 0 14px;
+  padding: 22px 16px 16px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.3);
+  border-radius: var(--r-card);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(var(--c-accent-rgb), 0.12), transparent 70%),
+    var(--c-surface);
+  text-align: center;
+}
+
+.tonight-sign-neon {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-style: italic;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(var(--c-accent-rgb), 0.25);
+  animation: tonightIgnite 1.8s 0.4s linear forwards;
+}
+
+@keyframes tonightIgnite {
+  0%, 12% { color: transparent; text-shadow: none; }
+  14%, 18% { color: var(--c-accent); -webkit-text-stroke-color: transparent; text-shadow: 0 0 10px rgba(var(--c-accent-rgb), 0.6); }
+  20%, 34% { color: transparent; -webkit-text-stroke-color: rgba(var(--c-accent-rgb), 0.3); text-shadow: none; }
+  36%, 40% { color: var(--c-accent); -webkit-text-stroke-color: transparent; }
+  42%, 46% { color: rgba(var(--c-accent-rgb), 0.4); text-shadow: none; }
+  48%, 100% {
+    color: var(--c-accent);
+    -webkit-text-stroke-color: transparent;
+    text-shadow: 0 0 12px rgba(var(--c-accent-rgb), 0.6), 0 0 36px rgba(var(--c-accent-rgb), 0.3);
+  }
+}
+
+.tonight-sign-from {
+  margin: 10px 0 0;
+  font-size: var(--fs-small);
+  color: var(--c-text-soft);
+}
+
+.tonight-sign-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.tonight-sign-actions button {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--c-text);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.tonight-sign-actions .tonight-yes {
+  border-color: var(--c-accent);
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+}
+
+.tonight-sign-actions button:disabled {
+  opacity: 0.6;
+}
+
+.tonight-sign-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--c-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tonight-sign-neon {
+    animation: none;
+    color: var(--c-accent);
+    -webkit-text-stroke: 0;
+  }
+}

@@ -205,6 +205,8 @@ export function EnvelopeReveal({ supabase, code, game }) {
   const [envelopes, setEnvelopes] = useState(null);
   const [opened, setOpened] = useState(0);
   const [closed, setClosed] = useState(() => wasSeen(game));
+  // sceau de cire en train de se briser (index de l'enveloppe)
+  const [breaking, setBreaking] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -283,11 +285,20 @@ export function EnvelopeReveal({ supabase, code, game }) {
               <button
                 key={envelope.player_no}
                 type="button"
-                className="envelope-card"
-                disabled={index !== opened}
-                onClick={() => setOpened(index + 1)}
+                className={breaking === index ? "envelope-card is-breaking" : "envelope-card"}
+                disabled={index !== opened || breaking !== null}
+                onClick={() => {
+                  setBreaking(index);
+                  window.setTimeout(() => {
+                    setOpened(index + 1);
+                    setBreaking(null);
+                  }, 820);
+                }}
               >
-                <span className="envelope-seal" aria-hidden="true">✦</span>
+                <span className="envelope-wax" aria-hidden="true">
+                  <i className="envelope-wax-left" />
+                  <i className="envelope-wax-right" />
+                </span>
                 <span className="envelope-from">
                   {mine(envelope) ? "Ton enveloppe" : <>Enveloppe de <em>{envelope.name}</em></>}
                 </span>

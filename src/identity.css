@@ -4212,3 +4212,81 @@ button.envelope-card:not(:disabled) {
   font-style: italic;
   color: var(--c-muted);
 }
+
+/* ---------------------------------------------------------
+   ENVELOPPES : sceau de cire rose marqué d'un P, qui se brise
+   en deux au toucher avant que la phrase n'apparaisse
+   --------------------------------------------------------- */
+
+.envelope-wax {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 4px;
+}
+
+.envelope-wax i {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff8cbc, #d42f74 55%, #7a1340);
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.envelope-wax i::after {
+  content: "P";
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-style: italic;
+  color: rgba(60, 5, 25, 0.55);
+}
+
+.envelope-wax-left {
+  clip-path: polygon(0 0, 52% 0, 44% 35%, 56% 60%, 46% 100%, 0 100%);
+}
+
+.envelope-wax-right {
+  clip-path: polygon(52% 0, 100% 0, 100% 100%, 46% 100%, 56% 60%, 44% 35%);
+}
+
+button.envelope-card:disabled .envelope-wax {
+  filter: grayscale(0.6) brightness(0.7);
+}
+
+.envelope-card.is-breaking {
+  opacity: 1 !important;
+}
+
+.envelope-card.is-breaking .envelope-wax-left {
+  animation: waxLeft 0.8s ease-in forwards;
+}
+
+.envelope-card.is-breaking .envelope-wax-right {
+  animation: waxRight 0.8s ease-in forwards;
+}
+
+.envelope-card.is-breaking .envelope-tap {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+@keyframes waxLeft {
+  0% { transform: none; }
+  15% { transform: translateX(-1px) rotate(-2deg); }
+  100% { transform: translate(-46px, 26px) rotate(-35deg); opacity: 0; }
+}
+
+@keyframes waxRight {
+  0% { transform: none; }
+  15% { transform: translateX(1px) rotate(2deg); }
+  100% { transform: translate(46px, 30px) rotate(40deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .envelope-card.is-breaking .envelope-wax-left,
+  .envelope-card.is-breaking .envelope-wax-right {
+    animation-duration: 0.01s;
+  }
+}
