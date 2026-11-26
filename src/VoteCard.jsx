@@ -12,11 +12,12 @@ import { playSound } from "./sounds.js";
 
 const SWIPE = 90;
 
-const seenKey = (gameId) => `protocol_vote_seen_${gameId}`;
+// un résultat « vu » par vote (deux votes par partie)
+const seenKey = (gameId, round) => `protocol_vote_seen_${gameId}_${round || 1}`;
 
-const wasSeen = (gameId) => {
+const wasSeen = (gameId, round) => {
   try {
-    return localStorage.getItem(seenKey(gameId)) === "1";
+    return localStorage.getItem(seenKey(gameId, round)) === "1";
   } catch {
     return false;
   }
@@ -46,7 +47,7 @@ export default function VoteCard({
   const [drag, setDrag] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [leaving, setLeaving] = useState(null);
-  const [seen, setSeen] = useState(() => wasSeen(gameId));
+  const [seen, setSeen] = useState(() => wasSeen(gameId, vote?.round));
   const dragStart = useRef(null);
   const soundPlayed = useRef(false);
 
@@ -109,7 +110,7 @@ export default function VoteCard({
 
   const close = () => {
     try {
-      localStorage.setItem(seenKey(gameId), "1");
+      localStorage.setItem(seenKey(gameId, vote.round), "1");
     } catch {
       // sans stockage : le résultat s'efface au tour suivant
     }
@@ -167,7 +168,9 @@ export default function VoteCard({
     if (!started && (singleDevice ? nobodyStarted : vote.mine === 0 && Object.keys(decided).length === 0)) {
       screen = (
         <section className="vote-screen" key="intro">
-          <p className="vote-kicker">OUI / NON</p>
+          <p className="vote-kicker">
+            {vote.round === 2 ? "OUI / NON · DEUXIÈME VOTE" : "OUI / NON"}
+          </p>
           <h2>
             {total === 5 ? "Cinq" : total} envies.
             <br />

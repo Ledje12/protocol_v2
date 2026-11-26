@@ -68,11 +68,12 @@ async function voteAll(couple, code, choose) {
   return rows;
 }
 
-test("le vote s'ouvre une fois, en milieu de partie, avec trois cartes pour l'un et deux pour l'autre", async () => {
+test("le premier vote s'ouvre vers le tiers de la partie, avec trois cartes pour l'un et deux pour l'autre", async () => {
   const { couple, code } = await voteGame();
   const g = await untilVote(couple, code);
 
-  assert.ok(g.vote_turn >= 8 && g.vote_turn <= 17, `tour ${g.vote_turn}`);
+  assert.ok(g.vote_turn >= 6 && g.vote_turn <= 9, `tour ${g.vote_turn}`);
+  assert.equal(g.vote_round, 1);
 
   const rows = await votes(g);
   assert.equal(rows.length, 5);
@@ -240,4 +241,36 @@ test("carte déjà aimée : chacun voit qui l'avait aimée ou adorée", async ()
     p_rating: "dislike",
   });
   assert.equal((await cardOf(couple.b, code)).liked.partner, null);
+});
+
+test("deux votes par partie : le second plus tard, avec ses propres cartes, puis plus aucun", async () => {
+  const { couple, code } = await voteGame();
+  const first = await untilVote(couple, code);
+  const firstCards = (await votes(first)).map((r) => String(r.card_id));
+  await voteAll(couple, code, () => true);
+
+  // l'envie du premier vote se joue, puis la partie continue jusqu'au second
+  await step(couple, code);
+  const second = await untilVote(couple, code);
+  assert.equal(second.vote_round, 2);
+  assert.ok(second.vote_turn >= 12 && second.vote_turn <= 16, `tour ${second.vote_turn}`);
+  assert.ok(second.vote_turn > first.vote_turn + 1);
+  assert.equal(second.vote_result, null);
+  assert.equal(second.vote_played_turn, null);
+
+  const secondCards = (await votes(second)).map((r) => String(r.card_id));
+  assert.equal(secondCards.filter((id) => firstCards.includes(id)).length, 0);
+
+  const view = await cardOf(couple.a, code);
+  assert.equal(view.vote.round, 2);
+
+  // aucun oui commun au second : la partie va au bout sans troisième vote
+  await voteAll(couple, code, (n) => n === 1);
+  for (let i = 0; i < 25; i += 1) {
+    const g = await game(code);
+    if (g.status !== "playing") break;
+    assert.notEqual(g.vote_status, "open");
+    assert.equal(g.vote_round, 2);
+    await step(couple, code);
+  }
 });
