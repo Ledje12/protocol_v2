@@ -3099,22 +3099,9 @@ button.secondary {
   border-color: rgba(var(--c-accent-rgb), 0.5);
 }
 
-.card-report .card-report-send {
-  width: auto;
-  min-height: 36px;
-  margin: 0;
-  padding: 6px 18px;
-  border: 1px solid rgba(var(--c-accent-rgb), 0.55);
-  border-radius: var(--r-pill);
-  background: transparent;
-  box-shadow: none;
-  color: var(--c-accent);
-  font: inherit;
-  font-size: 14px;
-}
-
-.card-report .card-report-send:disabled {
-  border-color: var(--c-line);
+.card-report .card-report-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
   color: var(--c-muted);
 }
 
