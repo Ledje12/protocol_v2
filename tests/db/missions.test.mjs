@@ -64,10 +64,11 @@ const missionOf = async (code, player) =>
     )
   )[0];
 
-test("désactivées par défaut : aucune mission", async () => {
+test("actives par défaut ; coupées côté serveur : aucune mission", async () => {
   const couple = await createCouple();
-  assert.equal(await rpc(couple.a, "get_protocol_missions_enabled"), false);
+  assert.equal(await rpc(couple.a, "get_protocol_missions_enabled"), true);
 
+  await rpc(couple.a, "set_protocol_missions_enabled", { p_enabled: false });
   const code = await startTwoPhoneGame(couple);
   const state = await mine(couple.a, code);
   assert.equal(state.enabled, false);
