@@ -61,7 +61,7 @@ async function sealedGame(intensity = [5, 5]) {
   throw new Error("aucune carte scellée en cinq parties");
 }
 
-test("une partie complète : au plus deux cartes scellées par joueur, à partir du 4e tour, des actions", async () => {
+test("une partie complète : une carte scellée par joueur, une dans chaque moitié, jamais d'affilée", async () => {
   const totals = [];
 
   for (let run = 0; run < 3; run += 1) {
@@ -81,18 +81,24 @@ test("une partie complète : au plus deux cartes scellées par joueur, à partir
     }
 
     const g = await game(code);
-    assert.ok(g.sealed_used_p1 <= 2 && g.sealed_used_p2 <= 2, "deux au plus par joueur");
+    assert.ok(g.sealed_used_p1 <= 1 && g.sealed_used_p2 <= 1, "une au plus par joueur");
     assert.equal(seen.length, g.sealed_used_p1 + g.sealed_used_p2);
     assert.equal(g.sealed_accepted, seen.length);
     for (const s of seen) {
       assert.ok(s.turn >= 4, `pas avant le 4e tour (${s.turn})`);
       assert.equal(s.type, "action");
     }
+    if (seen.length === 2) {
+      const half = Math.floor((4 + g.target_turns - 1) / 2);
+      assert.notEqual(seen[0].player, seen[1].player);
+      assert.ok(seen[0].turn <= half && seen[1].turn > half, `tours ${seen[0].turn}, ${seen[1].turn}`);
+      assert.ok(seen[1].turn - seen[0].turn >= 2, "jamais d'affilée");
+    }
     totals.push(seen.length);
   }
 
-  // la probabilité monte vers la fin : en pratique, presque toujours quatre
-  assert.ok(totals.some((n) => n >= 3), `cartes scellées par partie : ${totals.join(", ")}`);
+  // en pratique, deux par partie
+  assert.ok(totals.every((n) => n === 2), `cartes scellées par partie : ${totals.join(", ")}`);
 });
 
 test("tant qu'elle n'est pas acceptée, la carte est cachée aux deux joueurs et bloque le tour", async () => {
