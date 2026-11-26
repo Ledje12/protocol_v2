@@ -99,6 +99,10 @@ export async function createCouple() {
     [a.id]
   );
 
+  // la carte « Oui / Non » arrête la partie le temps du vote : coupée
+  // par défaut dans les tests, rallumée par ceux qui la testent
+  await rpc(a, "set_protocol_vote_enabled", { p_enabled: false });
+
   return { a, b, coupleId: couple_id };
 }
 

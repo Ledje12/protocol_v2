@@ -12,6 +12,7 @@ import { EnvelopeWriter } from "./Envelope.jsx";
 import { FinalReveals, SecretMission } from "./Missions.jsx";
 import { GameRecapHighlights } from "./Recaps.jsx";
 import { deName, fillNames } from "./personalise.js";
+import VoteCard from "./VoteCard.jsx";
 import { NETWORK_MESSAGE, humanError } from "./networkError.js";
 import CardChoice from "./CardChoice.jsx";
 import { playSound } from "./sounds.js";
@@ -2331,10 +2332,37 @@ async function handleSceneRead() {
     });
   }
 
+  // carte déjà aimée : qui l'avait aimée ou adorée
+  const likedLine = (() => {
+    const me = card?.liked?.me;
+    const partner = card?.liked?.partner;
+    const word = (rating) => (rating === "fire" ? "adorée" : "aimée");
+    if (me && partner) {
+      return `Vous l’aviez ${me === "fire" && partner === "fire" ? "adorée" : "aimée"}`;
+    }
+    if (partner) return `${partnerName} l’avait ${word(partner)}`;
+    if (me) return `Tu l’avais ${word(me)}`;
+    return null;
+  })();
+
   return (
     <main className="app play-page">
 
       <div className="glow glow-center" />
+
+      {/* carte « Oui / Non » : par-dessus la partie le temps du vote */}
+      {card?.vote && game.status === "playing" && (
+        <VoteCard
+          supabase={supabase}
+          code={code}
+          gameId={game.id}
+          vote={card.vote}
+          playerNumber={playerNumber}
+          names={{ 1: player1Name, 2: player2Name }}
+          sexes={{ 1: game.player_1_sex, 2: game.player_2_sex }}
+          onChanged={() => loadState().catch(() => {})}
+        />
+      )}
 
 
 
@@ -2788,6 +2816,20 @@ async function handleSceneRead() {
               }`
             }
           >
+
+          {card.vote_pick && !sealedPending && (
+            <p className="vote-pick-ribbon">
+              <i aria-hidden="true">✦</i>
+              Votre envie commune
+            </p>
+          )}
+
+          {likedLine && !sealedPending && !card.vote_pick && (
+            <p className="liked-ribbon">
+              <i aria-hidden="true">♥</i>
+              {likedLine}
+            </p>
+          )}
 
           {card.desire?.category && !sealedPending && (
             <p className="desire-ribbon">

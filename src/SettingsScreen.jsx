@@ -720,6 +720,53 @@ export default function SettingsScreen({
       };
     }, [coupleId]);
 
+    /* Carte « Oui / Non » (réglage du couple, active par défaut) */
+    const [voteEnabled, setVoteEnabled] =
+      useState(null);
+
+    useEffect(() => {
+      let active = true;
+
+      if (!coupleId) {
+        return undefined;
+      }
+
+      supabase
+        .rpc("get_protocol_vote_enabled")
+        .then(({ data, error }) => {
+          if (active && !error && typeof data === "boolean") {
+            setVoteEnabled(data);
+          }
+        });
+
+      return () => {
+        active = false;
+      };
+    }, [coupleId]);
+
+    const saveVote =
+      async (value) => {
+        const previous = voteEnabled;
+
+        setVoteEnabled(value);
+        setDirectorMessage("");
+
+        const { error } =
+          await supabase.rpc(
+            "set_protocol_vote_enabled",
+            { p_enabled: value }
+          );
+
+        if (error) {
+          console.error("VOTE SETTING ERROR:", error);
+          setVoteEnabled(previous);
+          setDirectorMessage("Impossible d’enregistrer ce réglage.");
+          return;
+        }
+
+        setDirectorMessage("Réglage enregistré.");
+      };
+
     const saveSealed =
       async (value) => {
         const previous = sealedEnabled;
@@ -2289,6 +2336,7 @@ export default function SettingsScreen({
                 [
                   envelopeEnabled && "Enveloppe",
                   sealedEnabled && "Cartes scellées",
+                  voteEnabled && "Oui / Non",
                   missionsEnabled && "Missions secrètes",
                 ]
                   .filter(Boolean)
@@ -2810,6 +2858,39 @@ export default function SettingsScreen({
                     retournée, un cran plus chaude. Tu l’acceptes sans la
                     lire et tu gagnes une envie, ou tu prends une carte
                     normale.
+                  </p>
+                </section>
+              )}
+
+              {voteEnabled !== null && (
+                <section className="mode-sheet-section">
+                  <h3>Oui / Non</h3>
+
+                  <div
+                    className="settings-segmented"
+                    role="group"
+                    aria-label="Oui / Non"
+                  >
+                    {[
+                      [true, "Oui"],
+                      [false, "Non"],
+                    ].map(([value, label]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-pressed={voteEnabled === value}
+                        className={voteEnabled === value ? "is-active" : undefined}
+                        onClick={() => saveVote(value)}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <p className="mode-sheet-hint">
+                    Une fois par partie, cinq cartes défilent : chacun dit
+                    oui ou non, en secret. Une envie commune est tirée et
+                    sort un peu plus tard. Sur deux téléphones seulement.
                   </p>
                 </section>
               )}
