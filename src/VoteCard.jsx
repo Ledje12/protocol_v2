@@ -33,9 +33,14 @@ export default function VoteCard({
   names,
   sexes,
   onChanged,
+  // un seul téléphone : chacun vote à son tour, en se le passant
+  singleDevice = false,
+  activePlayer = 1,
 }) {
   const [started, setStarted] = useState(false);
   const [decided, setDecided] = useState({});
+  // un seul téléphone : le joueur qui tient le téléphone a confirmé
+  const [holder, setHolder] = useState(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const [drag, setDrag] = useState(0);
@@ -58,7 +63,20 @@ export default function VoteCard({
     return null;
   }
 
-  const other = 3 - playerNumber;
+  const total = (vote.cards || []).length;
+  const countOf = (player) =>
+    (vote.cards || []).filter(
+      (card) => card[`voted_p${player}`] || decided[`${player}-${card.position}`] !== undefined
+    ).length;
+
+  // qui vote maintenant : sur un seul téléphone, celui qui a la main
+  // d'abord, puis l'autre ; sinon le propriétaire du téléphone
+  const voter = singleDevice
+    ? [activePlayer, 3 - activePlayer].find((player) => countOf(player) < total) || activePlayer
+    : playerNumber;
+  const viewer = singleDevice ? voter : playerNumber;
+
+  const other = 3 - viewer;
   const partnerName = names[other] || "l’autre";
 
   const render = (text, forPlayer) =>
@@ -67,20 +85,22 @@ export default function VoteCard({
       {
         active: names[forPlayer],
         partner: names[3 - forPlayer],
-        me: names[playerNumber],
+        me: names[viewer],
         other: names[other],
       },
       {
         active: sexes[forPlayer],
         partner: sexes[3 - forPlayer],
-        me: sexes[playerNumber],
+        me: sexes[viewer],
         other: sexes[other],
       }
     );
 
   const chip = (card) =>
     [
-      card.for_player === playerNumber ? "À TOI" : `À ${(names[card.for_player] || "").toUpperCase()}`,
+      !singleDevice && card.for_player === viewer
+        ? "À TOI"
+        : `À ${(names[card.for_player] || "").toUpperCase()}`,
       TYPE_LABELS[card.type] || "",
       card.intensity ? `NIVEAU ${card.intensity}` : "",
     ]
@@ -110,8 +130,9 @@ export default function VoteCard({
           <p>{render(match.prompt, match.for_player)}</p>
         </div>
         <p className="vote-note">
-          Elle sortira dans les tours qui viennent. Les autres, personne ne
-          saura qui les a refusées.
+          C’est la prochaine carte, pour{" "}
+          {!singleDevice && match.for_player === viewer ? "toi" : names[match.for_player]}.
+          Les autres, personne ne saura qui les a refusées.
         </p>
         <button type="button" className="vote-cta" onClick={close}>
           <span>On continue</span>
@@ -135,11 +156,15 @@ export default function VoteCard({
       </section>
     );
   } else {
-    const cards = (vote.cards || []).filter((card) => !card.voted && decided[card.position] === undefined);
+    const cards = (vote.cards || []).filter(
+      (card) =>
+        !(singleDevice ? card[`voted_p${voter}`] : card.voted) &&
+        decided[`${voter}-${card.position}`] === undefined
+    );
     const mineDone = cards.length === 0;
-    const total = (vote.cards || []).length;
+    const nobodyStarted = countOf(1) === 0 && countOf(2) === 0;
 
-    if (!started && vote.mine === 0 && Object.keys(decided).length === 0) {
+    if (!started && (singleDevice ? nobodyStarted : vote.mine === 0 && Object.keys(decided).length === 0)) {
       screen = (
         <section className="vote-screen" key="intro">
           <p className="vote-kicker">OUI / NON</p>
@@ -152,15 +177,37 @@ export default function VoteCard({
             {[0, 1, 2, 3, 4].map((i) => <i key={i} />)}
           </div>
           <p className="vote-copy">
-            Chacun sur son téléphone. À droite pour oui, à gauche pour non.
+            {singleDevice
+              ? "Chacun son tour, en secret : le téléphone passe de main en main. À droite pour oui, à gauche pour non."
+              : "Chacun sur son téléphone. À droite pour oui, à gauche pour non."}
           </p>
           <p className="vote-note">
             Si vous dites oui à la même, l’une d’elles sera tirée au hasard
-            et sortira plus tard dans la partie. Personne ne saura ce que
-            l’autre a refusé.
+            et sera la prochaine carte. Personne ne saura ce que l’autre a
+            refusé.
           </p>
           <button type="button" className="vote-cta" onClick={() => setStarted(true)}>
             <span>Commencer</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </section>
+      );
+    } else if (singleDevice && holder !== voter) {
+      // un seul téléphone : on le passe, l'autre ne regarde pas
+      screen = (
+        <section className="vote-screen vote-centered" key={`pass-${voter}`}>
+          <div className="vote-seal" aria-hidden="true">P</div>
+          <h2>
+            <em>{names[voter]}</em>,
+            <br />
+            prends le téléphone.
+          </h2>
+          <p className="vote-copy">
+            {names[3 - voter]}, ne regarde pas : ce qui suit n’est que pour{" "}
+            {names[voter]}.
+          </p>
+          <button type="button" className="vote-cta" onClick={() => setHolder(voter)}>
+            <span>Voir mes cinq cartes</span>
             <span aria-hidden="true">→</span>
           </button>
         </section>
@@ -191,11 +238,18 @@ export default function VoteCard({
         setError("");
         setLeaving(yes ? "yes" : "no");
 
-        const { error: rpcError } = await supabase.rpc("cast_protocol_vote", {
-          p_game_code: code,
-          p_position: top.position,
-          p_yes: yes,
-        });
+        const { error: rpcError } = singleDevice
+          ? await supabase.rpc("cast_protocol_vote_as", {
+              p_game_code: code,
+              p_player_no: voter,
+              p_position: top.position,
+              p_yes: yes,
+            })
+          : await supabase.rpc("cast_protocol_vote", {
+              p_game_code: code,
+              p_position: top.position,
+              p_yes: yes,
+            });
 
         setDrag(0);
         setLeaving(null);
@@ -206,7 +260,7 @@ export default function VoteCard({
           return;
         }
 
-        setDecided((current) => ({ ...current, [top.position]: yes }));
+        setDecided((current) => ({ ...current, [`${voter}-${top.position}`]: yes }));
         onChanged?.();
       };
 

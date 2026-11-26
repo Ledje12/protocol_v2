@@ -113,7 +113,7 @@ test("un vote est définitif, et l'autre ne voit que l'avancée, jamais les rép
   assert.equal(JSON.stringify(seenByB).includes("vote_p1"), false);
 });
 
-test("des oui communs : une seule carte, jouée plus tard au tour de son joueur", async () => {
+test("des oui communs : une seule carte, jouée au tour suivant par son joueur", async () => {
   const { couple, code } = await voteGame();
   const opened = await untilVote(couple, code);
   await voteAll(couple, code, () => true);
@@ -121,7 +121,7 @@ test("des oui communs : une seule carte, jouée plus tard au tour de son joueur"
   let g = await game(code);
   assert.equal(g.vote_status, "done");
   assert.equal(g.vote_result, "match");
-  assert.ok(g.vote_play_turn > opened.turn_no && g.vote_play_turn <= opened.turn_no + 4);
+  assert.equal(g.vote_play_turn, opened.turn_no + 1);
 
   // le résultat s'affiche le temps du tour du vote
   const reveal = await cardOf(couple.b, code);
@@ -129,20 +129,65 @@ test("des oui communs : une seule carte, jouée plus tard au tour de son joueur"
   assert.equal(reveal.vote.card.for_player, g.vote_for_player);
   assert.ok(reveal.prompt);
 
-  // la partie reprend ; l'envie commune arrive au tour prévu, pour son joueur
-  while (g.turn_no < g.vote_play_turn) {
-    await step(couple, code);
-    g = await game(code);
-  }
+  // la partie reprend : l'envie commune est la carte du tour suivant
+  await step(couple, code);
+  g = await game(code);
+  assert.equal(g.turn_no, opened.turn_no + 1);
   assert.equal(String(g.current_card_id), String(g.vote_card_id));
   assert.equal(g.active_player, g.vote_for_player);
   assert.equal((await cardOf(couple.a, code)).vote_pick, true);
 
-  // une seule fois
+  // une seule fois, puis l'alternance reprend
   await step(couple, code);
-  g = await game(code);
-  assert.equal(g.vote_played_turn, g.vote_play_turn);
+  const after = await game(code);
+  assert.equal(after.vote_played_turn, opened.turn_no + 1);
+  assert.equal(after.active_player, 3 - g.active_player);
   assert.equal((await cardOf(couple.a, code)).vote_pick, false);
+});
+
+test("envie pour celui qui vient de jouer : il garde la main pour ce tour", async () => {
+  const { couple, code } = await voteGame();
+  const opened = await untilVote(couple, code);
+  const mine = opened.active_player;
+  await voteAll(couple, code, (_, row) => row.for_player === mine);
+
+  await step(couple, code);
+  const g = await game(code);
+  assert.equal(g.active_player, mine);
+  assert.equal(String(g.current_card_id), String(g.vote_card_id));
+});
+
+test("un seul téléphone : chacun vote à son tour, en se passant le téléphone", async () => {
+  const couple = await createCouple();
+  await rpc(couple.a, "set_protocol_vote_enabled", { p_enabled: true });
+  const code = await rpc(couple.a, "create_single_device_game");
+  for (const player of [1, 2]) {
+    await rpc(couple.a, "submit_calibration_as", {
+      p_game_code: code, p_player_no: player, p_intensity: 5, p_answers: {},
+    });
+  }
+  await rpc(couple.a, "start_protocol", { p_game_code: code });
+
+  const opened = await untilVote(couple, code);
+  const rows = await votes(opened);
+
+  for (const player of [1, 2]) {
+    for (const row of rows) {
+      await rpc(couple.a, "cast_protocol_vote_as", {
+        p_game_code: code, p_player_no: player, p_position: row.position, p_yes: true,
+      });
+    }
+    const view = await cardOf(couple.a, code);
+    if (player === 1) {
+      assert.equal(view.vote.count_p1, rows.length);
+      assert.equal(view.vote.count_p2, 0);
+      assert.ok(view.vote.cards.every((c) => c.voted_p1 && !c.voted_p2));
+    }
+  }
+
+  const g = await game(code);
+  assert.equal(g.vote_result, "match");
+  assert.equal(g.vote_play_turn, opened.turn_no + 1);
 });
 
 test("aucun oui commun : rien n'est révélé, la partie continue", async () => {

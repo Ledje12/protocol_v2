@@ -2361,6 +2361,8 @@ async function handleSceneRead() {
           names={{ 1: player1Name, 2: player2Name }}
           sexes={{ 1: game.player_1_sex, 2: game.player_2_sex }}
           onChanged={() => loadState().catch(() => {})}
+          singleDevice={Boolean(singleDevice)}
+          activePlayer={game.active_player}
         />
       )}
 
