@@ -2890,7 +2890,7 @@ export default function SettingsScreen({
                   <p className="mode-sheet-hint">
                     Une fois par partie, cinq cartes défilent : chacun dit
                     oui ou non, en secret. Une envie commune est tirée et
-                    sort un peu plus tard. Sur deux téléphones seulement.
+                    devient la carte suivante.
                   </p>
                 </section>
               )}
