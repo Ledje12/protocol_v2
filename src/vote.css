@@ -1,0 +1,434 @@
+/* =========================================================
+   CARTE « OUI / NON » (VoteCard.jsx)
+   ========================================================= */
+
+.vote-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding:
+    max(22px, env(safe-area-inset-top))
+    max(22px, env(safe-area-inset-right))
+    max(26px, env(safe-area-inset-bottom))
+    max(22px, env(safe-area-inset-left));
+  overflow-y: auto;
+  color: var(--c-text);
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(var(--c-accent-rgb), 0.1), transparent 62%),
+    var(--c-bg);
+  animation: voteIn 0.45s ease both;
+}
+
+@keyframes voteIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.vote-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0 26px;
+}
+
+.vote-brand {
+  padding-left: 0.34em;
+  font-family: var(--font-serif);
+  font-size: 17px;
+  letter-spacing: 0.34em;
+}
+
+.vote-pill {
+  padding: 8px 14px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--c-text-soft);
+}
+
+.vote-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 460px;
+  width: 100%;
+  margin: 0 auto;
+  animation: voteIn 0.4s ease both;
+}
+
+.vote-centered {
+  text-align: center;
+}
+
+.vote-kicker {
+  margin: 0 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--c-accent);
+}
+
+.vote-screen h2 {
+  margin: 0 0 16px;
+  font-family: var(--font-serif);
+  font-size: clamp(34px, 10vw, 44px);
+  font-weight: 500;
+  line-height: 1.04;
+}
+
+.vote-screen h2 em {
+  color: #ffd6e7;
+}
+
+.vote-copy {
+  margin: 0 0 14px;
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--c-text-soft);
+}
+
+.vote-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--c-muted);
+}
+
+.vote-cta,
+.vote-ghost {
+  margin-top: auto;
+  min-height: 56px;
+  border-radius: 18px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vote-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  border: 0;
+  background: var(--c-accent);
+  color: #1a0710;
+  box-shadow: 0 10px 34px rgba(var(--c-accent-rgb), 0.38);
+}
+
+.vote-ghost {
+  border: 1px solid var(--c-line-strong);
+  background: transparent;
+  color: var(--c-text);
+}
+
+/* l'éventail des cinq cartes */
+.vote-fan {
+  position: relative;
+  height: 220px;
+  margin: 14px 0 22px;
+}
+
+.vote-fan i {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 140px;
+  height: 196px;
+  margin-left: -70px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.35);
+  border-radius: 18px;
+  background: linear-gradient(160deg, #24121c, #110a0f);
+}
+
+.vote-fan i::after {
+  content: "?";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-serif);
+  font-size: 50px;
+  font-style: italic;
+  color: rgba(var(--c-accent-rgb), 0.35);
+}
+
+.vote-fan i:nth-child(1) { transform: rotate(-16deg) translateX(-66px); }
+.vote-fan i:nth-child(2) { transform: rotate(-8deg) translateX(-34px); }
+.vote-fan i:nth-child(3) {
+  z-index: 2;
+  border-color: rgba(var(--c-accent-rgb), 0.7);
+  box-shadow: 0 0 30px rgba(var(--c-accent-rgb), 0.25);
+}
+.vote-fan i:nth-child(4) { transform: rotate(8deg) translateX(34px); }
+.vote-fan i:nth-child(5) { transform: rotate(16deg) translateX(66px); }
+
+/* le tri */
+.vote-progress {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 18px;
+}
+
+.vote-progress b {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--c-line-strong);
+}
+
+.vote-progress b.is-done {
+  background: var(--c-accent);
+}
+
+.vote-stack {
+  position: relative;
+  flex: 1;
+  min-height: 330px;
+  max-height: 440px;
+  margin: 4px 0 18px;
+}
+
+.vote-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 22px;
+  border: 1px solid rgba(255, 214, 231, 0.16);
+  border-radius: 26px;
+  background: linear-gradient(165deg, #1f1018 0%, #120a10 100%);
+  overflow: hidden;
+}
+
+.vote-card.is-back {
+  transform: translateY(14px) scale(0.95);
+  opacity: 0.55;
+}
+
+.vote-card.is-front {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(var(--c-accent-rgb), 0.35);
+}
+
+.vote-chip {
+  align-self: flex-start;
+  padding: 6px 11px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.55);
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--c-accent);
+}
+
+.vote-card h3,
+.vote-match h3 {
+  margin: 20px 0 12px;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.vote-card p,
+.vote-match p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 18.5px;
+  line-height: 1.42;
+  color: var(--c-text-soft);
+}
+
+.vote-stamp {
+  position: absolute;
+  right: 26px;
+  bottom: 40px;
+  padding: 5px 12px;
+  border: 2px solid currentColor;
+  border-radius: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  transform: rotate(-12deg);
+}
+
+.vote-stamp.is-yes {
+  color: var(--c-accent);
+  text-shadow: 0 0 14px rgba(var(--c-accent-rgb), 0.7);
+  box-shadow: 0 0 18px rgba(var(--c-accent-rgb), 0.35);
+}
+
+.vote-stamp.is-no {
+  right: auto;
+  left: 26px;
+  color: var(--c-muted);
+  transform: rotate(12deg);
+}
+
+.vote-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 34px;
+}
+
+.vote-round {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  font: inherit;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.vote-round.is-no {
+  border: 1px solid var(--c-line-strong);
+  background: transparent;
+  color: var(--c-text-soft);
+}
+
+.vote-round.is-yes {
+  border: 0;
+  background: var(--c-accent);
+  color: #1a0710;
+  box-shadow: 0 10px 30px rgba(var(--c-accent-rgb), 0.4);
+}
+
+.vote-round:disabled {
+  opacity: 0.6;
+}
+
+.vote-hint,
+.vote-error {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--c-muted);
+}
+
+.vote-error {
+  color: var(--c-accent-soft);
+}
+
+/* l'attente */
+.vote-seal {
+  display: grid;
+  place-items: center;
+  width: 116px;
+  height: 116px;
+  margin: 40px auto 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #ff7ab3, #b8185c 70%);
+  box-shadow: 0 0 50px rgba(var(--c-accent-rgb), 0.35);
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-style: italic;
+  color: #ffe3ef;
+}
+
+.vote-partner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 26px auto 0;
+  padding: 10px 16px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 999px;
+  font-size: 13.5px;
+  color: var(--c-text-soft);
+}
+
+.vote-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e3c08f;
+  box-shadow: 0 0 10px #e3c08f;
+  animation: voteBreathe 1.6s ease-in-out infinite;
+}
+
+@keyframes voteBreathe {
+  50% { opacity: 0.35; }
+}
+
+/* la révélation */
+.vote-match {
+  margin: 8px 0 20px;
+  padding: 24px 22px 26px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.6);
+  border-radius: 26px;
+  background: linear-gradient(165deg, #2a1220 0%, #140a11 100%);
+  box-shadow: 0 0 46px rgba(var(--c-accent-rgb), 0.28);
+  animation: voteMatch 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes voteMatch {
+  from { opacity: 0; transform: scale(0.92); box-shadow: none; }
+  to { opacity: 1; transform: none; }
+}
+
+.vote-ribbon {
+  display: block;
+  margin-bottom: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #e3c08f;
+}
+
+.vote-empty {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 50px 0 30px;
+}
+
+.vote-empty i {
+  width: 44px;
+  height: 62px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 10px;
+  background: #120a10;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vote-overlay,
+  .vote-screen,
+  .vote-match,
+  .vote-dot {
+    animation: none;
+  }
+}
+
+/* bandeaux sur la carte en partie : envie commune, carte déjà aimée */
+.vote-pick-ribbon,
+.liked-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.vote-pick-ribbon {
+  color: #e3c08f;
+}
+
+.liked-ribbon {
+  color: var(--c-accent-soft);
+}
+
+.vote-pick-ribbon i,
+.liked-ribbon i {
+  font-style: normal;
+}
