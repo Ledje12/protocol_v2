@@ -92,8 +92,8 @@ export default function Opening({ partnerName, onClose }) {
             <>
               <h2>Les cartes scellées.</h2>
               <p className="opening-copy">
-                Quatre fois par partie, une carte arrive retournée, plus
-                pimentée. Tu l’acceptes sans la lire… ou pas.
+                Une fois chacun par partie, une carte arrive retournée,
+                plus pimentée. Tu l’acceptes sans la lire… ou pas.
               </p>
               <div className="opening-stage">
                 <div className="opening-flip">

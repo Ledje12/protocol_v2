@@ -64,7 +64,7 @@ const STEPS = [
           <em>Un duel gagné ou une carte scellée acceptée t’en redonne une.</em>
         </p>
         <p>
-          Quatre fois par partie, une <strong>carte scellée</strong>{" "}
+          Une fois chacun par partie, une <strong>carte scellée</strong>{" "}
           arrive retournée, un cran plus chaude : tu l’acceptes sans la
           lire, ou tu prends une carte normale.
         </p>
