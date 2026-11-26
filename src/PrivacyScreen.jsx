@@ -147,6 +147,14 @@ export default function PrivacyScreen({
               </li>
 
               <li>
+                les messages envoyés depuis « Une idée,
+                un souci ? », avec ton prénom, la version
+                de l’app et, s’il vient de la fin d’une
+                partie, cette partie ; ils ne sont lus que
+                par celui qui fabrique PROTOCOL ;
+              </li>
+
+              <li>
                 les photos de l’album, chiffrées sur
                 l’appareil avant l’envoi ;
               </li>
