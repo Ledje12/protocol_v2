@@ -119,16 +119,18 @@ export default function CardRating({
     }
   };
 
-  const sendReport = async () => {
-    if (!reportReason || report === "sending") return;
+  // toucher un motif envoie le signalement (avec le mot, s'il y en a un)
+  const sendReport = async (reason) => {
+    if (!reason || report === "sending") return;
 
+    setReportReason(reason);
     setReport("sending");
     setReportError("");
 
     const { error } = await supabase.rpc("report_protocol_card", {
       p_card_source: cardSource,
       p_card_id: cardId,
-      p_reason: reportReason,
+      p_reason: reason,
       p_comment: reportComment.trim() || null,
     });
 
@@ -194,23 +196,6 @@ export default function CardRating({
         ) : (
           <>
             <p className="card-report-title">Qu’est-ce qui ne va pas ?</p>
-            <div className="card-report-reasons">
-              {REPORT_REASONS.map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={
-                    reportReason === value
-                      ? "card-report-reason is-active"
-                      : "card-report-reason"
-                  }
-                  aria-pressed={reportReason === value}
-                  onClick={() => setReportReason(value)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
             <textarea
               className="card-report-comment"
               rows={2}
@@ -219,15 +204,25 @@ export default function CardRating({
               value={reportComment}
               onChange={(event) => setReportComment(event.target.value)}
             />
+            <div className="card-report-reasons">
+              {REPORT_REASONS.map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={
+                    reportReason === value && report === "sending"
+                      ? "card-report-reason is-active"
+                      : "card-report-reason"
+                  }
+                  disabled={report === "sending"}
+                  onClick={() => sendReport(value)}
+                >
+                  {report === "sending" && reportReason === value ? "Envoi…" : label}
+                </button>
+              ))}
+            </div>
+            <p className="card-report-hint">Touche le motif : c’est envoyé.</p>
             {reportError && <p className="error">{reportError}</p>}
-            <button
-              type="button"
-              className="card-report-send"
-              disabled={!reportReason || report === "sending"}
-              onClick={sendReport}
-            >
-              {report === "sending" ? "Envoi…" : "Envoyer"}
-            </button>
           </>
         )}
       </div>
