@@ -3,7 +3,7 @@
    qui ouvre l'app Spotify ; la musique continue quand on revient. */
 
 // lien de partage de la playlist (open.spotify.com/playlist/…)
-export const PLAYLIST_URL = "";
+export const PLAYLIST_URL = "https://open.spotify.com/playlist/4we1AbznqBDBQKxcuJ24sf";
 
 export const hasPlaylist = () => PLAYLIST_URL.startsWith("https://");
 
