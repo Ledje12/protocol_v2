@@ -5,6 +5,7 @@ import { hasSeenHowToPlay } from "./howto.js";
 import HowToPlay from "./HowToPlay.jsx";
 import Opening from "./Opening.jsx";
 import TonightSign from "./TonightSign.jsx";
+import { MusicNote, PLAYLIST_URL, hasPlaylist } from "./music.jsx";
 import { hasSeenRelease, markReleaseSeen } from "./release.js";
 import PairingPanel from "./PairingPanel.jsx";
 import { SettingsSheet } from "./SettingsParts.jsx";
@@ -1431,28 +1432,25 @@ export default function HomeScreen({
             </button>
 
 
-            <button
-              type="button"
-              onClick={() =>
-                sendInvitation("tonight")
-              }
-              disabled={inviteLoading}
-            >
+            {hasPlaylist() && (
+              <a
+                href={PLAYLIST_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
 
-              <span className="protocol-home-icon-pink">
+                <span className="protocol-home-icon-pink">
 
-                <HomeIcon
-                  name="moon"
-                  size={28}
-                />
+                  <MusicNote size={26} />
 
-              </span>
+                </span>
 
-              <strong>
-                Ce soir ?
-              </strong>
+                <strong>
+                  Une ambiance{"\u00a0"}?
+                </strong>
 
-            </button>
+              </a>
+            )}
 
           </div>
 

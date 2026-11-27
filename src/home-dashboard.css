@@ -761,8 +761,12 @@
   gap: 9px;
 }
 
-.protocol-home-signal-grid button {
+.protocol-home-signal-grid button,
+.protocol-home-signal-grid a {
   min-width: 0;
+
+  text-decoration: none;
+  text-align: center;
 
   height: 78px;
 
@@ -1093,7 +1097,8 @@
     display: none;
   }
 
-  .protocol-home-signal-grid button {
+  .protocol-home-signal-grid button,
+  .protocol-home-signal-grid a {
     height: 68px;
   }
 

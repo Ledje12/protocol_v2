@@ -1075,7 +1075,8 @@ button.primary:disabled,
 }
 
 .protocol-home-nav button,
-.protocol-home-signal-grid button {
+.protocol-home-signal-grid button,
+.protocol-home-signal-grid a {
   height: var(--home-tile-h);
   padding: 10px 6px;
   gap: 10px;
@@ -1084,7 +1085,8 @@ button.primary:disabled,
 
 /* même taille d'icône en haut et en bas */
 .protocol-home-nav button svg,
-.protocol-home-signal-grid button svg {
+.protocol-home-signal-grid button svg,
+.protocol-home-signal-grid a svg {
   width: 24px;
   height: 24px;
 }
@@ -4105,6 +4107,38 @@ button.envelope-card:not(:disabled) {
   color: var(--c-muted);
   font-size: 18px;
   line-height: 1;
+}
+
+/* Ambiance : pastille discrète vers la playlist Spotify */
+.play-page .music-pill {
+  flex: none;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(var(--c-accent-rgb), 0.28);
+  border-radius: var(--r-pill);
+  background: rgba(var(--c-accent-rgb), 0.08);
+  color: var(--c-accent-soft);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.play-page .music-pill svg {
+  filter: drop-shadow(0 0 4px rgba(var(--c-accent-rgb), 0.6));
+}
+
+.play-page .music-pill + .dim-toggle {
+  margin-left: 0;
+}
+
+@media (max-width: 360px) {
+  .play-page .music-pill span:first-of-type {
+    display: none;
+  }
 }
 
 .play-page .dim-toggle[aria-pressed="true"] {

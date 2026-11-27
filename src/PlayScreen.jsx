@@ -19,6 +19,7 @@ import { playSound } from "./sounds.js";
 import ClubClosing from "./ClubClosing.jsx";
 import { useDimLight } from "./dimLight.js";
 import { LovenseBanner, LovenseRemote, cardToyBanner, mergeCardToys, useLovenseToys } from "./lovense.jsx";
+import { MusicPill } from "./music.jsx";
 
 /* =========================================================
    PLAY
@@ -2430,6 +2431,7 @@ async function handleSceneRead() {
           PROTOCOL
         </span>
 
+        <MusicPill />
 
         <button
           type="button"

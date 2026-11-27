@@ -43,7 +43,8 @@ body::after {
 /* ---------- Accueil : le néon reste au bouton principal ----------
    Navigation et signes : filet neutre, icônes champagne. */
 body .protocol-home-nav button,
-body .protocol-home-signal-grid button {
+body .protocol-home-signal-grid button,
+body .protocol-home-signal-grid a {
   border-color: var(--c-line-strong);
 }
 
